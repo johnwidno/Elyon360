@@ -1,0 +1,40 @@
+--- Diagnosing churches table indexes ---
+Found 4 indexes.
+INDEX_NAME: PRIMARY | COLUMN: id | UNIQUE: true
+INDEX_NAME: subdomain | COLUMN: subdomain | UNIQUE: true
+INDEX_NAME: customDomain | COLUMN: customDomain | UNIQUE: true
+INDEX_NAME: planId | COLUMN: planId | UNIQUE: false
+
+--- Columns ---
+COLUMN: id | TYPE: int(11) | KEY: PRI
+COLUMN: name | TYPE: varchar(255) | KEY: 
+COLUMN: acronym | TYPE: varchar(255) | KEY: 
+COLUMN: subdomain | TYPE: varchar(255) | KEY: UNI
+COLUMN: customDomain | TYPE: varchar(255) | KEY: UNI
+COLUMN: description | TYPE: text | KEY: 
+COLUMN: pastoralTeam | TYPE: longtext | KEY: 
+COLUMN: schedules | TYPE: longtext | KEY: 
+COLUMN: address | TYPE: varchar(255) | KEY: 
+COLUMN: city | TYPE: varchar(255) | KEY: 
+COLUMN: contactEmail | TYPE: varchar(255) | KEY: 
+COLUMN: contactPhone | TYPE: varchar(255) | KEY: 
+COLUMN: heroImageUrl | TYPE: varchar(255) | KEY: 
+COLUMN: missionTitle | TYPE: varchar(255) | KEY: 
+COLUMN: mission | TYPE: text | KEY: 
+COLUMN: missionImageUrl | TYPE: varchar(255) | KEY: 
+COLUMN: visionTitle | TYPE: varchar(255) | KEY: 
+COLUMN: vision | TYPE: text | KEY: 
+COLUMN: visionImageUrl | TYPE: varchar(255) | KEY: 
+COLUMN: values | TYPE: text | KEY: 
+COLUMN: valuesImageUrl | TYPE: varchar(255) | KEY: 
+COLUMN: recentActivities | TYPE: longtext | KEY: 
+COLUMN: socialLinks | TYPE: longtext | KEY: 
+COLUMN: supportedCurrencies | TYPE: longtext | KEY: 
+COLUMN: plan | TYPE: enum('monthly','yearly') | KEY: 
+COLUMN: status | TYPE: enum('active','inactive') | KEY: 
+COLUMN: subscriptionStartedAt | TYPE: datetime | KEY: 
+COLUMN: subscriptionExpiresAt | TYPE: datetime | KEY: 
+COLUMN: setupCompleted | TYPE: tinyint(1) | KEY: 
+COLUMN: createdAt | TYPE: datetime | KEY: 
+COLUMN: updatedAt | TYPE: datetime | KEY: 
+COLUMN: planId | TYPE: int(11) | KEY: MUL

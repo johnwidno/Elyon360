@@ -1,0 +1,328 @@
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider';
+import DarkModeToggle from '../components/DarkModeToggle';
+import { useLanguage } from '../context/LanguageContext';
+
+const AdminLayout = ({ children }) => {
+    const { logout, user } = useAuth();
+    const { t, language, toggleLanguage } = useLanguage();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    const [openMenus, setOpenMenus] = useState({});
+
+    const toggleMenu = (name) => {
+        setOpenMenus(prev => ({ ...prev, [name]: !prev[name] }));
+    };
+
+    const isSettingsPage = location.pathname === '/admin/settings';
+    const showSetupModal = user && !user.setupCompleted && !isSettingsPage && user.role === 'admin';
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    const navigation = [
+        {
+            name: t('dashboard'),
+            href: '/admin',
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="9"></rect>
+                    <rect x="14" y="3" width="7" height="5"></rect>
+                    <rect x="14" y="11" width="7" height="10"></rect>
+                    <rect x="3" y="15" width="7" height="6"></rect>
+                </svg>
+            )
+        },
+        {
+            name: t('contacts'),
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+            ),
+            permission: 'members',
+            children: [
+                { name: t('overview', "Vue d'ensemble"), href: '/admin/contacts' },
+                { name: t('members'), href: '/admin/members' },
+                { name: t('visitors'), href: '/admin/visitors' },
+                { name: t('organizations'), href: '/admin/organizations' },
+            ]
+        },
+        {
+            name: t('events'),
+            href: '/admin/events',
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            ),
+            permission: 'events'
+        },
+        {
+            name: t('groups'),
+            href: '/admin/groups',
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            ),
+            permission: 'groups'
+        },
+        {
+            name: t('finances'),
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+            ),
+            permission: 'finances',
+            children: [
+                { name: t('income'), href: '/admin/finances' },
+                { name: t('expenses'), href: '/admin/expenses' },
+
+                { name: t('budgets'), href: '/admin/budgets' },
+                { name: t('accounts_and_treasury', 'Comptes & Trésorerie'), href: '/admin/finances/accounts' },
+            ]
+        },
+        {
+            name: t('sunday_school'),
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+            ),
+            permission: 'sunday-school',
+            children: [
+                { name: t('overview'), href: '/admin/sunday-school' },
+                { name: t('classes'), href: '/admin/sunday-school/classes' },
+                { name: t('monitors', 'Moniteurs'), href: '/admin/sunday-school/monitors' },
+            ]
+        },
+        {
+            name: t('inventory'),
+            href: '/admin/inventory',
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            ),
+            permission: 'inventory'
+        },
+        {
+            name: t('ceremonies'),
+            href: '/admin/ceremonies',
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                    <line x1="16" y1="8" x2="2" y2="22"></line>
+                    <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                </svg>
+            ),
+            permission: 'ceremonies'
+        },
+        {
+            name: t('settings'),
+            href: '/admin/settings',
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            ),
+            permission: 'settings'
+        },
+    ].filter(item => {
+        const userRoles = Array.isArray(user.role) ? user.role : [user.role];
+        if (!item.permission) return true;
+        if (userRoles.includes('admin') || userRoles.includes('super_admin')) return true;
+        return user?.permissions?.includes(item.permission);
+    });
+
+    return (
+        <div className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+            {/* Sidebar */}
+            <aside className={`${sidebarOpen ? 'w-[280px]' : 'w-24'} bg-white dark:bg-[#1A1A1A] text-gray-900 dark:text-white transition-all duration-300 ease-in-out flex flex-col border-r border-gray-100 dark:border-white/5 z-20 shadow-sm`}>
+                <div className="p-8 flex flex-col relative shrink-0">
+                    <div className={`${!sidebarOpen && 'opacity-0 pointer-events-none'} transition-all duration-300 overflow-hidden`}>
+                        <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wider mb-1">{t('elyonsys_360', 'ELYONSYS 360')}</p>
+                        <h1 className="font-bold text-2xl tracking-tight text-gray-900 dark:text-white">
+                            {user?.churchAcronym || 'EDM'}
+                        </h1>
+                        {user?.churchName && (
+                            <p className="text-[11px] text-gray-500 font-medium truncate" title={user.churchName}>
+                                {user.churchName}
+                            </p>
+                        )}
+                    </div>
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
+                        <svg className={`w-4 h-4 transition-transform duration-300 ${sidebarOpen ? '' : 'rotate-180'}`} fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <nav className="flex-1 overflow-y-auto py-8 px-6 noscrollbar">
+                    <ul className="space-y-3">
+                        {navigation.map((item) => {
+                            const isActive = location.pathname === item.href || (item.children && item.children.some(child => location.pathname === child.href));
+
+                            if (item.children) {
+                                const isOpen = openMenus[item.name];
+
+                                return (
+                                    <li key={item.name} className="space-y-2">
+                                        <button
+                                            onClick={() => toggleMenu(item.name)}
+                                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold'
+                                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 font-medium'
+                                                }`}
+                                        >
+                                            <div className="flex items-center">
+                                                <div className={`${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-600 group-hover:text-indigo-600'} transition-colors`}>
+                                                    {item.icon}
+                                                </div>
+                                                <span className={`${!sidebarOpen && 'hidden'} ml-3.5 text-sm`}>{item.name}</span>
+                                            </div>
+                                            {sidebarOpen && (
+                                                <svg className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-400' : 'text-gray-300 dark:text-gray-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            )}
+                                        </button>
+
+                                        {sidebarOpen && isOpen && (
+                                            <ul className="mt-2 ml-6 space-y-2 border-l-2 border-gray-50 dark:border-white/5 pl-4 py-2 transition-all animate-slide-down">
+                                                {item.children.map(child => {
+                                                    const isChildActive = location.pathname === child.href;
+                                                    return (
+                                                        <li key={child.name}>
+                                                            <Link
+                                                                to={child.href}
+                                                                className={`flex items-center px-6 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ${isChildActive
+                                                                    ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-black border border-blue-100/50 dark:border-white/5 shadow-sm'
+                                                                    : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-white/5'
+                                                                    }`}
+                                                            >
+                                                                <span>{child.name}</span>
+                                                            </Link>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
+                                    </li>
+                                );
+                            }
+
+                            return (
+                                <li key={item.name}>
+                                    <Link
+                                        to={item.href}
+                                        className={`flex items-center px-5 py-3.5 rounded-2xl transition-all duration-300 group ${isActive
+                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 dark:shadow-none font-semibold'
+                                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 font-medium'
+                                            }`}
+                                    >
+                                        <div className={`${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-600 group-hover:text-blue-600'} transition-colors`}>
+                                            {item.icon}
+                                        </div>
+                                        <span className={`${!sidebarOpen && 'hidden'} ml-4 text-[14px] tracking-tight`}>{item.name}</span>
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
+
+                <div className="p-8 border-t border-gray-100 dark:border-white/5 shrink-0">
+                    <button onClick={handleLogout} className="flex items-center w-full px-5 py-4 text-gray-400 dark:text-gray-600 hover:text-red-500 transition-all rounded-[1.5rem] hover:bg-red-50 dark:hover:bg-red-900/20 group">
+                        <div className="transition-transform group-hover:rotate-12">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </div>
+                        <span className={`${!sidebarOpen && 'hidden'} ml-4 font-semibold text-[13px] tracking-tight`}>{t('logout', 'Déconnexion')}</span>
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-[#0D0D0D] transition-colors duration-500">
+                {/* Top Header */}
+                <header className="bg-white/80 dark:bg-black/80 backdrop-blur-xl z-[90] transition-all duration-500 py-6 px-12 border-b border-gray-100 dark:border-white/5 shrink-0">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-6">
+                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-3 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-2xl transition-all active:scale-95 shadow-sm">
+                                <svg className={`w-5 h-5 transition-transform duration-500 ${sidebarOpen ? '' : 'rotate-180'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <h2 className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                                {t('admin')} / <span className="text-gray-900 dark:text-white">{location.pathname.split('/').pop()}</span>
+                            </h2>
+                        </div>
+                        <div className="flex items-center space-x-10">
+                            {/* Language Toggle */}
+                            <div className="flex items-center p-1.5 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl shadow-sm">
+                                <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${language === 'fr' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
+                                <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${language === 'en' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
+                            </div>
+
+                            <div className="p-1 px-3 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl shadow-sm">
+                                <DarkModeToggle />
+                            </div>
+
+                            <div className="flex items-center gap-4 group cursor-pointer">
+                                <div className="text-right hidden sm:block">
+                                    <div className="text-[14px] font-semibold text-gray-900 dark:text-white tracking-tight leading-none group-hover:text-blue-600 transition-colors">{user?.firstName || t('admin')}</div>
+                                    <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400 mt-1.5">{user?.role?.[0] ? t(user.role[0].toLowerCase(), user.role[0]) : t('administrator')}</div>
+                                </div>
+                                <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-black border-2 border-transparent dark:border-white/5 group-hover:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xl shadow-sm transition-all group-hover:scale-110 group-hover:rotate-3">
+                                    {user?.firstName ? user.firstName[0] : 'A'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Page Content */}
+                <main className="flex-1 overflow-y-auto p-12 relative flex flex-col text-gray-900 dark:text-gray-100 noscrollbar transition-colors bg-white dark:bg-[#0D0D0D]">
+                    {showSetupModal && (
+                        <div className="absolute inset-0 z-[150] bg-gray-900/60 dark:bg-black/90 backdrop-blur-3xl flex items-center justify-center p-12 transition-all">
+                            <div className="bg-white dark:bg-[#080808] rounded-[4rem] shadow-2xl border border-transparent dark:border-white/5 p-20 max-w-2xl w-full text-center animate-scale-in transition-colors">
+                                <div className="text-7xl mb-12 bg-gray-50 dark:bg-black w-32 h-32 flex items-center justify-center rounded-[2.5rem] mx-auto scale-110 shadow-sm border border-transparent dark:border-white/5">🏗️</div>
+                                <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mb-6 leading-none transition-colors">{t('configuration_required', 'Configuration Requise')}</h2>
+                                <p className="text-gray-400 dark:text-gray-600 font-semibold tracking-wide leading-loose mb-14 text-sm transition-colors">
+                                    {t('setup_msg', 'Votre compte nécessite une configuration initiale pour accéder à toutes les fonctionnalités.')}
+                                </p>
+                                <Link
+                                    to="/admin/settings"
+                                    className="block w-full bg-indigo-600 text-white font-bold text-[14px] tracking-wide py-6 rounded-3xl hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 dark:shadow-none active:scale-95"
+                                >
+                                    {t('setup_btn', 'Commencer la configuration')}
+                                </Link>
+                            </div>
+                        </div>
+                    )}
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
+};
+
+export default AdminLayout;

@@ -1,0 +1,177 @@
+{
+  "structure": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": null,
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "eventId",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "userId",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "UNI",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "organizationId",
+      "Type": "int(11)",
+      "Null": "YES",
+      "Key": "MUL",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('confirmed','interested','invited')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "confirmed",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "datetime",
+      "Null": "NO",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "datetime",
+      "Null": "NO",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "guestName",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "guestEmail",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "guestPhone",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "guestIp",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "notes",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    }
+  ],
+  "indexes": [
+    {
+      "Table": "event_participants",
+      "Non_unique": 0,
+      "Key_name": "PRIMARY",
+      "Seq_in_index": 1,
+      "Column_name": "id",
+      "Collation": "A",
+      "Cardinality": 2,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": ""
+    },
+    {
+      "Table": "event_participants",
+      "Non_unique": 0,
+      "Key_name": "event_participants_eventId_userId_unique",
+      "Seq_in_index": 1,
+      "Column_name": "userId",
+      "Collation": "A",
+      "Cardinality": 2,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "YES",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": ""
+    },
+    {
+      "Table": "event_participants",
+      "Non_unique": 0,
+      "Key_name": "event_participants_eventId_organizationId_unique",
+      "Seq_in_index": 1,
+      "Column_name": "eventId",
+      "Collation": "A",
+      "Cardinality": 2,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": ""
+    },
+    {
+      "Table": "event_participants",
+      "Non_unique": 0,
+      "Key_name": "event_participants_eventId_organizationId_unique",
+      "Seq_in_index": 2,
+      "Column_name": "organizationId",
+      "Collation": "A",
+      "Cardinality": 2,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "YES",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": ""
+    },
+    {
+      "Table": "event_participants",
+      "Non_unique": 1,
+      "Key_name": "organizationId",
+      "Seq_in_index": 1,
+      "Column_name": "organizationId",
+      "Collation": "A",
+      "Cardinality": 2,
+      "Sub_part": null,
+      "Packed": null,
+      "Null": "YES",
+      "Index_type": "BTREE",
+      "Comment": "",
+      "Index_comment": ""
+    }
+  ]
+}

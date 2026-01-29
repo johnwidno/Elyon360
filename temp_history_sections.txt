@@ -1,0 +1,88 @@
+                    </Accordion>
+
+                    {/* Historique destatut */}
+                    <Accordion 
+                        title={t('status_history', 'Historique de statut')} 
+                        icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                    >
+                        <div className="space-y-4">
+                            {historyLoading ? (
+                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest animate-pulse">{t('loading')}</div>
+                            ) : history.statusHistory && history.statusHistory.length > 0 ? (
+                                history.statusHistory.map((h, idx) => (
+                                    <div key={idx} className="bg-gray-50/50 dark:bg-black/20 p-6 rounded-2xl border border-gray-100 dark:border-white/5">
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <p className="text-sm font-black text-[#2B3674] dark:text-white">
+                                                    {new Date(h.changeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}
+                                                </p>
+                                                <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+                                                    {t(h.status?.toLowerCase().replace(/ /g, '_')) || h.status}
+                                                </p>
+                                                {h.changedBy && (
+                                                    <p className="text-[11px] font-bold text-gray-400 tracking-widest mt-2">
+                                                        {t('modified_by', 'Modifié par')}
+                                                        <br />
+                                                        <span className="text-gray-600 dark:text-gray-300">
+                                                            {h.changedBy.firstName} {h.changedBy.lastName}
+                                                        </span>
+                                                    </p>
+                                                )}
+                                                {h.notes && h.notes !== 'Status update' && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{h.notes}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">
+                                    {t('no_status_history', 'Aucun historique de statut')}
+                                </div>
+                            )}
+                        </div>
+                    </Accordion>
+
+                    <Accordion 
+                        title={t('category_history', 'Historique de catégorie')} 
+                        icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>}
+                    >
+                        <div className="space-y-4">
+                            {historyLoading ? (
+                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest animate-pulse">{t('loading')}</div>
+                            ) : history.categoryHistory && history.categoryHistory.length > 0 ? (
+                                history.categoryHistory.map((h, idx) => (
+                                    <div key={idx} className="bg-gray-50/50 dark:bg-black/20 p-6 rounded-2xl border border-gray-100 dark:border-white/5">
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <p className="text-sm font-black text-[#2B3674] dark:text-white">
+                                                    {new Date(h.changeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}
+                                                </p>
+                                                <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+                                                    {h.subtype?.name || h.baptismalStatus || h.memberCategory?.name || t('unknown', 'Inconnu')}
+                                                </p>
+                                                {h.changedBy && (
+                                                    <p className="text-[11px] font-bold text-gray-400 tracking-widest mt-2">
+                                                        {t('modified_by', 'Modifié par')}
+                                                        <br />
+                                                        <span className="text-gray-600 dark:text-gray-300">
+                                                            {h.changedBy.firstName} {h.changedBy.lastName}
+                                                        </span>
+                                                    </p>
+                                                )}
+                                                {h.notes && !h.notes.includes('update') && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{h.notes}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">
+                                    {t('no_category_history', 'Aucun historique de catégorie')}
+                                </div>
+                            )}
+                        </div>
+                    </Accordion>
+
+                    {/* ROW 7: Historique classe école du dimanche | Historique des groupes */}
