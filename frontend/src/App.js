@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from "./context/ThemeContext";
 import Home from "./pages/Public/Home";
 import Login from "./pages/Public/Login";
@@ -75,6 +76,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
+        <Analytics />
         <Routes>
           {/* Routes Publiques */}
           <Route path="/" element={subdomain ? <ChurchPublicHome subdomain={subdomain} /> : <Home />} />
