@@ -1,11 +1,58 @@
 const db = require('../models');
+const roomScheduler = require('../services/roomScheduler');
+
+// Helper to get next date for a day name
+const getNextDateForDay = (dayName) => {
+    const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const targetIndex = days.indexOf(dayName.toLowerCase());
+    if (targetIndex === -1) return new Date().toISOString().split('T')[0]; // Default to today if invalid
+
+    const d = new Date();
+    const currentDay = d.getDay();
+    let diff = targetIndex - currentDay;
+    if (diff <= 0) diff += 7; // Next occurrence
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
+};
 
 // Create Group
 exports.createGroup = async (req, res) => {
     try {
         if (!req.church) return res.status(400).json({ message: "Contexte manquant." });
 
-        const { name, description, type, leaderId, leaderName, meetingDay, meetingTime } = req.body;
+        const { name, description, type, leaderId, leaderName, roomId, recurringSchedule, logo, charter } = req.body;
+
+        // Check Conflict for Recurring Schedule
+        if (roomId && recurringSchedule) {
+            let schedule = recurringSchedule;
+            if (typeof schedule === 'string') {
+                try { schedule = JSON.parse(schedule); } catch (e) { }
+            }
+
+            if (schedule && schedule.day && schedule.startTime && schedule.endTime) {
+                // Time Validation
+                if (schedule.startTime >= schedule.endTime) {
+                    return res.status(400).json({ message: "L'heure de début doit être antérieure à l'heure de fin." });
+                }
+
+                const checkDate = getNextDateForDay(schedule.day);
+                const availability = await roomScheduler.checkRoomAvailability({
+                    churchId: req.church.id,
+                    roomId,
+                    date: checkDate,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime,
+                    type: 'group'
+                });
+
+                if (!availability.available) {
+                    return res.status(409).json({
+                        message: `La salle est déjà occupée le ${schedule.day} sur ce créneau par : ${availability.conflict.details.name || availability.conflict.details.title}.`,
+                        conflict: availability.conflict
+                    });
+                }
+            }
+        }
 
         const group = await db.Group.create({
             churchId: req.church.id,
@@ -13,8 +60,10 @@ exports.createGroup = async (req, res) => {
             description,
             type,
             leaderName,
-            meetingDay,
-            meetingTime
+            roomId: roomId || null,
+            recurringSchedule,
+            logo,
+            charter
         });
 
         // If a leader was selected, automatically add them as first member
@@ -53,7 +102,7 @@ exports.getAllGroups = async (req, res) => {
                             SELECT COUNT(*)
                             FROM group_members AS gm
                             WHERE
-                                gm.groupId = group.id
+                                gm."groupId" = "group"."id"
                         )`),
                         'memberCount'
                     ]
@@ -73,11 +122,45 @@ exports.getAllGroups = async (req, res) => {
 exports.updateGroup = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, type, status, leaderName, meetingDay, meetingTime } = req.body;
+        const { name, description, type, status, leaderName, roomId, recurringSchedule, logo, charter } = req.body;
 
         const group = await db.Group.findOne({ where: { id: id, churchId: req.church.id } });
 
         if (!group) return res.status(404).json({ message: "Groupe non trouvé." });
+
+        // Check Conflict for Recurring Schedule Update
+        if (roomId && recurringSchedule) {
+            let schedule = recurringSchedule;
+            if (typeof schedule === 'string') {
+                try { schedule = JSON.parse(schedule); } catch (e) { }
+            }
+
+            // Only check if schedule/room allows it
+            if (schedule && schedule.day && schedule.startTime && schedule.endTime) {
+                // Time Validation
+                if (schedule.startTime >= schedule.endTime) {
+                    return res.status(400).json({ message: "L'heure de début doit être antérieure à l'heure de fin." });
+                }
+
+                const checkDate = getNextDateForDay(schedule.day);
+                const availability = await roomScheduler.checkRoomAvailability({
+                    churchId: req.church.id,
+                    roomId,
+                    date: checkDate,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime,
+                    excludeId: id,
+                    type: 'group'
+                });
+
+                if (!availability.available) {
+                    return res.status(409).json({
+                        message: `La salle est déjà occupée le ${schedule.day} sur ce créneau par : ${availability.conflict.details.name || availability.conflict.details.title}.`,
+                        conflict: availability.conflict
+                    });
+                }
+            }
+        }
 
         await group.update({
             name,
@@ -85,8 +168,10 @@ exports.updateGroup = async (req, res) => {
             type,
             status,
             leaderName,
-            meetingDay,
-            meetingTime
+            roomId: roomId || null,
+            recurringSchedule,
+            logo,
+            charter
         });
 
         res.json({ message: "Groupe mis à jour.", group });
@@ -118,12 +203,19 @@ exports.getGroupMembers = async (req, res) => {
         const { id } = req.params;
         const group = await db.Group.findOne({
             where: { id, churchId: req.church.id },
-            include: [{
-                model: db.User,
-                as: 'groupMembers',
-                attributes: ['id', 'firstName', 'lastName', 'email', 'photo', 'phone', 'memberCode'],
-                through: { attributes: ['role', 'joinedAt', 'status', 'statusChangedAt'] }
-            }]
+            include: [
+                {
+                    model: db.User,
+                    as: 'groupMembers',
+                    attributes: ['id', 'firstName', 'lastName', 'email', 'photo', 'phone', 'memberCode'],
+                    through: { attributes: ['role', 'joinedAt', 'status', 'statusChangedAt'] }
+                },
+                {
+                    model: db.Room,
+                    as: 'room',
+                    include: [{ model: db.Building, as: 'building', attributes: ['name'] }]
+                }
+            ]
         });
 
         if (!group) return res.status(404).json({ message: "Groupe non trouvé." });

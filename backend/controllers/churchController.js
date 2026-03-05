@@ -38,9 +38,10 @@ exports.updateChurchSettings = async (req, res) => {
         const {
             name, acronym, description,
             address, city, contactEmail, contactPhone,
-            heroImageUrl, missionTitle, mission, missionImageUrl, visionTitle, vision, visionImageUrl, values, valuesImageUrl, recentActivities, socialLinks,
+            logoUrl, heroImageUrl, missionTitle, mission, missionImageUrl, visionTitle, vision, visionImageUrl, values, valuesImageUrl, recentActivities, socialLinks,
 
-            schedules, pastoralTeam, supportedCurrencies, donationTypes, paymentMethods, setupCompleted
+            schedules, pastoralTeam, supportedCurrencies, donationTypes, paymentMethods, setupCompleted,
+            pastorName, churchEmail
         } = req.body;
 
         const church = await db.Church.findByPk(churchId);
@@ -51,8 +52,9 @@ exports.updateChurchSettings = async (req, res) => {
         await church.update({
             name, acronym, description,
             address, city, contactEmail, contactPhone,
-            heroImageUrl, missionTitle, mission, missionImageUrl, visionTitle, vision, visionImageUrl, values, valuesImageUrl, recentActivities, socialLinks,
+            logoUrl, heroImageUrl, missionTitle, mission, missionImageUrl, visionTitle, vision, visionImageUrl, values, valuesImageUrl, recentActivities, socialLinks,
             schedules, pastoralTeam,
+            pastorName, churchEmail,
             supportedCurrencies, // redundantly save to JSON
             setupCompleted: setupCompleted !== undefined ? setupCompleted : church.setupCompleted
         });

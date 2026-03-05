@@ -5,6 +5,7 @@ import SearchableSelect from '../../../../components/SearchableSelect';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import AlertModal from '../../../../components/ChurchAlertModal';
 
 export default function ActivityModal({ activity, onClose, onSave, onAddParticipant, onRemoveParticipant, onUpdateParticipant, members, initialTab = 'details' }) {
     const { t } = useLanguage();
@@ -38,6 +39,7 @@ export default function ActivityModal({ activity, onClose, onSave, onAddParticip
     const [selectedMemberToAdd, setSelectedMemberToAdd] = useState('');
     const [addMode, setAddMode] = useState('member'); // member, guest
     const [guestData, setGuestData] = useState({ guestName: '', guestEmail: '', guestPhone: '' });
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
 
     useEffect(() => {
         if (activity) {
@@ -290,7 +292,7 @@ export default function ActivityModal({ activity, onClose, onSave, onAddParticip
                                                     onClick={() => {
                                                         const url = `${window.location.origin}/public/register/${activity.registrationToken}`;
                                                         navigator.clipboard.writeText(url);
-                                                        alert(t('link_copied', 'Lien copié !'));
+                                                        setAlertMessage({ show: true, title: t('success'), message: t('link_copied', 'Lien copié !'), type: 'success' });
                                                     }}
                                                     className="px-2 py-1 bg-white dark:bg-black/20 rounded border border-blue-200 dark:border-blue-800 text-[10px] font-bold"
                                                 >
@@ -527,6 +529,13 @@ export default function ActivityModal({ activity, onClose, onSave, onAddParticip
                     </div>
                 </div>
             </div>
+            <AlertModal
+                isOpen={alertMessage.show}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+            />
         </div >
     );
 }

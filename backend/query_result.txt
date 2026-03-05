@@ -1,0 +1,2 @@
+DATABASE ERROR DETECTED:
+Cannot read properties of null (reading 'toJSON')

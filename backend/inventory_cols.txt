@@ -1,0 +1,16 @@
+Table: inventory_items
+Field: id | Type: int(11)
+Field: churchId | Type: int(11)
+Field: name | Type: varchar(255)
+Field: description | Type: text
+Field: quantity | Type: int(11)
+Field: category | Type: varchar(255)
+Field: location | Type: varchar(255)
+Field: status | Type: enum('bon_etat','reparer','hors_service','perdu')
+Field: createdAt | Type: datetime
+Field: updatedAt | Type: datetime
+Field: roomId | Type: int(11)
+Field: isShared | Type: tinyint(1)
+Field: quantity_available | Type: int(11)
+Field: categoryId | Type: int(11)
+Field: managerId | Type: int(11)

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../../layouts/AdminLayout';
 import api from '../../../api/axios';
 import AlertModal from '../../../components/ChurchAlertModal';
+import ConfirmModal from '../../../components/ConfirmModal';
 import { useLanguage } from '../../../context/LanguageContext';
 import * as XLSX from 'xlsx';
 
@@ -17,7 +18,10 @@ export default function SundaySchoolClasses() {
     const [searchTerm, setSearchTerm] = useState('');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
     const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
+    const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
     const [memberCategories, setMemberCategories] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [rooms, setRooms] = useState([]);
 
     const [form, setForm] = useState({
         name: '',
@@ -28,8 +32,12 @@ export default function SundaySchoolClasses() {
         baptismalStatus: 'any',
         memberCategoryId: '',
         gender: 'any',
-        activeOnly: false,
-        isDynamic: true
+        memberStatus: 'any',
+        isDynamic: true,
+        monitorId: '',
+        monitorRole: 'monitor',
+        roomId: '',
+        recurringSchedule: { day: '', startTime: '', endTime: '', description: '' }
     });
 
     const fetchClasses = async () => {
@@ -45,15 +53,25 @@ export default function SundaySchoolClasses() {
 
     useEffect(() => {
         fetchClasses();
-        const fetchCategories = async () => {
+
+        const fetchData = async () => {
             try {
-                const res = await api.get('/member-categories');
-                setMemberCategories(res.data);
+                // Fetch member-categories (NOT contact subtypes) — the sunday_schools FK points to member_categories
+                const [catsRes, membersRes, roomsRes] = await Promise.all([
+                    api.get('/member-categories'),
+                    api.get('/members'),
+                    api.get('/logistics/rooms')
+                ]);
+
+                setMemberCategories(catsRes.data);
+                setMembers(membersRes.data);
+                setRooms(roomsRes.data);
             } catch (err) {
-                console.error("Error fetching categories", err);
+                console.error("Error fetching form data", err);
             }
         };
-        fetchCategories();
+
+        fetchData();
     }, []);
 
     const handleExportExcel = () => {
@@ -90,6 +108,21 @@ export default function SundaySchoolClasses() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Time Validation
+        const rs = form.recurringSchedule;
+        if (rs && rs.startTime && rs.endTime) {
+            if (rs.startTime >= rs.endTime) {
+                setAlertMessage({
+                    show: true,
+                    title: t('validation_error', 'Erreur de validation'),
+                    message: t('start_time_before_end', 'L\'heure de début doit être antérieure à l\'heure de fin.'),
+                    type: 'error'
+                });
+                return;
+            }
+        }
+
         try {
             if (editId) {
                 await api.put(`/sunday-school/classes/${editId}`, form);
@@ -98,24 +131,36 @@ export default function SundaySchoolClasses() {
                 await api.post('/sunday-school/classes', form);
                 setAlertMessage({ show: true, title: t('success'), message: t('class_created_success'), type: 'success' });
             }
+            fetchClasses();
             setShowModal(false);
-            fetchClasses();
+            setEditId(null);
+            setForm({
+                name: '',
+                description: '',
+                minAge: '',
+                maxAge: '',
+                maritalStatus: 'any',
+                baptismalStatus: 'any',
+                memberCategoryId: '',
+                gender: 'any',
+                memberStatus: 'any',
+                isDynamic: true,
+                monitorId: '',
+                monitorRole: 'monitor',
+                recurringSchedule: { day: '', startTime: '', endTime: '', description: '' }
+            });
         } catch (error) {
-            setAlertMessage({ show: true, title: t('error'), message: t('operation_error'), type: 'error' });
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!window.confirm(t('confirm_delete', 'Voulez-vous vraiment supprimer cette classe ?'))) return;
-        try {
-            await api.delete(`/sunday-school/classes/${id}`);
-            fetchClasses();
-        } catch (error) {
-            setAlertMessage({ show: true, title: t('error'), message: t('delete_error'), type: 'error' });
+            console.error("Submit error:", error);
+            setAlertMessage({ show: true, title: t('error'), message: error.response?.data?.message || t('error_occurred'), type: 'error' });
         }
     };
 
     const handleEdit = (cls) => {
+        let rs = cls.recurringSchedule;
+        if (typeof rs === 'string') {
+            try { rs = JSON.parse(rs); } catch (e) { rs = { day: '', startTime: '', endTime: '' }; }
+        }
+
         setEditId(cls.id);
         setForm({
             name: cls.name,
@@ -126,8 +171,48 @@ export default function SundaySchoolClasses() {
             baptismalStatus: cls.baptismalStatus,
             memberCategoryId: cls.memberCategoryId || '',
             gender: cls.gender,
-            activeOnly: cls.activeOnly,
-            isDynamic: cls.isDynamic
+            memberStatus: cls.memberStatus || 'any',
+            isDynamic: cls.isDynamic,
+            monitorId: cls.teacherId || '',
+            monitorRole: 'monitor', // Default role for class form
+            roomId: cls.roomId || '',
+            recurringSchedule: rs || { day: '', startTime: '', endTime: '', description: '' }
+        });
+        setShowModal(true);
+    };
+
+    const handleDelete = (id) => {
+        setConfirmState({
+            isOpen: true,
+            title: t('delete_class', 'Supprimer la classe'),
+            message: t('confirm_delete_class', 'Voulez-vous vraiment supprimer cette classe ?'),
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/sunday-school/classes/${id}`);
+                    setAlertMessage({ show: true, title: t('success'), message: t('class_deleted_success', 'Classe supprimée avec succès'), type: 'success' });
+                    fetchClasses();
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    setAlertMessage({ show: true, title: t('error'), message: t('error_delete_class', 'Erreur lors de la suppression'), type: 'error' });
+                }
+                setConfirmState(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+    const openModal = () => {
+        setEditId(null);
+        setForm({
+            name: '',
+            description: '',
+            minAge: '',
+            maxAge: '',
+            maritalStatus: 'any',
+            baptismalStatus: 'any',
+            memberCategoryId: '',
+            gender: 'any',
+            activeOnly: false,
+            isDynamic: true
         });
         setShowModal(true);
     };
@@ -144,7 +229,9 @@ export default function SundaySchoolClasses() {
             memberCategoryId: '',
             gender: 'any',
             activeOnly: false,
-            isDynamic: true
+            isDynamic: true,
+            roomId: '',
+            recurringSchedule: { day: '', startTime: '', endTime: '', description: '' }
         });
     };
 
@@ -261,25 +348,35 @@ export default function SundaySchoolClasses() {
                                 >
                                     <span className="text-gray-400 group-hover/members:text-indigo-500 transition-colors">{t('members')}</span>
                                     <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                                        <span>{cls.classMembers?.length || 0}</span>
+                                        <span>{cls.classMembers?.filter(m => m.sunday_school_member?.level === 'Actuel').length || 0}</span>
                                         <svg className="w-3 h-3 translate-y-[0.5px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
                                     </div>
                                 </div>
                                 <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider px-2">
                                     <span className="text-gray-400">{t('criteria', 'Critères')}</span>
                                     <div className="flex flex-col items-end gap-1">
-                                        <span className="text-gray-600 dark:text-gray-300">
+                                        <span className="text-gray-600 dark:text-gray-300 font-bold">
                                             {cls.isDynamic ? `${cls.minAge || 0}-${cls.maxAge || '+'} ans` : t('manual', 'Manuel')}
                                         </span>
                                         <div className="flex flex-wrap justify-end gap-1 mt-1">
                                             {cls.gender !== 'any' && (
-                                                <span className="text-[9px] bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded text-gray-500 uppercase tracking-tighter">
+                                                <span className="text-[9px] bg-indigo-50 dark:bg-indigo-900/10 text-indigo-500 px-2 py-0.5 rounded uppercase font-bold">
                                                     {t(cls.gender)}
                                                 </span>
                                             )}
-                                            {cls.activeOnly && (
-                                                <span className="text-[9px] bg-green-50 dark:bg-green-900/10 px-2 py-0.5 rounded text-green-600 dark:text-green-400 uppercase tracking-tighter font-bold">
-                                                    {t('active_only', 'Actifs')}
+                                            {cls.maritalStatus !== 'any' && (
+                                                <span className="text-[9px] bg-purple-50 dark:bg-purple-900/10 text-purple-500 px-2 py-0.5 rounded uppercase font-bold">
+                                                    {t(cls.maritalStatus)}
+                                                </span>
+                                            )}
+                                            {(cls.memberCategoryId || (cls.baptismalStatus !== 'any' && !cls.memberCategoryId)) && (
+                                                <span className="text-[9px] bg-blue-50 dark:bg-blue-900/10 text-blue-500 px-2 py-0.5 rounded uppercase font-bold">
+                                                    {cls.admissionCategory?.name || (cls.baptismalStatus !== 'any' ? t(cls.baptismalStatus) : t('category'))}
+                                                </span>
+                                            )}
+                                            {cls.memberStatus !== 'any' && (
+                                                <span className="text-[9px] bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 px-2 py-0.5 rounded uppercase font-bold">
+                                                    {cls.memberStatus}
                                                 </span>
                                             )}
                                         </div>
@@ -298,7 +395,6 @@ export default function SundaySchoolClasses() {
                                 <th className="px-8 py-6">{t('age_group')}</th>
                                 <th className="px-8 py-6">{t('criteria', 'Critères')}</th>
                                 <th className="px-8 py-6">{t('members')}</th>
-                                <th className="px-8 py-6">{t('status')}</th>
                                 <th className="px-8 py-6 text-right">{t('actions')}</th>
                             </tr>
                         </thead>
@@ -333,7 +429,10 @@ export default function SundaySchoolClasses() {
                                             {cls.maritalStatus !== 'any' && (
                                                 <span className="text-[9px] bg-purple-50 dark:bg-purple-900/10 text-purple-500 px-2 py-0.5 rounded uppercase font-bold">{t(cls.maritalStatus)}</span>
                                             )}
-                                            {cls.gender === 'any' && cls.baptismalStatus === 'any' && cls.maritalStatus === 'any' && (
+                                            {cls.memberStatus && cls.memberStatus !== 'any' && (
+                                                <span className="text-[9px] bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 px-2 py-0.5 rounded uppercase font-bold">{cls.memberStatus}</span>
+                                            )}
+                                            {cls.gender === 'any' && cls.baptismalStatus === 'any' && cls.maritalStatus === 'any' && cls.memberStatus === 'any' && !cls.memberCategoryId && (
                                                 <span className="text-[9px] text-gray-400 uppercase font-medium">—</span>
                                             )}
                                         </div>
@@ -343,13 +442,8 @@ export default function SundaySchoolClasses() {
                                             onClick={() => navigate(`/admin/sunday-school/classes/${cls.id}`)}
                                             className="bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-indigo-100 transition-colors"
                                         >
-                                            {cls.classMembers?.length || 0} {t('members')}
+                                            {cls.classMembers?.filter(m => m.sunday_school_member?.level === 'Actuel').length || 0} {t('members')}
                                         </button>
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${cls.activeOnly ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'}`}>
-                                            {cls.activeOnly ? t('active_only') : t('all')}
-                                        </span>
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -424,23 +518,123 @@ export default function SundaySchoolClasses() {
                                         </select>
                                     </div>
 
-                                    <div className="flex items-center gap-3 py-4">
-                                        <input
-                                            type="checkbox"
-                                            id="activeOnly"
-                                            checked={form.activeOnly}
-                                            onChange={e => setForm({ ...form, activeOnly: e.target.checked })}
-                                            className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                        <label htmlFor="activeOnly" className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
-                                            {t('active_only_label', 'Membres Actifs Uniquement')}
-                                        </label>
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('member_status_label', 'Statut du Membre')}</label>
+                                        <select value={form.memberStatus} onChange={e => setForm({ ...form, memberStatus: e.target.value })}
+                                            className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50">
+                                            <option value="any">{t('any', 'Peu importe')}</option>
+                                            <option value="Actif">{t('status_active', 'Actif')}</option>
+                                            <option value="Inactif">{t('status_inactive', 'Inactif')}</option>
+                                            <option value="En déplacement">{t('status_away', 'En déplacement')}</option>
+                                            <option value="Décédé">{t('status_deceased', 'Décédé')}</option>
+                                            <option value="Transféré">{t('status_transferred', 'Transféré')}</option>
+                                            <option value="Abandonné">{t('status_abandoned', 'Abandonné')}</option>
+                                        </select>
                                     </div>
 
                                     <div className="md:col-span-2">
                                         <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('description')}</label>
                                         <textarea rows="3" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
                                             className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50 resize-none font-medium"></textarea>
+                                    </div>
+
+                                    {/* Room and Schedule */}
+                                    <div className="md:col-span-2 pt-6 border-t border-gray-100 dark:border-white/5">
+                                        <h4 className="text-[13px] font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                            {t('location_schedule', 'Lieu et Horaire')}
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="md:col-span-2">
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('schedule_name', 'Nom de l\'horaire')}</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Ex: Classe Indisponible, Cours Principal..."
+                                                    value={form.recurringSchedule?.description || ''}
+                                                    onChange={(e) => setForm({ ...form, recurringSchedule: { ...form.recurringSchedule, description: e.target.value } })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('room', 'Salle')}</label>
+                                                <select
+                                                    value={form.roomId}
+                                                    onChange={(e) => setForm({ ...form, roomId: e.target.value })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50"
+                                                >
+                                                    <option value="">{t('none', 'Aucune')}</option>
+                                                    {rooms.map(room => (
+                                                        <option key={room.id} value={room.id}>
+                                                            {room.building?.name ? `${room.building.name} - ` : ''}{room.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('schedule', 'Horaire')}</label>
+                                                <div className="flex gap-2">
+                                                    <select
+                                                        value={form.recurringSchedule?.day || ''}
+                                                        onChange={(e) => setForm({ ...form, recurringSchedule: { ...form.recurringSchedule, day: e.target.value } })}
+                                                        className="flex-1 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-4 py-4 text-[13px] outline-none focus:border-indigo-500/50"
+                                                    >
+                                                        <option value="">Jour</option>
+                                                        {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map(d => (
+                                                            <option key={d} value={d}>{d}</option>
+                                                        ))}
+                                                    </select>
+                                                    <input
+                                                        type="time"
+                                                        value={form.recurringSchedule?.startTime || ''}
+                                                        onChange={(e) => setForm({ ...form, recurringSchedule: { ...form.recurringSchedule, startTime: e.target.value } })}
+                                                        className="w-24 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-3 py-4 text-[13px] outline-none focus:border-indigo-500/50 [color-scheme:light]"
+                                                    />
+                                                    <input
+                                                        type="time"
+                                                        value={form.recurringSchedule?.endTime || ''}
+                                                        onChange={(e) => setForm({ ...form, recurringSchedule: { ...form.recurringSchedule, endTime: e.target.value } })}
+                                                        className="w-24 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-3 py-4 text-[13px] outline-none focus:border-indigo-500/50 [color-scheme:light]"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Monitor Selection */}
+                                    <div className="md:col-span-2 pt-6 border-t border-gray-100 dark:border-white/5">
+                                        <h4 className="text-[13px] font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                            {t('assign_monitor_optional', 'Assigner un moniteur (Optionnel)')}
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('monitor', 'Moniteur')}</label>
+                                                <select
+                                                    value={form.monitorId}
+                                                    onChange={(e) => setForm({ ...form, monitorId: e.target.value })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50"
+                                                >
+                                                    <option value="">{t('none', 'Aucun')}</option>
+                                                    {members.map(m => (
+                                                        <option key={m.id} value={m.id}>{m.firstName} {m.lastName} ({m.email})</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('role', 'Rôle')}</label>
+                                                <select
+                                                    value={form.monitorRole}
+                                                    onChange={(e) => setForm({ ...form, monitorRole: e.target.value })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50"
+                                                >
+                                                    <option value="monitor">{t('monitor', 'Moniteur')}</option>
+                                                    <option value="superintendent">{t('superintendent', 'Surintendant')}</option>
+                                                    <option value="assistant">{t('assistant', 'Assistant')}</option>
+                                                    <option value="secretary">{t('secretary', 'Secrétaire')}</option>
+                                                    <option value="treasurer">{t('treasurer', 'Trésorier')}</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -466,6 +660,14 @@ export default function SundaySchoolClasses() {
                 type={alertMessage.type}
             />
 
+            <ConfirmModal
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+            />
         </AdminLayout>
     );
 }
+

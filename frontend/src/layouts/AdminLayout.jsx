@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useLanguage } from '../context/LanguageContext';
+import MustChangePasswordModal from '../components/Admin/MustChangePasswordModal';
 
 const AdminLayout = ({ children }) => {
     const { logout, user } = useAuth();
@@ -18,7 +19,9 @@ const AdminLayout = ({ children }) => {
     };
 
     const isSettingsPage = location.pathname === '/admin/settings';
-    const showSetupModal = user && !user.setupCompleted && !isSettingsPage && user.role === 'admin';
+    const userRoles = Array.isArray(user?.role) ? user.role : [user?.role];
+    const isAdmin = userRoles.includes('admin');
+    const showSetupModal = user && user.setupCompleted === false && !isSettingsPage && isAdmin;
 
     const handleLogout = () => {
         logout();
@@ -109,18 +112,7 @@ const AdminLayout = ({ children }) => {
                 { name: t('monitors', 'Moniteurs'), href: '/admin/sunday-school/monitors' },
             ]
         },
-        {
-            name: t('inventory'),
-            href: '/admin/inventory',
-            icon: (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-            ),
-            permission: 'inventory'
-        },
+
         {
             name: t('ceremonies'),
             href: '/admin/ceremonies',
@@ -132,6 +124,43 @@ const AdminLayout = ({ children }) => {
                 </svg>
             ),
             permission: 'ceremonies'
+        },
+        {
+            name: t('logistics', 'Logistique'),
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            ),
+            permission: 'logistics', // Ensure this permission is handled or added to roles
+            children: [
+                { name: t('overview', "Vue d'ensemble"), href: '/admin/logistics' },
+                { name: t('spaces', 'Espaces & Salles'), href: '/admin/logistics/spaces' },
+                { name: t('reservations_schedule', 'Réservations & Horaires'), href: '/admin/logistics/reservations' },
+                { name: t('resources', 'Matériels'), href: '/admin/logistics/resources' },
+                { name: t('inventory', 'Inventaire'), href: '/admin/inventory' },
+                { name: t('maintenance', 'Maintenance & Actions'), href: '/admin/logistics/maintenance' },
+                { name: t('assignments', 'Responsables & Affectations'), href: '/admin/logistics/assignments' },
+            ]
+        },
+        {
+            name: t('services', 'Services'),
+            icon: (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+            ),
+            permission: 'services',
+            children: [
+                { name: t('member_cards_management', 'Gestion des Cartes'), href: '/admin/services/cards' },
+                { name: t('advanced_search_builder', 'Recherche Avancée'), href: '/admin/services/search-builder' },
+                { name: t('user_requests', 'Demandes Utilisateurs'), href: '/admin/services/requests' },
+                { name: t('other_services', 'Autres'), href: '/admin/services/other' },
+            ]
         },
         {
             name: t('settings'),
@@ -157,10 +186,25 @@ const AdminLayout = ({ children }) => {
             <aside className={`${sidebarOpen ? 'w-[280px]' : 'w-24'} bg-white dark:bg-[#1A1A1A] text-gray-900 dark:text-white transition-all duration-300 ease-in-out flex flex-col border-r border-gray-100 dark:border-white/5 z-20 shadow-sm`}>
                 <div className="p-8 flex flex-col relative shrink-0">
                     <div className={`${!sidebarOpen && 'opacity-0 pointer-events-none'} transition-all duration-300 overflow-hidden`}>
-                        <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wider mb-1">{t('elyonsys_360', 'ELYONSYS 360')}</p>
-                        <h1 className="font-bold text-2xl tracking-tight text-gray-900 dark:text-white">
-                            {user?.churchAcronym || 'EDM'}
-                        </h1>
+                        <div className="flex items-center gap-4 mb-4">
+                            {user?.churchLogo ? (
+                                <img
+                                    src={user.churchLogo.startsWith('http') ? user.churchLogo : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.churchLogo}`}
+                                    alt="Church Logo"
+                                    className="w-12 h-12 object-contain rounded-xl"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/20">
+                                    {(user?.churchAcronym || user?.churchName || 'E')[0].toUpperCase()}
+                                </div>
+                            )}
+                            <div className="overflow-hidden">
+                                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wider mb-0.5">{t('elyonsys_360', 'ELYONSYS 360')}</p>
+                                <h1 className="font-bold text-lg tracking-tight text-gray-900 dark:text-white truncate">
+                                    {user?.churchAcronym || 'EDM'}
+                                </h1>
+                            </div>
+                        </div>
                         {user?.churchName && (
                             <p className="text-[11px] text-gray-500 font-medium truncate" title={user.churchName}>
                                 {user.churchName}
@@ -302,7 +346,7 @@ const AdminLayout = ({ children }) => {
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto p-12 relative flex flex-col text-gray-900 dark:text-gray-100 noscrollbar transition-colors bg-white dark:bg-[#0D0D0D]">
                     {showSetupModal && (
-                        <div className="absolute inset-0 z-[150] bg-gray-900/60 dark:bg-black/90 backdrop-blur-3xl flex items-center justify-center p-12 transition-all">
+                        <div className="fixed inset-0 z-[9999] bg-gray-900/80 dark:bg-black/95 backdrop-blur-xl flex items-center justify-center p-12 transition-all">
                             <div className="bg-white dark:bg-[#080808] rounded-[4rem] shadow-2xl border border-transparent dark:border-white/5 p-20 max-w-2xl w-full text-center animate-scale-in transition-colors">
                                 <div className="text-7xl mb-12 bg-gray-50 dark:bg-black w-32 h-32 flex items-center justify-center rounded-[2.5rem] mx-auto scale-110 shadow-sm border border-transparent dark:border-white/5">🏗️</div>
                                 <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mb-6 leading-none transition-colors">{t('configuration_required', 'Configuration Requise')}</h2>
@@ -318,6 +362,7 @@ const AdminLayout = ({ children }) => {
                             </div>
                         </div>
                     )}
+                    <MustChangePasswordModal user={user} />
                     {children}
                 </main>
             </div>

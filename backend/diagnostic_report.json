@@ -1,0 +1,117 @@
+{
+  "timestamp": "2026-02-20T20:25:26.184Z",
+  "pendingCount": 10,
+  "pendingDetails": [
+    {
+      "id": 1,
+      "orderId": "REG_1771614929946_158",
+      "status": "pending",
+      "paymentMethod": "moncash",
+      "amount": "250.00",
+      "createdAt": "2026-02-20T19:15:31.000Z"
+    },
+    {
+      "id": 2,
+      "orderId": "REG_1771615004165_586",
+      "status": "pending",
+      "paymentMethod": "moncash",
+      "amount": "25.00",
+      "createdAt": "2026-02-20T19:16:45.000Z"
+    },
+    {
+      "id": 3,
+      "orderId": "REG_1771615087737_504",
+      "status": "pending",
+      "paymentMethod": "stripe",
+      "amount": "250.00",
+      "createdAt": "2026-02-20T19:18:08.000Z"
+    },
+    {
+      "id": 4,
+      "orderId": "REG_1771615180222_595",
+      "status": "pending",
+      "paymentMethod": "stripe",
+      "amount": "250.00",
+      "createdAt": "2026-02-20T19:19:40.000Z"
+    },
+    {
+      "id": 5,
+      "orderId": "REG_1771615264986_347",
+      "status": "pending",
+      "paymentMethod": "moncash",
+      "amount": "500.00",
+      "createdAt": "2026-02-20T19:21:06.000Z"
+    },
+    {
+      "id": 6,
+      "orderId": "REG_1771615294886_744",
+      "status": "pending",
+      "paymentMethod": "stripe",
+      "amount": "25.00",
+      "createdAt": "2026-02-20T19:21:35.000Z"
+    },
+    {
+      "id": 8,
+      "orderId": "REG_1771618226861_117",
+      "status": "pending",
+      "paymentMethod": "stripe",
+      "amount": "250.00",
+      "createdAt": "2026-02-20T20:10:29.000Z"
+    },
+    {
+      "id": 9,
+      "orderId": "REG_1771618391407_795",
+      "status": "pending",
+      "paymentMethod": "moncash",
+      "amount": "50.00",
+      "createdAt": "2026-02-20T20:13:13.000Z"
+    },
+    {
+      "id": 10,
+      "orderId": "REG_1771618766916_170",
+      "status": "pending",
+      "paymentMethod": "moncash",
+      "amount": "250.00",
+      "createdAt": "2026-02-20T20:19:27.000Z"
+    },
+    {
+      "id": 11,
+      "orderId": "REG_1771618816126_474",
+      "status": "pending",
+      "paymentMethod": "moncash",
+      "amount": "25.00",
+      "createdAt": "2026-02-20T20:20:17.000Z"
+    }
+  ],
+  "recentChurches": [
+    {
+      "id": 6,
+      "name": "EGLISE DE DIEU DE LA PROPHETIE",
+      "subdomain": "edp.ekklesia360.com",
+      "moncashOrderId": null,
+      "createdAt": "2026-02-08T01:04:17.000Z"
+    },
+    {
+      "id": 5,
+      "name": "EGLISE DE DIEU DE NAZON",
+      "subdomain": "edn.ekklesia360.com",
+      "moncashOrderId": null,
+      "createdAt": "2026-01-29T17:56:56.000Z"
+    },
+    {
+      "id": 2,
+      "name": "EGLISE EVANGELIQUE DE LA GRACE",
+      "subdomain": "eeg.elyonsys360.com",
+      "moncashOrderId": null,
+      "createdAt": "2026-01-19T17:45:11.000Z"
+    },
+    {
+      "id": 1,
+      "name": "ElyonSys Admin System",
+      "subdomain": "admin-system",
+      "moncashOrderId": null,
+      "createdAt": "2026-01-19T17:31:28.000Z"
+    }
+  ],
+  "errors": []
+}

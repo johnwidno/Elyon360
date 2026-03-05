@@ -9,8 +9,25 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false
         },
         interval: {
-            type: Sequelize.ENUM('monthly', 'yearly'),
+            type: Sequelize.ENUM('monthly', 'yearly', 'custom'),
             defaultValue: 'monthly'
+        },
+        billingCycle: {
+            type: Sequelize.STRING, // e.g., 'monthly', 'yearly', '2 years', '3 years'
+            allowNull: true
+        },
+        durationMonths: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            defaultValue: 1 // Default to 1 month
+        },
+        startDate: {
+            type: Sequelize.DATE,
+            allowNull: true
+        },
+        endDate: {
+            type: Sequelize.DATE,
+            allowNull: true
         },
         features: {
             type: Sequelize.JSON, // Array of feature strings or objects

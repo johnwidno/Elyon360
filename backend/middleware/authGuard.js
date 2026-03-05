@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken');
 const db = require('../models');
 
 exports.protect = async (req, res, next) => {
+    // Allow unauthenticated GET access to any search-builder endpoint
+    if (req.method === 'GET' && req.path.startsWith('/api/search-builder')) {
+        return next();
+    }
+
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -18,16 +23,15 @@ exports.protect = async (req, res, next) => {
                 return res.status(401).json({ message: "Non autorisé, utilisateur introuvable." });
             }
 
-            next();
+            return next();
         } catch (error) {
             console.error("Auth Middleware Error:", error);
             return res.status(401).json({ message: "Non autorisé, token invalide." });
         }
     }
 
-    if (!token) {
-        return res.status(401).json({ message: "Non autorisé, pas de token." });
-    }
+    // No token provided
+    return res.status(401).json({ message: "Non autorisé, pas de token." });
 };
 
 exports.authorize = (...roles) => {
@@ -47,7 +51,8 @@ exports.hasPermission = (permission) => {
     return async (req, res, next) => {
         const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
         // Admin and Super Admin have all permissions
-        if (userRoles.includes('admin') || userRoles.includes('super_admin')) {
+        const superAdminRoles = ['super_admin', 'super_admin_secretaire', 'superaduser'];
+        if (userRoles.includes('admin') || userRoles.some(r => superAdminRoles.includes(r))) {
             return next();
         }
 

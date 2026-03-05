@@ -9,5 +9,6 @@ router.get('/my', protect, donationController.getUserDonations); // Anyone can s
 router.get('/stats', protect, hasPermission('finances'), donationController.getDonationStats);
 router.get('/overview', protect, hasPermission('finances'), donationController.getFinancesOverview);
 router.get('/balances', protect, hasPermission('finances'), donationController.getBalances);
+router.put('/:id', protect, hasPermission('finances'), donationController.updateDonation);
 
 module.exports = router;

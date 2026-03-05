@@ -52,6 +52,14 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: true
     },
+    department: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    zipCode: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     country: {
       type: Sequelize.STRING,
       allowNull: true
@@ -71,6 +79,10 @@ module.exports = (sequelize, Sequelize) => {
     baptismalStatus: {
       type: Sequelize.ENUM('baptized', 'not_baptized', 'candidate', 'adherent', 'transferred', 'affiliated', 'child', 'other'),
       defaultValue: 'not_baptized'
+    },
+    baptismDate: {
+      type: Sequelize.DATEONLY,
+      allowNull: true
     },
     photo: {
       type: Sequelize.TEXT('long'),
@@ -142,6 +154,50 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true
     },
     memberCategoryId: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    instagramUrl: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    tiktokUrl: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    websiteUrl: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    emergencyPhone: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    emergencyEmail: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    secondaryPhone: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    secondaryEmail: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    bloodGroup: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    mustChangePassword: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true
+    },
+    tempPassword: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    addedById: {
       type: Sequelize.INTEGER,
       allowNull: true
     }

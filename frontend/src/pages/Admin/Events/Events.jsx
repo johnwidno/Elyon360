@@ -11,6 +11,7 @@ export default function Events() {
     const { t } = useLanguage();
     const [events, setEvents] = useState([]);
     const [members, setMembers] = useState([]);
+    const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -49,6 +50,15 @@ export default function Events() {
         } catch (error) {
             console.error("Erreur chargement membres:", error);
         }
+    }
+
+    const fetchRooms = async () => {
+        try {
+            const response = await api.get('/logistics/rooms');
+            setRooms(response.data);
+        } catch (error) {
+            console.error("Erreur chargement salles:", error);
+        }
     };
 
     const fetchEventDetails = async (id) => {
@@ -63,6 +73,7 @@ export default function Events() {
     useEffect(() => {
         fetchEvents();
         fetchMembers();
+        fetchRooms();
     }, []);
 
     // Statistics Calculation
@@ -520,6 +531,7 @@ export default function Events() {
                 <EventModal
                     event={selectedEvent}
                     members={members}
+                    rooms={rooms}
                     onClose={() => setShowModal(false)}
                     onSave={handleSubmit}
                     onAddParticipant={handleAddParticipant}

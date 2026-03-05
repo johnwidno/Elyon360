@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
 import api from '../../../api/axios';
+import AlertModal from '../../../components/ChurchAlertModal';
 
-const SundaySchoolReportForm = ({ isOpen, onClose, classData, onReportSubmitted }) => {
+const SundaySchoolReportForm = ({ isOpen, onClose, classData, onReportSubmitted, editId = null }) => {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
     const [attendance, setAttendance] = useState([]);
 
     const [formData, setFormData] = useState({
@@ -20,18 +22,73 @@ const SundaySchoolReportForm = ({ isOpen, onClose, classData, onReportSubmitted 
         monitorExpectations: '',
         participantExpectations: '',
         observations: '',
-        spiritualProgress: ''
+        spiritualProgress: '',
+        submittedById: ''
     });
 
     useEffect(() => {
-        if (classData?.classMembers) {
-            setAttendance(classData.classMembers.map(m => ({
+        if (classData?.classMembers && !editId) {
+            // Filter only active members and deduplicate by ID just in case
+            const activeMembers = classData.classMembers.filter(m =>
+                m.sunday_school_member?.level === 'Actuel'
+            );
+
+            // Deduplicate by member ID
+            const uniqueActive = [];
+            const seenIds = new Set();
+
+            for (const m of activeMembers) {
+                if (!seenIds.has(m.id)) {
+                    seenIds.add(m.id);
+                    uniqueActive.push(m);
+                }
+            }
+
+            setAttendance(uniqueActive.map(m => ({
                 userId: m.id,
                 name: `${m.firstName} ${m.lastName}`,
                 status: 'present'
             })));
         }
-    }, [classData]);
+    }, [classData, editId]);
+
+    useEffect(() => {
+        if (editId && isOpen) {
+            const fetchReportForEdit = async () => {
+                setLoading(true);
+                try {
+                    const response = await api.get(`/sunday-school/reports/${editId}`);
+                    const { report, attendance: attData } = response.data;
+                    setFormData({
+                        date: report.date,
+                        title: report.title,
+                        lessonTitle: report.lessonTitle || '',
+                        totalLessonPoints: report.totalLessonPoints || 0,
+                        coveredLessonPoints: report.coveredLessonPoints || 0,
+                        goldenText: report.goldenText || '',
+                        bibleCount: report.bibleCount || 0,
+                        hymnalCount: report.hymnalCount || 0,
+                        offeringAmount: report.offeringAmount || 0,
+                        monitorExpectations: report.monitorExpectations || '',
+                        participantExpectations: report.participantExpectations || '',
+                        observations: report.observations || '',
+                        spiritualProgress: report.spiritualProgress || '',
+                        submittedById: report.submittedById || ''
+                    });
+                    setAttendance(attData.map(a => ({
+                        userId: a.userId,
+                        name: `${a.user?.firstName} ${a.user?.lastName}`,
+                        status: a.status
+                    })));
+                } catch (error) {
+                    console.error("Error fetching report for edit:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchReportForEdit();
+        }
+    }, [editId, isOpen]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -52,21 +109,32 @@ const SundaySchoolReportForm = ({ isOpen, onClose, classData, onReportSubmitted 
             const absentCount = attendance.filter(a => a.status === 'absent').length;
             const excusedCount = attendance.filter(a => a.status === 'excused').length;
 
+            const submittedByIdVal = formData.submittedById ? parseInt(formData.submittedById) : null;
+
             const reportData = {
                 ...formData,
                 classId: classData.id,
                 presentCount,
                 absentCount,
                 excusedCount,
-                attendance // This will be handled by the backend to create attendance records
+                attendance,
+                submittedById: (submittedByIdVal && !isNaN(submittedByIdVal)) ? submittedByIdVal : null
             };
 
-            await api.post('/sunday-school/reports', reportData);
+            console.log("[SundaySchoolReportForm] Submitting with ID:", reportData.submittedById, reportData);
+
+            console.log("[SundaySchoolReportForm] Submitting with ID:", reportData.submittedById, reportData);
+
+            if (editId) {
+                await api.put(`/sunday-school/reports/${editId}`, reportData);
+            } else {
+                await api.post('/sunday-school/reports', reportData);
+            }
             onReportSubmitted();
             onClose();
         } catch (error) {
             console.error("Error submitting report:", error);
-            alert("Erreur lors de la soumission du rapport.");
+            setAlertMessage({ show: true, title: t('error'), message: t('report_submit_error', 'Erreur lors de la soumission du rapport'), type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -112,6 +180,22 @@ const SundaySchoolReportForm = ({ isOpen, onClose, classData, onReportSubmitted 
                                     <div>
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('meeting_title', 'Nom de la rencontre')}</label>
                                         <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('submitted_by', 'Soumis par')}</label>
+                                        <select
+                                            name="submittedById"
+                                            value={formData.submittedById}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-3 text-sm font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all"
+                                        >
+                                            <option value="">{t('current_user', 'Utilisateur connecté (Moi)')}</option>
+                                            {classData?.monitors?.map(m => (
+                                                <option key={m.id} value={m.user?.id || m.userId}>
+                                                    {m.user?.firstName} {m.user?.lastName} ({t(m.role)})
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
                             </section>
@@ -235,6 +319,14 @@ const SundaySchoolReportForm = ({ isOpen, onClose, classData, onReportSubmitted 
                     </form>
                 </div>
             </div>
+
+            <AlertModal
+                isOpen={alertMessage.show}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+            />
         </div>
     );
 };

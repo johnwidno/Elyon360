@@ -45,6 +45,42 @@ exports.addRelationship = async (req, res) => {
     }
 };
 
+// Edit a family relationship
+exports.editRelationship = async (req, res) => {
+    try {
+        const churchId = req.user.churchId;
+        const { id } = req.params;
+        const { type, details } = req.body;
+
+        const relationship = await Relationship.findOne({
+            where: { id, churchId }
+        });
+
+        if (!relationship) {
+            return res.status(404).json({ message: "Relation non trouvée." });
+        }
+
+        await relationship.update({ type, details });
+
+        // If type changed to or from Conjoint, we would idealy update spouseName, but for simplicity we update it if it is conjoint
+        if (type && type.toLowerCase().includes('conjoint')) {
+            const personA = await User.findByPk(relationship.personAId);
+            const personB = await User.findByPk(relationship.personBId);
+
+            if (personA && personB) {
+                await personA.update({
+                    spouseName: `${personB.firstName} ${personB.lastName}`
+                });
+            }
+        }
+
+        res.json(relationship);
+    } catch (error) {
+        console.error("Edit Relationship Error:", error);
+        res.status(500).json({ message: "Erreur lors de la modification de la relation." });
+    }
+};
+
 // Get relationships for a specific user
 exports.getUserRelationships = async (req, res) => {
     try {
@@ -126,7 +162,7 @@ exports.deleteRelationship = async (req, res) => {
 exports.addOrganizationRole = async (req, res) => {
     try {
         const churchId = req.user.churchId;
-        const { userId, organizationId, role, details } = req.body;
+        const { userId, organizationId, role, description, notes } = req.body;
 
         if (!userId || !organizationId) {
             return res.status(400).json({ message: "Membre et Organisation sont requis." });
@@ -137,6 +173,8 @@ exports.addOrganizationRole = async (req, res) => {
             userId,
             organizationId,
             role: role || 'Member',
+            description,
+            notes,
             status: 'Active',
             startDate: new Date()
         });
@@ -145,6 +183,35 @@ exports.addOrganizationRole = async (req, res) => {
     } catch (error) {
         console.error("Add Org Role Error:", error);
         res.status(500).json({ message: "Erreur lors de l'ajout du rôle." });
+    }
+};
+
+// Edit an organization role
+exports.editOrganizationRole = async (req, res) => {
+    try {
+        const churchId = req.user.churchId;
+        const { userId, organizationId } = req.params;
+        const { role, description, notes, status } = req.body;
+
+        const orgRole = await OrganizationMember.findOne({
+            where: { userId, organizationId, churchId }
+        });
+
+        if (!orgRole) {
+            return res.status(404).json({ message: "Rôle non trouvé." });
+        }
+
+        await orgRole.update({
+            role,
+            description,
+            notes,
+            status: status || orgRole.status
+        });
+
+        res.json(orgRole);
+    } catch (error) {
+        console.error("Edit Org Role Error:", error);
+        res.status(500).json({ message: "Erreur lors de la modification du rôle." });
     }
 };
 
@@ -169,11 +236,11 @@ exports.getUserOrganizationRoles = async (req, res) => {
 // Delete an organization role
 exports.deleteOrganizationRole = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { userId, organizationId } = req.params;
         const churchId = req.user.churchId;
 
         await OrganizationMember.destroy({
-            where: { id, churchId }
+            where: { userId, organizationId, churchId }
         });
 
         res.json({ message: "Rôle supprimé avec succès." });

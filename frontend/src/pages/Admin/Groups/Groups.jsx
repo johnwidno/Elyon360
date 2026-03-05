@@ -36,12 +36,15 @@ export default function Groups() {
         type: 'ministry',
         leaderId: '',
         leaderName: '',
-        meetingDay: '',
-        meetingTime: ''
+        roomId: '',
+        recurringSchedule: { day: '', startTime: '', endTime: '' },
+        logo: '',
+        charter: ''
     });
 
-    // For leader selection
+    // For leader selection and room selection
     const [allMembersForLeader, setAllMembersForLeader] = useState([]);
+    const [rooms, setRooms] = useState([]);
 
     const [filteredGroups, setFilteredGroups] = useState([]);
     const [filters, setFilters] = useState({
@@ -109,41 +112,92 @@ export default function Groups() {
     const [editId, setEditId] = useState(null);
 
     const handleEdit = async (group) => {
+        let rs = group.recurringSchedule;
+        if (typeof rs === 'string') {
+            try { rs = JSON.parse(rs); } catch (e) { rs = { day: '', startTime: '', endTime: '' }; }
+        }
+
         setFormData({
             name: group.name,
-            description: group.description,
+            description: group.description || '',
             type: group.type,
-            leaderId: '',
+            leaderId: group.leaderId || '',
             leaderName: group.leaderName,
-            meetingDay: group.meetingDay,
-            meetingTime: group.meetingTime
+            roomId: group.roomId || '',
+            recurringSchedule: rs || { day: '', startTime: '', endTime: '' },
+            logo: group.logo || '',
+            charter: group.charter || ''
         });
         setEditId(group.id);
-        // Fetch members for leader selection
+        // Fetch members and rooms
         try {
-            const res = await api.get('/members');
-            setAllMembersForLeader(res.data);
+            const [membersRes, roomsRes] = await Promise.all([
+                api.get('/members'),
+                api.get('/logistics/rooms')
+            ]);
+            setAllMembersForLeader(membersRes.data);
+            setRooms(roomsRes.data);
         } catch (err) {
-            console.error('Error fetching members:', err);
+            console.error('Error fetching data:', err);
         }
         setShowModal(true);
     };
 
     const handleCreate = async () => {
-        setFormData({ name: '', description: '', type: 'ministry', leaderId: '', leaderName: '', meetingDay: '', meetingTime: '' });
+        setFormData({
+            name: '',
+            description: '',
+            type: 'ministry',
+            leaderId: '',
+            leaderName: '',
+            roomId: '',
+            recurringSchedule: { day: '', startTime: '', endTime: '' },
+            logo: '',
+            charter: ''
+        });
         setEditId(null);
-        // Fetch members for leader selection
+        // Fetch members and rooms
         try {
-            const res = await api.get('/members');
-            setAllMembersForLeader(res.data);
+            const [membersRes, roomsRes] = await Promise.all([
+                api.get('/members'),
+                api.get('/logistics/rooms')
+            ]);
+            setAllMembersForLeader(membersRes.data);
+            setRooms(roomsRes.data);
         } catch (err) {
-            console.error('Error fetching members:', err);
+            console.error('Error fetching data:', err);
         }
         setShowModal(true);
     };
 
+    const handleFileChange = (e, field) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, [field]: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Time Validation
+        const rs = formData.recurringSchedule;
+        if (rs && rs.startTime && rs.endTime) {
+            if (rs.startTime >= rs.endTime) {
+                setAlertMessage({
+                    show: true,
+                    title: t('validation_error', 'Erreur de validation'),
+                    message: t('start_time_before_end', 'L\'heure de début doit être antérieure à l\'heure de fin.'),
+                    type: 'error'
+                });
+                return;
+            }
+        }
+
         try {
             if (editId) {
                 await api.put(`/groups/${editId}`, formData);
@@ -156,10 +210,19 @@ export default function Groups() {
             }
             setShowModal(false);
             setEditId(null);
-            setFormData({ name: '', description: '', type: 'ministry', leaderName: '', meetingDay: '', meetingTime: '' });
+            setFormData({
+                name: '',
+                description: '',
+                type: 'ministry',
+                leaderName: '',
+                roomId: '',
+                recurringSchedule: { day: '', startTime: '', endTime: '' },
+                logo: '',
+                charter: ''
+            });
         } catch (error) {
             console.error("Group Op Error:", error);
-            setAlertMessage({ show: true, title: t('error'), message: t('operation_error'), type: 'error' });
+            setAlertMessage({ show: true, title: t('error'), message: error.response?.data?.message || t('operation_error'), type: 'error' });
         }
     };
 
@@ -415,69 +478,153 @@ export default function Groups() {
                 <div className="fixed inset-0 z-[150] overflow-y-auto noscrollbar transition-all">
                     <div className="flex items-center justify-center min-h-screen p-4 text-center">
                         <div className="fixed inset-0 bg-gray-500/75 dark:bg-black/80 backdrop-blur-sm transition-all" onClick={() => setShowModal(false)}></div>
-                        <div className="bg-white dark:bg-[#1A1A1A] rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg w-full border border-gray-100 dark:border-white/10 transition-colors relative z-10">
+                        <div className="bg-white dark:bg-[#1A1A1A] rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-4xl w-full border border-gray-100 dark:border-white/10 transition-colors relative z-10">
                             <form onSubmit={handleSubmit} className="p-10">
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 transition-colors leading-none tracking-tight">
-                                    {editId ? t('edit_group') : t('add_group_ministry')}
-                                </h3>
+                                <div className="flex justify-between items-center mb-10">
+                                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors leading-none tracking-tight">
+                                        {editId ? t('modifier_infos_groupe', 'Modifier les infos du groupe') : t('add_group_ministry')}
+                                    </h3>
+                                    <button type="button" onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-500">
+                                        <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
 
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('group_name')}</label>
-                                        <input type="text" name="name" placeholder={t('group_name_placeholder')} required onChange={handleChange} value={formData.name} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('description')}</label>
-                                        <textarea name="description" placeholder={t('group_description_placeholder')} rows="2" onChange={handleChange} value={formData.description} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all resize-none"></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('type')}</label>
-                                        <select name="type" onChange={handleChange} value={formData.type} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none">
-                                            <option value="ministry">{t('group_type_ministry')}</option>
-                                            <option value="cell">{t('group_type_cell')}</option>
-                                            <option value="department">{t('group_type_department')}</option>
-                                            <option value="other">{t('group_type_other')}</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('responsible_name')}</label>
-                                        <SearchableSelect
-                                            options={allMembersForLeader.map(m => ({
-                                                id: m.id,
-                                                name: `${m.firstName} ${m.lastName} ${m.memberCode ? `(${m.memberCode})` : ''}`
-                                            }))}
-                                            value={formData.leaderId}
-                                            onChange={(id) => {
-                                                const leader = allMembersForLeader.find(m => m.id === id);
-                                                setFormData({
-                                                    ...formData,
-                                                    leaderId: id,
-                                                    leaderName: leader ? `${leader.firstName} ${leader.lastName}` : ''
-                                                });
-                                            }}
-                                            placeholder={t('select_group_leader', 'Select group leader...')}
-                                            displayKey="name"
-                                            valueKey="id"
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                                    {/* Left Column */}
+                                    <div className="space-y-8">
                                         <div>
-                                            <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('meeting_day')}</label>
-                                            <input type="text" name="meetingDay" placeholder={t('meeting_day_placeholder')} onChange={handleChange} value={formData.meetingDay} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all" />
+                                            <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('group_name')}</label>
+                                            <input type="text" name="name" placeholder={t('group_name_placeholder')} required onChange={handleChange} value={formData.name} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all shadow-sm" />
                                         </div>
+
+                                        <div className="space-y-4">
+                                            <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('group_logo', 'Logo du Groupe')}</label>
+                                            <div className="flex items-center gap-6">
+                                                <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} className="hidden" id="logo-upload" />
+                                                <label htmlFor="logo-upload" className="flex-1 px-6 py-4 bg-gray-50 dark:bg-black border-2 border-dashed border-gray-100 dark:border-white/5 hover:border-indigo-500 rounded-2xl cursor-pointer text-center text-[12px] font-semibold text-gray-400 hover:text-indigo-600 transition-all flex items-center justify-center gap-2">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                    {formData.logo ? t('image_selected', 'Image sélectionnée') : t('group_logo_desc', 'Logo du groupe (Image)')}
+                                                </label>
+                                                {formData.logo && (
+                                                    <div className="w-20 h-20 rounded-2xl border border-gray-100 dark:border-white/10 overflow-hidden shadow-md shrink-0">
+                                                        <img src={formData.logo} className="w-full h-full object-cover" alt="Logo" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
                                         <div>
-                                            <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('meeting_time')}</label>
-                                            <input type="time" name="meetingTime" onChange={handleChange} value={formData.meetingTime} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all [color-scheme:light]" />
+                                            <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('type')}</label>
+                                            <select name="type" onChange={handleChange} value={formData.type} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none shadow-sm">
+                                                <option value="ministry">{t('group_type_ministry')}</option>
+                                                <option value="cell">{t('group_type_cell')}</option>
+                                                <option value="department">{t('group_type_department')}</option>
+                                                <option value="other">{t('group_type_other')}</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('responsible_name')}</label>
+                                            <SearchableSelect
+                                                options={allMembersForLeader.map(m => ({
+                                                    id: m.id,
+                                                    name: `${m.firstName} ${m.lastName} ${m.memberCode ? `(${m.memberCode})` : ''}`
+                                                }))}
+                                                value={formData.leaderId}
+                                                onChange={(id) => {
+                                                    const leader = allMembersForLeader.find(m => m.id === id);
+                                                    setFormData({
+                                                        ...formData,
+                                                        leaderId: id,
+                                                        leaderName: leader ? `${leader.firstName} ${leader.lastName}` : ''
+                                                    });
+                                                }}
+                                                placeholder={t('select_group_leader', 'Sélectionner un responsable...')}
+                                                displayKey="name"
+                                                valueKey="id"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column */}
+                                    <div className="space-y-8">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('description')}</label>
+                                            <textarea name="description" placeholder={t('group_description_placeholder')} rows="2" onChange={handleChange} value={formData.description} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all resize-none shadow-sm"></textarea>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Salle de Réunion</label>
+                                                <select
+                                                    name="roomId"
+                                                    onChange={handleChange}
+                                                    value={formData.roomId}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none shadow-sm"
+                                                >
+                                                    <option value="">Aucune salle</option>
+                                                    {rooms.map(room => (
+                                                        <option key={room.id} value={room.id}>
+                                                            {room.building?.name ? `${room.building.name} - ` : ''}{room.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Jour</label>
+                                                <select
+                                                    value={formData.recurringSchedule?.day || ''}
+                                                    onChange={(e) => setFormData({ ...formData, recurringSchedule: { ...formData.recurringSchedule, day: e.target.value } })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none shadow-sm"
+                                                >
+                                                    <option value="">Jour...</option>
+                                                    {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map(d => (
+                                                        <option key={d} value={d}>{d}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Début</label>
+                                                <input
+                                                    type="time"
+                                                    value={formData.recurringSchedule?.startTime || ''}
+                                                    onChange={(e) => setFormData({ ...formData, recurringSchedule: { ...formData.recurringSchedule, startTime: e.target.value } })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all [color-scheme:light] shadow-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Fin</label>
+                                                <input
+                                                    type="time"
+                                                    value={formData.recurringSchedule?.endTime || ''}
+                                                    onChange={(e) => setFormData({ ...formData, recurringSchedule: { ...formData.recurringSchedule, endTime: e.target.value } })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all [color-scheme:light] shadow-sm"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4 pt-2">
+                                            <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('group_charter', 'Charte du Groupe')}</label>
+                                            <div className="flex items-center gap-6">
+                                                <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => handleFileChange(e, 'charter')} className="hidden" id="charter-upload" />
+                                                <label htmlFor="charter-upload" className="w-full px-6 py-4 bg-gray-50 dark:bg-black border-2 border-dashed border-gray-100 dark:border-white/5 hover:border-indigo-500 rounded-2xl cursor-pointer text-center text-[12px] font-semibold text-gray-400 hover:text-indigo-600 transition-all flex items-center justify-center gap-2">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                    {formData.charter ? t('document_attached', 'Document joint') : t('group_charter_desc', 'Charte du Groupe (PDF/Document)')}
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="mt-10 flex justify-end gap-3">
-                                    <button type="button" onClick={() => setShowModal(false)} className="px-8 py-3 bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl text-[12px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-95 outline-none">{t('cancel')}</button>
-                                    <button type="submit" className="px-10 py-3 bg-indigo-600 text-white rounded-xl text-[12px] font-bold hover:bg-indigo-700 transition-all shadow-lg active:scale-95 outline-none">{editId ? t('save') : t('create')}</button>
+                                <div className="mt-14 flex justify-end gap-6 pt-10 border-t border-gray-50 dark:border-white/10 transition-colors">
+                                    <button type="button" onClick={() => setShowModal(false)} className="px-10 py-5 bg-gray-50 dark:bg-black border border-gray-100 dark:border-transparent text-[11px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest rounded-2xl hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-95 outline-none shadow-sm">{t('cancel')}</button>
+                                    <button type="submit" className="px-14 py-5 bg-indigo-600 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl active:scale-95 outline-none">{editId ? t('save') : t('create')}</button>
                                 </div>
                             </form>
                         </div>

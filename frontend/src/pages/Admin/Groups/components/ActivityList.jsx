@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useLanguage } from '../../../../context/LanguageContext';
+import AlertModal from '../../../../components/ChurchAlertModal';
 
 export default function ActivityList({ activities, onEdit, onDelete, onView, onViewParticipants }) {
     const { t } = useLanguage();
     const [filter, setFilter] = useState('all'); // all, planned, completed, cancelled
     const [viewMode, setViewMode] = useState('list'); // grid, list
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
 
     const filteredActivities = useMemo(() => {
         if (filter === 'all') return activities;
@@ -81,7 +83,7 @@ export default function ActivityList({ activities, onEdit, onDelete, onView, onV
                                                 e.stopPropagation();
                                                 const url = `${window.location.origin}/public/register/${activity.registrationToken}`;
                                                 navigator.clipboard.writeText(url);
-                                                alert(t('link_copied', 'Lien copié !'));
+                                                setAlertMessage({ show: true, title: t('success'), message: t('link_copied', 'Lien copié !'), type: 'success' });
                                             }}
                                             className="p-2 bg-blue-50 dark:bg-white/5 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
                                             title={t('copy_public_link', 'Copier le lien public')}
@@ -198,7 +200,7 @@ export default function ActivityList({ activities, onEdit, onDelete, onView, onV
                                                         e.stopPropagation();
                                                         const url = `${window.location.origin}/public/register/${activity.registrationToken}`;
                                                         navigator.clipboard.writeText(url);
-                                                        alert(t('link_copied', 'Lien copié !'));
+                                                        setAlertMessage({ show: true, title: t('success'), message: t('link_copied', 'Lien copié !'), type: 'success' });
                                                     }}
                                                     className="p-1.5 bg-blue-50 dark:bg-white/5 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
                                                     title={t('copy_public_link', 'Copier le lien public')}
@@ -226,6 +228,13 @@ export default function ActivityList({ activities, onEdit, onDelete, onView, onV
                     {t('no_activities_found', 'Aucune activité trouvée')}
                 </div>
             )}
+            <AlertModal
+                isOpen={alertMessage.show}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+            />
         </div>
     );
 }

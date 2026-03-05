@@ -15,4 +15,17 @@ router.put('/:id', protect, hasPermission('members'), memberController.updateMem
 router.delete('/:id', protect, hasPermission('members'), memberController.deleteMember);
 router.get('/:id/history', protect, hasPermission('members'), memberController.getMemberHistory);
 
+// Multi-item Notes
+router.get('/:id/notes', protect, hasPermission('members'), memberController.getMemberNotes);
+router.post('/:id/notes', protect, hasPermission('members'), memberController.createMemberNote);
+router.put('/:id/notes/:noteId', protect, hasPermission('members'), memberController.updateMemberNote);
+router.delete('/:id/notes/:noteId', protect, hasPermission('members'), memberController.deleteMemberNote);
+
+// Actions
+router.get('/:id/actions', protect, hasPermission('members'), memberController.getMemberActions);
+router.post('/:id/actions', protect, hasPermission('members'), memberController.createMemberAction);
+
+// Requests
+router.get('/:id/requests', protect, hasPermission('members'), memberController.getMemberRequests);
+
 module.exports = router;

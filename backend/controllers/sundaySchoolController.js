@@ -1,5 +1,19 @@
 const db = require("../models");
 const { Op } = require("sequelize");
+const roomScheduler = require('../services/roomScheduler');
+
+// Helper to get next date for a day name
+const getNextDateForDay = (dayName) => {
+    const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const targetIndex = days.indexOf(dayName.toLowerCase());
+    if (targetIndex === -1) return new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const currentDay = d.getDay();
+    let diff = targetIndex - currentDay;
+    if (diff <= 0) diff += 7;
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
+};
 
 // Helper to calculate age
 const calculateAge = (birthDate) => {
@@ -51,13 +65,15 @@ const assignMemberToClassesInternal = async (userId, churchId) => {
                 };
 
                 const acceptedStatuses = maritalMatches[cls.maritalStatus] || [];
-                if (!acceptedStatuses.includes(userMarital)) {
+                // Use .some() to check if userMarital contains any of the accepted statuses
+                if (!acceptedStatuses.some(status => userMarital.includes(status))) {
                     match = false;
                 }
             }
 
             // 3. Baptismal / Category criteria
-            if (cls.memberCategoryId && user.memberCategoryId !== cls.memberCategoryId) {
+            // IMPORTANT: Use subtypeId (ContactSubtype) as this is where member classification is actually stored
+            if (cls.memberCategoryId && user.subtypeId !== cls.memberCategoryId) {
                 match = false;
             } else if (cls.baptismalStatus !== 'any') {
                 // LEGACY Matcher (Keep for compatibility until all classes are migrated)
@@ -96,52 +112,68 @@ const assignMemberToClassesInternal = async (userId, churchId) => {
                 }
             }
 
-            // 5. Active Status criteria
-            if (cls.activeOnly) {
-                if (user.status !== 'Actif' && user.status !== 'Active') match = false;
+            // 5. Member Status criteria
+            if (cls.memberStatus && cls.memberStatus !== 'any') {
+                const userStatus = (user.status || '').toLowerCase();
+                const targetStatus = cls.memberStatus.toLowerCase();
+                if (userStatus !== targetStatus) match = false;
             }
 
             if (match) {
                 classesToJoin.push(cls.id);
+                break; // USER REQUIREMENT: A member can only belong to ONE class at a time
             }
         }
 
-        // Sync Assignments
-        const currentAssignments = await db.SundaySchoolMember.findAll({
-            where: { userId, assignmentType: 'automatic' }
+        // Limit to 1 active assignment
+        const finalToJoin = classesToJoin.slice(0, 1);
+
+        // Find all currently active assignments (manual or automatic)
+        const currentActiveAssignments = await db.SundaySchoolMember.findAll({
+            where: { userId, level: 'Actuel' }
         });
 
-        const currentClassIds = currentAssignments.map(a => a.sundaySchoolId);
-        const toAdd = classesToJoin.filter(id => !currentClassIds.includes(id));
-        const toRemove = currentClassIds.filter(id => !classesToJoin.includes(id));
+        const activeClassIds = currentActiveAssignments.map(a => a.sundaySchoolId);
 
-        // Mark removed assignments as inactive (preserve history)
-        if (toRemove.length > 0) {
+        // Members to demote: those who are currently active but shouldn't be (either they don't match or we found a new preferred one)
+        const toDemote = activeClassIds.filter(id => !finalToJoin.includes(id));
+
+        if (toDemote.length > 0) {
+            console.log(`[SundaySchool] Demoting member ${userId} from classes: ${toDemote.join(', ')}`);
             await db.SundaySchoolMember.update(
-                { status: 'inactive' },
-                { where: { userId, sundaySchoolId: toRemove, assignmentType: 'automatic' } }
+                { level: 'non-actuel', leftAt: new Date() },
+                {
+                    where: {
+                        userId,
+                        sundaySchoolId: { [db.Sequelize.Op.in]: toDemote },
+                        level: 'Actuel'
+                    }
+                }
             );
         }
 
-        // Reactivate existing assignments that still match criteria
-        const toReactivate = classesToJoin.filter(id => currentClassIds.includes(id));
-        if (toReactivate.length > 0) {
-            await db.SundaySchoolMember.update(
-                { status: 'active' },
-                { where: { userId, sundaySchoolId: toReactivate, assignmentType: 'automatic' } }
-            );
-        }
+        // Add or Reactivate the target class
+        if (finalToJoin.length > 0) {
+            const targetClassId = finalToJoin[0];
+            const existingAssignment = await db.SundaySchoolMember.findOne({
+                where: { userId, sundaySchoolId: targetClassId }
+            });
 
-        // Add new assignments as active
-        if (toAdd.length > 0) {
-            const bulkAdd = toAdd.map(classId => ({
-                userId,
-                sundaySchoolId: classId,
-                assignmentType: 'automatic',
-                status: 'active',
-                joinedAt: new Date()
-            }));
-            await db.SundaySchoolMember.bulkCreate(bulkAdd);
+            if (existingAssignment) {
+                if (existingAssignment.level !== 'Actuel') {
+                    console.log(`[SundaySchool] Reactivating member ${userId} for class: ${targetClassId}`);
+                    await existingAssignment.update({ level: 'Actuel', leftAt: null, assignmentType: 'automatic' });
+                }
+            } else {
+                console.log(`[SundaySchool] Adding member ${userId} to new class: ${targetClassId}`);
+                await db.SundaySchoolMember.create({
+                    userId,
+                    sundaySchoolId: targetClassId,
+                    level: 'Actuel',
+                    assignmentType: 'automatic',
+                    joinedAt: new Date()
+                });
+            }
         }
 
     } catch (error) {
@@ -154,7 +186,14 @@ exports.getClasses = async (req, res) => {
         const classes = await db.SundaySchool.findAll({
             where: { churchId: req.church.id },
             include: [
-                { association: 'classMembers', attributes: ['id', 'firstName', 'lastName'] },
+                {
+                    association: 'classMembers',
+                    attributes: ['id'],
+                    through: {
+                        attributes: ['level'],
+                        as: 'sunday_school_member'
+                    }
+                },
                 { model: db.MemberCategory, as: 'admissionCategory', attributes: ['name'] }
             ]
         });
@@ -173,12 +212,17 @@ exports.getClassById = async (req, res) => {
                 { model: db.Church, as: 'church', attributes: ['name'] },
                 {
                     association: 'monitors',
-                    include: [{ association: 'user', attributes: ['firstName', 'lastName'] }]
+                    include: [{ association: 'user', attributes: ['id', 'firstName', 'lastName'] }]
                 },
                 {
                     association: 'classMembers',
-                    attributes: ['id', 'firstName', 'lastName', 'memberCode', 'birthDate', 'role', 'status', 'email', 'phone', 'baptismalStatus'],
+                    attributes: ['id', 'firstName', 'lastName', 'memberCode', 'birthDate', 'gender', 'maritalStatus', 'role', 'status', 'email', 'phone', 'baptismalStatus', 'subtypeId', 'memberCategoryId'],
+                    through: {
+                        attributes: ['status', 'level', 'assignmentType', 'joinedAt', 'leftAt'],
+                        as: 'sunday_school_member'
+                    },
                     include: [
+                        { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] },
                         { model: db.MemberCategory, as: 'category', attributes: ['name'] }
                     ]
                 },
@@ -193,8 +237,72 @@ exports.getClassById = async (req, res) => {
 };
 
 exports.createClass = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
     try {
-        const newClass = await db.SundaySchool.create({ ...req.body, churchId: req.church.id });
+        const { monitorId, monitorRole, roomId, recurringSchedule, ...classData } = req.body;
+
+        // Sanitize: ensure memberCategoryId is null (not empty string) when not selected
+        if (!classData.memberCategoryId) classData.memberCategoryId = null;
+
+        // Check Conflict
+        if (roomId && recurringSchedule) {
+            let schedule = recurringSchedule;
+            if (typeof schedule === 'string') {
+                try { schedule = JSON.parse(schedule); } catch (e) { }
+            }
+            if (schedule && schedule.day && schedule.startTime && schedule.endTime) {
+                // Time Validation
+                if (schedule.startTime >= schedule.endTime) {
+                    await transaction.rollback();
+                    return res.status(400).json({ message: "L'heure de début doit être antérieure à l'heure de fin." });
+                }
+
+                const checkDate = getNextDateForDay(schedule.day);
+                const availability = await roomScheduler.checkRoomAvailability({
+                    churchId: req.church.id,
+                    roomId,
+                    date: checkDate,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime,
+                    type: 'class'
+                });
+
+                if (!availability.available) {
+                    await transaction.rollback();
+                    return res.status(409).json({
+                        message: `La salle est déjà occupée le ${schedule.day} sur ce créneau par : ${availability.conflict.details.name || availability.conflict.details.title}.`,
+                        conflict: availability.conflict
+                    });
+                }
+            }
+        }
+
+        const newClass = await db.SundaySchool.create({
+            ...classData,
+            roomId: roomId || null,
+            recurringSchedule,
+            churchId: req.church.id,
+            teacherId: monitorId || null // Sync with teacherId field if provided
+        }, { transaction });
+
+        // Handle monitor assignment if provided
+        if (monitorId) {
+            await db.SundaySchoolMonitor.create({
+                userId: monitorId,
+                classId: newClass.id,
+                role: monitorRole || 'monitor',
+                churchId: req.church.id
+            }, { transaction });
+
+            // Also add as member
+            await db.SundaySchoolMember.create({
+                userId: monitorId,
+                sundaySchoolId: newClass.id,
+                level: 'Actuel',
+                assignmentType: 'manual',
+                joinedAt: new Date()
+            }, { transaction });
+        }
 
         // Trigger auto-assignment for all members if dynamic
         if (newClass.isDynamic) {
@@ -204,16 +312,106 @@ exports.createClass = async (req, res) => {
             }
         }
 
+        await transaction.commit();
         res.status(201).json(newClass);
     } catch (err) {
+        await transaction.rollback();
+        console.error("Create class error:", err);
         res.status(500).json({ message: "Erreur lors de la création." });
     }
 };
 
 exports.updateClass = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
     try {
         const { id } = req.params;
-        await db.SundaySchool.update(req.body, { where: { id, churchId: req.church.id } });
+        const { monitorId, monitorRole, roomId, recurringSchedule, ...classData } = req.body;
+
+        // Sanitize: ensure memberCategoryId is null (not empty string) when not selected
+        if (!classData.memberCategoryId) classData.memberCategoryId = null;
+
+        // Check Conflict (Update)
+        if (roomId && recurringSchedule) {
+            let schedule = recurringSchedule;
+            if (typeof schedule === 'string') {
+                try { schedule = JSON.parse(schedule); } catch (e) { }
+            }
+            if (schedule && schedule.day && schedule.startTime && schedule.endTime) {
+                // Time Validation
+                if (schedule.startTime >= schedule.endTime) {
+                    await transaction.rollback();
+                    return res.status(400).json({ message: "L'heure de début doit être antérieure à l'heure de fin." });
+                }
+
+                const checkDate = getNextDateForDay(schedule.day);
+                const availability = await roomScheduler.checkRoomAvailability({
+                    churchId: req.church.id,
+                    roomId,
+                    date: checkDate,
+                    startTime: schedule.startTime,
+                    endTime: schedule.endTime,
+                    excludeId: id,
+                    type: 'class'
+                });
+
+                if (!availability.available) {
+                    await transaction.rollback();
+                    return res.status(409).json({
+                        message: `La salle est déjà occupée le ${schedule.day} sur ce créneau par : ${availability.conflict.details.name || availability.conflict.details.title}.`,
+                        conflict: availability.conflict
+                    });
+                }
+            }
+        }
+
+        await db.SundaySchool.update({
+            ...classData,
+            roomId: roomId || null,
+            recurringSchedule,
+            teacherId: monitorId || null
+        }, {
+            where: { id, churchId: req.church.id },
+            transaction
+        });
+
+        // Handle monitor assignment if changed/provided
+        if (monitorId) {
+            const existingMonitor = await db.SundaySchoolMonitor.findOne({
+                where: { userId: monitorId, classId: id, churchId: req.church.id }
+            });
+
+            if (!existingMonitor) {
+                // Remove other monitor assignments for this person if they are being moved to this class
+                // Actually, the user can be a monitor in multiple classes? 
+                // "Un membre ne peut appartenir a dex classe a la fois" refers to membership.
+                // For committee, usually they are in one.
+
+                await db.SundaySchoolMonitor.create({
+                    userId: monitorId,
+                    classId: id,
+                    role: monitorRole || 'monitor',
+                    churchId: req.church.id
+                }, { transaction });
+
+                // Ensure membership is synced (handled by assignMemberToClassesInternal refreshed below, 
+                // but let's be explicit for manual assignments)
+                const existingMember = await db.SundaySchoolMember.findOne({
+                    where: { userId: monitorId, sundaySchoolId: id }
+                });
+
+                if (existingMember) {
+                    await existingMember.update({ level: 'Actuel', leftAt: null, assignmentType: 'manual' }, { transaction });
+                } else {
+                    await db.SundaySchoolMember.create({
+                        userId: monitorId,
+                        sundaySchoolId: id,
+                        level: 'Actuel',
+                        assignmentType: 'manual',
+                        joinedAt: new Date()
+                    }, { transaction });
+                }
+            }
+        }
 
         // Refresh auto-assignments
         const users = await db.User.findAll({ where: { churchId: req.church.id } });
@@ -221,8 +419,11 @@ exports.updateClass = async (req, res) => {
             await assignMemberToClassesInternal(user.id, req.church.id);
         }
 
+        await transaction.commit();
         res.json({ message: "Classe mise à jour." });
     } catch (err) {
+        await transaction.rollback();
+        console.error("Update class error:", err);
         res.status(500).json({ message: "Erreur lors de la mise à jour." });
     }
 };
@@ -230,10 +431,49 @@ exports.updateClass = async (req, res) => {
 exports.deleteClass = async (req, res) => {
     try {
         const { id } = req.params;
-        await db.SundaySchool.destroy({ where: { id, churchId: req.church.id } });
-        res.json({ message: "Classe supprimée." });
+
+        // Verify the class belongs to this church
+        const cls = await db.SundaySchool.findOne({
+            where: { id, churchId: req.church.id }
+        });
+
+        if (!cls) {
+            return res.status(404).json({ message: "Classe non trouvée." });
+        }
+
+        // Delete all related records in the correct order
+        // 1. Delete attendance records
+        await db.SundaySchoolAttendance.destroy({
+            where: { classId: id }
+        });
+
+        // 2. Delete reports
+        await db.SundaySchoolReport.destroy({
+            where: { classId: id }
+        });
+
+        // 3. Delete member assignments (junction table)
+        await db.SundaySchoolMember.destroy({
+            where: { sundaySchoolId: id }
+        });
+
+        // 4. Delete monitor assignments (junction table)
+        await db.SundaySchoolMonitor.destroy({
+            where: { classId: id }
+        });
+
+        // 5. Finally delete the class itself
+        await db.SundaySchool.destroy({
+            where: { id, churchId: req.church.id }
+        });
+
+        res.json({ message: "Classe et toutes les données associées supprimées avec succès." });
     } catch (err) {
-        res.status(500).json({ message: "Erreur lors de la suppression." });
+        console.error("Delete class error:", err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression.",
+            error: err.message
+        });
     }
 };
 
@@ -254,11 +494,208 @@ exports.getMonitors = async (req, res) => {
 };
 
 exports.assignMonitor = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
     try {
-        const monitor = await db.SundaySchoolMonitor.create({ ...req.body, churchId: req.church.id });
+        const { userId, classId, role } = req.body;
+        const churchId = req.church.id;
+
+        // 1. Handle previous monitor assignments for this user
+        // If a user can only be in one class committee at a time (usual for SS monitors)
+        const existingMonitor = await db.SundaySchoolMonitor.findOne({
+            where: { userId, churchId }
+        });
+
+        if (existingMonitor) {
+            // Move old class membership to history if it was a manual (monitor) assignment
+            await db.SundaySchoolMember.update(
+                { level: 'non-actuel', leftAt: new Date() },
+                {
+                    where: {
+                        userId,
+                        sundaySchoolId: existingMonitor.classId,
+                        assignmentType: 'manual',
+                        level: 'Actuel'
+                    },
+                    transaction
+                }
+            );
+            // Delete the old monitor assignment
+            await existingMonitor.destroy({ transaction });
+        }
+
+        // 2. Create the new monitor assignment
+        const monitor = await db.SundaySchoolMonitor.create({
+            userId,
+            classId,
+            role,
+            churchId
+        }, { transaction });
+
+        // 3. Ensure they are an active member of the new class
+        // Check if already an active member (could be automatic or manual)
+        const existingMember = await db.SundaySchoolMember.findOne({
+            where: { userId, sundaySchoolId: classId }
+        });
+
+        if (existingMember) {
+            await existingMember.update({
+                level: 'Actuel',
+                leftAt: null,
+                assignmentType: 'manual' // Ensure it's manual now that they are a monitor
+            }, { transaction });
+        } else {
+            await db.SundaySchoolMember.create({
+                userId,
+                sundaySchoolId: classId,
+                level: 'Actuel',
+                assignmentType: 'manual',
+                joinedAt: new Date()
+            }, { transaction });
+        }
+
+        await transaction.commit();
         res.status(201).json(monitor);
     } catch (err) {
+        await transaction.rollback();
+        console.error("Assign monitor error:", err);
         res.status(500).json({ message: "Erreur lors de l'assignation." });
+    }
+};
+
+exports.removeMonitor = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
+    try {
+        const { id } = req.params; // Monitor assignment ID
+        const churchId = req.church.id;
+
+        const monitor = await db.SundaySchoolMonitor.findOne({
+            where: { id, churchId }
+        });
+
+        if (!monitor) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "Assignation non trouvée." });
+        }
+
+        // Move class membership to history
+        await db.SundaySchoolMember.update(
+            { level: 'non-actuel', leftAt: new Date() },
+            {
+                where: {
+                    userId: monitor.userId,
+                    sundaySchoolId: monitor.classId,
+                    assignmentType: 'manual',
+                    level: 'Actuel'
+                },
+                transaction
+            }
+        );
+
+        // Clear teacherId from class if this person was the primary teacher
+        await db.SundaySchool.update(
+            { teacherId: null },
+            {
+                where: { id: monitor.classId, teacherId: monitor.userId, churchId },
+                transaction
+            }
+        );
+
+        await monitor.destroy({ transaction });
+
+        await transaction.commit();
+        res.json({ message: "Moniteur retiré et membre archivé." });
+    } catch (err) {
+        await transaction.rollback();
+        console.error("Remove monitor error:", err);
+        res.status(500).json({ message: "Erreur lors de la suppression." });
+    }
+};
+
+exports.updateMonitor = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
+    try {
+        const { id } = req.params;
+        const { classId, role } = req.body;
+        const churchId = req.church.id;
+
+        const monitor = await db.SundaySchoolMonitor.findOne({
+            where: { id, churchId }
+        });
+
+        if (!monitor) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "Moniteur non trouvé." });
+        }
+
+        const oldClassId = monitor.classId;
+        const userId = monitor.userId;
+
+        // 1. If class changed, handle membership transition
+        if (classId && classId !== oldClassId) {
+            // Demote old membership
+            await db.SundaySchoolMember.update(
+                { level: 'non-actuel', leftAt: new Date() },
+                {
+                    where: {
+                        userId,
+                        sundaySchoolId: oldClassId,
+                        assignmentType: 'manual',
+                        level: 'Actuel'
+                    },
+                    transaction
+                }
+            );
+
+            // Clear teacherId from old class if they were the primary teacher
+            await db.SundaySchool.update(
+                { teacherId: null },
+                {
+                    where: { id: oldClassId, teacherId: userId, churchId },
+                    transaction
+                }
+            );
+
+            // Update teacherId on new class
+            await db.SundaySchool.update(
+                { teacherId: userId },
+                {
+                    where: { id: classId, churchId },
+                    transaction
+                }
+            );
+
+            // Ensure they are active in the new class
+            const existingMember = await db.SundaySchoolMember.findOne({
+                where: { userId, sundaySchoolId: classId },
+                transaction
+            });
+
+            if (existingMember) {
+                await existingMember.update({
+                    level: 'Actuel',
+                    leftAt: null,
+                    assignmentType: 'manual'
+                }, { transaction });
+            } else {
+                await db.SundaySchoolMember.create({
+                    userId,
+                    sundaySchoolId: classId,
+                    level: 'Actuel',
+                    assignmentType: 'manual',
+                    joinedAt: new Date()
+                }, { transaction });
+            }
+        }
+
+        // 2. Update the monitor record
+        await monitor.update(req.body, { transaction });
+
+        await transaction.commit();
+        res.json({ message: "Moniteur mis à jour avec succès." });
+    } catch (err) {
+        await transaction.rollback();
+        console.error("Update monitor error:", err);
+        res.status(500).json({ message: "Erreur lors de la mise à jour." });
     }
 };
 
@@ -291,12 +728,18 @@ exports.submitReport = async (req, res) => {
     const transaction = await db.sequelize.transaction();
     try {
         const { attendance, ...reportData } = req.body;
+        console.log("[SundaySchool] submitReport received payload:", JSON.stringify({ ...reportData, attendanceCount: attendance?.length }));
+
+        const submittedById = reportData.submittedById || req.user.id;
+        console.log("[SundaySchool] Determined submittedById:", submittedById);
 
         const report = await db.SundaySchoolReport.create({
             ...reportData,
             churchId: req.church.id,
-            submittedById: req.user.id
+            submittedById
         }, { transaction });
+
+        console.log("[SundaySchool] Created report ID:", report.id, "with submittedById:", report.submittedById);
 
         // If attendance array is provided, create attendance records
         if (attendance && Array.isArray(attendance)) {
@@ -305,10 +748,12 @@ exports.submitReport = async (req, res) => {
                 userId: a.userId,
                 date: reportData.date || new Date().toISOString().split('T')[0],
                 status: a.status,
-                monitorId: req.user.id,
-                churchId: req.church.id
+                monitorId: submittedById,
+                churchId: req.church.id,
+                reportId: report.id
             }));
             await db.SundaySchoolAttendance.bulkCreate(attendanceRecords, { transaction });
+            console.log("[SundaySchool] Created", attendanceRecords.length, "attendance records for reportId:", report.id);
         }
 
         await transaction.commit();
@@ -353,11 +798,10 @@ exports.getReportById = async (req, res) => {
 
         if (!report) return res.status(404).json({ message: "Rapport non trouvé." });
 
-        // Also fetch attendance for this class on this date
+        // Also fetch attendance specifically for this report
         const attendance = await db.SundaySchoolAttendance.findAll({
             where: {
-                classId: report.classId,
-                date: report.date,
+                reportId: report.id,
                 churchId: req.church.id
             },
             include: [{ model: db.User, as: 'user', attributes: ['firstName', 'lastName', 'memberCode'] }]
@@ -366,6 +810,180 @@ exports.getReportById = async (req, res) => {
         res.json({ report, attendance });
     } catch (err) {
         res.status(500).json({ message: "Erreur lors de la récupération du rapport." });
+    }
+};
+
+exports.updateReport = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
+    try {
+        const { id } = req.params;
+        const { attendance, ...reportData } = req.body;
+
+        const report = await db.SundaySchoolReport.findOne({
+            where: { id, churchId: req.church.id },
+            transaction
+        });
+
+        if (!report) {
+            await transaction.rollback();
+            return res.status(404).json({ message: "Rapport non trouvé." });
+        }
+
+        const submittedById = reportData.submittedById || report.submittedById;
+
+        // 1. Update Report Data
+        await report.update({
+            ...reportData,
+            submittedById
+        }, { transaction });
+
+        // 2. Update Attendance if provided
+        if (attendance && Array.isArray(attendance)) {
+            // Delete old attendance for this report
+            await db.SundaySchoolAttendance.destroy({
+                where: { reportId: id, churchId: req.church.id },
+                transaction
+            });
+
+            // Re-create attendance
+            const attendanceRecords = attendance.map(a => ({
+                classId: report.classId,
+                userId: a.userId,
+                date: report.date,
+                status: a.status,
+                monitorId: submittedById,
+                churchId: req.church.id,
+                reportId: report.id
+            }));
+            await db.SundaySchoolAttendance.bulkCreate(attendanceRecords, { transaction });
+        }
+
+        await transaction.commit();
+        res.json(report);
+    } catch (err) {
+        await transaction.rollback();
+        console.error("Report update error:", err);
+        res.status(500).json({ message: "Erreur lors de la mise à jour du rapport." });
+    }
+};
+
+exports.deleteReport = async (req, res) => {
+    const transaction = await db.sequelize.transaction();
+    try {
+        const { id } = req.params;
+        console.log(`[SundaySchool] Attempting to delete report ID: ${id} for church: ${req.church?.id}`);
+
+        const report = await db.SundaySchoolReport.findOne({
+            where: { id, churchId: req.church.id },
+            transaction
+        });
+
+        if (!report) {
+            console.warn(`[SundaySchool] Report not found or unauthorized: ${id}`);
+            await transaction.rollback();
+            return res.status(404).json({ message: "Rapport non trouvé." });
+        }
+
+        // 1. Delete associated attendance
+        // We delete by reportId AND fallback to (classId + date) for old reports
+        const attendanceDeleted = await db.SundaySchoolAttendance.destroy({
+            where: {
+                [Op.or]: [
+                    { reportId: id },
+                    { classId: report.classId, date: report.date }
+                ],
+                churchId: req.church.id
+            },
+            transaction
+        });
+        console.log(`[SundaySchool] Deleted ${attendanceDeleted} attendance records for report ${id}`);
+
+        // 2. Delete Report
+        await report.destroy({ transaction });
+        console.log(`[SundaySchool] Report ${id} deleted successfully.`);
+
+        await transaction.commit();
+        res.json({ message: "Rapport supprimé avec succès." });
+    } catch (err) {
+        if (transaction) await transaction.rollback();
+        console.error("Report delete error:", err);
+        res.status(500).json({ message: "Erreur lors de la suppression du rapport." });
+    }
+};
+
+exports.deleteAllReports = async (req, res) => {
+    console.log(">>> [SundaySchool] Entered deleteAllReports controller");
+    let transaction;
+    try {
+        const { classId } = req.params;
+        const churchId = req.church.id;
+
+        if (!classId) {
+            console.error("[SundaySchool] Bulk delete failed: classId missing");
+            return res.status(400).json({ message: "ID de classe manquant." });
+        }
+
+        const targetClassId = parseInt(classId, 10);
+        console.log(`[SundaySchool] Starting bulk delete for classId: ${targetClassId}, church: ${churchId}`);
+
+        // 1. Find reports
+        const reports = await db.SundaySchoolReport.findAll({
+            where: { classId: targetClassId, churchId },
+            attributes: ['id', 'date']
+        });
+
+        if (!reports || reports.length === 0) {
+            console.log("[SundaySchool] No reports found to delete.");
+            return res.json({ message: "Aucun rapport à supprimer." });
+        }
+
+        const reportIds = reports.map(r => r.id);
+        const reportDates = reports.map(r => r.date);
+        console.log(`[SundaySchool] Found ${reportIds.length} reports. IDs: ${reportIds.join(',')}`);
+
+        // Use a transaction for the actual deletion
+        transaction = await db.sequelize.transaction();
+
+        // 2. Delete attendance by reportIds
+        let attCount = await db.SundaySchoolAttendance.destroy({
+            where: {
+                reportId: { [Op.in]: reportIds },
+                churchId
+            },
+            transaction
+        });
+        console.log(`[SundaySchool] Deleted ${attCount} attendances by reportId.`);
+
+        // 3. Delete attendance by dates (fallback for old data)
+        let attCountDate = await db.SundaySchoolAttendance.destroy({
+            where: {
+                classId: targetClassId,
+                date: { [Op.in]: reportDates },
+                churchId
+            },
+            transaction
+        });
+        console.log(`[SundaySchool] Deleted ${attCountDate} attendances by date.`);
+
+        // 4. Delete the reports
+        const reportsDeleted = await db.SundaySchoolReport.destroy({
+            where: {
+                id: { [Op.in]: reportIds },
+                churchId
+            },
+            transaction
+        });
+        console.log(`[SundaySchool] Deleted ${reportsDeleted} reports.`);
+
+        await transaction.commit();
+        res.json({ message: `${reportsDeleted} rapports supprimés.` });
+    } catch (err) {
+        if (transaction) await transaction.rollback();
+        console.error("[SundaySchool] Bulk delete ERROR:", err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression massive.",
+            error: err.message
+        });
     }
 };
 

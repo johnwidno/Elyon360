@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import api from '../../../api/axios';
 import { useLanguage } from '../../../context/LanguageContext';
+import ConfirmModal from '../../ConfirmModal';
+import AlertModal from '../../ChurchAlertModal';
+import { useNavigate } from 'react-router-dom';
 
-const RelationshipsList = ({ memberId, member }) => {
+const RelationshipsList = ({ memberId, member, isTableView }) => {
     const { t } = useLanguage();
+    const navigate = useNavigate();
     const [relationships, setRelationships] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [editData, setEditData] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null });
 
     const fetchRelationships = async () => {
         try {
@@ -41,23 +47,115 @@ const RelationshipsList = ({ memberId, member }) => {
         });
     }
 
-    const handleDelete = async (id) => {
-        if (!window.confirm(t('confirm_delete_relationship', 'Êtes-vous sûr de vouloir supprimer cette relation ?'))) return;
+    const handleDelete = async () => {
+        const id = confirmModal.id;
+        if (!id) return;
         try {
             await api.delete(`/relationships/${id}`);
             setRelationships(prev => prev.filter(r => r.id !== id));
         } catch (error) {
             console.error("Error deleting relationship:", error);
+        } finally {
+            setConfirmModal({ isOpen: false, id: null });
         }
     };
+
+    if (isTableView) {
+        return (
+            <div className="overflow-x-auto">
+                <div className="flex justify-between items-center mb-4 px-1">
+                    <p className="text-[11px] font-black text-gray-400">{t('relationships', 'Relations Familiales & Autres')}</p>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setEditData(null); setShowModal(true); }}
+                        className="text-[11px] font-bold text-stripe-blue hover:underline flex items-center gap-1"
+                    >
+                        + {t('add_relationship', 'Ajouter une relation')}
+                    </button>
+                </div>
+                <table className="w-full text-left">
+                    <thead className="bg-gray-50 dark:bg-black/40">
+                        <tr>
+                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase">{t('name', 'Nom')}</th>
+                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase">{t('relation', 'Relation')}</th>
+                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase text-right">{t('details', 'Détails')}</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
+                        {displayRelationships.length === 0 ? (
+                            <tr>
+                                <td colSpan="3" className="px-4 py-6 text-center text-xs text-gray-400">
+                                    {t('no_relationships_recorded', 'Aucune relation enregistrée.')}
+                                </td>
+                            </tr>
+                        ) : displayRelationships.map((rel) => (
+                            <tr key={rel.id} className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors">
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center gap-3">
+                                        {rel.person?.photo ? (
+                                            <img src={rel.person.photo} alt="" className="w-8 h-8 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-[10px]">
+                                                {rel.person?.firstName?.[0]}
+                                            </div>
+                                        )}
+                                        <span
+                                            className="font-bold text-gray-900 dark:text-white cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                                            onClick={(e) => { e.stopPropagation(); navigate(`/admin/members/${rel.person?.id}`); }}
+                                        >
+                                            {rel.person?.firstName} {rel.person?.lastName}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-3">
+                                    <span className="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded text-[9px] font-black">
+                                        {t(rel.type?.toLowerCase()) || rel.type}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center justify-end gap-3">
+                                        <span className="text-gray-500">{rel.details || '-'}</span>
+                                        {!rel.isVirtual && (
+                                            <div className="flex items-center gap-1">
+                                                <button onClick={(e) => { e.stopPropagation(); setEditData(rel); setShowModal(true); }} className="text-indigo-400 hover:text-indigo-600 transition-colors p-1" title={t('edit', 'Modifier')}>✏️</button>
+                                                <button onClick={(e) => { e.stopPropagation(); setConfirmModal({ isOpen: true, id: rel.id }); }} className="text-rose-500 hover:text-rose-700 transition-colors p-1" title={t('delete', 'Supprimer')}>✕</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {showModal && (
+                    <AddRelationshipModal
+                        memberId={memberId}
+                        editData={editData}
+                        onClose={() => setShowModal(false)}
+                        onSuccess={() => {
+                            setShowModal(false);
+                            fetchRelationships();
+                        }}
+                    />
+                )}
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    onClose={() => setConfirmModal({ isOpen: false, id: null })}
+                    onConfirm={handleDelete}
+                    title={t('confirm_delete', 'Confirmer la suppression')}
+                    message={t('confirm_delete_relationship', 'Êtes-vous sûr de vouloir supprimer cette relation ?')}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white dark:bg-[#1A1A1A] rounded-[2rem] border border-gray-100 dark:border-white/5 p-10 mt-10 transition-colors shadow-sm">
             <div className="flex justify-between items-center mb-10">
                 <h3 className="text-xl font-bold text-indigo-600 dark:text-indigo-400 tracking-tight transition-colors">{t('relationships', 'Relations Familiales & Autres')}</h3>
                 <button
-                    onClick={() => setShowModal(true)}
-                    className="text-[11px] font-bold uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-6 py-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all active:scale-95 shadow-sm"
+                    onClick={() => { setEditData(null); setShowModal(true); }}
+                    className="text-[11px] font-bold bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-6 py-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all active:scale-95 shadow-sm"
                 >
                     + {t('add', 'Ajouter')}
                 </button>
@@ -84,7 +182,10 @@ const RelationshipsList = ({ memberId, member }) => {
                                     )}
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="font-bold text-gray-900 dark:text-white text-[15px] tracking-tight transition-colors">
+                                    <div
+                                        className="font-bold text-gray-900 dark:text-white text-[15px] tracking-tight transition-colors cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400"
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/admin/members/${rel.person?.id}`); }}
+                                    >
                                         {rel.person?.firstName} {rel.person?.lastName}
                                     </div>
                                     <div className="text-xs text-gray-500 dark:text-gray-400 font-semibold flex items-center gap-3 transition-colors">
@@ -96,14 +197,24 @@ const RelationshipsList = ({ memberId, member }) => {
                                 </div>
                             </div>
                             {!rel.isVirtual && (
-                                <button
-                                    onClick={() => handleDelete(rel.id)}
-                                    className="text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-3 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all ml-4">
+                                    <button
+                                        onClick={() => { setEditData(rel); setShowModal(true); }}
+                                        className="text-gray-400 dark:text-gray-600 hover:text-indigo-500 dark:hover:text-indigo-400 p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
+                                        title={t('edit', 'Modifier')}
+                                    >
+                                        ✏️
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmModal({ isOpen: true, id: rel.id })}
+                                        className="text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                                        title={t('delete', 'Supprimer')}
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             )}
                         </div>
                     ))}
@@ -113,6 +224,7 @@ const RelationshipsList = ({ memberId, member }) => {
             {showModal && (
                 <AddRelationshipModal
                     memberId={memberId}
+                    editData={editData}
                     onClose={() => setShowModal(false)}
                     onSuccess={() => {
                         setShowModal(false);
@@ -120,11 +232,19 @@ const RelationshipsList = ({ memberId, member }) => {
                     }}
                 />
             )}
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, id: null })}
+                onConfirm={handleDelete}
+                title={t('confirm_delete', 'Confirmer la suppression')}
+                message={t('confirm_delete_relationship', 'Êtes-vous sûr de vouloir supprimer cette relation ?')}
+            />
         </div>
     );
 };
 
-const AddRelationshipModal = ({ memberId, onClose, onSuccess }) => {
+const AddRelationshipModal = ({ memberId, editData, onClose, onSuccess }) => {
     const { t } = useLanguage();
     const [search, setSearch] = useState('');
     const [results, setResults] = useState([]);
@@ -132,6 +252,21 @@ const AddRelationshipModal = ({ memberId, onClose, onSuccess }) => {
     const [type, setType] = useState('Autre');
     const [details, setDetails] = useState('');
     const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'error' });
+
+    useEffect(() => {
+        if (editData) {
+            setSelectedPerson(editData.person);
+            let cleanedType = editData.type?.replace(' (Inverse)', '');
+            setType(cleanedType || 'Autre');
+            setDetails(editData.details || '');
+        } else {
+            setSelectedPerson(null);
+            setType('Autre');
+            setDetails('');
+            setSearch('');
+        }
+    }, [editData]);
 
     useEffect(() => {
         if (search.length > 2) {
@@ -163,16 +298,28 @@ const AddRelationshipModal = ({ memberId, onClose, onSuccess }) => {
 
         setLoading(true);
         try {
-            await api.post('/relationships', {
-                personAId: memberId,
-                personBId: selectedPerson.id,
-                type,
-                details
-            });
+            if (editData) {
+                await api.put(`/relationships/${editData.id}`, {
+                    type,
+                    details
+                });
+            } else {
+                await api.post('/relationships', {
+                    personAId: memberId,
+                    personBId: selectedPerson.id,
+                    type,
+                    details
+                });
+            }
             onSuccess();
         } catch (error) {
-            console.error("Create error:", error);
-            alert(t('error_creating_relationship', "Erreur lors de la création de la relation"));
+            console.error("Save error:", error);
+            setAlertMessage({
+                show: true,
+                title: t('error', 'Erreur'),
+                message: t('error_saving_relationship', "Erreur lors de la sauvegarde de la relation"),
+                type: 'error'
+            });
         } finally {
             setLoading(false);
         }
@@ -183,7 +330,7 @@ const AddRelationshipModal = ({ memberId, onClose, onSuccess }) => {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm transition-colors p-6">
             <div className="bg-white dark:bg-[#1A1A1A] rounded-[3rem] shadow-2xl w-full max-w-md p-12 animate-scale-in border border-transparent dark:border-white/5 transition-colors">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight transition-colors">{t('add_relationship', 'Ajouter une relation')}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight transition-colors">{editData ? t('edit_relationship', 'Modifier la relation') : t('add_relationship', 'Ajouter une relation')}</h3>
                 <p className="text-[14px] font-medium text-gray-500 dark:text-gray-400 mb-10 transition-colors">{t('link_member_to_person', 'Lier ce membre à une autre personne')}</p>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
@@ -195,15 +342,16 @@ const AddRelationshipModal = ({ memberId, onClose, onSuccess }) => {
                         <div className="relative">
                             <input
                                 type="text"
-                                className="w-full bg-gray-50 dark:bg-white/5 border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-[#111] font-medium text-sm outline-none transition-all"
+                                className="w-full bg-gray-50 dark:bg-white/5 border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:focus:bg-[#111] font-medium text-sm outline-none transition-all disabled:opacity-50"
                                 placeholder={t('member_name_placeholder', "Nom du membre...")}
                                 value={selectedPerson ? `${selectedPerson.firstName} ${selectedPerson.lastName}` : search}
+                                disabled={!!editData}
                                 onChange={(e) => {
                                     setSearch(e.target.value);
                                     setSelectedPerson(null);
                                 }}
                             />
-                            {selectedPerson && (
+                            {selectedPerson && !editData && (
                                 <button
                                     type="button"
                                     onClick={() => { setSelectedPerson(null); setSearch(''); }}
@@ -279,11 +427,19 @@ const AddRelationshipModal = ({ memberId, onClose, onSuccess }) => {
                             disabled={!selectedPerson || loading}
                             className="flex-3 py-4 bg-indigo-600 dark:bg-indigo-500 text-white rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-40"
                         >
-                            {loading ? t('adding', 'Ajout...') : t('add', 'Ajouter')}
+                            {loading ? t('saving', 'Sauvegarde...') : (editData ? t('save', 'Enregistrer') : t('add', 'Ajouter'))}
                         </button>
                     </div>
                 </form>
             </div>
+
+            <AlertModal
+                isOpen={alertMessage.show}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+            />
         </div>
     );
 };

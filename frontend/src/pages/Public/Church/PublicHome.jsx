@@ -7,7 +7,7 @@ export default function ChurchPublicHome({ subdomain }) {
     const [church, setChurch] = useState(null);
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState([]);
-    const [visitorForm, setVisitorForm] = useState({ fullName: '', email: '', phone: '' });
+    const [visitorForm, setVisitorForm] = useState({ firstName: '', lastName: '', email: '', phone: '', description: '' });
     const [submitting, setSubmitting] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: '', type: 'success' });
     const [errorMsg, setErrorMsg] = useState('Ce site n\'existe pas ou n\'est plus actif.');
@@ -58,7 +58,7 @@ export default function ChurchPublicHome({ subdomain }) {
                 churchId: church.id
             });
             setAlert({ show: true, message: "Merci ! Nous avons bien reçu vos informations. Nous vous contacterons bientôt.", type: 'success' });
-            setVisitorForm({ fullName: '', email: '', phone: '' });
+            setVisitorForm({ firstName: '', lastName: '', email: '', phone: '', description: '' });
         } catch (error) {
             setAlert({ show: true, message: "Une erreur est survenue. Veuillez réessayer.", type: 'error' });
         } finally {
@@ -123,9 +123,17 @@ export default function ChurchPublicHome({ subdomain }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-12">
                         <div className="flex items-center space-x-3 cursor-pointer">
-                            <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white p-2 shadow-sm italic font-black text-xl">
-                                {(church.acronym || 'E')[0]}
-                            </div>
+                            {church.logoUrl ? (
+                                <img
+                                    src={getImageUrl(church.logoUrl)}
+                                    alt="Logo"
+                                    className="w-12 h-12 object-contain"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white p-2 shadow-sm italic font-black text-xl">
+                                    {(church.acronym || 'E')[0]}
+                                </div>
+                            )}
                             <div className="flex flex-col">
                                 <span className="text-xl font-black text-gray-900 tracking-tighter leading-none">
                                     {church.acronym || 'ELYONSYS'}
@@ -404,14 +412,24 @@ export default function ChurchPublicHome({ subdomain }) {
                         </div>
 
                         <form className="relative z-10 grid md:grid-cols-1 gap-6 max-w-xl mx-auto" onSubmit={handleVisitorSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Votre nom complet"
-                                className="bg-white/10 border border-white/10 p-6 rounded-2xl outline-none focus:bg-white/20 transition-all font-bold placeholder:text-white/30"
-                                value={visitorForm.fullName}
-                                onChange={(e) => setVisitorForm({ ...visitorForm, fullName: e.target.value })}
-                                required
-                            />
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <input
+                                    type="text"
+                                    placeholder="Prénom"
+                                    className="bg-white/10 border border-white/10 p-6 rounded-2xl outline-none focus:bg-white/20 transition-all font-bold placeholder:text-white/30"
+                                    value={visitorForm.firstName}
+                                    onChange={(e) => setVisitorForm({ ...visitorForm, firstName: e.target.value })}
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Nom"
+                                    className="bg-white/10 border border-white/10 p-6 rounded-2xl outline-none focus:bg-white/20 transition-all font-bold placeholder:text-white/30"
+                                    value={visitorForm.lastName}
+                                    onChange={(e) => setVisitorForm({ ...visitorForm, lastName: e.target.value })}
+                                    required
+                                />
+                            </div>
                             <div className="grid md:grid-cols-2 gap-6">
                                 <input
                                     type="email"
@@ -429,6 +447,12 @@ export default function ChurchPublicHome({ subdomain }) {
                                     onChange={(e) => setVisitorForm({ ...visitorForm, phone: e.target.value })}
                                 />
                             </div>
+                            <textarea
+                                placeholder="Ajoutez une note ou une raison de votre visite (optionnel)"
+                                className="bg-white/10 border border-white/10 p-6 rounded-2xl outline-none focus:bg-white/20 transition-all font-bold placeholder:text-white/30 h-32 resize-none"
+                                value={visitorForm.description}
+                                onChange={(e) => setVisitorForm({ ...visitorForm, description: e.target.value })}
+                            />
                             <button
                                 type="submit"
                                 disabled={submitting}
@@ -444,9 +468,17 @@ export default function ChurchPublicHome({ subdomain }) {
             {/* Footer */}
             <footer className="py-24 bg-white border-t border-gray-50 flex flex-col items-center gap-12 text-center">
                 <div className="flex items-center space-x-3 italic">
-                    <div className="w-12 h-12 bg-gray-900 rounded-2xl flex items-center justify-center text-white font-black text-2xl">
-                        {(church.acronym || 'E')[0]}
-                    </div>
+                    {church.logoUrl ? (
+                        <img
+                            src={getImageUrl(church.logoUrl)}
+                            alt="Logo"
+                            className="w-12 h-12 object-contain"
+                        />
+                    ) : (
+                        <div className="w-12 h-12 bg-gray-900 rounded-2xl flex items-center justify-center text-white font-black text-2xl">
+                            {(church.acronym || 'E')[0]}
+                        </div>
+                    )}
                     <div>
                         <p className="text-xl font-black text-gray-900 tracking-tighter leading-none">{church.acronym || 'ELYONSYS'}</p>
                         <p className="text-[9px] font-bold text-gray-400 tracking-[0.3em] uppercase mt-1">Établi en 2026</p>

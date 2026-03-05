@@ -27,6 +27,10 @@ module.exports = (sequelize, Sequelize) => {
         notes: {
             type: Sequelize.TEXT,
             allowNull: true
+        },
+        reportId: {
+            type: Sequelize.INTEGER,
+            allowNull: true
         }
     });
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import AlertModal from '../../components/ChurchAlertModal';
 
 export default function PublicActivityRegistration() {
     const { token } = useParams();
@@ -11,6 +12,7 @@ export default function PublicActivityRegistration() {
     const [success, setSuccess] = useState(false);
     const [finished, setFinished] = useState(false);
     const [regMode, setRegMode] = useState('visitor'); // 'visitor' or 'member'
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'error' });
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -70,7 +72,7 @@ export default function PublicActivityRegistration() {
             if (!res.ok) throw new Error(data.message || 'Erreur');
             setSuccess(true);
         } catch (err) {
-            alert(err.message);
+            setAlertMessage({ show: true, title: t('error', 'Erreur'), message: err.message, type: 'error' });
         }
     };
 
@@ -88,7 +90,7 @@ export default function PublicActivityRegistration() {
             if (!res.ok) throw new Error(data.message || 'Erreur');
             setSuccess(true);
         } catch (err) {
-            alert(err.message);
+            setAlertMessage({ show: true, title: t('error', 'Erreur'), message: err.message, type: 'error' });
         }
     };
 
@@ -302,6 +304,13 @@ export default function PublicActivityRegistration() {
                     )}
                 </div>
             </div>
+            <AlertModal
+                isOpen={alertMessage.show}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+            />
         </div>
     );
 }

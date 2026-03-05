@@ -81,6 +81,11 @@ exports.login = async (req, res) => {
                 church_subdomain: user.church ? user.church.subdomain : null,
                 churchName: user.church ? user.church.name : null,
                 churchAcronym: user.church ? user.church.acronym : null,
+                churchLogo: user.church ? user.church.logoUrl : null,
+                pastorName: user.church ? user.church.pastorName : null,
+                churchEmail: user.church ? user.church.churchEmail : null,
+                churchStatus: user.church ? user.church.status : 'active',
+                subscriptionExpiresAt: user.church ? user.church.subscriptionExpiresAt : null,
                 setupCompleted: user.church ? user.church.setupCompleted : false
             },
             process.env.JWT_SECRET || 'secret_key',
@@ -96,8 +101,14 @@ exports.login = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 permissions, // NEW
+                mustChangePassword: user.mustChangePassword,
                 churchName: user.church ? user.church.name : null,
                 churchAcronym: user.church ? user.church.acronym : null,
+                churchLogo: user.church ? user.church.logoUrl : null,
+                pastorName: user.church ? user.church.pastorName : null,
+                churchEmail: user.church ? user.church.churchEmail : null,
+                churchStatus: user.church ? user.church.status : 'active',
+                subscriptionExpiresAt: user.church ? user.church.subscriptionExpiresAt : null,
                 setupCompleted: user.church ? user.church.setupCompleted : false
             }
         });

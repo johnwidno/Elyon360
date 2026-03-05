@@ -13,6 +13,10 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       unique: true
     },
+    logoUrl: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     customDomain: {
       type: Sequelize.STRING,
       unique: true
@@ -80,8 +84,8 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: 'monthly'
     },
     status: {
-      type: Sequelize.ENUM('active', 'inactive'),
-      defaultValue: 'active'
+      type: Sequelize.ENUM('active', 'inactive', 'suspended', 'expired'),
+      defaultValue: 'inactive'
     },
     subscriptionStartedAt: {
       type: Sequelize.DATE,
@@ -94,6 +98,22 @@ module.exports = (sequelize, Sequelize) => {
     setupCompleted: {
       type: Sequelize.BOOLEAN,
       defaultValue: false
+    },
+    moncashOrderId: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    moncashTransactionId: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    pastorName: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    churchEmail: {
+      type: Sequelize.STRING,
+      allowNull: true
     }
   });
 

@@ -30,7 +30,7 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: true
         },
         logo: {
-            type: Sequelize.STRING,
+            type: Sequelize.TEXT('long'),
             allowNull: true
         },
         subtypeId: {

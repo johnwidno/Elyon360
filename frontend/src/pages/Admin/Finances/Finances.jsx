@@ -224,6 +224,22 @@ export default function Finances() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (formData.isDeposited) {
+            if (!formData.bankAccountId) {
+                setAlertMessage({ show: true, title: t('error'), message: t('select_bank_account_error', "Veuillez sélectionner un compte bancaire."), type: 'error' });
+                return;
+            }
+            if (!formData.depositDate) {
+                setAlertMessage({ show: true, title: t('error'), message: t('select_date_error', "Veuillez sélectionner la date d'encaissement."), type: 'error' });
+                return;
+            }
+            if (!formData.depositedById) {
+                setAlertMessage({ show: true, title: t('error'), message: t('select_depositor_error', "Veuillez sélectionner la personne qui a effectué le dépôt."), type: 'error' });
+                return;
+            }
+        }
+
         try {
             await api.post('/donations', { ...formData, userId: formData.userId || null });
             setAlertMessage({ show: true, title: t('success'), message: t('donation_registered_success'), type: 'success' });
@@ -231,7 +247,7 @@ export default function Finances() {
             setFormData({
                 amount: '', currency: supportedCurrencies[0] || 'HTG', type: 'offrande',
                 date: new Date().toISOString().split('T')[0], paymentMethod: 'CASH', notes: '', userId: '',
-                isDeposited: false, bankAccountId: ''
+                isDeposited: false, bankAccountId: '', depositDate: new Date().toISOString().split('T')[0], depositedById: ''
             });
             fetchData();
         } catch (error) {

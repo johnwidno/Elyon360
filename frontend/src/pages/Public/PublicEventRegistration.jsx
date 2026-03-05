@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useLanguage } from '../../context/LanguageContext';
+import AlertModal from '../../components/ChurchAlertModal';
 
 export default function PublicEventRegistration() {
     const { token } = useParams();
@@ -12,6 +13,7 @@ export default function PublicEventRegistration() {
     const [error, setError] = useState(null);
     const [registered, setRegistered] = useState(false);
     const [showMemberLogin, setShowMemberLogin] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'error' });
 
     const [guestData, setGuestData] = useState({
         firstName: '',
@@ -51,7 +53,12 @@ export default function PublicEventRegistration() {
             });
             setRegistered(true);
         } catch (err) {
-            alert(err.response?.data?.message || t('registration_error', "Erreur lors de l'inscription."));
+            setAlertMessage({
+                show: true,
+                title: t('error', 'Erreur'),
+                message: err.response?.data?.message || t('registration_error', "Erreur lors de l'inscription."),
+                type: 'error'
+            });
         }
     };
 
@@ -71,7 +78,12 @@ export default function PublicEventRegistration() {
             await api.post(`/public/events/${token}/register-member`, memberData);
             setRegistered(true);
         } catch (err) {
-            alert(err.response?.data?.message || t('invalid_credentials', "Identifiants invalides."));
+            setAlertMessage({
+                show: true,
+                title: t('error', 'Erreur'),
+                message: err.response?.data?.message || t('invalid_credentials', "Identifiants invalides."),
+                type: 'error'
+            });
         }
     };
 
@@ -192,6 +204,13 @@ export default function PublicEventRegistration() {
                     </div>
                 </div>
             </div>
+            <AlertModal
+                isOpen={alertMessage.show}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+            />
         </div>
     );
-}
+};

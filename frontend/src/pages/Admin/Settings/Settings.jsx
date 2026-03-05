@@ -27,13 +27,16 @@ export default function Settings() {
         values: '',
         valuesImageUrl: '',
         socialLinks: { facebook: '', youtube: '', instagram: '', whatsapp: '', liveServiceUrl: '', liveServicePlatform: '' },
+        logoUrl: '',
         recentActivities: [],
         schedules: [],
         pastoralTeam: [],
         supportedCurrencies: ['HTG', 'USD'],
         donationTypes: ['offrande', 'dime', 'don_special', 'promesse'],
         paymentMethods: ['CASH', 'VIREMENT', 'CHEQUE', 'CARTE DE CREDIT'],
-        setupCompleted: false
+        setupCompleted: false,
+        pastorName: '',
+        churchEmail: ''
     });
     const [donationStats, setDonationStats] = useState({});
     const [loading, setLoading] = useState(true);
@@ -490,6 +493,32 @@ export default function Settings() {
                                     />
                                 </div>
                             </div>
+
+                            <div className="group">
+                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-2.5">{t('pastor_name_label', 'Nom du Pasteur')}</label>
+                                <div className="flex items-center bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 focus-within:border-indigo-500 focus-within:bg-white dark:focus-within:bg-black transition-all rounded-xl shadow-sm overflow-hidden">
+                                    <input
+                                        type="text"
+                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        placeholder="Ex: Rev. Jean Baptiste"
+                                        value={church.pastorName || ''}
+                                        onChange={(e) => setChurch({ ...church, pastorName: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="group">
+                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-2.5">{t('church_email_label', 'Email de l\'église')}</label>
+                                <div className="flex items-center bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 focus-within:border-indigo-500 focus-within:bg-white dark:focus-within:bg-black transition-all rounded-xl shadow-sm overflow-hidden">
+                                    <input
+                                        type="email"
+                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        placeholder="eglise@exemple.com"
+                                        value={church.churchEmail || ''}
+                                        onChange={(e) => setChurch({ ...church, churchEmail: e.target.value })}
+                                    />
+                                </div>
+                            </div>
                             <div>
                                 <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('subdomain_label')}</label>
                                 <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-transparent rounded-xl shadow-sm overflow-hidden opacity-70 cursor-not-allowed transition-colors">
@@ -511,7 +540,7 @@ export default function Settings() {
                                         type="email"
                                         readOnly
                                         className="w-full p-4 bg-transparent outline-none text-sm font-semibold text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                                        value={church.adminEmail || ''}
+                                        value={church.contactEmail || ''}
                                     />
                                     <span className="pr-4">🔒</span>
                                 </div>
@@ -537,6 +566,56 @@ export default function Settings() {
                         onToggle={() => toggleSection('appearance')}
                     >
                         <div className="space-y-8 mt-2">
+                            {/* Church Logo Upload */}
+                            <div>
+                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('church_logo_label', 'Logo de l\'église')}</label>
+                                <div className="flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
+                                    <div className="w-32 h-32 rounded-3xl bg-gray-50 dark:bg-black/20 border-2 border-dashed border-gray-200 dark:border-white/10 flex items-center justify-center overflow-hidden relative group/logo shadow-sm shrink-0">
+                                        {church.logoUrl ? (
+                                            <>
+                                                <img
+                                                    src={church.logoUrl.startsWith('http') ? church.logoUrl : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${church.logoUrl}`}
+                                                    alt="Logo Preview"
+                                                    className="w-full h-full object-contain p-2"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleImageRemove('logoUrl')}
+                                                    className="absolute inset-0 bg-red-600/60 text-white opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center"
+                                                >
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">{t('remove', 'Supprimer')}</span>
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <div className="text-gray-300 dark:text-gray-700 font-black text-2xl">LOGO</div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-4">
+                                        <div className="flex gap-4">
+                                            <input
+                                                type="text"
+                                                placeholder={t('logo_url_placeholder', 'URL du logo')}
+                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-medium dark:text-white"
+                                                value={church.logoUrl || ''}
+                                                onChange={(e) => setChurch({ ...church, logoUrl: e.target.value })}
+                                            />
+                                            <label className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl text-[12px] font-semibold hover:bg-indigo-700 cursor-pointer transition-all active:scale-95 flex items-center shadow-lg whitespace-nowrap">
+                                                <span>{t('upload')}</span>
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleImageUpload(e, 'logoUrl')}
+                                                />
+                                            </label>
+                                        </div>
+                                        <p className="text-[11px] text-gray-400 font-semibold transition-colors">{t('logo_hint', 'Format carré recommandé pour un meilleur affichage.')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="h-px bg-gray-100 dark:bg-white/5 w-full"></div>
+
                             <div>
                                 <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('hero_image_label')}</label>
                                 <div className="flex flex-col md:flex-row gap-6">

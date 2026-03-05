@@ -20,10 +20,12 @@ exports.createMember = async (req, res) => {
         }
 
         const {
-            firstName, lastName, email, password, role, subtypeId, phone, address, city, country,
+            firstName, lastName, email, password, role, subtypeId, phone, address, city, department, zipCode, country,
             gender, birthDate, maritalStatus, photo, status, nifCin, birthPlace, nickname, joinDate, notes,
             workAddress, workEmail, workPhone, emergencyContact, facebookUrl, linkedinUrl,
-            spouseName, baptismalStatus, memberCategoryId, spouseId
+            spouseName, baptismalStatus, memberCategoryId, spouseId,
+            instagramUrl, tiktokUrl, websiteUrl, emergencyPhone, emergencyEmail,
+            secondaryPhone, secondaryEmail, bloodGroup, memberCode
         } = req.body;
 
         // Check if email exists within this church
@@ -33,18 +35,23 @@ exports.createMember = async (req, res) => {
 
         if (existingUser) return res.status(400).json({ message: "Email déjà utilisé dans cette église." });
 
-        const hashedPassword = await bcrypt.hash(password || 'password123', 10);
+        const defaultPassword = password || 'Elyon@' + Math.floor(1000 + Math.random() * 9000);
+        const hashedPassword = await bcrypt.hash(defaultPassword, 10);
         const newMember = await db.User.create({
             churchId: req.church.id,
             firstName,
             lastName,
             email,
             password: hashedPassword,
+            tempPassword: defaultPassword,
+            mustChangePassword: true,
             role: role || ['member'],
             subtypeId: subtypeId || null,
             phone,
             address,
             city,
+            department,
+            zipCode,
             country,
             gender,
             birthDate,
@@ -62,15 +69,24 @@ exports.createMember = async (req, res) => {
             emergencyContact,
             facebookUrl,
             linkedinUrl,
+            instagramUrl,
+            tiktokUrl,
+            websiteUrl,
+            emergencyPhone,
+            emergencyEmail,
+            secondaryPhone,
+            secondaryEmail,
             spouseName,
-            memberCategoryId,
+            memberCategoryId: (!memberCategoryId || memberCategoryId === "") ? null : memberCategoryId,
             baptismalStatus: baptismalStatus || 'not_baptized',
+            bloodGroup,
+            addedById: req.user?.id,
             categoryChangeDate: (subtypeId || memberCategoryId) ? new Date() : null
         });
 
-        // Generate and save memberCode
-        const memberCode = generateMemberCode(newMember, req.church);
-        await newMember.update({ memberCode });
+        // Generate and save memberCode if not provided
+        const finalMemberCode = memberCode || generateMemberCode(newMember, req.church);
+        await newMember.update({ memberCode: finalMemberCode });
 
         // Record Initial History
         await db.StatusHistory.create({
@@ -157,6 +173,12 @@ exports.getMemberById = async (req, res) => {
     try {
         const { id } = req.params;
         const churchId = req.church?.id;
+
+        // Basic validation for ID
+        if (isNaN(id)) {
+            return res.status(400).json({ message: "ID invalide" });
+        }
+
         const fs = require('fs');
         const logMsg = `[${new Date().toISOString()}] getMemberById - ID: ${id}, ChurchID: ${churchId}\n`;
         fs.appendFileSync('profile_debug.txt', logMsg);
@@ -175,10 +197,11 @@ exports.getMemberById = async (req, res) => {
                     model: db.SundaySchool,
                     as: 'sundaySchoolClasses',
                     through: {
-                        attributes: ['status', 'assignmentType', 'joinedAt'],
+                        attributes: ['status', 'level', 'assignmentType', 'joinedAt', 'leftAt'],
                         as: 'sunday_school_member'
                     }
-                }
+                },
+                { model: db.User, as: 'registrant', attributes: ['firstName', 'lastName'] }
             ],
             order: [
                 [{ model: db.Donation, as: 'donations' }, 'date', 'DESC']
@@ -190,8 +213,30 @@ exports.getMemberById = async (req, res) => {
             return res.status(404).json({ message: "Membre non trouvé." });
         }
 
+        const memberData = member.toJSON();
+        const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
+        const isAdmin = userRoles.includes('admin') || userRoles.includes('super_admin');
+
+        // Check for approved requests if not admin
+        let hasApproval = false;
+        if (!isAdmin) {
+            const approvedRequest = await db.MemberRequest.findOne({
+                where: {
+                    userId: req.user.id,
+                    targetUserId: id,
+                    requestType: ['password_view', 'password_reset'],
+                    status: 'approved'
+                }
+            });
+            if (approvedRequest) hasApproval = true;
+        }
+
+        if (!isAdmin && !hasApproval) {
+            delete memberData.tempPassword;
+        }
+
         fs.appendFileSync('profile_debug.txt', `   -> FOUND: ${member.firstName}\n`);
-        res.json(member);
+        res.json(memberData);
     } catch (err) {
         require('fs').appendFileSync('profile_debug.txt', `   -> ERROR: ${err.message}\n`);
         console.error("Get Member Error:", err);
@@ -204,11 +249,13 @@ exports.updateMember = async (req, res) => {
     try {
         const { id } = req.params;
         const {
-            firstName, lastName, email, role, subtypeId, phone, address, city, country,
+            firstName, lastName, email, role, subtypeId, phone, address, city, department, zipCode, country,
             gender, birthDate, maritalStatus, photo, status, statusChangeDate, nifCin,
             birthPlace, nickname, joinDate, notes,
             workAddress, workEmail, workPhone, emergencyContact, facebookUrl, linkedinUrl,
-            spouseName, baptismalStatus, memberCategoryId, spouseId
+            instagramUrl, tiktokUrl, websiteUrl, emergencyPhone, emergencyEmail,
+            secondaryPhone, secondaryEmail,
+            spouseName, baptismalStatus, memberCategoryId, spouseId, password, bloodGroup, memberCode
         } = req.body;
 
         const member = await db.User.findOne({ where: { id: id, churchId: req.church.id } });
@@ -224,6 +271,8 @@ exports.updateMember = async (req, res) => {
         if (phone !== undefined) member.phone = phone;
         if (address !== undefined) member.address = address;
         if (city !== undefined) member.city = city;
+        if (department !== undefined) member.department = department;
+        if (zipCode !== undefined) member.zipCode = zipCode;
         if (country !== undefined) member.country = country;
         if (gender !== undefined) member.gender = gender;
         if (birthDate !== undefined) member.birthDate = birthDate;
@@ -241,16 +290,53 @@ exports.updateMember = async (req, res) => {
         if (emergencyContact !== undefined) member.emergencyContact = emergencyContact;
         if (facebookUrl !== undefined) member.facebookUrl = facebookUrl;
         if (linkedinUrl !== undefined) member.linkedinUrl = linkedinUrl;
+        if (instagramUrl !== undefined) member.instagramUrl = instagramUrl;
+        if (tiktokUrl !== undefined) member.tiktokUrl = tiktokUrl;
+        if (websiteUrl !== undefined) member.websiteUrl = websiteUrl;
+        if (emergencyPhone !== undefined) member.emergencyPhone = emergencyPhone;
+        if (emergencyEmail !== undefined) member.emergencyEmail = emergencyEmail;
+        if (secondaryPhone !== undefined) member.secondaryPhone = secondaryPhone;
+        if (secondaryEmail !== undefined) member.secondaryEmail = secondaryEmail;
         if (spouseName !== undefined) member.spouseName = spouseName;
+        if (memberCode !== undefined) member.memberCode = memberCode;
+        if (bloodGroup !== undefined) member.bloodGroup = bloodGroup;
         if (baptismalStatus !== undefined) member.baptismalStatus = baptismalStatus;
+        if (memberCategoryId !== undefined) member.memberCategoryId = (!memberCategoryId || memberCategoryId === "") ? null : memberCategoryId;
+
+        // Password Update
+        if (password) {
+            const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
+            const isAdmin = userRoles.includes('admin') || userRoles.includes('super_admin');
+
+            // Check for approved request if not admin
+            let hasApproval = false;
+            if (!isAdmin) {
+                const approvedRequest = await db.MemberRequest.findOne({
+                    where: {
+                        userId: req.user.id,
+                        targetUserId: id,
+                        requestType: 'password_reset',
+                        status: 'approved'
+                    }
+                });
+                if (approvedRequest) hasApproval = true;
+            }
+
+            if (isAdmin || hasApproval) {
+                member.password = await bcrypt.hash(password, 10);
+                member.tempPassword = password; // Set tempPassword so admin can still see it
+                member.mustChangePassword = true;
+            }
+        }
 
         const oldStatus = member.status;
         const oldSubtypeId = member.subtypeId;
         const oldMemberCategoryId = member.memberCategoryId;
+        const oldBaptismalStatus = member.baptismalStatus;
 
         // Detection of changes for history
         const statusChanged = status !== undefined && status !== oldStatus;
-        const baptismalChanged = baptismalStatus !== undefined && baptismalStatus !== member.baptismalStatus;
+        const baptismalChanged = baptismalStatus !== undefined && baptismalStatus !== oldBaptismalStatus;
         const memberCategoryChanged = memberCategoryId !== undefined && memberCategoryId !== oldMemberCategoryId;
 
         if (status !== undefined) member.status = status;
@@ -271,7 +357,7 @@ exports.updateMember = async (req, res) => {
         }
 
         if (baptismalStatus !== undefined) member.baptismalStatus = baptismalStatus;
-        if (memberCategoryId !== undefined) member.memberCategoryId = memberCategoryId;
+        if (memberCategoryId !== undefined) member.memberCategoryId = memberCategoryId || null;
 
         await member.save();
 
@@ -351,6 +437,14 @@ exports.deleteMember = async (req, res) => {
 
         if (!member) return res.status(404).json({ message: "Membre non trouvé." });
 
+        // RESTRICTION: Cannot delete Super Admin accounts
+        const roles = Array.isArray(member.role) ? member.role : (typeof member.role === 'string' ? JSON.parse(member.role) : [member.role]);
+        if (roles.includes('super_admin')) {
+            return res.status(403).json({
+                message: "Restriction: Les comptes de type Super Administrateur ne peuvent pas être supprimés pour des raisons de sécurité."
+            });
+        }
+
         await member.destroy();
         res.json({ message: "Membre supprimé avec succès." });
     } catch (err) {
@@ -365,10 +459,17 @@ exports.getProfile = async (req, res) => {
         const user = await db.User.findByPk(req.user.id, {
             attributes: { exclude: ['password'] },
             include: [
-                { model: db.Church, as: 'church', attributes: ['name', 'subdomain', 'acronym', 'adminEmail'] },
-                { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] }
+                { model: db.Church, as: 'church', attributes: ['name', 'subdomain', 'acronym', 'logoUrl', 'contactEmail', 'churchEmail', 'contactPhone', 'address', 'pastorName'] },
+                { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] },
+                { model: db.Group, as: 'memberGroups', attributes: ['id', 'name', 'type', 'description'] },
+                { model: db.SundaySchool, as: 'sundaySchoolClasses', attributes: ['id', 'name', 'description'] },
+                { model: db.User, as: 'registrant', attributes: ['firstName', 'lastName'] }
             ]
         });
+
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur introuvable." });
+        }
 
         // Calculate permissions
         let permissions = [];
@@ -401,12 +502,12 @@ exports.getProfile = async (req, res) => {
 // Update Personal Profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { firstName, lastName, email } = req.body;
+        const { firstName, lastName, email, phone, address, nickname, photo } = req.body;
         const user = await db.User.findByPk(req.user.id);
 
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
 
-        await user.update({ firstName, lastName, email });
+        await user.update({ firstName, lastName, email, phone, address, nickname, photo });
         res.json({ message: "Profil mis à jour.", user });
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la mise à jour." });
@@ -439,5 +540,166 @@ exports.getMemberHistory = async (req, res) => {
     } catch (err) {
         console.error("Get History Error:", err);
         res.status(500).json({ message: "Erreur lors de la récupération de l'historique." });
+    }
+};
+
+// ==========================================
+// NEW: Multi-item Notes, Actions, Requests
+// ==========================================
+
+exports.getMemberNotes = async (req, res) => {
+    try {
+        const notes = await db.MemberNote.findAll({
+            where: { userId: req.params.id, churchId: req.church.id },
+            include: [{ model: db.User, as: 'addedBy', attributes: ['firstName', 'lastName'] }],
+            order: [['date', 'DESC'], ['createdAt', 'DESC']]
+        });
+        res.json(notes);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching notes" });
+    }
+};
+
+exports.createMemberNote = async (req, res) => {
+    try {
+        const note = await db.MemberNote.create({
+            ...req.body,
+            userId: req.params.id,
+            churchId: req.church.id,
+            addedById: req.user.id
+        });
+        res.status(201).json(note);
+    } catch (err) {
+        res.status(500).json({ message: "Error creating note" });
+    }
+};
+
+exports.updateMemberNote = async (req, res) => {
+    try {
+        const note = await db.MemberNote.findOne({ where: { id: req.params.noteId, userId: req.params.id, churchId: req.church.id } });
+        if (!note) return res.status(404).json({ message: "Note not found" });
+        await note.update(req.body);
+        res.json(note);
+    } catch (err) {
+        res.status(500).json({ message: "Error updating note" });
+    }
+};
+
+exports.deleteMemberNote = async (req, res) => {
+    try {
+        const note = await db.MemberNote.findOne({ where: { id: req.params.noteId, userId: req.params.id, churchId: req.church.id } });
+        if (!note) return res.status(404).json({ message: "Note not found" });
+        await note.destroy();
+        res.json({ message: "Note deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Error deleting note" });
+    }
+};
+
+exports.getMemberActions = async (req, res) => {
+    try {
+        const actions = await db.MemberAction.findAll({
+            where: { userId: req.params.id, churchId: req.church.id },
+            include: [{ model: db.User, as: 'addedBy', attributes: ['firstName', 'lastName'] }],
+            order: [['date', 'DESC'], ['createdAt', 'DESC']]
+        });
+        res.json(actions);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching actions" });
+    }
+};
+
+exports.createMemberAction = async (req, res) => {
+    try {
+        const action = await db.MemberAction.create({
+            ...req.body,
+            userId: req.params.id,
+            churchId: req.church.id,
+            addedById: req.user.id
+        });
+        res.status(201).json(action);
+    } catch (err) {
+        res.status(500).json({ message: "Error creating action" });
+    }
+};
+
+exports.getMemberRequests = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (isNaN(id)) {
+            return res.status(400).json({ message: "ID invalide" });
+        }
+
+        const requests = await db.MemberRequest.findAll({
+            where: {
+                [db.Sequelize.Op.or]: [
+                    { userId: id },
+                    { targetUserId: id }
+                ],
+                churchId: req.church.id
+            },
+            order: [['createdAt', 'DESC']]
+        });
+        res.json(requests);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching requests" });
+    }
+};
+
+exports.createMemberRequest = async (req, res) => {
+    try {
+        const request = await db.MemberRequest.create({
+            ...req.body,
+            userId: req.user.id,
+            churchId: req.church.id,
+            status: 'open'
+        });
+
+        // Notify Admins
+        const admins = await db.User.findAll({
+            where: {
+                churchId: req.church.id,
+                role: { [db.Sequelize.Op.like]: '%admin%' }
+            }
+        });
+
+        for (const admin of admins) {
+            await db.Notification.create({
+                userId: admin.id,
+                churchId: req.church.id,
+                title: 'Nouvelle demande d\'accès',
+                message: `${req.user.firstName} ${req.user.lastName} a soumis une demande : ${req.body.subject || req.body.requestType}`,
+                type: 'request',
+                link: `/admin/members/${req.body.targetUserId || req.params.id}`
+            });
+        }
+
+        res.status(201).json(request);
+    } catch (err) {
+        console.error("Create Request Error:", err);
+        res.status(500).json({ message: "Error creating request" });
+    }
+};
+
+exports.updateMemberRequest = async (req, res) => {
+    try {
+        const { requestId } = req.params;
+        const { status, viewStatus } = req.body;
+
+        const request = await db.MemberRequest.findOne({ where: { id: requestId, churchId: req.church.id } });
+        if (!request) return res.status(404).json({ message: "Request not found" });
+
+        // Only admins can approve/reject status or change viewStatus
+        const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
+        if (!userRoles.includes('admin') && !userRoles.includes('super_admin')) {
+            return res.status(403).json({ message: "Forbidden" });
+        }
+
+        if (status) request.status = status;
+        if (viewStatus) request.viewStatus = viewStatus;
+        await request.save();
+        res.json(request);
+    } catch (err) {
+        res.status(500).json({ message: "Error updating request" });
     }
 };

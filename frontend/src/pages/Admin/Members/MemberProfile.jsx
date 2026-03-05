@@ -6,10 +6,23 @@ import RelationshipsList from '../../../components/Admin/Relationships/Relations
 import OrganizationRolesList from '../../../components/Admin/Relationships/OrganizationRolesList';
 import CommunicationModal from '../../../components/Admin/CommunicationModal';
 import AttachmentModal from './AttachmentModal';
+import MemberCardsList from '../../../components/Admin/Members/MemberCardsList';
+import ConfirmModal from '../../../components/ConfirmModal';
+import AlertModal from '../../../components/ChurchAlertModal';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useAuth } from '../../../auth/AuthProvider';
+
+// ─── IMAGE URL HELPER ───────────────────────────────────────────────────────
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    const baseUrl = api.defaults.baseURL.replace('/api', '');
+    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 export default function MemberProfile() {
     const { t, language } = useLanguage();
+    const { user } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [member, setMember] = useState(null);
@@ -50,6 +63,72 @@ export default function MemberProfile() {
     const [attachments, setAttachments] = useState([]);
     const [attachmentModalOpen, setAttachmentModalOpen] = useState(false);
     const [fetchingAttachments, setFetchingAttachments] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
+    const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
+
+    // Member Alerts (pop-up when opening the profile)
+    const [memberAlerts, setMemberAlerts] = useState([]);
+    const [showAlertPopup, setShowAlertPopup] = useState(false);
+    const [showAddAlertModal, setShowAddAlertModal] = useState(false);
+    const [newAlertMessage, setNewAlertMessage] = useState('');
+
+    // Notes system (multi-item, different from résumé)
+    const [memberNotes, setMemberNotes] = useState([]);
+    const [showNoteModal, setShowNoteModal] = useState(false);
+    const [noteForm, setNoteForm] = useState({ title: '', date: new Date().toISOString().split('T')[0], description: '' });
+    const [editingNoteId, setEditingNoteId] = useState(null);
+
+    // Actions system
+    const [memberActions, setMemberActions] = useState([]);
+    const [showActionModal, setShowActionModal] = useState(false);
+    const [actionForm, setActionForm] = useState({ type: 'email', description: '', date: new Date().toISOString().split('T')[0] });
+
+    // Donation add/edit modal
+    const [showDonationModal, setShowDonationModal] = useState(false);
+    const [donationForm, setDonationForm] = useState({ amount: '', date: new Date().toISOString().split('T')[0], type: 'Dîme', notes: '' });
+    const [editingDonationId, setEditingDonationId] = useState(null);
+
+    const [memberRequests, setMemberRequests] = useState([]);
+    const [showPropertiesModal, setShowPropertiesModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+
+    // Password View States
+    const [showActualPassword, setShowActualPassword] = useState(false);
+    const [passwordCountdown, setPasswordCountdown] = useState(0);
+    const [isCountingDown, setIsCountingDown] = useState(false);
+    const [visibilityCountdown, setVisibilityCountdown] = useState(0);
+
+    // Donations pagination
+    const [donationsPage, setDonationsPage] = useState(1);
+    const [showAllDonations, setShowAllDonations] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (isCountingDown && passwordCountdown > 0) {
+            timer = setInterval(() => {
+                setPasswordCountdown(prev => prev - 1);
+            }, 1000);
+        } else if (passwordCountdown === 0 && isCountingDown) {
+            setIsCountingDown(false);
+            setShowActualPassword(true);
+            setVisibilityCountdown(5);
+        } else if (showActualPassword && visibilityCountdown > 0) {
+            timer = setInterval(() => {
+                setVisibilityCountdown(prev => prev - 1);
+            }, 1000);
+        } else if (showActualPassword && visibilityCountdown === 0) {
+            setShowActualPassword(false);
+        }
+        return () => clearInterval(timer);
+    }, [isCountingDown, passwordCountdown, showActualPassword, visibilityCountdown]);
+
+    // Finance Data for donation form
+    const [bankAccounts, setBankAccounts] = useState([]);
+    const [churchMembers, setChurchMembers] = useState([]);
+    const [supportedCurrencies, setSupportedCurrencies] = useState(['HTG', 'USD']);
+    const [donationTypes, setDonationTypes] = useState(['offrande', 'dime', 'don_special', 'promesse']);
+    const [paymentMethods, setPaymentMethods] = useState(['CASH', 'VIREMENT', 'CHEQUE', 'CARTE DE CREDIT']);
 
     const calculateAge = (birthDate) => {
         if (!birthDate) return '-';
@@ -66,15 +145,178 @@ export default function MemberProfile() {
     const fetchMember = async () => {
         try {
             const res = await api.get(`/members/${id}`);
-            console.log('Member data:', res.data);
-            console.log('Sunday School Classes:', res.data.sundaySchoolClasses);
             setMember(res.data);
             fetchHistory();
+            fetchMemberAlerts();
+            fetchMemberNotes();
+            fetchMemberActions();
+            fetchMemberRequests();
         } catch (err) {
             console.error("Error fetching member", err);
             setError(err.response?.data?.message || err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchMemberRequests = async () => {
+        try {
+            const res = await api.get(`/members/${id}/requests`);
+            setMemberRequests(res.data || []);
+        } catch (err) { /* fail silently */ }
+    };
+
+    const fetchMemberNotes = async () => {
+        try {
+            const res = await api.get(`/members/${id}/notes`);
+            setMemberNotes(res.data || []);
+        } catch (err) { /* notes endpoint may not exist yet, fail silently */ }
+    };
+
+    const updateRequestViewStatus = async (requestId, viewStatus) => {
+        try {
+            await api.put(`/member-requests/${requestId}`, { viewStatus });
+            fetchMemberRequests();
+        } catch (err) {
+            setAlertMessage({ show: true, title: t('error'), message: "Erreur lors de la mise à jour du statut", type: 'error' });
+        }
+    };
+
+    const fetchMemberActions = async () => {
+        try {
+            const res = await api.get(`/members/${id}/actions`);
+            setMemberActions(res.data || []);
+        } catch (err) { /* actions endpoint may not exist yet, fail silently */ }
+    };
+
+    const handleSaveNote = async () => {
+        try {
+            if (editingNoteId) {
+                await api.put(`/members/${id}/notes/${editingNoteId}`, noteForm);
+            } else {
+                await api.post(`/members/${id}/notes`, noteForm);
+            }
+            setShowNoteModal(false);
+            setNoteForm({ title: '', date: new Date().toISOString().split('T')[0], description: '' });
+            setEditingNoteId(null);
+            fetchMemberNotes();
+        } catch (err) {
+            setAlertMessage({ show: true, title: t('error', 'Erreur'), message: t('error_saving_note'), type: 'error' });
+        }
+    };
+
+    const handleDeleteNote = (noteId) => {
+        setConfirmState({
+            isOpen: true,
+            title: t('delete_note', 'Supprimer la note'),
+            message: t('confirm_delete_note', 'Voulez-vous vraiment supprimer cette note ?'),
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/members/${id}/notes/${noteId}`);
+                    fetchMemberNotes();
+                } catch (err) { console.error(err); }
+                setConfirmState(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+    const handleSaveAction = async () => {
+        try {
+            await api.post(`/members/${id}/actions`, actionForm);
+            setShowActionModal(false);
+            setActionForm({ type: 'email', description: '', date: new Date().toISOString().split('T')[0] });
+            fetchMemberActions();
+        } catch (err) {
+            setAlertMessage({ show: true, title: t('error', 'Erreur'), message: 'Erreur sauvegarde action', type: 'error' });
+        }
+    };
+
+    const handleSaveDonation = async () => {
+        try {
+            // Validation for deposit
+            if (donationForm.isDeposited) {
+                if (!donationForm.bankAccountId) {
+                    setAlertMessage({ show: true, title: t('error'), message: t('select_bank_account_error', "Veuillez sélectionner un compte bancaire."), type: 'error' });
+                    return;
+                }
+                if (!donationForm.depositDate) {
+                    setAlertMessage({ show: true, title: t('error'), message: t('select_date_error', "Veuillez sélectionner la date d'encaissement."), type: 'error' });
+                    return;
+                }
+                if (!donationForm.depositedById) {
+                    setAlertMessage({ show: true, title: t('error'), message: t('select_depositor_error', "Veuillez sélectionner la personne qui a effectué le dépôt."), type: 'error' });
+                    return;
+                }
+            }
+
+            const payload = {
+                ...donationForm,
+                userId: id, // Forced to current member
+                amount: parseFloat(donationForm.amount)
+            };
+
+            if (editingDonationId) {
+                await api.put(`/donations/${editingDonationId}`, payload);
+                setAlertMessage({ show: true, title: t('success'), message: t('donation_updated_success', 'Don mis à jour avec succès'), type: 'success' });
+            } else {
+                await api.post('/donations', payload);
+                setAlertMessage({ show: true, title: t('success'), message: t('donation_registered_success', 'Don enregistré avec succès'), type: 'success' });
+            }
+            setShowDonationModal(false);
+            setEditingDonationId(null);
+            setDonationForm({
+                amount: '',
+                currency: supportedCurrencies[0] || 'HTG',
+                type: 'offrande',
+                date: new Date().toISOString().split('T')[0],
+                paymentMethod: 'CASH',
+                notes: '',
+                userId: id,
+                isDeposited: false,
+                bankAccountId: '',
+                depositDate: new Date().toISOString().split('T')[0],
+                depositedById: ''
+            });
+            fetchMember();
+        } catch (err) {
+            console.error("Error saving donation", err);
+            setAlertMessage({ show: true, title: t('error'), message: t('registration_error', 'Erreur lors de l’enregistrement'), type: 'error' });
+        }
+    };
+
+    const fetchMemberAlerts = async () => {
+        try {
+            const res = await api.get(`/members/${id}/alerts`);
+            if (res.data && res.data.length > 0) {
+                setMemberAlerts(res.data);
+                setShowAlertPopup(true);
+                setTimeout(() => setShowAlertPopup(false), 12000);
+            }
+        } catch (err) {
+            console.error('Error fetching member alerts', err);
+        }
+    };
+
+    const handleAddAlert = async () => {
+        if (!newAlertMessage.trim()) return;
+        try {
+            await api.post(`/members/${id}/alerts`, { message: newAlertMessage });
+            setNewAlertMessage('');
+            setShowAddAlertModal(false);
+            setAlertMessage({ show: true, title: t('success', 'Succès'), message: t('alert_added_success'), type: 'success' });
+            fetchMemberAlerts();
+        } catch (err) {
+            setAlertMessage({ show: true, title: t('error', 'Erreur'), message: t('error_adding_alert'), type: 'error' });
+        }
+    };
+
+    const handleDeleteMemberAlert = async (alertId) => {
+        try {
+            await api.delete(`/members/${id}/alerts/${alertId}`);
+            setMemberAlerts(prev => prev.filter(a => a.id !== alertId));
+            if (memberAlerts.length <= 1) setShowAlertPopup(false);
+        } catch (err) {
+            console.error('Error deleting alert', err);
         }
     };
 
@@ -106,15 +348,22 @@ export default function MemberProfile() {
         }
     };
 
-    const handleDeleteAttachment = async (attachmentId) => {
-        if (!window.confirm(t('confirm_delete_attachment', 'Voulez-vous vraiment supprimer cet attachement ?'))) return;
-        try {
-            await api.delete(`/attachments/${attachmentId}`);
-            fetchAttachments();
-        } catch (err) {
-            console.error("Error deleting attachment", err);
-            alert(t('error_delete', 'Erreur lors de la suppression'));
-        }
+    const handleDeleteAttachment = (attachmentId) => {
+        setConfirmState({
+            isOpen: true,
+            title: t('delete_attachment', 'Supprimer l\'attachement'),
+            message: t('confirm_delete_attachment', 'Voulez-vous vraiment supprimer cet attachement ?'),
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/attachments/${attachmentId}`);
+                    fetchAttachments();
+                } catch (err) {
+                    console.error("Error deleting attachment", err);
+                    setAlertMessage({ show: true, title: t('error'), message: t('error_delete', 'Erreur lors de la suppression'), type: 'error' });
+                }
+                setConfirmState(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
     useEffect(() => {
@@ -142,6 +391,28 @@ export default function MemberProfile() {
         };
         fetchCategories();
         fetchAttachments();
+
+        // Fetch Finance Helpers
+        const fetchFinanceHelpers = async () => {
+            try {
+                const [accRes, churchRes, memRes] = await Promise.all([
+                    api.get('/bank-accounts'),
+                    api.get('/churches/settings'),
+                    api.get('/members')
+                ]);
+                setBankAccounts(accRes.data || []);
+                if (churchRes.data?.church) {
+                    const church = churchRes.data.church;
+                    if (church.supportedCurrencies?.length > 0) setSupportedCurrencies(church.supportedCurrencies);
+                    if (church.donationTypes) setDonationTypes(church.donationTypes);
+                    if (church.paymentMethods) setPaymentMethods(church.paymentMethods);
+                }
+                setChurchMembers(memRes.data || []);
+            } catch (err) {
+                console.warn("Error fetching finance helpers", err);
+            }
+        };
+        fetchFinanceHelpers();
     }, [id]);
 
     useEffect(() => {
@@ -150,14 +421,14 @@ export default function MemberProfile() {
         }
     }, [member]);
 
-    const handleSaveNote = async () => {
+    const handleSaveSummaryNote = async () => {
         setSavingNote(true);
         try {
             await api.put(`/members/${id}`, { notes: noteContent });
             setIsNoteOpen(false);
             fetchMember();
         } catch (err) {
-            alert(t('error_saving_note'));
+            setAlertMessage({ show: true, title: t('error'), message: t('error_saving_note'), type: 'error' });
         } finally {
             setSavingNote(false);
         }
@@ -173,7 +444,7 @@ export default function MemberProfile() {
                 await api.put(`/members/${id}`, { photo: reader.result });
                 fetchMember();
             } catch (err) {
-                alert(t('error_updating_photo'));
+                setAlertMessage({ show: true, title: t('error'), message: t('error_updating_photo'), type: 'error' });
             } finally {
                 setUpdatingPhoto(false);
             }
@@ -192,19 +463,19 @@ export default function MemberProfile() {
             setHistoryNotes('');
             fetchMember();
         } catch (err) {
-            alert(t('error_updating_status'));
+            setAlertMessage({ show: true, title: t('error'), message: t('error_updating_status'), type: 'error' });
         }
     };
 
     const handleTypeUpdate = async () => {
         try {
             const payload = {};
-            if (pendingCategory) {
+            if (pendingMemberCategoryId) {
+                payload.memberCategoryId = pendingMemberCategoryId;
+            } else if (pendingCategory) {
                 payload.subtypeId = pendingCategory.id;
             } else if (pendingBaptismalStatus) {
                 payload.baptismalStatus = pendingBaptismalStatus;
-            } else if (pendingMemberCategoryId) {
-                payload.memberCategoryId = pendingMemberCategoryId;
             }
             payload.categoryChangeDate = categoryDate;
             payload.historyNotes = historyNotes;
@@ -217,28 +488,108 @@ export default function MemberProfile() {
             setHistoryNotes('');
             fetchMember();
         } catch (err) {
-            alert(t('error_updating_type'));
+            setAlertMessage({ show: true, title: t('error'), message: t('error_updating_type'), type: 'error' });
         }
     };
+
+    const handleRequestAccess = async (type) => {
+        try {
+            await api.post('/member-requests', {
+                targetUserId: id,
+                requestType: type,
+                subject: type === 'password_view' ? 'Request to view password' : 'Request to reset password',
+                description: `Member ${user.firstName} ${user.lastName} requested access to ${type} for user ID ${id}`
+            });
+            setAlertMessage({ show: true, title: t('success'), message: t('request_sent_success', 'Demande envoyée avec succès'), type: 'success' });
+        } catch (err) {
+            setAlertMessage({ show: true, title: t('error'), message: t('request_sent_error', 'Erreur lors de l\'envoi de la demande'), type: 'error' });
+        }
+    };
+
+    const handlePasswordEditMode = () => {
+        setShowPasswordModal(true);
+    };
+
+    const handlePasswordResetWithRequest = () => {
+        setShowPropertiesModal(false);
+        const userRoles = Array.isArray(user?.role) ? user.role : [user?.role];
+        const isAdmin = userRoles.includes('admin') || userRoles.includes('super_admin');
+        const hasApprovedReset = memberRequests.some(r => r.requestType === 'password_reset' && r.status === 'approved');
+
+        if (isAdmin || hasApprovedReset) {
+            handlePasswordEditMode();
+        } else {
+            setConfirmState({
+                isOpen: true,
+                title: t('authorization_required', 'Autorisation requise'),
+                message: t('request_password_reset_confirm', 'Vous n\'avez pas l\'autorisation de réinitialiser ce mot de passe. Souhaitez-vous envoyer une demande aux administrateurs ?'),
+                onConfirm: () => {
+                    handleRequestAccess('password_reset');
+                    setConfirmState(prev => ({ ...prev, isOpen: false }));
+                }
+            });
+        }
+    };
+
+    const handlePasswordUpdate = async () => {
+        if (!newPassword) return;
+        try {
+            await api.put(`/members/${id}`, { password: newPassword });
+            setAlertMessage({ show: true, title: t('success'), message: t('password_updated_success', 'Mot de passe mis à jour avec succès'), type: 'success' });
+            setShowPasswordModal(false);
+            setNewPassword('');
+            fetchMember();
+        } catch (err) {
+            setAlertMessage({ show: true, title: t('error'), message: t('password_update_error', 'Erreur lors de la mise à jour du mot de passe'), type: 'error' });
+        }
+    };
+
+    const DONATIONS_PER_PAGE = 7;
+    const totalDonations = member?.donations?.length || 0;
+    const totalDonationsPages = Math.ceil(totalDonations / DONATIONS_PER_PAGE);
+    const displayedDonations = showAllDonations
+        ? (member?.donations || [])
+        : (member?.donations || []).slice((donationsPage - 1) * DONATIONS_PER_PAGE, donationsPage * DONATIONS_PER_PAGE);
+
+    const startDonationCount = (donationsPage - 1) * DONATIONS_PER_PAGE + 1;
+    const endDonationCount = Math.min(donationsPage * DONATIONS_PER_PAGE, totalDonations);
 
     if (loading) return <AdminLayout><div className="p-20 text-center font-bold text-gray-400 animate-pulse">{t('loading')}</div></AdminLayout>;
     if (!member) return <AdminLayout><div className="p-20 text-center text-red-500 font-bold">{t('member_not_found')}</div></AdminLayout>;
 
     return (
         <AdminLayout>
-            {/* CLEAN CRM HEADER */}
-            <div className="bg-white dark:bg-[#0b1437] border-b border-gray-100 dark:border-white/5 px-8 pt-4 pb-6">
-                <div className="max-w-[1600px] mx-auto">
+            <div className="bg-white dark:bg-[#0b1437] border-b border-gray-100 dark:border-white/5 px-8 pt-8 pb-8 transition-colors">
+                <div className="max-w-[1700px] mx-auto">
                     <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 transition-all text-[11px] font-black tracking-widest mb-6 group">
                         <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                         {t('back')}
                     </button>
 
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-                        <div className="flex items-center gap-10">
-                            <div className="relative group/avatar">
-                                <div className="w-28 h-28 rounded-full border-4 border-white dark:border-[#111c44] shadow-xl overflow-hidden bg-gray-50 dark:bg-black/40 flex items-center justify-center shrink-0 relative transition-transform duration-500 group-hover/avatar:scale-105">
-                                    {member.photo ? <img src={member.photo} className="w-full h-full object-cover" alt="Profile" /> : <div className="text-4xl font-black text-indigo-400">{member.firstName[0]}{member.lastName[0]}</div>}
+                    <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 relative">
+                        {/* Cover Picture Background */}
+                        <div className="absolute -inset-x-8 -top-8 h-48 lg:h-64 z-0 bg-indigo-900 border-b border-white/10 overflow-hidden">
+                            {member?.photo ? (
+                                <>
+                                    <img src={getImageUrl(member.photo)} alt="Cover Blur" className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-50 scale-125" crossOrigin="anonymous" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b1437]/90 via-gray-900/40 to-black/20 mix-blend-multiply"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/60 to-transparent"></div>
+                                </>
+                            ) : (
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-800 to-[#111c44]"></div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-10 relative z-10 pt-16 lg:pt-24 px-4 w-full">
+                            <div className="relative group/avatar shrink-0">
+                                <div className="w-28 h-28 lg:w-36 lg:h-36 rounded-full border-[5px] border-white dark:border-[#0b1437] shadow-2xl overflow-hidden bg-gray-50 flex items-center justify-center relative transition-transform duration-500 group-hover/avatar:scale-105">
+                                    {member?.photo ? (
+                                        <img src={getImageUrl(member.photo)} className="w-full h-full object-cover" alt="Profile" />
+                                    ) : (
+                                        <div className="text-4xl lg:text-5xl font-black text-indigo-500">
+                                            {member?.firstName?.[0]}{member?.lastName?.[0]}
+                                        </div>
+                                    )}
                                     <div
                                         className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-zoom-in"
                                         onClick={() => member.photo && setShowPhotoModal(true)}
@@ -254,12 +605,12 @@ export default function MemberProfile() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <h3 className="text-[24px] font-black text-[#2B3674] dark:text-white leading-none tracking-tight">{member.firstName} {member.lastName}</h3>
-                                {member.nickname && <p className="text-sm font-bold text-gray-400 ml-1">Nickname : <span className="text-indigo-600">{member.nickname}</span></p>}
-                                {member.spouseName && (
-                                    <p className="text-sm font-bold text-gray-400 ml-1">
-                                        {member.gender?.toLowerCase() === 'homme' ? 'Conjointe' : 'Conjoint'} : <span className="text-indigo-600">{member.spouseName}</span>
+                            <div className="space-y-1 sm:space-y-2 flex-1 pb-4 lg:pb-0">
+                                <h3 className="text-[28px] lg:text-[34px] font-black text-white leading-none tracking-tight drop-shadow-md">{member?.firstName} {member?.lastName}</h3>
+                                {member?.nickname && <p className="text-sm font-bold text-gray-200 ml-1 drop-shadow-sm">Nickname : <span className="text-indigo-300">{member.nickname}</span></p>}
+                                {member?.spouseName && (
+                                    <p className="text-sm font-bold text-gray-200 ml-1 drop-shadow-sm">
+                                        {member.gender?.toLowerCase() === 'homme' ? 'Conjointe' : 'Conjoint'} : <span className="text-indigo-300">{member.spouseName}</span>
                                     </p>
                                 )}
 
@@ -271,19 +622,19 @@ export default function MemberProfile() {
                                                 value={noteContent}
                                                 onChange={(e) => setNoteContent(e.target.value)}
                                                 placeholder={t('note_placeholder_summary', 'Entrez une note de synthèse...')}
-                                                className="w-full h-24 p-4 bg-gray-50 dark:bg-black/40 rounded-xl text-[13px] font-bold text-[#2B3674] dark:text-white outline-none border-2 border-indigo-500/30 focus:border-indigo-500 transition-all resize-none shadow-inner"
+                                                className="w-full h-24 p-5 bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-[13px] font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue transition-all resize-none shadow-stripe"
                                             />
-                                            <div className="flex gap-3 justify-end mt-2">
+                                            <div className="flex gap-3 justify-end mt-4">
                                                 <button
                                                     onClick={() => { setIsNoteOpen(false); setNoteContent(member.notes || ''); }}
-                                                    className="px-4 py-1.5 text-[10px] font-black text-gray-400 hover:text-gray-600 uppercase tracking-widest transition-colors"
+                                                    className="px-6 py-2.5 text-[10px] font-black text-gray-400 hover:text-rose-500 tracking-widest transition-colors"
                                                 >
                                                     {t('cancel')}
                                                 </button>
                                                 <button
-                                                    onClick={handleSaveNote}
+                                                    onClick={handleSaveSummaryNote}
                                                     disabled={savingNote}
-                                                    className="px-5 py-1.5 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none disabled:opacity-50 transition-all"
+                                                    className="px-8 py-2.5 bg-stripe-blue text-white rounded-xl text-[10px] font-black tracking-widest hover:bg-indigo-700 shadow-premium disabled:opacity-50 transition-all active:scale-95"
                                                 >
                                                     {savingNote ? '...' : t('save')}
                                                 </button>
@@ -291,8 +642,8 @@ export default function MemberProfile() {
                                         </div>
                                     ) : member.notes ? (
                                         <div className="group flex items-start gap-3 animate-in fade-in">
-                                            <p className="text-[13px] font-medium text-gray-600 dark:text-gray-300 leading-relaxed italic border-l-2 border-indigo-500/30 pl-3">
-                                                "{member.notes}"
+                                            <p className="text-[13px] font-medium text-gray-600 dark:text-gray-300 leading-relaxed border-l-4 border-stripe-blue/20 pl-4 py-1">
+                                                {member.notes}
                                             </p>
                                             <button
                                                 onClick={() => setIsNoteOpen(true)}
@@ -304,9 +655,9 @@ export default function MemberProfile() {
                                     ) : (
                                         <button
                                             onClick={() => setIsNoteOpen(true)}
-                                            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-bold transition-all pt-1 opacity-80 hover:opacity-100 lg:ml-1"
+                                            className="flex items-center gap-2 text-indigo-200 hover:text-white text-sm font-bold transition-all pt-1 opacity-90 hover:opacity-100 lg:ml-1 drop-shadow-sm"
                                         >
-                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black">+</span>
+                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-white text-[10px] font-black">+</span>
                                             {t('add_summary_note', 'Ajouter un résumé')}
                                         </button>
                                     )}
@@ -316,23 +667,25 @@ export default function MemberProfile() {
 
                         {/* Top Right: Détails du membre (Refined labels) */}
                         <div className="text-right">
-                            <h3 className="text-[12px] font-black text-gray-400 dark:text-gray-500 mb-4 tracking-[0.2em] uppercase">{t('member_details', 'Détails du membre')}</h3>
+                            <h3 className="text-[12px] font-black text-gray-400 dark:text-gray-500 mb-4 tracking-widest">{t('member_details', 'Détails du membre')}</h3>
                             <div className="space-y-2">
                                 <p className="text-[14px] font-bold text-gray-800 dark:text-gray-300 flex justify-end items-center gap-3">
-                                    <span className="text-gray-400 text-[11px] uppercase tracking-wider">{t('join_date', 'Date Adhésion')} :</span>
+                                    <span className="text-gray-400 text-[11px] tracking-wider">{t('join_date', 'Date Adhésion')} :</span>
                                     <span className="font-black">{member.joinDate ? new Date(member.joinDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : '-'}</span>
                                 </p>
                                 <p className="text-[14px] font-bold text-gray-800 dark:text-gray-300 flex justify-end items-center gap-3">
-                                    <span className="text-gray-400 text-[11px] uppercase tracking-wider">{t('status', 'Statut')} :</span>
+                                    <span className="text-gray-400 text-[11px] tracking-wider">{t('status', 'Statut')} :</span>
                                     <span>
-                                        <span className={`${member.status === 'Inactif' ? 'text-red-500' : 'text-green-600'} mr-2`}>{t(member.status?.toLowerCase()) || member.status || 'Actif'}</span>
+                                        <span className={`${member.status === 'Inactif' ? 'text-rose-500' : 'text-emerald-500'} font-black mr-2`}>{t(member.status?.toLowerCase()) || member.status || 'Actif'}</span>
                                         <span className="text-gray-300 font-black text-[12px]">{member.statusChangeDate ? new Date(member.statusChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
                                     </span>
                                 </p>
                                 <p className="text-[14px] font-bold text-gray-800 dark:text-gray-300 flex justify-end items-center gap-3">
-                                    <span className="text-gray-400 text-[11px] uppercase tracking-wider">{t('category', 'Catégorie')} :</span>
+                                    <span className="text-gray-400 text-[11px] tracking-wider">{t('category', 'Catégorie')} :</span>
                                     <span>
-                                        <span className="text-indigo-600 decoration-indigo-200/50 underline-offset-4 mr-2">{member.contactSubtype?.name || member.category?.name || t(member.baptismalStatus?.toLowerCase()) || member.baptismalStatus || t('not_baptized')}</span>
+                                        <span className="text-indigo-600 decoration-indigo-200/50 underline-offset-4 mr-2">
+                                            {member.category?.name || member.contactSubtype?.name || t(member.baptismalStatus?.toLowerCase()) || member.baptismalStatus || t('not_baptized')}
+                                        </span>
                                         <span className="text-gray-300 font-black text-[12px]">{member.categoryChangeDate ? new Date(member.categoryChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
                                     </span>
                                 </p>
@@ -342,541 +695,782 @@ export default function MemberProfile() {
                 </div>
             </div>
 
-            {/* ACTION TOOLBAR (Refined: No card wrapper, clean buttons) */}
-            <div className="px-8 mt-6">
-                <div className="max-w-[1600px] mx-auto">
-                    <div className="flex items-center gap-4 flex-wrap">
-                        {/* Edit Button */}
-                        <button
-                            onClick={() => navigate(`/admin/members?edit=${member.id}`)}
-                            className="px-6 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-[12px] font-black tracking-widest hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 shadow-sm"
+            {/* ACTION TOOLBAR */}
+            <div className="px-8 mt-8">
+                <div className="max-w-[1700px] mx-auto">
+                    <div className="flex items-center gap-2 flex-wrap bg-white dark:bg-[#0b1437] p-1.5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-premium relative z-30">
+                        <button className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                            onClick={() => setShowAddAlertModal(true)}
                         >
-                            {t('edit')}
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            {t('add_alert', 'Ajouter une alerte')}
                         </button>
 
-                        {/* Status Dropdown */}
+                        <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-2"></div>
+
+                        <button
+                            onClick={() => navigate(`/admin/members?edit=${member.id}`)}
+                            className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                        >
+                            <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            {t('edit')}
+                        </button>
+
+                        <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-2"></div>
+
                         <div className="relative">
                             <button
                                 onClick={() => { setStatusDropdownOpen(!statusDropdownOpen); setTypeDropdownOpen(false); }}
-                                className="px-6 py-2.5 bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500 rounded-xl text-[12px] font-black tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2 active:scale-95 shadow-sm border border-gray-100 dark:border-white/5"
+                                className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             >
+                                <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
                                 {t('mark_as', 'Marquer comme...')}
-                                <svg className={`w-4 h-4 transition-transform ${statusDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                                <svg className={`w-3.5 h-3.5 transition-transform ${statusDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                             {statusDropdownOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-[#111c44] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 py-2 z-[60] animate-in fade-in slide-in-from-top-1">
-                                    {['Actif', 'Inactif', 'Transféré', 'Décédé', 'En déplacement'].map(s => (
-                                        <button
-                                            key={s}
-                                            onClick={() => { setPendingStatus(s); setShowStatusModal(true); setStatusDropdownOpen(false); }}
-                                            className="w-full text-left px-6 py-3 text-[11px] font-black text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 transition-all tracking-widest"
-                                        >
-                                            {t(s.toLowerCase().replace(/ /g, '_')) || s}
-                                        </button>
-                                    ))}
-                                </div>
+                                <>
+                                    <div className="fixed inset-0 z-[100]" onClick={() => setStatusDropdownOpen(false)} />
+                                    <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-[#111c44] rounded-2xl shadow-3xl border border-gray-100 dark:border-white/10 py-3 z-[110] animate-in fade-in slide-in-from-top-1">
+                                        {['Actif', 'Inactif', 'Transféré', 'Décédé', 'En déplacement'].map(s => (
+                                            <button
+                                                key={s}
+                                                onClick={() => { setPendingStatus(s); setShowStatusModal(true); setStatusDropdownOpen(false); }}
+                                                className="w-full text-left px-4 py-2 text-[12px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+                                            >
+                                                {t(s.toLowerCase().replace(/ /g, '_')) || s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
                             )}
                         </div>
 
-                        {/* Unified Category Update Dropdown */}
+                        <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-2"></div>
+
+                        {/* Changer de catégorie dropdown */}
                         <div className="relative">
                             <button
-                                onClick={() => { setTypeDropdownOpen(!typeDropdownOpen); setStatusDropdownOpen(false); }}
-                                className="px-6 py-2.5 bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500 rounded-xl text-[12px] font-black tracking-widest hover:text-indigo-600 transition-all flex items-center gap-2 active:scale-95 shadow-sm border border-gray-100 dark:border-white/5"
+                                onClick={() => { setTypeDropdownOpen(!typeDropdownOpen); setStatusDropdownOpen(false); setBaptismalDropdownOpen(false); }}
+                                className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             >
-                                {t('change_category', 'Changer la catégorie')}
-                                <svg className={`w-4 h-4 transition-transform ${typeDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                                <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                {t('change_type', 'Changer de type/catégorie')}
+                                <svg className={`w-3.5 h-3.5 transition-transform ${typeDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                             </button>
                             {typeDropdownOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-[#111c44] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 py-4 z-[60] animate-in fade-in slide-in-from-top-1 overflow-hidden">
-                                    <div className="px-6 py-2 text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50/50 dark:bg-indigo-900/10 mb-2">
-                                        {t('classification', 'Classification du Contact')}
-                                    </div>
+                                <>
+                                    <div className="fixed inset-0 z-[100]" onClick={() => setTypeDropdownOpen(false)} />
+                                    <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#111c44] rounded-2xl shadow-3xl border border-gray-100 dark:border-white/10 py-3 z-[110] animate-in fade-in slide-in-from-top-1 max-h-[450px] overflow-y-auto noscrollbar">
+                                        <p className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-white/5 mb-2">{t('select_category', 'Sélectionner une catégorie')}</p>
 
-                                    {allSubtypes.map(subtype => (
-                                        <button
-                                            key={subtype.id}
-                                            onClick={() => { setPendingCategory(subtype); setPendingMemberCategoryId(null); setPendingBaptismalStatus(null); setShowCategoryModal(true); setTypeDropdownOpen(false); }}
-                                            className="w-full text-left px-8 py-3 text-[11px] font-black text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-indigo-600 transition-all tracking-widest"
-                                        >
-                                            {subtype.name}
-                                        </button>
-                                    ))}
-                                </div>
+                                        {memberCategories.length > 0 ? (
+                                            memberCategories.map(mc => (
+                                                <button key={mc.id}
+                                                    onClick={() => {
+                                                        setPendingMemberCategoryId(mc.id);
+                                                        setPendingCategory(mc); // Use pendingCategory for name display in modal
+                                                        setPendingBaptismalStatus(null);
+                                                        setShowCategoryModal(true);
+                                                        setTypeDropdownOpen(false);
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2 text-[13px] font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-between ${member.memberCategoryId === mc.id ? 'text-indigo-600 bg-indigo-50/30' : 'text-gray-600 dark:text-gray-400'}`}
+                                                >
+                                                    {mc.name}
+                                                    {member.memberCategoryId === mc.id && <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <p className="px-4 py-4 text-[12px] text-gray-400 italic text-center">{t('no_categories_defined', 'Aucune catégorie définie')}</p>
+                                        )}
+                                    </div>
+                                </>
                             )}
                         </div>
 
-                        {/* Message Button */}
+                        <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-2"></div>
+
                         <button
-                            onClick={() => setMessageModal({ isOpen: true, recipient: member, mode: 'individual' })}
-                            className="ml-auto w-10 h-10 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl hover:scale-110 active:scale-90 transition-all shadow-sm"
+                            className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                            onClick={() => console.log('Voir la carte du membre clicked')}
                         >
-                            <MessageIcon />
+                            <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h2m-2 4h2" />
+                            </svg>
+                            {t('view_member_card', 'Voir la Carte du membre')}
                         </button>
+
+                        <div className="ml-auto flex items-center gap-2">
+                            <button
+                                onClick={() => setMessageModal({ isOpen: true, recipient: member, mode: 'individual' })}
+                                className="w-9 h-9 flex items-center justify-center bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-indigo-600 rounded-lg transition-all border border-gray-100 dark:border-white/10"
+                            >
+                                <MessageIcon />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* MAIN CONTENT GRID - Optimized 2 Column Layout */}
+            {/* MAIN CONTENT GRID - Matched to Image Layout */}
             <div className="px-8 mt-10 pb-32">
-                <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div className="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                    {/* ROW 1: Infos personnelles | Coordonnées */}
-                    {/* ROW 1: Infos personnelles | Coordonnées */}
-                    <Accordion
-                        title={t('personal_info', 'Infos personnelles')}
-                        icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
-                        initialOpen={true}
-                    >
-                        <div className="grid grid-cols-2 md:grid-cols-2 gap-12">
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('member_code', 'Code Membre')}</span>
-                                    <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/10 px-2 py-0.5 rounded-lg">{member.memberCode || '-'}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('first_name', 'Firstname')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{member.firstName}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('last_name', 'Last name')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{member.lastName}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('nickname', 'Nickname')}</span>
-                                    <span className="text-sm font-black text-indigo-600 italic">@{member.nickname || '-'}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('gender', 'Sexe')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{t(member.gender?.toLowerCase()) || member.gender}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('age', 'Âge')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{calculateAge(member.birthDate)} {t('years', 'ans')}</span>
-                                </div>
+                    {/* LEFT COLUMN (lg:col-span-7) */}
+                    <div className="lg:col-span-7 space-y-6">
 
-                            </div>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('birth_date', 'Date de naissance')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{member.birthDate ? new Date(member.birthDate).toLocaleDateString() : '-'}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('birth_place', 'Lieu de naissance')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{member.birthPlace || '-'}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('marital_status', 'État civil')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{t(member.maritalStatus?.toLowerCase()) || member.maritalStatus || '-'}</span>
-                                </div>
-                                {(member.maritalStatus === 'Marié(e)' || member.maritalStatus === 'Marié') && (
-                                    <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                        <span className="text-xs font-bold text-gray-500 tracking-widest">{t('spouse_name', 'Conjoint(e)')}</span>
-                                        <span className="text-sm font-black text-indigo-600">{member.spouseName || '-'}</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-gray-500 tracking-widest">{t('nif_cin', 'Nif/Cin')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">{member.nifCin || '-'}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-3">
-                                    <span className="text-xs font-bold text-indigo-500 tracking-widest">{t('join_date', 'Date adhésion')}</span>
-                                    <span className="text-sm font-black text-[#2B3674] dark:text-white">
-                                        {member.joinDate ? new Date(member.joinDate).toLocaleDateString() : '-'}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </Accordion>
-
-                    <Accordion
-                        title={t('contact_information', 'Coordonnées')}
-                        icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}
-                        initialOpen={true}
-                    >
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div className="space-y-8">
+                        {/* Informations personnelles Card */}
+                        <Accordion
+                            title={t('constituent_summary', 'Informations personnelles')}
+                            initialOpen={true}
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                 <div>
-                                    <h4 className="text-[10px] font-black text-indigo-500 tracking-[0.2em] mb-3">{t('address', 'Adresse')}</h4>
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-start border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-gray-400 tracking-widest mt-0.5">Home ⭐</span>
-                                            <div className="text-right">
-                                                <p className="text-[13px] font-bold text-[#2B3674] dark:text-white">{member.address || '-'}</p>
-                                                <p className="text-[11px] font-bold text-gray-500">{member.city ? `${member.city}${member.country ? ', ' + member.country : ''}` : member.country || '-'}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-gray-400 tracking-widest">Work</span>
-                                            <p className="text-[13px] font-bold text-[#2B3674] dark:text-white">{member.workAddress || '-'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 className="text-[10px] font-black text-indigo-500 tracking-[0.2em] mb-3">{t('email', 'Email')}</h4>
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-gray-400 tracking-widest">Personnelle ⭐</span>
-                                            <a href={`mailto:${member.email}`} className="text-[13px] font-bold text-blue-600 hover:underline">{member.email || '-'}</a>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-gray-400 tracking-widest">Work</span>
-                                            <a href={`mailto:${member.workEmail}`} className="text-[13px] font-bold text-blue-600 hover:underline">{member.workEmail || '-'}</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="space-y-6">
-                                <div>
-                                    <h4 className="text-[10px] font-black text-indigo-500 tracking-[0.2em] mb-3">{t('telephone', 'Téléphone')}</h4>
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-gray-400 tracking-widest">Mobile ⭐</span>
-                                            <p className="text-[13px] font-bold text-[#2B3674] dark:text-white">{member.phone || '-'}</p>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-gray-400 tracking-widest">Work</span>
-                                            <p className="text-[13px] font-bold text-[#2B3674] dark:text-white">{member.workPhone || '-'}</p>
-                                        </div>
-                                        <div className="flex justify-between items-center border-b border-gray-50 dark:border-white/5 pb-2">
-                                            <span className="text-[11px] font-bold text-red-500 tracking-widest">Urgence 🆘</span>
-                                            <p className="text-[13px] font-bold text-[#2B3674] dark:text-white">{member.emergencyContact || '-'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 className="text-[10px] font-black text-indigo-500 tracking-[0.2em] mb-3">{t('online_presence', 'Présence en ligne')}</h4>
+                                    <h4 className="text-[12px] font-bold text-gray-400 mb-4">{t('personal_info', 'Personal info')}</h4>
                                     <div className="space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-6 h-6 bg-blue-600 text-[10px] text-white rounded-md flex items-center justify-center font-black">in</div>
-                                            <a href={member.linkedinUrl?.startsWith('http') ? member.linkedinUrl : `https://${member.linkedinUrl}`} target="_blank" rel="noopener noreferrer" className="text-[13px] font-bold text-blue-600 hover:underline cursor-pointer">
-                                                {member.linkedinUrl ? member.linkedinUrl.replace('https://', '').replace('www.', '') : '-'}
-                                            </a>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-6 h-6 bg-indigo-600 text-[10px] text-white rounded-md flex items-center justify-center font-black">fb</div>
-                                            <a href={member.facebookUrl?.startsWith('http') ? member.facebookUrl : `https://${member.facebookUrl}`} target="_blank" rel="noopener noreferrer" className="text-[13px] font-bold text-indigo-600 hover:underline cursor-pointer">
-                                                {member.facebookUrl ? member.facebookUrl.replace('https://', '').replace('www.', '') : '-'}
-                                            </a>
-                                        </div>
+                                        <SummaryItem label={t('constituent_id', 'Membre ID')} value={member.memberCode} />
+                                        <SummaryItem label={t('nif_cin_label', 'NIF / CIN')} value={member.nifCin || '-'} />
+                                        <SummaryItem label={t('gender', 'Sexe')} value={t(member.gender?.toLowerCase()) || member.gender} />
+                                        <SummaryItem label={t('marital_status', 'État Civil')} value={t(member.maritalStatus?.toLowerCase()) || member.maritalStatus} />
+                                        <SummaryItem label={t('birth_place', 'Lieu de naissance')} value={member.birthPlace} />
+                                        <SummaryItem label={t('date_of_birth', 'Date de naissance')} value={member.birthDate ? new Date(member.birthDate).toLocaleDateString() : null} />
+                                        <SummaryItem label={t('age', 'Âge')} value={`${calculateAge(member.birthDate)} ${t('years_old', 'ans')}`} />
+                                        <SummaryItem label={t('blood_group', 'Groupe Sanguin')} value={member.bloodGroup || '-'} />
+                                        <SummaryItem label={t('join_date', "Date d'adhésion")} value={member.joinDate ? new Date(member.joinDate).toLocaleDateString() : null} />
+                                    </div>
+                                    <button onClick={() => setShowPropertiesModal(true)} className="text-[12px] font-bold text-stripe-blue mt-6 hover:underline">{t('view_member_properties', 'Voir propriétés du membre')}</button>
+                                </div>
+                                <div>
+                                    <h4 className="text-[12px] font-bold text-gray-400 mb-4">{t('name_formats', 'Name formats')}</h4>
+                                    <div className="space-y-2">
+                                        <SummaryItem label={t('primary_addressee', 'Primary Addressee')} value={`${member.firstName} ${member.lastName}`} />
+                                        <SummaryItem label={t('primary_salutation', 'Primary Salutation')} value={member.firstName} />
+                                        <SummaryItem label={t('primary_envelope', 'Primary Envelope')} value={`${member.firstName} ${member.lastName}`} />
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </Accordion>
+                        </Accordion>
 
-                    {/* ROW 2: Historique des communications | Attachements */}
-                    <Accordion title={t('communication_history', 'Historique des communications')} icon={<MessageIcon />}>
-                        <div className="space-y-4">
-                            {communications.map(c => (
-                                <div key={c.id} className="p-6 bg-gray-50/50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-white/5">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <p className="text-[15px] font-black text-[#2B3674] dark:text-white tracking-tight">{c.title}</p>
-                                        <span className="text-[11px] font-black text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</span>
-                                    </div>
-                                    <p className="text-sm font-bold text-gray-400 dark:text-gray-500 leading-relaxed">{c.message}</p>
+                        {/* Notes (multi-item, not résumé) */}
+                        <Accordion title={`${t('notes', 'Notes')} ${memberNotes.length}`}>
+                            <div className="space-y-3">
+                                <div className="flex justify-end">
+                                    <button onClick={() => { setNoteForm({ title: '', date: new Date().toISOString().split('T')[0], description: '' }); setEditingNoteId(null); setShowNoteModal(true); }}
+                                        className="text-[11px] font-bold text-stripe-blue hover:underline flex items-center gap-1">
+                                        + {t('add_note', 'Ajouter une note')}
+                                    </button>
                                 </div>
-                            ))}
-                            {communications.length === 0 && <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">{t('no_communication_recorded', 'Aucune communication enregistrée')}</div>}
-                        </div>
-                    </Accordion>
-
-                    <Accordion
-                        title={t('attachments', 'Attachements')}
-                        icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>}
-                    >
-                        <div className="space-y-8">
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 dark:bg-black/40 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 gap-6">
-                                <div className="space-y-2">
-                                    <h4 className="text-[11px] font-black text-indigo-500 tracking-[0.2em]">{t('manage_files', 'Gestion des documents')}</h4>
-                                    <p className="text-[13px] font-bold text-gray-400 leading-relaxed max-w-sm">
-                                        {t('attachment_instr', 'Uploadez des certificats, photos ou documents légaux directement sur le profil.')}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setAttachmentModalOpen(true); }}
-                                    className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl text-[11px] font-black tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 dark:shadow-none active:scale-95 shrink-0"
-                                >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                                    {t('add', 'Ajouter')}
-                                </button>
-                            </div>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                {attachments.map(att => (
-                                    <div key={att.id} className="p-6 bg-white dark:bg-black/20 rounded-[2rem] border border-gray-100 dark:border-white/5 flex items-center justify-between group transition-all hover:border-indigo-500/30 hover:shadow-xl hover:shadow-gray-100/50 dark:hover:shadow-none">
-                                        <div className="flex items-center gap-5">
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${att.type === 'link' ? 'bg-amber-500 shadow-amber-100' : 'bg-indigo-600 shadow-indigo-100 dark:shadow-none'}`}>
-                                                <AttachmentIcon type={att.type} fileType={att.fileType} />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="text-[14px] font-black text-[#2B3674] dark:text-white tracking-tight truncate">{att.name}</p>
-                                                <div className="flex items-center gap-3 mt-1.5">
-                                                    <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 rounded-md text-[9px] font-black text-gray-500 dark:text-gray-400 tracking-widest">
-                                                        {att.type === 'link' ? 'Lien' : att.fileType.toUpperCase()}
-                                                    </span>
-                                                    {att.size && <span className="text-[11px] font-bold text-gray-400">{(att.size / 1024).toFixed(1)} KB</span>}
-                                                    <span className="text-[11px] font-bold text-gray-300">/ {new Date(att.createdAt).toLocaleDateString()}</span>
-                                                </div>
+                                {memberNotes.length === 0 ? (
+                                    <p className="text-xs font-medium text-gray-400 italic py-4 text-center">{t('none_found', 'Aucun résultat.')}</p>
+                                ) : memberNotes.map(note => (
+                                    <div key={note.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 group">
+                                        <div className="flex justify-between items-start mb-1">
+                                            <p className="text-[13px] font-bold text-gray-800 dark:text-white">{note.title}</p>
+                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => { setNoteForm({ title: note.title, date: note.date?.split('T')[0] || '', description: note.description }); setEditingNoteId(note.id); setShowNoteModal(true); }} className="text-indigo-400 hover:text-indigo-600 text-[11px]">✏️</button>
+                                                <button onClick={() => handleDeleteNote(note.id)} className="text-rose-400 hover:text-rose-600 text-[11px]">✕</button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all shrink-0">
-                                            {att.type === 'file' ? (
-                                                <a
-                                                    href={`${api.defaults.baseURL.replace('/api', '')}${att.url}`}
-                                                    download
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-10 h-10 bg-gray-50 dark:bg-black text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-transparent dark:border-white/10"
-                                                >
-                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                                </a>
-                                            ) : (
-                                                <a
-                                                    href={att.url.startsWith('http') ? att.url : `https://${att.url}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-10 h-10 bg-gray-50 dark:bg-black text-amber-500 rounded-xl flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-sm border border-transparent dark:border-white/10"
-                                                >
-                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                                                </a>
-                                            )}
-                                            <button
-                                                onClick={() => handleDeleteAttachment(att.id)}
-                                                className="w-10 h-10 bg-gray-50 dark:bg-black text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm border border-transparent dark:border-white/10"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
+                                        <p className="text-[11px] text-gray-400 mb-2">{note.date ? new Date(note.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : ''} • {note.addedBy ? `${note.addedBy.firstName} ${note.addedBy.lastName}` : t('system', 'Système')}</p>
+                                        <p className="text-[12px] text-gray-600 dark:text-gray-300 leading-relaxed">{note.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Accordion>
+
+                        {/* Actions */}
+                        <Accordion title={`${t('actions', 'Actions')} ${memberActions.length > 0 ? memberActions.length : ''}`}>
+                            <div className="space-y-3">
+                                <div className="flex justify-end">
+                                    <button onClick={() => { setActionForm({ type: 'email', description: '', date: new Date().toISOString().split('T')[0] }); setShowActionModal(true); }}
+                                        className="text-[11px] font-bold text-stripe-blue hover:underline flex items-center gap-1">
+                                        + {t('add_action', 'Ajouter une action')}
+                                    </button>
+                                </div>
+                                {memberActions.length === 0 ? (
+                                    <p className="text-xs font-medium text-gray-400 italic py-4 text-center">{t('none_found', 'Aucun résultat.')}</p>
+                                ) : memberActions.map(action => (
+                                    <div key={action.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 flex items-start gap-3">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm
+                                            ${action.type === 'email' ? 'bg-blue-50 text-blue-600' :
+                                                action.type === 'phone' ? 'bg-green-50 text-green-600' :
+                                                    action.type === 'meeting' ? 'bg-purple-50 text-purple-600' :
+                                                        action.type === 'mail' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-500'}`}>
+                                            {action.type === 'email' ? '✉️' : action.type === 'phone' ? '📞' : action.type === 'meeting' ? '🤝' : action.type === 'mail' ? '📬' : '📌'}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start">
+                                                <p className="text-[12px] font-bold text-gray-700 dark:text-gray-200 capitalize">{t(action.type, action.type)}</p>
+                                                <span className="text-[10px] text-gray-400">{action.date ? new Date(action.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : ''}</span>
+                                            </div>
+                                            {action.description && <p className="text-[12px] text-gray-500 leading-snug mt-0.5">{action.description}</p>}
+                                            <p className="text-[10px] text-gray-300 mt-1">{action.addedBy ? `${action.addedBy.firstName} ${action.addedBy.lastName}` : ''}</p>
                                         </div>
                                     </div>
                                 ))}
-                                {attachments.length === 0 && <div className="col-span-1 lg:col-span-2 py-16 text-center">
-                                    <div className="w-24 h-24 bg-gray-50 dark:bg-black/20 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
-                                        <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                                    </div>
-                                    <p className="text-xs font-black text-gray-400 tracking-widest">{t('no_attachments_found', 'Aucun attachement trouvé')}</p>
-                                </div>}
                             </div>
-                        </div>
-                    </Accordion>
+                        </Accordion>
+                        {/* Demandes */}
+                        <Accordion title={`Demande (${memberRequests.filter(r => r.viewStatus === 'non-vue' || !r.viewStatus).length} non vue, ${memberRequests.filter(r => r.viewStatus === 'suivi-demande').length} suivi demande)`}>
+                            <div className="space-y-3">
+                                {(memberRequests.length === 0) ? (
+                                    <p className="text-xs font-medium text-gray-400 italic py-4 text-center">{t('none_found', 'Aucune demande enregistrée.')}</p>
+                                ) : memberRequests.map(req => (
+                                    <div key={req.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div>
+                                                <p className="text-[13px] font-bold text-gray-800 dark:text-white">{req.subject}</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${req.viewStatus === 'non-vue' || !req.viewStatus ? 'bg-rose-50 text-rose-600' : req.viewStatus === 'suivi-demande' ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'}`}>
+                                                        {req.viewStatus || 'non-vue'}
+                                                    </span>
+                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${req.status === 'open' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+                                                        {req.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <button onClick={() => updateRequestViewStatus(req.id, 'vue')} title="Marquer comme vue" className="p-1.5 hover:bg-white dark:hover:bg-white/10 rounded transition-all text-gray-400 hover:text-green-500">👁️</button>
+                                                <button onClick={() => updateRequestViewStatus(req.id, 'suivi-demande')} title="Suivi demande" className="p-1.5 hover:bg-white dark:hover:bg-white/10 rounded transition-all text-gray-400 hover:text-amber-500">🔄</button>
+                                                <button onClick={() => updateRequestViewStatus(req.id, 'non-vue')} title="Marquer comme non-vue" className="p-1.5 hover:bg-white dark:hover:bg-white/10 rounded transition-all text-gray-400 hover:text-rose-500">🚩</button>
+                                            </div>
+                                        </div>
+                                        <p className="text-[12px] text-gray-500">{req.description}</p>
+                                        <p className="text-[10px] text-gray-300 mt-2">{req.createdAt ? new Date(req.createdAt).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : ''}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </Accordion>
 
-                    {/* ROW 3: Note de synthèse | Relations & Réseau */}
 
-                    <Accordion title={t('relationships_network', 'Relations & réseaux')} icon={<NetworkIcon />}>
-                        <RelationshipsList memberId={member.id} member={member} />
-                        <OrganizationRolesList memberId={member.id} />
-                    </Accordion>
+                        <Accordion title={t('relationships', 'Relationships')}>
+                            <RelationshipsList memberId={member.id} member={member} isTableView={true} />
+                            <div className="mt-8 border-t border-gray-100 dark:border-white/5 pt-6">
+                                <OrganizationRolesList memberId={member.id} isTableView={true} />
+                            </div>
+                        </Accordion>
 
-                    {/* ROW 4: Historique des dons | Régulateur de Dîmes */}
-                    <Accordion title={t('donations_history', 'Historique des dons')} icon={<MoneyIcon />}>
-                        <div className="overflow-x-auto noscrollbar">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50 dark:bg-black/40">
-                                    <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('date', 'Date')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('type', 'Type')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest text-right">{t('amount', 'Montant')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                                    {(member.donations || []).map(d => (
-                                        <tr key={d.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-                                            <td className="px-8 py-5 text-xs font-bold text-gray-700 dark:text-gray-300">{new Date(d.date).toLocaleDateString()}</td>
-                                            <td className="px-8 py-5 text-xs font-bold text-indigo-500 tracking-widest">{d.type || '-'}</td>
-                                            <td className="px-8 py-5 text-right text-sm font-black text-[#2B3674] dark:text-white">{parseFloat(d.amount).toLocaleString()} {d.currency}</td>
+                        <Accordion title={t('member_cards_history', 'Historique des cartes membre')}>
+                            <MemberCardsList memberId={member.id} member={member} />
+                        </Accordion>
+
+                    </div>
+
+                    {/* RIGHT COLUMN (lg:col-span-5) */}
+                    <div className="lg:col-span-5 space-y-6">
+
+                        {/* Contact Information Card */}
+                        <Accordion
+                            title={t('contact_information', 'Contact information')}
+                            initialOpen={true}
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 className="text-[12px] font-bold text-gray-400 mb-4 flex items-center justify-between">
+                                        {t('addresses', 'Addresses')}
+                                    </h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <p className="text-[12px] font-bold text-gray-600 flex items-center gap-1">Résidence <span className="text-yellow-400">★</span></p>
+                                            <p className="text-[13px] text-gray-800 dark:text-gray-200 mt-1">
+                                                {[
+                                                    member.address,
+                                                    member.city,
+                                                    member.zipCode,
+                                                    member.department,
+                                                    member.country
+                                                ].filter(Boolean).join(', ') || '-'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <h4 className="text-[12px] font-bold text-gray-400 mt-8 mb-4">{t('email_addresses', 'Email addresses')}</h4>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-[12px] font-bold text-gray-600 flex items-center gap-1">{t('primary', 'Primaire')} <span className="text-yellow-400">★</span></p>
+                                            <a href={`mailto:${member.email}`} title={t('primary', 'Primaire')} className="text-[13px] text-stripe-blue hover:underline">{member.email || '-'}</a>
+                                        </div>
+                                        {member.secondaryEmail && (
+                                            <div>
+                                                <p className="text-[12px] font-bold text-gray-600 flex items-center gap-1">{t('secondary', 'Secondaire')}</p>
+                                                <a href={`mailto:${member.secondaryEmail}`} title={t('secondary', 'Secondaire')} className="text-[13px] text-stripe-blue hover:underline">{member.secondaryEmail}</a>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="text-[12px] font-bold text-gray-400 mb-4">{t('phone_numbers', 'Phone numbers')}</h4>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-[12px] font-bold text-gray-600">{t('phone', 'Phone')} <span className="text-yellow-400">★</span></p>
+                                            <p className="text-[13px] text-gray-800 dark:text-gray-200">{member.phone || '-'}</p>
+                                        </div>
+                                        {member.secondaryPhone && (
+                                            <div>
+                                                <p className="text-[12px] font-bold text-gray-600">{t('secondary_phone', 'Téléphone secondaire')}</p>
+                                                <p className="text-[13px] text-gray-800 dark:text-gray-200">{member.secondaryPhone}</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <h4 className="text-[12px] font-bold text-gray-400 mt-8 mb-4">{t('online_presence', 'Online presence')}</h4>
+                                    <div className="space-y-3">
+                                        {member.facebookUrl && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-[10px] text-white font-bold">f</div>
+                                                <a href={member.facebookUrl} target="_blank" rel="noreferrer" className="text-[13px] text-stripe-blue hover:underline">Facebook</a>
+                                            </div>
+                                        )}
+                                        {member.linkedinUrl && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 bg-blue-700 rounded flex items-center justify-center text-[10px] text-white font-bold">in</div>
+                                                <a href={member.linkedinUrl} target="_blank" rel="noreferrer" className="text-[13px] text-stripe-blue hover:underline">LinkedIn</a>
+                                            </div>
+                                        )}
+                                        {member.instagramUrl && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 bg-pink-600 rounded flex items-center justify-center text-[10px] text-white font-bold">ig</div>
+                                                <a href={member.instagramUrl} target="_blank" rel="noreferrer" className="text-[13px] text-stripe-blue hover:underline">Instagram</a>
+                                            </div>
+                                        )}
+                                        {member.tiktokUrl && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 bg-black rounded flex items-center justify-center text-[10px] text-white font-bold">tk</div>
+                                                <a href={member.tiktokUrl} target="_blank" rel="noreferrer" className="text-[13px] text-stripe-blue hover:underline">TikTok</a>
+                                            </div>
+                                        )}
+                                        {member.websiteUrl && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 bg-gray-600 rounded flex items-center justify-center text-white">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                                    </svg>
+                                                </div>
+                                                <a href={member.websiteUrl.startsWith('http') ? member.websiteUrl : `https://${member.websiteUrl}`} target="_blank" rel="noreferrer" className="text-[13px] text-stripe-blue hover:underline">{t('website', 'Site web')}</a>
+                                            </div>
+                                        )}
+                                        {(!member.facebookUrl && !member.linkedinUrl && !member.instagramUrl && !member.tiktokUrl && !member.websiteUrl) && (
+                                            <p className="text-xs text-gray-400 italic">{t('no_online_presence', 'No online presence found')}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </Accordion>
+
+                        {/* Coordonnées professionnelles */}
+                        <Accordion title={t('work_contacts', 'Coordonnées professionnelles')}>
+                            <div className="space-y-4">
+                                <SummaryItem label={t('work_address', 'Adresse de travail')} value={member.workAddress} />
+                                <SummaryItem label={t('work_email', 'Email professionnel')} value={
+                                    member.workEmail
+                                        ? <a href={`mailto:${member.workEmail}`} className="text-stripe-blue hover:underline">{member.workEmail}</a>
+                                        : null
+                                } />
+                                <SummaryItem label={t('work_phone', 'Téléphone professionnel')} value={member.workPhone} />
+                                {(!member.workAddress && !member.workEmail && !member.workPhone) && (
+                                    <p className="text-xs text-gray-400 italic text-center py-4">{t('none_found', 'Aucun résultat.')}</p>
+                                )}
+                            </div>
+                        </Accordion>
+
+                        {/* Contact d'urgence */}
+                        <Accordion title={t('emergency_contacts', "Contact d'urgence")}>
+                            <div className="space-y-4">
+                                <SummaryItem label={t('full_name', 'Nom complet')} value={member.emergencyContact} />
+                                <SummaryItem label={t('phone', 'Téléphone')} value={member.emergencyPhone} />
+                                <SummaryItem label={t('email', 'Email')} value={member.emergencyEmail} />
+                                {!member.emergencyContact && !member.emergencyPhone && !member.emergencyEmail && (
+                                    <p className="text-xs text-gray-400 italic text-center py-4">{t('none_found', 'Aucun résultat.')}</p>
+                                )}
+                            </div>
+                        </Accordion>
+
+
+                        {/* Dîmes (Giving) */}
+                        <Accordion title={`${t('tithes', 'Dîmes')} — ${member.donations?.filter(d => (d.type?.toLowerCase() === 'dime' || d.type?.toLowerCase() === 'dîme') && new Date(d.date).getFullYear() === new Date().getFullYear()).length || 0}`}>
+                            <div className="space-y-4">
+                                <TitheRegulator donations={member.donations || []} />
+                            </div>
+                        </Accordion>
+
+                        {/* Historique des Dons */}
+                        <Accordion title={`${t('donation_history', 'Historique des dons')} ${totalDonations}`}>
+                            <div className="overflow-x-auto">
+                                <div className="flex justify-between items-center mb-3">
+                                    <div className="text-[11px] font-bold text-gray-500">
+                                        {!showAllDonations && totalDonations > 0 ? `Affichage ${startDonationCount}-${endDonationCount} sur ${totalDonations} transactions` : `${totalDonations} transactions`}
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        {totalDonations > DONATIONS_PER_PAGE && (
+                                            <button onClick={() => {
+                                                setShowAllDonations(!showAllDonations);
+                                                if (!showAllDonations) setDonationsPage(1);
+                                            }}
+                                                className="text-[11px] font-bold text-stripe-blue hover:underline border border-stripe-blue/20 px-3 py-1.5 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 transition-colors">
+                                                {showAllDonations ? t('show_less', 'Voir moins') : t('view_all_records', 'Voir tous les records')}
+                                            </button>
+                                        )}
+                                        <button onClick={() => {
+                                            setDonationForm({
+                                                amount: '',
+                                                currency: supportedCurrencies[0] || 'HTG',
+                                                type: 'offrande',
+                                                date: new Date().toISOString().split('T')[0],
+                                                paymentMethod: 'CASH',
+                                                notes: '',
+                                                userId: id,
+                                                isDeposited: false,
+                                                bankAccountId: '',
+                                                depositDate: new Date().toISOString().split('T')[0],
+                                                depositedById: ''
+                                            });
+                                            setEditingDonationId(null);
+                                            setShowDonationModal(true);
+                                        }}
+                                            className="text-[11px] font-bold text-stripe-blue hover:underline flex items-center gap-1">
+                                            + {t('add_donation', 'Ajouter un don')}
+                                        </button>
+                                    </div>
+                                </div>
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 dark:bg-black/40">
+                                        <tr>
+                                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400">{t('date', 'Date')}</th>
+                                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400">{t('type', 'Type')}</th>
+                                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400 text-right">{t('amount', 'Montant')}</th>
+                                            <th className="px-4 py-3 text-[10px] font-bold text-gray-400"></th>
                                         </tr>
-                                    ))}
-                                    {(!member.donations || member.donations.length === 0) && (
-                                        <tr><td colSpan="3" className="py-20 text-center text-xs font-bold text-gray-400 tracking-widest">{t('no_donations_recorded', 'Aucun don enregistré')}</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
+                                        {displayedDonations.map(d => (
+                                            <tr key={d.id} className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors">
+                                                <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{d.date ? new Date(d.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : '-'}</td>
+                                                <td className="px-4 py-3 text-gray-500">{d.donationType?.name || d.type || '-'}</td>
+                                                <td className="px-4 py-3 font-bold text-gray-800 dark:text-white text-right">{parseFloat(d.amount || 0).toLocaleString()} {d.currency}</td>
+                                                <td className="px-4 py-3">
+                                                    <button onClick={() => {
+                                                        setDonationForm({
+                                                            amount: d.amount,
+                                                            currency: d.currency || 'HTG',
+                                                            date: d.date?.split('T')[0] || '',
+                                                            type: d.type || 'offrande',
+                                                            paymentMethod: d.paymentMethod || 'CASH',
+                                                            notes: d.notes || '',
+                                                            userId: id,
+                                                            isDeposited: !!d.bankAccountId,
+                                                            bankAccountId: d.bankAccountId || '',
+                                                            depositDate: d.depositDate?.split('T')[0] || d.date?.split('T')[0] || '',
+                                                            depositedById: d.depositedById || ''
+                                                        });
+                                                        setEditingDonationId(d.id);
+                                                        setShowDonationModal(true);
+                                                    }}
+                                                        className="text-[10px] text-indigo-400 hover:text-indigo-600 font-bold">✏️</button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {(!member.donations || member.donations.length === 0) && (
+                                            <tr><td colSpan="4" className="py-8 text-center text-xs text-gray-400">{t('no_donations_recorded', 'Aucun don enregistré')}</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+
+                                {!showAllDonations && totalDonationsPages > 1 && (
+                                    <div className="flex justify-end items-center gap-1.5 mt-4 text-[11px] font-bold">
+                                        <button
+                                            disabled={donationsPage === 1}
+                                            onClick={() => setDonationsPage(prev => Math.max(1, prev - 1))}
+                                            className="px-2.5 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 rounded-md disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                        >
+                                            {t('prev', 'Prec.')}
+                                        </button>
+
+                                        {[...Array(totalDonationsPages)].map((_, i) => {
+                                            const pageNum = i + 1;
+                                            // Only show a few pages around the current
+                                            if (
+                                                pageNum === 1 ||
+                                                pageNum === totalDonationsPages ||
+                                                (pageNum >= donationsPage - 1 && pageNum <= donationsPage + 1)
+                                            ) {
+                                                return (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => setDonationsPage(pageNum)}
+                                                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${donationsPage === pageNum ? 'bg-stripe-blue text-white shadow-sm' : 'bg-gray-50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10'}`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            } else if (
+                                                pageNum === donationsPage - 2 ||
+                                                pageNum === donationsPage + 2
+                                            ) {
+                                                return <span key={pageNum} className="text-gray-400 px-1">...</span>;
+                                            }
+                                            return null;
+                                        })}
+
+                                        <button
+                                            disabled={donationsPage === totalDonationsPages}
+                                            onClick={() => setDonationsPage(prev => Math.min(totalDonationsPages, prev + 1))}
+                                            className="px-2.5 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 rounded-md disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                        >
+                                            {t('next', 'Suiv.')}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </Accordion>
+
+                        {/* Attachments */}
+                        <Accordion title={t('attachments', 'Attachments')}>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setAttachmentModalOpen(true); }}
+                                        className="text-[11px] font-bold text-stripe-blue hover:underline"
+                                    >
+                                        + {t('add_attachment', 'Add attachment')}
+                                    </button>
+                                </div>
+                                <div className="space-y-2">
+                                    {attachments.map(att => {
+                                        const BASE_URL = api.defaults.baseURL?.replace('/api', '') || '';
+                                        const fileUrl = att.url?.startsWith('http') ? att.url : `${BASE_URL}${att.url}`;
+
+                                        return (
+                                            <div key={att.id} className="flex items-center justify-between text-[12px] p-2 hover:bg-gray-50 rounded-lg group">
+                                                <div className="flex items-center gap-2">
+                                                    <AttachmentIcon type={att.type} fileType={att.fileType} />
+                                                    <span className="font-medium text-gray-700">{att.name}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <a href={fileUrl} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-600 font-bold transition-all">Voir</a>
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                const response = await fetch(fileUrl);
+                                                                const blob = await response.blob();
+                                                                const url = window.URL.createObjectURL(blob);
+                                                                const a = document.createElement('a');
+                                                                a.style.display = 'none';
+                                                                a.href = url;
+
+                                                                let filename = att.name || 'attachment';
+                                                                const ext = att.url ? att.url.split('.').pop() : '';
+                                                                if (ext && !filename.toLowerCase().endsWith(`.${ext.toLowerCase()}`) && ext.length <= 4) {
+                                                                    filename += `.${ext}`;
+                                                                }
+                                                                a.download = filename;
+
+                                                                document.body.appendChild(a);
+                                                                a.click();
+                                                                window.URL.revokeObjectURL(url);
+                                                            } catch (error) {
+                                                                console.error("Download failed", error);
+                                                                // Fallback to normal download or open if fetch fails
+                                                                window.open(fileUrl, '_blank');
+                                                            }
+                                                        }}
+                                                        className="text-indigo-400 hover:text-indigo-600 font-bold transition-all"
+                                                    >
+                                                        Télécharger
+                                                    </button>
+                                                    <button onClick={() => handleDeleteAttachment(att.id)} className="opacity-0 group-hover:opacity-100 text-rose-500 transition-opacity">✕</button>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </Accordion>
+
+                    </div>
+
+                </div>{/* end max-w grid container */}
+            </div>{/* end px-8 mt-10 pb-32 */}
+
+            {/* EXTRA ACCORDIONS - full-width below the grid */}
+            <div className="px-8 pb-32">
+                <div className="max-w-[1700px] mx-auto space-y-6">
+
+                    {/* Historique des communications */}
+                    <Accordion title={`${t('communication_history', 'Historique des communications')} ${communications.length > 0 ? communications.length : ''}`}>
+                        <div className="overflow-x-auto">
+                            {historyLoading ? (
+                                <div className="py-12 text-center text-xs font-bold text-gray-400 animate-pulse">{t('loading')}</div>
+                            ) : communications.length > 0 ? (
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 dark:bg-black/40">
+                                        <tr>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('date', 'Date')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('type', 'Type')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('subject', 'Sujet')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('sent_by', 'Envoyé par')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
+                                        {communications.map((c, idx) => (
+                                            <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-white/2">
+                                                <td className="px-6 py-3 text-gray-700 dark:text-gray-300">{c.createdAt ? new Date(c.createdAt).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : '-'}</td>
+                                                <td className="px-6 py-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">{c.type || 'Email'}</span></td>
+                                                <td className="px-6 py-3 text-gray-800 dark:text-white font-medium">{c.title || c.subject || c.message?.substring(0, 60)}</td>
+                                                <td className="px-6 py-3 text-gray-500">{c.sender ? `${c.sender.firstName} ${c.sender.lastName}` : '-'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <div className="py-12 text-center text-xs font-bold text-gray-400">{t('no_communications', 'Aucune communication enregistrée')}</div>
+                            )}
                         </div>
                     </Accordion>
 
-                    <Accordion title={t('tithe_regulator', 'Régulateur de dîmes')} icon={<TitheIcon />}>
-                        <TitheRegulator donations={member.donations || []} />
-                    </Accordion>
 
-                    {/* ROW 6: Historique de statut | Historique de catégorie */}
                     <Accordion
                         title={t('status_history', 'Historique de statut')}
-                        icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                     >
                         <div className="overflow-x-auto">
                             {historyLoading ? (
-                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest animate-pulse">{t('loading')}</div>
+                                <div className="py-12 text-center text-xs font-bold text-gray-400 animate-pulse">{t('loading')}</div>
                             ) : history.statusHistory && history.statusHistory.length > 0 ? (
                                 <table className="w-full text-left">
                                     <thead className="bg-gray-50 dark:bg-black/40">
                                         <tr>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('date', 'Date')}</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('status', 'Statut')}</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('modified_by', 'Modifié par')}</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('notes', 'Notes')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('date', 'Date')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('status', 'Statut')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('modified_by', 'Modifié par')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('notes', 'Notes')}</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                    <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
                                         {history.statusHistory.map((h, idx) => (
-                                            <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-all">
-                                                <td className="px-8 py-5 text-xs font-bold text-[#2B3674] dark:text-white">
-                                                    {new Date(h.changeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}
-                                                </td>
-                                                <td className="px-8 py-5 text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                                                    {t(h.status?.toLowerCase().replace(/ /g, '_')) || h.status}
-                                                </td>
-                                                <td className="px-8 py-5 text-xs font-bold text-gray-600 dark:text-gray-300">
-                                                    {h.changedBy ? `${h.changedBy.firstName} ${h.changedBy.lastName}` : '-'}
-                                                </td>
-                                                <td className="px-8 py-5 text-xs text-gray-500 dark:text-gray-400 italic">
-                                                    {h.notes && h.notes !== 'Status update' ? h.notes : '-'}
-                                                </td>
+                                            <tr key={idx}>
+                                                <td className="px-6 py-3 text-gray-800 dark:text-gray-300">{new Date(h.changeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</td>
+                                                <td className="px-6 py-3 font-bold text-indigo-600">{t(h.status?.toLowerCase().replace(/ /g, '_')) || h.status}</td>
+                                                <td className="px-6 py-3 text-gray-600 dark:text-gray-300">{h.changedBy ? `${h.changedBy.firstName} ${h.changedBy.lastName}` : '-'}</td>
+                                                <td className="px-6 py-3 text-gray-500 italic">{h.notes && h.notes !== 'Status update' ? h.notes : '-'}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             ) : (
-                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">
-                                    {t('no_status_history', 'Aucun historique de statut')}
-                                </div>
+                                <div className="py-12 text-center text-xs font-bold text-gray-400">{t('no_status_history', 'Aucun historique de statut')}</div>
                             )}
                         </div>
                     </Accordion>
 
-                    <Accordion
-                        title={t('category_history', 'Historique de catégorie')}
-                        icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>}
-                    >
+                    <Accordion title={t('category_history', 'Historique de catégorie')}>
                         <div className="overflow-x-auto">
                             {historyLoading ? (
-                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest animate-pulse">{t('loading')}</div>
+                                <div className="py-12 text-center text-xs font-bold text-gray-400 animate-pulse">{t('loading')}</div>
                             ) : history.categoryHistory && history.categoryHistory.length > 0 ? (
                                 <table className="w-full text-left">
                                     <thead className="bg-gray-50 dark:bg-black/40">
                                         <tr>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('date', 'Date')}</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('category', 'Catégorie')}</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('modified_by', 'Modifié par')}</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('notes', 'Notes')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('date', 'Date')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('category', 'Catégorie')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('modified_by', 'Modifié par')}</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('notes', 'Notes')}</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                    <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
                                         {history.categoryHistory.map((h, idx) => (
-                                            <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-all">
-                                                <td className="px-8 py-5 text-xs font-bold text-[#2B3674] dark:text-white">
-                                                    {new Date(h.changeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}
-                                                </td>
-                                                <td className="px-8 py-5 text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                                                    {h.contactSubtype?.name || h.baptismalStatus || h.memberCategory?.name || t('unknown', 'Inconnu')}
-                                                </td>
-                                                <td className="px-8 py-5 text-xs font-bold text-gray-600 dark:text-gray-300">
-                                                    {h.changedBy ? `${h.changedBy.firstName} ${h.changedBy.lastName}` : '-'}
-                                                </td>
-                                                <td className="px-8 py-5 text-xs text-gray-500 dark:text-gray-400 italic">
-                                                    {h.notes && !h.notes.includes('update') ? h.notes : '-'}
-                                                </td>
+                                            <tr key={idx}>
+                                                <td className="px-6 py-3 text-gray-800 dark:text-gray-300">{new Date(h.changeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</td>
+                                                <td className="px-6 py-3 font-bold text-indigo-600">{h.contactSubtype?.name || h.baptismalStatus || h.memberCategory?.name || t('unknown', 'Inconnu')}</td>
+                                                <td className="px-6 py-3 text-gray-600 dark:text-gray-300">{h.changedBy ? `${h.changedBy.firstName} ${h.changedBy.lastName}` : '-'}</td>
+                                                <td className="px-6 py-3 text-gray-500 italic">{h.notes && !h.notes.includes('update') ? h.notes : '-'}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             ) : (
-                                <div className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">
-                                    {t('no_category_history', 'Aucun historique de catégorie')}
-                                </div>
+                                <div className="py-12 text-center text-xs font-bold text-gray-400">{t('no_category_history', 'Aucun historique de catégorie')}</div>
                             )}
                         </div>
                     </Accordion>
 
-                    {/* ROW 6: Événements participés | Cérémonies participées */}
-                    <Accordion title={t('events_attended', 'Événements participés')} icon={<CalendarIcon />}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Events & Ceremonies */}
+                    <Accordion title={t('events_attended', 'Événements participés')}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {(member.attendedEvents || []).map(e => (
-                                <div key={e.id} className="bg-gray-50/50 dark:bg-black/20 p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex items-center gap-6">
-                                    <div className="w-14 h-14 bg-white dark:bg-black rounded-xl flex items-center justify-center text-blue-600 text-lg font-black shadow-sm">{new Date(e.startDate).getDate()}</div>
+                                <div key={e.id} className="bg-gray-50/50 dark:bg-black/20 p-4 rounded-xl border border-gray-100 dark:border-white/5 flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-white dark:bg-black rounded-lg flex items-center justify-center text-blue-600 text-lg font-bold shadow-sm shrink-0">{new Date(e.startDate).getDate()}</div>
                                     <div>
-                                        <p className="text-sm font-black text-[#2B3674] dark:text-white">{e.title}</p>
-                                        <p className="text-[11px] font-bold text-gray-400 tracking-widest mt-1">{new Date(e.startDate).toLocaleDateString()}</p>
+                                        <button
+                                            onClick={() => navigate('/admin/events')}
+                                            className="text-sm font-bold text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline transition-colors text-left"
+                                        >
+                                            {e.title}
+                                        </button>
+                                        <p className="text-[11px] text-gray-400 mt-0.5">{new Date(e.startDate).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                             ))}
                             {(!member.attendedEvents || member.attendedEvents.length === 0) && (
-                                <div className="col-span-2 py-12 text-center text-xs font-black text-gray-400 tracking-widest">{t('no_participation_recorded', 'Aucune participation enregistrée')}</div>
+                                <div className="col-span-2 py-8 text-center text-xs text-gray-400">{t('no_participation_recorded', 'Aucune participation enregistrée')}</div>
                             )}
                         </div>
                     </Accordion>
 
-                    <Accordion title={t('ceremonies_attended', 'Cérémonies participées')} icon={<CeremonyIcon />}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Accordion title={t('ceremonies_attended', 'Cérémonies participées')}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {(member.attendedCeremonies || []).map(c => (
-                                <div key={c.id} className="bg-gray-50/50 dark:bg-black/20 p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex items-center gap-6">
-                                    <div className="w-14 h-14 bg-white dark:bg-black rounded-xl flex items-center justify-center text-amber-500 text-xl shadow-sm">✨</div>
+                                <div key={c.id} className="bg-gray-50/50 dark:bg-black/20 p-4 rounded-xl border border-gray-100 dark:border-white/5 flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-white dark:bg-black rounded-lg flex items-center justify-center text-amber-500 text-xl shadow-sm shrink-0">✨</div>
                                     <div>
-                                        <p className="text-sm font-black text-[#2B3674] dark:text-white">{c.name || c.title}</p>
-                                        <p className="text-[11px] font-bold text-gray-400 tracking-widest mt-1">{c.date ? new Date(c.date).toLocaleDateString() : '-'}</p>
+                                        <p className="text-sm font-bold text-gray-800 dark:text-white">{c.name || c.title}</p>
+                                        <p className="text-[11px] text-gray-400 mt-0.5">{c.date ? new Date(c.date).toLocaleDateString() : '-'}</p>
                                     </div>
                                 </div>
                             ))}
                             {(!member.attendedCeremonies || member.attendedCeremonies.length === 0) && (
-                                <div className="col-span-2 py-12 text-center text-xs font-black text-gray-400 tracking-widest">{t('no_participation_recorded', 'Aucune participation enregistrée')}</div>
+                                <div className="col-span-2 py-8 text-center text-xs text-gray-400">{t('no_participation_recorded', 'Aucune participation enregistrée')}</div>
                             )}
                         </div>
                     </Accordion>
 
 
-                    {/* ROW 7: Historique des groupes */}
-                    <Accordion title={t('groups_history', 'Historique des groupes')} icon={<GroupsIcon />}>
+
+                    {/* Groups History */}
+                    <Accordion title={t('groups_history', 'Historique des groupes')}>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 dark:bg-black/40">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('group_name', 'Nom du Groupe')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('type', 'Type')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('role', 'Rôle')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('status', 'Statut')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('join_date', 'Date Adhésion')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('group_name', 'Groupe')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('type', 'Type')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('role', 'Rôle')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('status', 'Statut')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('join_date', 'Adhésion')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
                                     {(member.memberGroups || []).map(g => (
-                                        <tr key={g.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-                                            <td className="px-8 py-5">
-                                                <button
-                                                    onClick={() => navigate(`/admin/groups/${g.id}`)}
-                                                    className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline uppercase tracking-tight"
-                                                >
-                                                    {g.name}
-                                                </button>
+                                        <tr key={g.id}>
+                                            <td className="px-6 py-3">
+                                                <button onClick={() => navigate(`/admin/groups/${g.id}`)} className="font-bold text-indigo-600 hover:underline">{g.name}</button>
                                             </td>
-                                            <td className="px-8 py-5 text-xs font-bold text-gray-700 dark:text-gray-300">
-                                                {t(g.type?.toLowerCase()) || g.type}
+                                            <td className="px-6 py-3 text-gray-700 dark:text-gray-300">{t(g.type?.toLowerCase()) || g.type}</td>
+                                            <td className="px-6 py-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 uppercase">{g.group_member?.role || 'Membre'}</span></td>
+                                            <td className="px-6 py-3">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${g.group_member?.status === 'active' ? 'bg-green-50 text-green-600' : g.group_member?.status === 'inactive' ? 'bg-red-50 text-red-600' : 'bg-yellow-50 text-yellow-600'
+                                                    }`}>{g.group_member?.status === 'active' ? t('active', 'Actif') : g.group_member?.status === 'inactive' ? t('inactive', 'Inactif') : t('paused', 'En pause')}</span>
                                             </td>
-                                            <td className="px-8 py-5">
-                                                <span className="px-3 py-1 rounded-lg text-[10px] font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 uppercase">
-                                                    {g.group_member?.role || 'Membre'}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${g.group_member?.status === 'active' ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' :
-                                                    g.group_member?.status === 'inactive' ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' :
-                                                        'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400'
-                                                    }`}>
-                                                    {g.group_member?.status === 'active' ? t('active', 'Actif') :
-                                                        g.group_member?.status === 'inactive' ? t('inactive', 'Inactif') :
-                                                            t('paused', 'Mise en pause')}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5 text-xs font-bold text-gray-700 dark:text-gray-300">
-                                                {g.group_member?.joinedAt ? new Date(g.group_member.joinedAt).toLocaleDateString() : '-'}
-                                            </td>
+                                            <td className="px-6 py-3 text-gray-600 dark:text-gray-300">{g.group_member?.joinedAt ? new Date(g.group_member.joinedAt).toLocaleDateString() : '-'}</td>
                                         </tr>
                                     ))}
                                     {(!member.memberGroups || member.memberGroups.length === 0) && (
-                                        <tr>
-                                            <td colSpan="4" className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">
-                                                {t('no_groups_found', 'Aucun groupe trouvé')}
-                                            </td>
-                                        </tr>
+                                        <tr><td colSpan="5" className="py-10 text-center text-xs text-gray-400">{t('no_groups_found', 'Aucun groupe trouvé')}</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -884,167 +1478,653 @@ export default function MemberProfile() {
                     </Accordion>
 
                     {/* Sunday School History */}
-                    <Accordion title={t('sunday_school_history', 'Historique École Dominicale')} icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}>
+                    <Accordion title={t('sunday_school_history', 'Historique École Dominicale')}>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 dark:bg-black/40">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('class_name', 'Nom de la Classe')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('assignment_type', 'Type d\'Assignation')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('status', 'Statut')}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 tracking-widest">{t('join_date', 'Date d\'Adhésion')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('class_name', 'Classe')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('age', 'Âge')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('level', 'Niveau')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('status', 'Statut')}</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400">{t('join_date', 'Adhésion')}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[12px]">
                                     {(member.sundaySchoolClasses || []).map(cls => (
-                                        <tr key={cls.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-                                            <td className="px-8 py-5">
-                                                <button
-                                                    onClick={() => navigate(`/admin/sunday-school/${cls.id}`)}
-                                                    className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline uppercase tracking-tight"
-                                                >
-                                                    {cls.name}
-                                                </button>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${cls.sunday_school_member?.assignmentType === 'automatic'
-                                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                                    : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
-                                                    }`}>
-                                                    {cls.sunday_school_member?.assignmentType === 'automatic' ? t('automatic', 'Automatique') : t('manual', 'Manuel')}
+                                        <tr key={cls.id}>
+                                            <td className="px-6 py-3"><button onClick={() => navigate(`/admin/sunday-school/classes/${cls.id}`)} className="font-bold text-indigo-600 hover:underline">{cls.name}</button></td>
+                                            <td className="px-6 py-3 text-gray-600 dark:text-gray-300">{calculateAge(member.birthDate)} {t('years_old', 'ans')}</td>
+                                            <td className="px-6 py-3">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${cls.sunday_school_member?.level === 'Actuel' ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'}`}>
+                                                    {cls.sunday_school_member?.level === 'Actuel' ? t('active_members', 'Actuel') : t('non-actuel', 'Non-actuel')}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${cls.sunday_school_member?.status === 'active'
-                                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                                                    : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                                                    }`}>
+                                            <td className="px-6 py-3">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${cls.sunday_school_member?.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                                                     {cls.sunday_school_member?.status === 'active' ? t('active', 'Actif') : t('inactive', 'Inactif')}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-5 text-xs font-bold text-gray-700 dark:text-gray-300">
-                                                {cls.sunday_school_member?.joinedAt ? new Date(cls.sunday_school_member.joinedAt).toLocaleDateString() : '-'}
-                                            </td>
+                                            <td className="px-6 py-3 text-gray-600 dark:text-gray-300">{cls.sunday_school_member?.joinedAt ? new Date(cls.sunday_school_member.joinedAt).toLocaleDateString() : '-'}</td>
                                         </tr>
                                     ))}
                                     {(!member.sundaySchoolClasses || member.sundaySchoolClasses.length === 0) && (
-                                        <tr>
-                                            <td colSpan="4" className="py-12 text-center text-xs font-black text-gray-400 tracking-widest">
-                                                {t('no_sunday_school_classes', 'Aucune classe d\'école dominicale')}
-                                            </td>
-                                        </tr>
+                                        <tr><td colSpan="5" className="py-10 text-center text-xs text-gray-400">{t('no_sunday_school_classes', "Aucune classe d'école dominicale")}</td></tr>
                                     )}
                                 </tbody>
                             </table>
                         </div>
                     </Accordion>
+
+                    {/* ==== MEMBER REQUESTS ==== */}
+                    <Accordion title={`${t('member_requests', 'Demandes du membre')} ${memberRequests.length > 0 ? `(${memberRequests.length})` : ''}`}>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <p className="text-xs text-gray-400 font-medium">{t('requests_submitted_by_member', 'Demandes soumises par ce membre')}</p>
+                                <button
+                                    onClick={() => navigate('/admin/services/requests')}
+                                    className="text-[11px] font-black text-indigo-600 hover:underline flex items-center gap-1"
+                                >
+                                    {t('manage_all_requests', 'Gérer toutes les demandes')} →
+                                </button>
+                            </div>
+                            {memberRequests.length === 0 ? (
+                                <div className="py-12 text-center text-xs font-bold text-gray-400">
+                                    {t('no_requests_found', 'Aucune demande trouvée pour ce membre')}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {memberRequests.map(req => {
+                                        const statusColors = {
+                                            'non vue': 'bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400',
+                                            'vue': 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
+                                            'traitée': 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
+                                            'suivi approfondi': 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400',
+                                        };
+                                        const statusLabels = {
+                                            'non vue': t('status_not_viewed', 'Non vue'),
+                                            'vue': t('status_viewed', 'Vue'),
+                                            'traitée': t('status_processed', 'Traitée'),
+                                            'suivi approfondi': t('status_follow_up', 'Suivi approfondi'),
+                                        };
+                                        const typeLabels = {
+                                            marriage: t('request_marriage', 'Mariage'),
+                                            baptism: t('request_baptism', 'Baptême'),
+                                            transfer: t('request_transfer', 'Transfert'),
+                                            member_card: t('request_member_card', 'Carte membre'),
+                                            support: t('request_support', 'Support'),
+                                            ministry: t('request_ministry', 'Ministère'),
+                                            info: t('request_info', 'Information'),
+                                            reservation: t('request_reservation', 'Réservation'),
+                                            meeting: t('request_meeting', 'Réunion'),
+                                            other: t('request_other', 'Autre'),
+                                        };
+                                        return (
+                                            <div key={req.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition-all group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-sm font-black shrink-0 group-hover:scale-110 transition-transform">
+                                                        {(req.title || '?')[0]?.toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[13px] font-black text-gray-800 dark:text-white">{req.title || t('no_title', 'Sans titre')}</p>
+                                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                                                            {typeLabels[req.requestType] || req.requestType} &bull; {new Date(req.createdAt).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    {req.internalNote && (
+                                                        <span className="hidden sm:block text-[10px] italic text-gray-400 max-w-[150px] truncate" title={req.internalNote}>
+                                                            "{req.internalNote}"
+                                                        </span>
+                                                    )}
+                                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${statusColors[req.status] || 'bg-gray-100 text-gray-500'}`}>
+                                                        {statusLabels[req.status] || req.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </Accordion>
+
                 </div>
             </div>
 
-
             {/* Status Change Modal */}
-            {showStatusModal && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
-                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowStatusModal(false)}></div>
-                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[40px] p-12 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">{t('change_status')}</h3>
-                        <p className="text-gray-400 font-bold text-xs tracking-widest mb-10">{t('passing_status_to', 'Passage du statut à')}: <span className="text-blue-600">{t(pendingStatus.toLowerCase()) || pendingStatus}</span></p>
-                        <div className="space-y-10">
-                            <div>
-                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('effective_date')}</label>
-                                <input type="date" value={statusDate} onChange={(e) => setStatusDate(e.target.value)} className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-black text-[#2B3674] dark:text-white shadow-sm" />
-                            </div>
-                            <div>
-                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('notes')}</label>
-                                <textarea
-                                    value={historyNotes}
-                                    onChange={(e) => setHistoryNotes(e.target.value)}
-                                    placeholder={t('add_note_placeholder', 'Pourquoi ce changement ?')}
-                                    className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-[#2B3674] dark:text-white shadow-sm h-32 resize-none"
-                                />
-                            </div>
-                            <div className="flex gap-4 pt-6">
-                                <button onClick={() => { setShowStatusModal(false); setHistoryNotes(''); }} className="flex-1 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('cancel')}</button>
-                                <button onClick={handleStatusUpdate} className="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-100">{t('confirm')}</button>
+            {
+                showStatusModal && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
+                        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowStatusModal(false)}></div>
+                        <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[40px] p-12 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">{t('change_status')}</h3>
+                            <p className="text-gray-400 font-bold text-xs tracking-widest mb-10">{t('passing_status_to', 'Passage du statut à')}: <span className="text-blue-600">{t(pendingStatus.toLowerCase()) || pendingStatus}</span></p>
+                            <div className="space-y-10">
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('effective_date')}</label>
+                                    <input type="date" value={statusDate} onChange={(e) => setStatusDate(e.target.value)} className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-black text-[#2B3674] dark:text-white shadow-sm" />
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('notes')}</label>
+                                    <textarea
+                                        value={historyNotes}
+                                        onChange={(e) => setHistoryNotes(e.target.value)}
+                                        placeholder={t('add_note_placeholder', 'Pourquoi ce changement ?')}
+                                        className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-[#2B3674] dark:text-white shadow-sm h-32 resize-none"
+                                    />
+                                </div>
+                                <div className="flex gap-4 pt-6">
+                                    <button onClick={() => { setShowStatusModal(false); setHistoryNotes(''); }} className="flex-1 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">{t('cancel')}</button>
+                                    <button onClick={handleStatusUpdate} className="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-100">{t('confirm')}</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Category Change Modal (Unified) */}
-            {showCategoryModal && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
-                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => { setShowCategoryModal(false); setPendingCategory(null); setPendingBaptismalStatus(null); }}></div>
-                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[40px] p-12 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">{t('change_category')}</h3>
-                        <p className="text-gray-400 font-bold text-xs tracking-widest mb-10">
-                            {t('passing_category_to', 'Passage de la catégorie à')}: <span className="text-indigo-600 uppercase font-black">{pendingCategory ? pendingCategory.name : t(pendingBaptismalStatus)}</span>
-                        </p>
-                        <div className="space-y-10">
-                            <div>
-                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('effective_date')}</label>
-                                <input type="date" value={categoryDate} onChange={(e) => setCategoryDate(e.target.value)} className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-black text-[#2B3674] dark:text-white shadow-sm transition-all focus:ring-2 focus:ring-indigo-500/20" />
-                            </div>
-                            <div>
-                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('notes')}</label>
-                                <textarea
-                                    value={historyNotes}
-                                    onChange={(e) => setHistoryNotes(e.target.value)}
-                                    placeholder={t('add_note_placeholder', 'Pourquoi ce changement ?')}
-                                    className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-[#2B3674] dark:text-white shadow-sm h-32 resize-none transition-all focus:ring-2 focus:ring-indigo-500/20"
-                                />
-                            </div>
-                            <div className="flex gap-4 pt-6">
-                                <button onClick={() => { setShowCategoryModal(false); setPendingCategory(null); setPendingBaptismalStatus(null); setHistoryNotes(''); }} className="flex-1 py-4 text-xs font-black text-gray-400 uppercase tracking-widest transition-colors hover:text-gray-600">{t('cancel')}</button>
-                                <button onClick={handleTypeUpdate} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 transition-all hover:-translate-y-1 active:scale-95">{t('confirm')}</button>
+            {
+                showCategoryModal && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-8">
+                        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => { setShowCategoryModal(false); setPendingCategory(null); setPendingBaptismalStatus(null); }}></div>
+                        <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[40px] p-12 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2">{t('change_category')}</h3>
+                            <p className="text-gray-400 font-bold text-xs tracking-widest mb-10">
+                                {t('passing_category_to', 'Passage de la catégorie à')}: <span className="text-indigo-600 uppercase font-black">{pendingCategory ? pendingCategory.name : t(pendingBaptismalStatus)}</span>
+                            </p>
+                            <div className="space-y-10">
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('effective_date')}</label>
+                                    <input type="date" value={categoryDate} onChange={(e) => setCategoryDate(e.target.value)} className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-black text-[#2B3674] dark:text-white shadow-sm transition-all focus:ring-2 focus:ring-indigo-500/20" />
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('notes')}</label>
+                                    <textarea
+                                        value={historyNotes}
+                                        onChange={(e) => setHistoryNotes(e.target.value)}
+                                        placeholder={t('add_note_placeholder', 'Pourquoi ce changement ?')}
+                                        className="w-full px-8 py-5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-[#2B3674] dark:text-white shadow-sm h-32 resize-none transition-all focus:ring-2 focus:ring-indigo-500/20"
+                                    />
+                                </div>
+                                <div className="flex gap-4 pt-6">
+                                    <button onClick={() => { setShowCategoryModal(false); setPendingCategory(null); setPendingBaptismalStatus(null); setHistoryNotes(''); }} className="flex-1 py-4 text-xs font-black text-gray-400 uppercase tracking-widest transition-colors hover:text-gray-600">{t('cancel')}</button>
+                                    <button onClick={handleTypeUpdate} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 transition-all hover:-translate-y-1 active:scale-95">{t('confirm')}</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <CommunicationModal isOpen={messageModal.isOpen} onClose={() => setMessageModal({ ...messageModal, isOpen: false })} recipient={messageModal.recipient} recipients={messageModal.recipients} mode={messageModal.mode} />
             <AttachmentModal isOpen={attachmentModalOpen} onClose={() => setAttachmentModalOpen(false)} onSuccess={fetchAttachments} userId={id} />
-            {showPhotoModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 transition-colors"><div className="absolute inset-0 bg-gray-900/95 backdrop-blur-2xl" onClick={() => setShowPhotoModal(false)}></div><div className="relative max-w-4xl max-h-[90vh] shadow-2xl"><button onClick={() => setShowPhotoModal(false)} className="absolute -top-16 right-0 text-white font-black text-xl">✕</button><img src={member.photo} className="w-full h-full object-contain rounded-[40px] border border-white/10" alt="Zoom" /></div></div>
+
+            <AlertModal
+                isOpen={alertMessage.show}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+            />
+
+            <ConfirmModal
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+            />
+
+            {
+                showPhotoModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 transition-colors"><div className="absolute inset-0 bg-gray-900/95 backdrop-blur-2xl" onClick={() => setShowPhotoModal(false)}></div><div className="relative max-w-4xl max-h-[90vh] shadow-2xl"><button onClick={() => setShowPhotoModal(false)} className="absolute -top-16 right-0 text-white font-black text-xl">✕</button><img src={getImageUrl(member.photo)} className="w-full h-full object-contain rounded-[40px] border border-white/10" alt="Zoom" /></div></div>
+                )
+            }
+
+            {/* ===== MEMBER ALERT POPUP (auto-dismiss 12s) ===== */}
+            {showAlertPopup && memberAlerts.length > 0 && (
+                <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[300] w-full max-w-lg px-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="bg-white dark:bg-[#1a1a2e] border border-rose-200 dark:border-rose-900/50 rounded-2xl shadow-2xl overflow-hidden">
+                        {/* Red top bar */}
+                        <div className="h-1.5 bg-gradient-to-r from-rose-500 to-orange-400 animate-pulse" />
+                        <div className="p-5">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center shrink-0">
+                                    <svg className="w-5 h-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[11px] font-black text-rose-500 tracking-widest uppercase mb-1">{t('member_alert', 'Alerte membre')}</p>
+                                    {memberAlerts.map(a => (
+                                        <div key={a.id} className="flex items-start justify-between gap-2 mb-1">
+                                            <p className="text-[13px] font-semibold text-gray-800 dark:text-white leading-snug">{a.message}</p>
+                                            <button onClick={() => handleDeleteMemberAlert(a.id)} className="text-gray-300 hover:text-rose-500 transition-colors shrink-0 text-xs mt-0.5" title={t('delete_alert')}>✕</button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={() => setShowAlertPopup(false)} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                            {/* Auto-dismiss progress bar */}
+                            <div className="mt-4 h-0.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-full bg-rose-400 rounded-full" style={{ animation: 'shrink 12s linear forwards' }} />
+                            </div>
+                        </div>
+                    </div>
+                    <style>{`@keyframes shrink { from { width: 100%; } to { width: 0%; } }`}</style>
+                </div>
             )}
-        </AdminLayout>
+
+            {/* ===== ADD ALERT MODAL ===== */}
+            {showAddAlertModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-8">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowAddAlertModal(false)} />
+                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[32px] p-10 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">{t('add_alert', 'Ajouter une alerte')}</h3>
+                                <p className="text-[11px] text-gray-400 font-bold tracking-widest">{member.firstName} {member.lastName}</p>
+                            </div>
+                        </div>
+                        <textarea
+                            autoFocus
+                            value={newAlertMessage}
+                            onChange={e => setNewAlertMessage(e.target.value)}
+                            placeholder={t('alert_message_placeholder', 'Ex: Membre inactif depuis quelques mois, à contacter...')}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm h-32 resize-none focus:ring-2 focus:ring-rose-500/20 border border-transparent focus:border-rose-200 transition-all"
+                        />
+                        <div className="flex gap-3 mt-6">
+                            <button onClick={() => { setShowAddAlertModal(false); setNewAlertMessage(''); }} className="flex-1 py-3.5 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors">{t('cancel')}</button>
+                            <button onClick={handleAddAlert} disabled={!newAlertMessage.trim()} className="flex-1 py-3.5 bg-rose-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-rose-600 shadow-lg shadow-rose-100 dark:shadow-none transition-all active:scale-95 disabled:opacity-40">{t('confirm')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ===== NOTE MODAL (Titre / Date / Description) ===== */}
+            {showNoteModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-8">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => { setShowNoteModal(false); setEditingNoteId(null); }} />
+                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[32px] p-10 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">{editingNoteId ? t('edit_note', 'Modifier la note') : t('add_note', 'Ajouter une note')}</h3>
+                                <p className="text-[11px] text-gray-400 font-bold tracking-widest">{member.firstName} {member.lastName}</p>
+                            </div>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('title', 'Titre')}</label>
+                                <input autoFocus type="text" value={noteForm.title} onChange={e => setNoteForm({ ...noteForm, title: e.target.value })}
+                                    placeholder={t('note_title_placeholder', 'Ex: Appel de suivi')}
+                                    className="w-full px-6 py-3.5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500/20 border border-transparent focus:border-blue-200 transition-all" />
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('date', 'Date')}</label>
+                                <input type="date" value={noteForm.date} onChange={e => setNoteForm({ ...noteForm, date: e.target.value })}
+                                    className="w-full px-6 py-3.5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500/20 border border-transparent focus:border-blue-200 transition-all" />
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('description', 'Description')}</label>
+                                <textarea value={noteForm.description} onChange={e => setNoteForm({ ...noteForm, description: e.target.value })}
+                                    placeholder={t('note_desc_placeholder', 'Détails de la note...')}
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm h-28 resize-none focus:ring-2 focus:ring-blue-500/20 border border-transparent focus:border-blue-200 transition-all" />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button onClick={() => { setShowNoteModal(false); setEditingNoteId(null); }} className="flex-1 py-3.5 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors">{t('cancel')}</button>
+                            <button onClick={handleSaveNote} disabled={!noteForm.title.trim()} className="flex-1 py-3.5 bg-blue-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-600 shadow-lg shadow-blue-100 dark:shadow-none transition-all active:scale-95 disabled:opacity-40">{t('confirm')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ===== ACTION MODAL (Type / Date / Description) ===== */}
+            {showActionModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-8">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowActionModal(false)} />
+                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[32px] p-10 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/10">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">{t('add_action', 'Ajouter une action')}</h3>
+                                <p className="text-[11px] text-gray-400 font-bold tracking-widest">{member.firstName} {member.lastName}</p>
+                            </div>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('action_type', "Type d'action")}</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { key: 'email', label: 'Email', icon: '✉️' },
+                                        { key: 'phone', label: t('phone_call', 'Appel tél.'), icon: '📞' },
+                                        { key: 'meeting', label: t('meeting', 'Réunion'), icon: '🤝' },
+                                        { key: 'mail', label: t('mail', 'Courrier'), icon: '📬' },
+                                        { key: 'visit', label: t('visit', 'Visite'), icon: '🏠' },
+                                        { key: 'other', label: t('other', 'Autre'), icon: '📌' },
+                                    ].map(opt => (
+                                        <button key={opt.key} onClick={() => setActionForm({ ...actionForm, type: opt.key })}
+                                            className={`py-3 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 border transition-all ${actionForm.type === opt.key ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 dark:bg-black/30 text-gray-600 border-gray-100 dark:border-white/5 hover:border-purple-200'}`}>
+                                            <span>{opt.icon}</span>
+                                            <span>{opt.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('date', 'Date')}</label>
+                                <input type="date" value={actionForm.date} onChange={e => setActionForm({ ...actionForm, date: e.target.value })}
+                                    className="w-full px-6 py-3.5 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm focus:ring-2 focus:ring-purple-500/20 border border-transparent focus:border-purple-200 transition-all" />
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('description', 'Description')}</label>
+                                <textarea autoFocus value={actionForm.description} onChange={e => setActionForm({ ...actionForm, description: e.target.value })}
+                                    placeholder={t('action_desc_placeholder', 'Décrivez l\'action effectuée...')}
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm h-24 resize-none focus:ring-2 focus:ring-purple-500/20 border border-transparent focus:border-purple-200 transition-all" />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button onClick={() => setShowActionModal(false)} className="flex-1 py-3.5 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors">{t('cancel')}</button>
+                            <button onClick={handleSaveAction} className="flex-1 py-3.5 bg-purple-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-purple-700 shadow-lg shadow-purple-100 dark:shadow-none transition-all active:scale-95">{t('confirm')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDonationModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => { setShowDonationModal(false); setEditingDonationId(null); }} />
+                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[32px] p-10 shadow-2xl w-full max-w-xl border border-gray-100 dark:border-white/10 overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="flex items-center gap-4 mb-8 shrink-0">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                                <MoneyIcon />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">{editingDonationId ? t('edit_donation', 'Modifier le don') : t('add_donation', 'Ajouter un don')}</h3>
+                                <p className="text-[11px] text-gray-400 font-bold tracking-widest">{member.firstName} {member.lastName}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6 overflow-y-auto noscrollbar pr-2">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('amount', 'Montant')}</label>
+                                    <input autoFocus type="number" step="0.01" value={donationForm.amount} onChange={e => setDonationForm({ ...donationForm, amount: e.target.value })}
+                                        placeholder="0.00"
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm focus:ring-2 focus:ring-emerald-500/20 border border-transparent focus:border-emerald-200 transition-all" />
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('currency', 'Devise')}</label>
+                                    <select value={donationForm.currency} onChange={e => setDonationForm({ ...donationForm, currency: e.target.value })}
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-gray-800 dark:text-white shadow-sm transition-all focus:ring-2 focus:ring-emerald-500/20">
+                                        {supportedCurrencies.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('type', 'Type')}</label>
+                                    <select value={donationForm.type} onChange={e => setDonationForm({ ...donationForm, type: e.target.value })}
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-gray-800 dark:text-white shadow-sm transition-all focus:ring-2 focus:ring-emerald-500/20 capitalize">
+                                        {donationTypes.map(t_str => <option key={t_str} value={t_str}>{t_str}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('payment_method', 'Mode de paiement')}</label>
+                                    <select value={donationForm.paymentMethod} onChange={e => setDonationForm({ ...donationForm, paymentMethod: e.target.value })}
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-bold text-gray-800 dark:text-white shadow-sm transition-all focus:ring-2 focus:ring-emerald-500/20 capitalize">
+                                        {paymentMethods.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('date', 'Date')}</label>
+                                <input type="date" value={donationForm.date} onChange={e => setDonationForm({ ...donationForm, date: e.target.value })}
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-2xl outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm focus:ring-2 focus:ring-emerald-500/20 border border-transparent focus:border-emerald-200 transition-all" />
+                            </div>
+
+                            <div className="p-6 bg-gray-50 dark:bg-black/30 rounded-[24px] border border-gray-100 dark:border-white/5">
+                                <label className="flex items-center gap-3 cursor-pointer mb-6">
+                                    <input type="checkbox" checked={donationForm.isDeposited} onChange={e => setDonationForm({ ...donationForm, isDeposited: e.target.checked })}
+                                        className="w-5 h-5 rounded-lg border-gray-300 dark:border-rose-900/50 text-emerald-600 focus:ring-emerald-500" />
+                                    <span className="text-[13px] font-bold text-gray-700 dark:text-gray-300">{t('deposited_on_account', 'Dépôt direct sur compte')}</span>
+                                </label>
+
+                                {donationForm.isDeposited && (
+                                    <div className="space-y-6 animate-in fade-in slide-in-from-top-2">
+                                        <div>
+                                            <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('bank_account', 'Compte Bancaire')} <span className="text-rose-500">*</span></label>
+                                            <select value={donationForm.bankAccountId} onChange={e => setDonationForm({ ...donationForm, bankAccountId: e.target.value })}
+                                                className="w-full px-6 py-3.5 bg-white dark:bg-black rounded-xl outline-none text-sm font-bold text-gray-800 dark:text-white shadow-sm border border-gray-100 dark:border-white/10">
+                                                <option value="">-- {t('select_account', 'Choisir un compte')} --</option>
+                                                {bankAccounts.filter(acc => acc.currency === donationForm.currency).map(acc => (
+                                                    <option key={acc.id} value={acc.id}>{acc.name} ({acc.bankName})</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('deposit_date_label', 'Date de dépôt')} <span className="text-rose-500">*</span></label>
+                                            <input type="date" value={donationForm.depositDate} onChange={e => setDonationForm({ ...donationForm, depositDate: e.target.value })}
+                                                className="w-full px-6 py-3.5 bg-white dark:bg-black rounded-xl outline-none text-sm font-bold text-gray-800 dark:text-white shadow-sm border border-gray-100 dark:border-white/10" />
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('deposited_by', 'Déposé par')} <span className="text-rose-500">*</span></label>
+                                            <select value={donationForm.depositedById} onChange={e => setDonationForm({ ...donationForm, depositedById: e.target.value })}
+                                                className="w-full px-6 py-3.5 bg-white dark:bg-black rounded-xl outline-none text-sm font-bold text-gray-800 dark:text-white shadow-sm border border-gray-100 dark:border-white/10">
+                                                <option value="">-- {t('select_person', 'Choisir une personne')} --</option>
+                                                {churchMembers.map(m => (
+                                                    <option key={m.id} value={m.id}>{m.firstName} {m.lastName}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-black text-gray-400 tracking-widest ml-1 mb-2 block">{t('notes', 'Notes')}</label>
+                                <textarea value={donationForm.notes} onChange={e => setDonationForm({ ...donationForm, notes: e.target.value })}
+                                    placeholder={t('donation_notes_placeholder', 'Note sur ce don (optionnel)...')}
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-black rounded-[24px] outline-none text-sm font-medium text-gray-800 dark:text-white shadow-sm h-24 resize-none focus:ring-2 focus:ring-emerald-500/20 border border-transparent focus:border-emerald-200 transition-all" />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 mt-8 shrink-0">
+                            <button onClick={() => { setShowDonationModal(false); setEditingDonationId(null); }} className="flex-1 py-4 text-xs font-black text-gray-400 uppercase tracking-widest transition-colors hover:text-gray-600">{t('cancel')}</button>
+                            <button onClick={handleSaveDonation} disabled={!donationForm.amount || !donationForm.date} className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-600 shadow-xl shadow-emerald-100 dark:shadow-none transition-all active:scale-95 disabled:opacity-40">{t('confirm')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ===== MEMBER PROPERTIES MODAL ===== */}
+            {/* Password Update Modal */}
+            {showPasswordModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-[#0b1437] w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-gray-100 dark:border-white/10 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                        <button onClick={() => setShowPasswordModal(false)} className="absolute top-8 right-8 text-gray-400 hover:text-rose-500 transition-colors">✕</button>
+
+                        <div className="flex items-center gap-5 mb-10">
+                            <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+                                <svg className="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">{t('modify_password', 'Modifier le mot de passe')}</h3>
+                                <p className="text-[11px] text-gray-400 font-bold tracking-widest uppercase">{t('new_security_key', 'Nouvelle clé de sécurité')}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div>
+                                <label className="block text-[11px] font-bold text-gray-400 mb-4">{t('new_password', 'Nouveau mot de passe')}</label>
+                                <div className="relative group">
+                                    <input
+                                        type="text"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        placeholder="Ex: Elyon@2026!MB"
+                                        className="w-full bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white dark:focus:bg-black p-5 rounded-2xl text-[14px] font-bold text-gray-900 dark:text-white transition-all outline-none"
+                                    />
+                                    <div className="absolute inset-0 rounded-2xl border border-gray-100 dark:border-white/5 pointer-events-none group-focus-within:border-transparent"></div>
+                                </div>
+                                <p className="mt-4 text-[11px] text-gray-400 font-medium leading-relaxed">
+                                    {t('password_notice', 'L\'utilisateur sera invité à changer ce mot de passe à sa prochaine connexion.')}
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={handlePasswordUpdate}
+                                disabled={!newPassword}
+                                className="w-full py-5 bg-indigo-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 shadow-xl shadow-indigo-200 dark:shadow-none transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {t('save_new_password', 'Enregistrer le nouveau mot de passe')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showPropertiesModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-8">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in" onClick={() => setShowPropertiesModal(false)} />
+                    <div className="relative bg-white dark:bg-[#1A1A1A] rounded-[40px] p-12 shadow-2xl w-full max-w-lg border border-gray-100 dark:border-white/10 overflow-hidden animate-in scale-in">
+                        <div className="absolute top-0 right-0 p-8">
+                            <button onClick={() => setShowPropertiesModal(false)} className="w-10 h-10 rounded-full bg-gray-50 dark:bg-black/20 flex items-center justify-center text-gray-400 hover:text-rose-500 transition-colors">✕</button>
+                        </div>
+
+                        <div className="flex items-center gap-6 mb-10">
+                            <div className="w-16 h-16 rounded-[24px] bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+                                <svg className="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{t('member_properties', 'Propriétés du membre')}</h3>
+                                <p className="text-[12px] text-gray-400 font-bold tracking-widest uppercase">{member.firstName} {member.lastName}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div className="space-y-4 px-2">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-black text-gray-400 tracking-widest">{t('added_by', 'Ajouté par')}</span>
+                                    <span className="text-[16px] font-black text-gray-900 dark:text-gray-100">
+                                        {member.registrant ? `${member.registrant.firstName} ${member.registrant.lastName}` : t('system', 'Système')}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col gap-1 pt-2">
+                                    <span className="text-[11px] font-black text-gray-400 tracking-widest">{t('date_created', 'Date de création')}</span>
+                                    <span className="text-[16px] font-black text-gray-900 dark:text-gray-100">
+                                        {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : '-'}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col gap-1 pt-2">
+                                    <span className="text-[11px] font-black text-gray-400 tracking-widest">{t('time_created', 'Heure de création')}</span>
+                                    <span className="text-[16px] font-black text-gray-900 dark:text-gray-100">
+                                        {member.createdAt ? new Date(member.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col gap-1 pt-2">
+                                    <span className="text-[11px] font-black text-gray-400 tracking-widest">{t('password', 'Mot de passe')}</span>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[16px] font-black text-gray-900 dark:text-gray-100 tracking-[0.2em] min-w-[100px]">
+                                                {showActualPassword ? (member.tempPassword || '********') : '********'}
+                                            </span>
+                                            {showActualPassword && (
+                                                <span className="text-[10px] font-bold text-indigo-500 animate-pulse">
+                                                    Masqué dans {visibilityCountdown}s
+                                                </span>
+                                            )}
+                                        </div>
+                                        {!showActualPassword && (
+                                            <button
+                                                onClick={() => {
+                                                    setPasswordCountdown(10);
+                                                    setIsCountingDown(true);
+                                                }}
+                                                disabled={isCountingDown}
+                                                className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all disabled:opacity-50"
+                                            >
+                                                {isCountingDown ? `Attendez ${passwordCountdown}s` : t('view', 'Voir')}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => handlePasswordResetWithRequest()}
+                                className="w-full mt-6 py-5 bg-indigo-600 text-white rounded-3xl text-[12px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none flex items-center justify-center gap-3 active:scale-95"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                {t('reset_password', 'Réinitialiser le mot de passe')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+        </AdminLayout >
     );
 }
 
-function DetailItem({ label, value, icon, isEmail, isFullWidth }) {
+function SummaryItem({ label, value }) {
     return (
-        <div className={`flex items-start gap-4 ${isFullWidth ? 'md:col-span-2' : ''}`}>
-            <div className="w-10 h-10 bg-indigo-50 dark:bg-black/40 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-transparent dark:border-white/5">{icon}</div>
-            <div className="min-w-0">
-                <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-[0.15em] mb-1">{label}</p>
-                {isEmail ? (
-                    <a href={`mailto:${value}`} className="text-[13px] font-bold text-blue-600 dark:text-blue-400 hover:underline truncate block">{value}</a>
-                ) : (
-                    <p className="text-[13px] font-black text-[#2B3674] dark:text-white/90 truncate">{value || '-'}</p>
-                )}
-            </div>
+        <div className="flex justify-between items-center py-0.5">
+            <span className="text-[12px] font-medium text-gray-500">{label}</span>
+            <span className="text-[12px] font-bold text-gray-800 dark:text-gray-200">{value || <span className="text-gray-300 italic">None found.</span>}</span>
         </div>
     );
 }
 
-function Accordion({ title, icon, children, initialOpen = false }) {
+function Accordion({ title, children, initialOpen = false }) {
     const [isOpen, setIsOpen] = useState(initialOpen);
     useEffect(() => { setIsOpen(initialOpen); }, [initialOpen]);
     return (
-        <div className="bg-white dark:bg-[#111c44] rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden transition-all hover:shadow-md">
-            <button onClick={() => setIsOpen(!isOpen)} className="w-full px-10 py-8 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-black/10 transition-all">
-                <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 bg-indigo-50 dark:bg-black/40 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center shadow-sm border border-transparent dark:border-white/5">{icon}</div>
-                    <span className="text-[15px] font-black text-[#2B3674] dark:text-white tracking-tight">{title}</span>
+        <div className="bg-white dark:bg-[#111c44] rounded-lg shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full px-6 py-4 flex items-center justify-between bg-[#f8f9fa] dark:bg-black/20 hover:bg-gray-100 dark:hover:bg-black/30 transition-all border-b border-gray-100 dark:border-white/5"
+            >
+                <div className="flex items-center gap-3">
+                    <span className="text-[14px] font-bold text-gray-700 dark:text-white tracking-tight">{title}</span>
                 </div>
-                <div className={`w-9 h-9 rounded-full border border-gray-100 dark:border-white/5 flex items-center justify-center transition-all duration-300 ${isOpen ? 'rotate-180 bg-indigo-600 text-white border-transparent' : 'bg-white dark:bg-black/20 text-gray-400'}`}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                <div className="flex items-center gap-4">
+                    <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
                 </div>
             </button>
-            <div className={`transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="px-12 py-12 border-t border-gray-50 dark:border-white/5 bg-gray-50/20 dark:bg-transparent">
+            <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                <div className="p-8">
                     {children}
                 </div>
             </div>

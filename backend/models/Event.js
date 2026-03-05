@@ -35,6 +35,15 @@ module.exports = (sequelize, Sequelize) => {
         },
         registrationExpiresAt: {
             type: Sequelize.DATE
+        },
+        roomId: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            references: { model: 'rooms', key: 'id' }
+        },
+        recurringSchedule: {
+            type: Sequelize.JSON,
+            allowNull: true
         }
     });
 

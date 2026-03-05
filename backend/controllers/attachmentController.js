@@ -72,6 +72,11 @@ exports.addAttachment = (req, res) => {
 exports.getAttachments = async (req, res) => {
     try {
         const { userId } = req.params;
+
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "ID utilisateur invalide." });
+        }
+
         const attachments = await db.Attachment.findAll({
             where: { userId },
             order: [['createdAt', 'DESC']]

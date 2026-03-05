@@ -4,7 +4,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: false
         },
-        fullName: {
+        firstName: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        lastName: {
             type: Sequelize.STRING,
             allowNull: false
         },
@@ -15,9 +19,33 @@ module.exports = (sequelize, Sequelize) => {
         phone: {
             type: Sequelize.STRING
         },
+        description: {
+            type: Sequelize.TEXT,
+            allowNull: true
+        },
         status: {
             type: Sequelize.ENUM('new', 'contacted', 'integrated'),
             defaultValue: 'new'
+        },
+        wantsMembership: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false,
+            allowNull: false
+        },
+        viewStatus: {
+            type: Sequelize.ENUM('not_viewed', 'viewed'),
+            defaultValue: 'not_viewed',
+            allowNull: false
+        },
+        convertedToMemberId: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'users',
+                key: 'id'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'SET NULL'
         },
         notes: {
             type: Sequelize.TEXT

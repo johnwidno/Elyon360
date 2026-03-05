@@ -1,0 +1,11 @@
+Action requise pour tester : Pour recevoir l'e-mail sur votre appareil, vous devez remplir vos informations de connexion SMTP dans le fichier .env du dossier backend. Voici les lignes à modifier :
+
+text
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=votre-email@gmail.com
+SMTP_PASS=votre-mot-de-passe-d-application
+FROM_EMAIL=votre-email@gmail.com
+[!TIP] Si vous utilisez Gmail, vous devrez probablement créer un "Mot de passe d'application" (App Password) dans les paramètres de sécurité de votre compte Google pour que cela fonctionne.
+
+Une fois ces informations remplies, vous pouvez enregistrer un membre avec votre propre e-mail et lui envoyer un message d'anniversaire pour tester !

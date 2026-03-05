@@ -1,4 +1,5 @@
 const db = require('../models');
+const bcrypt = require('bcryptjs');
 
 // Get all users for the current church (for dropdowns etc)
 exports.getAllUsers = async (req, res) => {
@@ -144,5 +145,30 @@ exports.getBirthdays = async (req, res) => {
     } catch (error) {
         console.error("Get Birthdays Error:", error);
         res.status(500).json({ message: "Erreur lors de la récupération des anniversaires." });
+    }
+};
+
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        const user = await db.User.findByPk(userId);
+        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Ancien mot de passe incorrect." });
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await user.update({
+            password: hashedPassword,
+            mustChangePassword: false,
+            tempPassword: null
+        });
+
+        res.json({ message: "Mot de passe modifié avec succès." });
+    } catch (error) {
+        console.error("Change Password Error:", error);
+        res.status(500).json({ message: "Erreur lors du changement de mot de passe." });
     }
 };

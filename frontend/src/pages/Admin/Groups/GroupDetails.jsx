@@ -10,6 +10,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import ActivityList from './components/ActivityList';
 import ActivityModal from './components/ActivityModal';
+import SearchableSelect from '../../../components/SearchableSelect';
 
 export default function GroupDetails() {
     const { id } = useParams();
@@ -44,6 +45,7 @@ export default function GroupDetails() {
 
     const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
     const [deleteId, setDeleteId] = useState(null);
+    const [deleteType, setDeleteType] = useState(null); // 'member' or 'activity'
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const [activeSection, setActiveSection] = useState('members'); // members, activities
@@ -51,6 +53,21 @@ export default function GroupDetails() {
     const [showActivityModal, setShowActivityModal] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [initialActivityTab, setInitialActivityTab] = useState('details');
+
+    // Edit Group Modal
+    const [showEditGroupModal, setShowEditGroupModal] = useState(false);
+    const [editGroupFormData, setEditGroupFormData] = useState({
+        name: '',
+        description: '',
+        type: '',
+        leaderId: '',
+        leaderName: '',
+        roomId: '',
+        recurringSchedule: { day: '', startTime: '', endTime: '' },
+        logo: '',
+        charter: ''
+    });
+    const [rooms, setRooms] = useState([]);
 
     // Calculate member statistics
     const memberStats = {
@@ -91,10 +108,20 @@ export default function GroupDetails() {
         }
     };
 
+    const fetchRooms = async () => {
+        try {
+            const res = await api.get('/logistics/rooms');
+            setRooms(res.data);
+        } catch (error) {
+            console.error("Error fetching rooms:", error);
+        }
+    };
+
     useEffect(() => {
         fetchGroupData();
         fetchAllMembers();
         fetchActivities();
+        fetchRooms();
     }, [id]);
 
     const handleAddMember = async (e) => {
@@ -126,6 +153,7 @@ export default function GroupDetails() {
 
     const confirmRemoveMember = (userId) => {
         setDeleteId(userId);
+        setDeleteType('member');
         setShowDeleteModal(true);
     };
 
@@ -140,6 +168,7 @@ export default function GroupDetails() {
         } finally {
             setShowDeleteModal(false);
             setDeleteId(null);
+            setDeleteType(null);
         }
     };
 
@@ -245,6 +274,49 @@ export default function GroupDetails() {
         XLSX.writeFile(workbook, `${group.name}_export_${new Date().getTime()}.xlsx`);
     };
 
+    const handleEditGroup = () => {
+        let rs = group.recurringSchedule;
+        if (typeof rs === 'string') {
+            try { rs = JSON.parse(rs); } catch (e) { rs = { day: '', startTime: '', endTime: '' }; }
+        }
+
+        setEditGroupFormData({
+            name: group.name,
+            description: group.description || '',
+            type: group.type,
+            leaderId: group.leaderId || '',
+            leaderName: group.leaderName,
+            roomId: group.roomId || '',
+            recurringSchedule: rs || { day: '', startTime: '', endTime: '' },
+            logo: group.logo || '',
+            charter: group.charter || ''
+        });
+        setShowEditGroupModal(true);
+    };
+
+    const handleEditGroupSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put(`/groups/${id}`, editGroupFormData);
+            setAlertMessage({ show: true, title: t('success'), message: t('group_updated_success'), type: 'success' });
+            setShowEditGroupModal(false);
+            fetchGroupData(); // Refresh profile
+        } catch (error) {
+            setAlertMessage({ show: true, title: t('error'), message: error.response?.data?.message || t('operation_error'), type: 'error' });
+        }
+    };
+
+    const handleEditGroupFileChange = (e, field) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditGroupFormData(prev => ({ ...prev, [field]: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleStatusToggle = async () => {
         try {
             const newStatus = group.status === 'active' ? 'inactive' : 'active';
@@ -273,14 +345,24 @@ export default function GroupDetails() {
         }
     };
 
-    const handleDeleteActivity = async (activityId) => {
-        if (!window.confirm(t('confirm_delete'))) return;
+    const confirmDeleteActivity = (activityId) => {
+        setDeleteId(activityId);
+        setDeleteType('activity');
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteActivity = async () => {
+        if (!deleteId) return;
         try {
-            await api.delete(`/groups/${id}/activities/${activityId}`);
+            await api.delete(`/groups/${id}/activities/${deleteId}`);
             setAlertMessage({ show: true, title: t('success'), message: "Activité supprimée", type: 'success' });
             fetchActivities();
         } catch (error) {
             setAlertMessage({ show: true, title: t('error'), message: t('operation_error'), type: 'error' });
+        } finally {
+            setShowDeleteModal(false);
+            setDeleteId(null);
+            setDeleteType(null);
         }
     };
 
@@ -331,6 +413,18 @@ export default function GroupDetails() {
     // Filter out members already in the group
     const availableMembers = allMembers.filter(m => !members.some(gm => gm.id === m.id));
 
+    // Safe parse schedule
+    const getSchedule = () => {
+        if (!group?.recurringSchedule) return null;
+        if (typeof group.recurringSchedule === 'object') return group.recurringSchedule;
+        try {
+            return JSON.parse(group.recurringSchedule);
+        } catch {
+            return null;
+        }
+    };
+    const schedule = getSchedule();
+
     return (
         <AdminLayout>
             <div className="p-8">
@@ -344,38 +438,54 @@ export default function GroupDetails() {
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                         </button>
-                        <div>
-                            <div className="flex items-center gap-4 mb-2">
-                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">{group.name}</h1>
-                                <button
-                                    onClick={handleStatusToggle}
-                                    className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${group.status === 'active'
-                                        ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30'
-                                        : 'bg-gray-50 text-gray-500 border-gray-200 dark:bg-white/5 dark:text-gray-400 dark:border-white/10'
-                                        }`}
-                                >
-                                    {group.status === 'active' ? t('active') : t('inactive', 'Inactif')}
-                                </button>
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <span className="px-3 py-1 rounded-lg text-[10px] font-bold border border-gray-100 dark:border-white/10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
-                                    {t(`group_type_${group.type}`) || group.type}
-                                </span>
-                                {group.leaderName && (
-                                    <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
-                                        <span>👤</span> {group.leaderName}
+                        <div className="flex items-center gap-6">
+                            {group.logo && (
+                                <div className="w-20 h-20 rounded-2xl border border-gray-100 dark:border-white/10 overflow-hidden shadow-sm shrink-0">
+                                    <img src={group.logo} alt="Logo" className="w-full h-full object-cover" />
+                                </div>
+                            )}
+                            <div>
+                                <div className="flex items-center gap-4 mb-2">
+                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">{group.name}</h1>
+                                    <button
+                                        onClick={handleStatusToggle}
+                                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all ${group.status === 'active'
+                                            ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30'
+                                            : 'bg-gray-50 text-gray-500 border-gray-200 dark:bg-white/5 dark:text-gray-400 dark:border-white/10'
+                                            }`}
+                                    >
+                                        {group.status === 'active' ? t('active') : t('inactive', 'Inactif')}
+                                    </button>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="px-3 py-1 rounded-lg text-[10px] font-bold border border-gray-100 dark:border-white/10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                                        {t(`group_type_${group.type}`) || group.type}
                                     </span>
-                                )}
+                                    {group.leaderName && (
+                                        <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                                            <span>👤</span> {group.leaderName}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="px-6 py-3 bg-indigo-600 text-white font-semibold text-[13px] rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none transition-all flex items-center gap-2 active:scale-95"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-                        {t('add_member_to_group', 'Ajouter un membre')}
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleEditGroup}
+                            className="px-6 py-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-700 dark:text-gray-300 font-semibold text-[13px] rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 shadow-sm transition-all flex items-center gap-2 active:scale-95"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 113 3L11.707 15.207a1 1 0 01-.414.263l-3 1a1 1 0 01-1.263-1.263l1-3a1 1 0 01.263-.414L16.5 3.5z" /></svg>
+                            {t('edit', 'Modifier')}
+                        </button>
+                        <button
+                            onClick={() => setShowAddModal(true)}
+                            className="px-6 py-3 bg-indigo-600 text-white font-semibold text-[13px] rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none transition-all flex items-center gap-2 active:scale-95"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                            {t('add_member_to_group', 'Ajouter un membre')}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Description Grid */}
@@ -383,18 +493,61 @@ export default function GroupDetails() {
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('about')}</h2>
                     <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed max-w-4xl">{group.description || t('no_description')}</p>
 
-                    <div className="flex gap-8 mt-6 pt-6 border-t border-gray-50 dark:border-white/5">
-                        <div className="text-sm">
-                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('meeting_day')}</span>
-                            <span className="font-semibold text-gray-900 dark:text-white">{group.meetingDay || '-'}</span>
+                    <div className="flex justify-between items-end mt-6 pt-6 border-t border-gray-50 dark:border-white/5">
+                        <div className="flex gap-8">
+                            <div className="text-sm">
+                                <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Lieu de Réunion</span>
+                                <span className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                    {group.room ? (
+                                        <>
+                                            <span>🏢</span>
+                                            <span>
+                                                {group.room.building?.name ? `${group.room.building.name} - ` : ''}
+                                                {group.room.name}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-gray-400 italic">Aucun lieu défini</span>
+                                    )}
+                                </span>
+                            </div>
+                            <div className="text-sm">
+                                <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Horaire</span>
+                                <span className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                    {schedule?.day ? (
+                                        <>
+                                            <span>⏰</span>
+                                            <span>
+                                                {schedule.day} {schedule.startTime} - {schedule.endTime}
+                                            </span>
+                                        </>
+                                    ) : (group.meetingDay ? (
+                                        <>
+                                            <span>⏰</span>
+                                            <span>{group.meetingDay} {group.meetingTime}</span>
+                                        </>
+                                    ) : (
+                                        <span className="text-gray-400 italic">Non planifié</span>
+                                    ))}
+                                </span>
+                            </div>
+                            {group.charter && (
+                                <div className="text-sm">
+                                    <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('group_charter', 'Charte')}</span>
+                                    <a
+                                        href={group.charter}
+                                        download={`Charte_${group.name}`}
+                                        className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-2"
+                                    >
+                                        <span>📄</span>
+                                        {t('download_charter', 'Télécharger')}
+                                    </a>
+                                </div>
+                            )}
                         </div>
-                        <div className="text-sm">
-                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('meeting_time')}</span>
-                            <span className="font-semibold text-gray-900 dark:text-white">{group.meetingTime || '-'}</span>
-                        </div>
-                        <div className="text-sm">
+                        <div className="text-sm text-right">
                             <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('members_count')}</span>
-                            <div className="flex gap-3">
+                            <div className="flex gap-3 justify-end">
                                 <span className="font-semibold text-gray-900 dark:text-white">{memberStats.total} total</span>
                                 <span className="text-green-600 dark:text-green-400">({memberStats.active} actifs)</span>
                                 <span className="text-red-600 dark:text-red-400">({memberStats.inactive} inactifs)</span>
@@ -568,7 +721,7 @@ export default function GroupDetails() {
                         <ActivityList
                             activities={activities}
                             onEdit={(a) => { setSelectedActivity(a); setInitialActivityTab('details'); setShowActivityModal(true); }}
-                            onDelete={handleDeleteActivity}
+                            onDelete={confirmDeleteActivity}
                             onView={(a) => { setSelectedActivity(a); setInitialActivityTab('details'); setShowActivityModal(true); }}
                             onViewParticipants={(a) => { setSelectedActivity(a); setInitialActivityTab('participants'); setShowActivityModal(true); }}
                         />
@@ -754,6 +907,183 @@ export default function GroupDetails() {
                 </div>
             )}
 
+            {/* Edit Group Modal */}
+            {showEditGroupModal && (
+                <div className="fixed inset-0 z-[160] overflow-y-auto noscrollbar">
+                    <div className="flex items-center justify-center min-h-screen p-4">
+                        <div className="fixed inset-0 bg-gray-500/75 dark:bg-black/80 backdrop-blur-sm transition-all" onClick={() => setShowEditGroupModal(false)}></div>
+                        <div className="bg-white dark:bg-[#1A1A1A] rounded-[2.5rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-xl w-full border border-gray-100 dark:border-white/10 relative z-10 p-8">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tight">{t('modifier_infos_groupe', 'Modifier les infos du groupe')}</h3>
+
+                            <form onSubmit={handleEditGroupSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Logo Upload */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">{t('group_logo', 'Logo du Groupe')}</label>
+                                        <div className="flex items-center gap-6 p-4 rounded-3xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5">
+                                            <div className="w-20 h-20 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                                                {editGroupFormData.logo ? (
+                                                    <img src={editGroupFormData.logo} alt="Logo" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <span className="text-2xl">📁</span>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleEditGroupFileChange(e, 'logo')}
+                                                    className="hidden"
+                                                    id="edit-logo-upload"
+                                                />
+                                                <label
+                                                    htmlFor="edit-logo-upload"
+                                                    className="inline-flex px-4 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 cursor-pointer transition-all uppercase tracking-wider"
+                                                >
+                                                    {t('upload_photo', 'Changer le logo')}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Name */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('group_name', 'Nom du Groupe')}</label>
+                                        <input
+                                            type="text"
+                                            value={editGroupFormData.name}
+                                            onChange={(e) => setEditGroupFormData({ ...editGroupFormData, name: e.target.value })}
+                                            className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 shadow-sm transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Description */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('description')}</label>
+                                        <textarea
+                                            value={editGroupFormData.description}
+                                            onChange={(e) => setEditGroupFormData({ ...editGroupFormData, description: e.target.value })}
+                                            className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 shadow-sm transition-all min-h-[100px]"
+                                        />
+                                    </div>
+
+                                    {/* Leader Selection */}
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('leader', 'Responsable')}</label>
+                                        <SearchableSelect
+                                            options={allMembers.map(m => ({ value: m.id, label: `${m.firstName} ${m.lastName} ${m.memberCode ? `(${m.memberCode})` : ''}` }))}
+                                            value={editGroupFormData.leaderId}
+                                            onChange={(val) => setEditGroupFormData({ ...editGroupFormData, leaderId: val })}
+                                            placeholder={t('choose_member', 'Choisir un membre...')}
+                                            className="w-full"
+                                        />
+                                    </div>
+
+                                    {/* Room Selection */}
+                                    <div>
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{t('meeting_room', 'Lieu de Réunion')}</label>
+                                        <select
+                                            value={editGroupFormData.roomId}
+                                            onChange={(e) => setEditGroupFormData({ ...editGroupFormData, roomId: e.target.value })}
+                                            className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 shadow-sm transition-all"
+                                        >
+                                            <option value="">{t('select_room', 'Sélectionner une salle')}</option>
+                                            {rooms.map(r => (
+                                                <option key={r.id} value={r.id}>{r.name} ({r.building?.name})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Schedule */}
+                                    <div className="md:col-span-2 pt-4 border-t border-gray-50 dark:border-white/5">
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">{t('meeting_schedule', 'Horaire de Réunion')}</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block text-[10px] text-gray-500 mb-1">{t('day', 'Jour')}</label>
+                                                <select
+                                                    value={editGroupFormData.recurringSchedule.day}
+                                                    onChange={(e) => setEditGroupFormData({
+                                                        ...editGroupFormData,
+                                                        recurringSchedule: { ...editGroupFormData.recurringSchedule, day: e.target.value }
+                                                    })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 shadow-sm"
+                                                >
+                                                    <option value="">{t('select_day', 'Jour...')}</option>
+                                                    {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map(d => (
+                                                        <option key={d} value={d}>{d}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] text-gray-500 mb-1">{t('start_time', 'Début')}</label>
+                                                <input
+                                                    type="time"
+                                                    value={editGroupFormData.recurringSchedule.startTime}
+                                                    onChange={(e) => setEditGroupFormData({
+                                                        ...editGroupFormData,
+                                                        recurringSchedule: { ...editGroupFormData.recurringSchedule, startTime: e.target.value }
+                                                    })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 shadow-sm [color-scheme:light]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] text-gray-500 mb-1">{t('end_time', 'Fin')}</label>
+                                                <input
+                                                    type="time"
+                                                    value={editGroupFormData.recurringSchedule.endTime}
+                                                    onChange={(e) => setEditGroupFormData({
+                                                        ...editGroupFormData,
+                                                        recurringSchedule: { ...editGroupFormData.recurringSchedule, endTime: e.target.value }
+                                                    })}
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500/50 shadow-sm [color-scheme:light]"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Charter Upload */}
+                                    <div className="md:col-span-2 pt-4 border-t border-gray-50 dark:border-white/5">
+                                        <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">{t('group_charter', 'Charte du Groupe')}</label>
+                                        <div className="flex items-center gap-4">
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.doc,.docx"
+                                                onChange={(e) => handleEditGroupFileChange(e, 'charter')}
+                                                className="hidden"
+                                                id="edit-charter-upload"
+                                            />
+                                            <label
+                                                htmlFor="edit-charter-upload"
+                                                className="flex-1 px-5 py-4 bg-gray-50 dark:bg-black border border-dashed border-gray-200 dark:border-white/10 rounded-2xl text-xs font-bold text-gray-500 dark:text-gray-400 hover:border-indigo-500/50 cursor-pointer transition-all text-center"
+                                            >
+                                                {editGroupFormData.charter ? '📄 Document chargé' : '📁 Cliquez pour uploader la charte (PDF, DOC)'}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 flex justify-end gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEditGroupModal(false)}
+                                        className="px-8 py-4 bg-gray-100 dark:bg-white/5 rounded-2xl text-xs font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-all uppercase tracking-widest"
+                                    >
+                                        {t('cancel')}
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-xs font-bold hover:bg-indigo-700 shadow-xl shadow-indigo-100 dark:shadow-none transition-all uppercase tracking-widest"
+                                    >
+                                        {t('save', 'Enregistrer les modifications')}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Activity Modal */}
             {showActivityModal && (
                 <ActivityModal
@@ -770,10 +1100,10 @@ export default function GroupDetails() {
 
             <ConfirmModal
                 isOpen={showDeleteModal}
-                onClose={() => setShowDeleteModal(false)}
-                onConfirm={handleRemoveMember}
-                title={t('remove_member_title')}
-                message={t('remove_member_confirm')}
+                onClose={() => { setShowDeleteModal(false); setDeleteId(null); setDeleteType(null); }}
+                onConfirm={deleteType === 'member' ? handleRemoveMember : handleDeleteActivity}
+                title={deleteType === 'member' ? t('remove_member_title') : t('confirm_delete')}
+                message={deleteType === 'member' ? t('remove_member_confirm') : t('confirm_delete_activity_msg', 'Êtes-vous sûr de vouloir supprimer cette activité ?')}
             />
 
             <AlertModal

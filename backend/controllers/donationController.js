@@ -233,3 +233,35 @@ exports.getBalances = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la récupération des soldes" });
     }
 };
+
+exports.updateDonation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { amount, date, note } = req.body;
+        const donation = await db.Donation.findOne({ where: { id, churchId: req.user.churchId } });
+        if (!donation) return res.status(404).json({ message: "Don introuvable" });
+
+        const oldAmount = parseFloat(donation.amount);
+        const newAmount = parseFloat(amount || oldAmount);
+        const diff = newAmount - oldAmount;
+
+        await db.sequelize.transaction(async (t) => {
+            await donation.update({ amount: newAmount, date: date || donation.date, notes: note || donation.notes }, { transaction: t });
+
+            if (diff !== 0) {
+                if (donation.status === 'deposited' && donation.bankAccountId) {
+                    const bankAccount = await db.BankAccount.findByPk(donation.bankAccountId, { transaction: t });
+                    if (bankAccount) await bankAccount.increment('balance', { by: diff, transaction: t });
+                } else {
+                    const curr = await db.Currency.findOne({ where: { churchId: req.user.churchId, code: donation.currency || 'HTG' }, transaction: t });
+                    if (curr) await curr.increment('balance', { by: diff, transaction: t });
+                }
+            }
+        });
+
+        res.json({ message: "Don mis à jour", donation });
+    } catch (err) {
+        console.error("Update Donation Error:", err);
+        res.status(500).json({ message: "Erreur lors de la mise à jour du don" });
+    }
+};

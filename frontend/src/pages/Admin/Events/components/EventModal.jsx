@@ -5,8 +5,9 @@ import SearchableSelect from '../../../../components/SearchableSelect';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import AlertModal from '../../../../components/ChurchAlertModal';
 
-export default function EventModal({ event, onClose, onSave, onAddParticipant, onRemoveParticipant, onUpdateParticipant, members, initialTab = 'details' }) {
+export default function EventModal({ event, onClose, onSave, onAddParticipant, onRemoveParticipant, onUpdateParticipant, members, rooms = [], initialTab = 'details' }) {
     const { t } = useLanguage();
     const [formData, setFormData] = useState({
         title: '',
@@ -16,7 +17,8 @@ export default function EventModal({ event, onClose, onSave, onAddParticipant, o
         location: '',
         type: 'service',
         status: 'planned',
-        registrationExpiresAt: ''
+        registrationExpiresAt: '',
+        roomId: ''
     });
     const [activeTab, setActiveTab] = useState(initialTab);
     const [selectedMemberToAdd, setSelectedMemberToAdd] = useState('');
@@ -25,6 +27,7 @@ export default function EventModal({ event, onClose, onSave, onAddParticipant, o
     const [eventTypes, setEventTypes] = useState([]);
     const [otherType, setOtherType] = useState('');
     const [loadingParticipant, setLoadingParticipant] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
 
     useEffect(() => {
         const fetchTypes = async () => {
@@ -48,7 +51,8 @@ export default function EventModal({ event, onClose, onSave, onAddParticipant, o
                 location: event.location || '',
                 type: event.type || '',
                 status: event.status || 'planned',
-                registrationExpiresAt: event.registrationExpiresAt ? new Date(event.registrationExpiresAt).toISOString().split('T')[0] : ''
+                registrationExpiresAt: event.registrationExpiresAt ? new Date(event.registrationExpiresAt).toISOString().split('T')[0] : '',
+                roomId: event.roomId || ''
             });
             // If it's a custom type, set otherType
             if (event.type && !eventTypes.some(t => t.name === event.type)) {
@@ -215,9 +219,39 @@ export default function EventModal({ event, onClose, onSave, onAddParticipant, o
                                             )}
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('location')}</label>
-                                        <textarea className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all h-[130px] resize-none" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} placeholder={t('enter_location')}></textarea>
+
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Salle (Optionnel)</label>
+                                            <select
+                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none"
+                                                value={formData.roomId}
+                                                onChange={(e) => {
+                                                    const rId = e.target.value;
+                                                    const room = rooms.find(r => r.id.toString() === rId.toString());
+                                                    setFormData({
+                                                        ...formData,
+                                                        roomId: rId,
+                                                        location: room ? room.name : formData.location
+                                                    });
+                                                }}
+                                            >
+                                                <option value="">Sélectionner une salle</option>
+                                                {rooms.map(room => (
+                                                    <option key={room.id} value={room.id}>{room.name} {room.building ? `(${room.building.name})` : ''}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{t('location')} (Texte)</label>
+                                            <input
+                                                type="text"
+                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all"
+                                                value={formData.location}
+                                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                                placeholder={t('enter_location')}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -238,7 +272,7 @@ export default function EventModal({ event, onClose, onSave, onAddParticipant, o
                                                 <button type="button" onClick={() => {
                                                     const url = `${window.location.origin}/public/event/register/${event.registrationToken}`;
                                                     navigator.clipboard.writeText(url);
-                                                    alert(t('link_copied'));
+                                                    setAlertMessage({ show: true, title: t('success'), message: t('link_copied'), type: 'success' });
                                                 }} className="px-2 py-1 bg-white dark:bg-black/20 rounded border border-blue-200 dark:border-blue-800 text-[10px] font-bold">Copier</button>
                                             </div>
 
@@ -350,6 +384,13 @@ export default function EventModal({ event, onClose, onSave, onAddParticipant, o
                     </div>
                 </div>
             </div>
-        </div>
+            <AlertModal
+                isOpen={alertMessage.show}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+            />
+        </div >
     );
 }

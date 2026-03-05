@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../../api/axios';
 import { useLanguage } from '../../../context/LanguageContext';
+import AlertModal from '../../../components/ChurchAlertModal';
 
 const AttachmentModal = ({ isOpen, onClose, onSuccess, userId }) => {
     const { t } = useLanguage();
@@ -9,6 +10,7 @@ const AttachmentModal = ({ isOpen, onClose, onSuccess, userId }) => {
     const [file, setFile] = useState(null);
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
+    const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,14 +24,14 @@ const AttachmentModal = ({ isOpen, onClose, onSuccess, userId }) => {
 
             if (type === 'file') {
                 if (!file) {
-                    alert(t('error_select_file', 'Veuillez sélectionner un fichier'));
+                    setAlertMessage({ show: true, title: t('error'), message: t('error_select_file', 'Veuillez sélectionner un fichier'), type: 'error' });
                     setLoading(false);
                     return;
                 }
                 formData.append('file', file);
             } else {
                 if (!url) {
-                    alert(t('error_enter_link', 'Veuillez entrer un lien'));
+                    setAlertMessage({ show: true, title: t('error'), message: t('error_enter_link', 'Veuillez entrer un lien'), type: 'error' });
                     setLoading(false);
                     return;
                 }
@@ -49,7 +51,7 @@ const AttachmentModal = ({ isOpen, onClose, onSuccess, userId }) => {
             setType('file');
         } catch (error) {
             console.error("Error adding attachment:", error);
-            alert(error.response?.data?.message || t('error_saving', "Erreur lors de l'enregistrement"));
+            setAlertMessage({ show: true, title: t('error'), message: error.response?.data?.message || t('error_saving', "Erreur lors de l'enregistrement"), type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -156,6 +158,13 @@ const AttachmentModal = ({ isOpen, onClose, onSuccess, userId }) => {
                     </div>
                 </form>
             </div>
+            <AlertModal
+                isOpen={alertMessage.show}
+                title={alertMessage.title}
+                message={alertMessage.message}
+                type={alertMessage.type}
+                onClose={() => setAlertMessage({ ...alertMessage, show: false })}
+            />
         </div>
     );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import AdminLayout from '../../../layouts/AdminLayout';
 import api from '../../../api/axios';
 import AlertModal from '../../../components/ChurchAlertModal';
+import ConfirmModal from '../../../components/ConfirmModal';
 import SearchableSelect from '../../../components/SearchableSelect';
 import { useLanguage } from '../../../context/LanguageContext';
 
@@ -12,7 +13,9 @@ export default function SundaySchoolMonitors() {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [editId, setEditId] = useState(null);
     const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
+    const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
     const [form, setForm] = useState({
         userId: '',
@@ -44,9 +47,42 @@ export default function SundaySchoolMonitors() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/sunday-school/monitors', form);
-            setAlertMessage({ show: true, title: t('success'), message: t('monitor_assigned_success', 'Moniteur assigné avec succès'), type: 'success' });
+            if (editId) {
+                await api.put(`/sunday-school/monitors/${editId}`, form);
+                setAlertMessage({ show: true, title: t('success'), message: t('monitor_updated_success', 'Moniteur mis à jour avec succès'), type: 'success' });
+            } else {
+                await api.post('/sunday-school/monitors', form);
+                setAlertMessage({ show: true, title: t('success'), message: t('monitor_assigned_success', 'Moniteur assigné avec succès'), type: 'success' });
+            }
             setShowModal(false);
+            setEditId(null);
+            setForm({ userId: '', classId: '', role: 'monitor' });
+            fetchData();
+        } catch (error) {
+            setAlertMessage({ show: true, title: t('error'), message: t('operation_error'), type: 'error' });
+        }
+    };
+
+    const handleEdit = (mon) => {
+        setEditId(mon.id);
+        setForm({
+            userId: mon.userId,
+            classId: mon.classId || '',
+            role: mon.role
+        });
+        setShowModal(true);
+    };
+
+    const handleDelete = async (id) => {
+        setPendingDeleteId(id);
+    };
+
+    const confirmDelete = async () => {
+        const id = pendingDeleteId;
+        setPendingDeleteId(null);
+        try {
+            await api.delete(`/sunday-school/monitors/${id}`);
+            setAlertMessage({ show: true, title: t('success'), message: t('monitor_removed_success', 'Moniteur retiré avec succès'), type: 'success' });
             fetchData();
         } catch (error) {
             setAlertMessage({ show: true, title: t('error'), message: t('operation_error'), type: 'error' });
@@ -98,9 +134,20 @@ export default function SundaySchoolMonitors() {
                                         <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">{mon.class?.name || t('all', 'Toutes')}</div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <button className="text-red-500 hover:text-red-700 transition-colors">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-                                        </button>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => handleEdit(mon)}
+                                                className="text-indigo-500 hover:text-indigo-700 transition-colors"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(mon.id)}
+                                                className="text-red-500 hover:text-red-700 transition-colors"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -116,7 +163,9 @@ export default function SundaySchoolMonitors() {
                         <div className="fixed inset-0 bg-gray-500/75 dark:bg-black/90 backdrop-blur-md" onClick={() => setShowModal(false)}></div>
                         <div className="bg-white dark:bg-[#0D0D0D] rounded-[3rem] overflow-hidden shadow-2xl transform transition-all sm:max-w-xl w-full z-10 border border-transparent dark:border-white/10">
                             <form onSubmit={handleSubmit} className="p-12">
-                                <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white tracking-tight">{t('assign_monitor')}</h3>
+                                <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white tracking-tight">
+                                    {editId ? t('edit_monitor', 'Modifier le Moniteur') : t('assign_monitor')}
+                                </h3>
 
                                 <div className="space-y-8">
                                     <div>
@@ -127,6 +176,7 @@ export default function SundaySchoolMonitors() {
                                             onChange={val => setForm({ ...form, userId: val })}
                                             placeholder={t('choose_member')}
                                             className="w-full"
+                                            disabled={!!editId} // Don't allow changing the member, only their role/class
                                         />
                                     </div>
 
@@ -159,7 +209,7 @@ export default function SundaySchoolMonitors() {
                                         {t('cancel')}
                                     </button>
                                     <button type="submit" className="px-12 py-5 bg-indigo-600 text-white rounded-3xl text-[13px] font-bold hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 dark:shadow-none active:scale-95">
-                                        {t('assign', 'Assigner')}
+                                        {editId ? t('update', 'Mettre à jour') : t('assign', 'Assigner')}
                                     </button>
                                 </div>
                             </form>
@@ -174,6 +224,13 @@ export default function SundaySchoolMonitors() {
                 title={alertMessage.title}
                 message={alertMessage.message}
                 type={alertMessage.type}
+            />
+            <ConfirmModal
+                isOpen={!!pendingDeleteId}
+                onClose={() => setPendingDeleteId(null)}
+                onConfirm={confirmDelete}
+                title={t('confirm_delete_monitor', 'Retirer ce moniteur ?')}
+                message={t('confirm_delete_monitor_msg', 'Voulez-vous vraiment retirer ce moniteur ? Cette action est irréversible.')}
             />
         </AdminLayout>
     );

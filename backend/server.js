@@ -19,6 +19,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(require('./middleware/sanitize')); // CONVERT "" TO NULL GLOBALLY
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Request Logger for Debugging
@@ -57,7 +58,14 @@ const communicationRoutes = require('./routes/communicationRoutes');
 const attachmentRoutes = require('./routes/attachmentRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const eventTypeRoutes = require('./routes/eventTypeRoutes');
+const communityPostRoutes = require('./routes/communityPostRoutes');
 const memberCategoryRoutes = require('./routes/memberCategoryRoutes');
+const logisticsRoutes = require('./routes/logisticsRoutes');
+const memberAlertRoutes = require('./routes/memberAlertRoutes');
+const memberRequestRoutes = require('./routes/memberRequestRoutes');
+const memberCardRoutes = require('./routes/memberCardRoutes');
+const cardTemplateRoutes = require('./routes/cardTemplateRoutes');
+const searchBuilderRoutes = require('./routes/searchBuilderRoutes');
 
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
 app.use('/api/auth', authRoutes);
@@ -67,6 +75,11 @@ app.use('/api/communication', communicationRoutes); // NEW ROUTE
 app.use('/api/attachments', attachmentRoutes); // NEW ROUTE
 app.use('/api/saas', saasRoutes);
 app.use('/api/members', memberRoutes);
+app.use('/api/members', memberAlertRoutes);
+app.use('/api/member-requests', memberRequestRoutes);
+app.use('/api/member-cards', memberCardRoutes);
+app.use('/api/card-templates', cardTemplateRoutes);
+app.use('/api/search-builder', searchBuilderRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/visitors', visitorRoutes);
@@ -85,6 +98,9 @@ app.use('/api/contacts/classification', contactClassificationRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
 app.use('/api/event-types', eventTypeRoutes);
 app.use('/api/member-categories', memberCategoryRoutes);
+app.use('/api/logistics', logisticsRoutes);
+app.use('/api/community-posts', communityPostRoutes);
+// app.use('/api/members', memberAlertRoutes); // MOVED UP
 
 // Test Route
 app.get('/', (req, res) => {
@@ -97,14 +113,19 @@ app.get('/', (req, res) => {
 // Sync Database & Start Server
 const PORT = process.env.PORT || 5000;
 
-// Force sync: { force: false } pou pa efase done yo chak fwa
-// Use alter: true to update schema without dropping tables
+// Use { alter: false } to avoid ALTER TABLE errors on populated tables.
+// Run migrations/fix_member_requests.js once to update schema safely.
 db.sequelize.sync({ alter: false })
     .then(() => {
-        console.log('Base de données MySQL synchronisée.');
-        app.listen(PORT, () => {
+        console.log('Base de données synchronisée.');
+        const server = app.listen(PORT, () => {
             console.log(`Serveur démarré sur le port ${PORT}`);
         });
+
+        // Keep process alive explicitly
+        setInterval(() => {
+            console.log('Heartbeat...');
+        }, 10000);
     })
     .catch((err) => {
         console.error('Erreur de connexion à la DB:', err);

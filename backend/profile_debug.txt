@@ -2064,3 +2064,1429 @@
    -> FOUND: John Widno
 [2026-01-28T23:34:09.051Z] getMemberById - ID: 22, ChurchID: 4
    -> FOUND: John Widno
+[2026-01-29T18:03:03.369Z] getMemberById - ID: 24, ChurchID: 5
+   -> ERROR: Unknown column 'sundaySchoolClasses->sunday_school_member.status' in 'field list'
+[2026-01-29T18:03:03.462Z] getMemberById - ID: 24, ChurchID: 5
+   -> ERROR: Unknown column 'sundaySchoolClasses->sunday_school_member.status' in 'field list'
+[2026-01-29T18:03:14.579Z] getMemberById - ID: 24, ChurchID: 5
+   -> ERROR: Unknown column 'sundaySchoolClasses->sunday_school_member.status' in 'field list'
+[2026-01-29T18:03:14.621Z] getMemberById - ID: 24, ChurchID: 5
+   -> ERROR: Unknown column 'sundaySchoolClasses->sunday_school_member.status' in 'field list'
+[2026-01-29T18:04:08.169Z] getMemberById - ID: 23, ChurchID: 5
+   -> ERROR: Unknown column 'sundaySchoolClasses->sunday_school_member.status' in 'field list'
+[2026-01-29T18:04:08.376Z] getMemberById - ID: 23, ChurchID: 5
+   -> ERROR: Unknown column 'sundaySchoolClasses->sunday_school_member.status' in 'field list'
+[2026-01-29T18:04:38.047Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:04:38.198Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:06:34.723Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:06:34.814Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:06:58.460Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:06:58.518Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:07:06.519Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:07:06.601Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:07:38.997Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:07:39.183Z] getMemberById - ID: 24, ChurchID: 5
+   -> FOUND: John Widno
+[2026-01-29T18:16:57.747Z] getMemberById - ID: 25, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T18:16:57.901Z] getMemberById - ID: 25, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T18:22:33.500Z] getMemberById - ID: 25, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T18:22:33.621Z] getMemberById - ID: 25, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T18:22:39.264Z] getMemberById - ID: 25, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T18:46:04.035Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T18:46:04.141Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T18:49:00.138Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T18:49:00.281Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:11:03.657Z] getMemberById - ID: 27, ChurchID: 5
+   -> FOUND: Winson Dorcy
+[2026-01-29T19:11:03.767Z] getMemberById - ID: 27, ChurchID: 5
+   -> FOUND: Winson Dorcy
+[2026-01-29T19:17:47.632Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:17:47.792Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:18:29.144Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:18:34.987Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:18:35.053Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:18:41.638Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:18:41.699Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:07.144Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:07.198Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:23.780Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:23.823Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:28.256Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:32.006Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:19:32.051Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:20:47.254Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:20:47.423Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:21:08.765Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:21:08.833Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:21:35.314Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:21:35.364Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:21:48.513Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:21:48.567Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:22:36.431Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:22:36.478Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:38:10.804Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:38:10.950Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:38:18.724Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:38:18.995Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:41:57.808Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:41:58.047Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:43:30.984Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T19:43:31.274Z] getMemberById - ID: 26, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-29T20:38:57.784Z] getMemberById - ID: 27, ChurchID: 5
+   -> FOUND: Winson Dorcy
+[2026-01-29T20:38:57.961Z] getMemberById - ID: 27, ChurchID: 5
+   -> FOUND: Winson Dorcy
+[2026-01-29T23:21:52.985Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-29T23:21:53.237Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-29T23:34:47.812Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-29T23:34:48.001Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-29T23:35:51.700Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-29T23:35:51.832Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-29T23:42:19.967Z] getMemberById - ID: 30, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T23:42:20.187Z] getMemberById - ID: 30, ChurchID: 5
+   -> FOUND: Bryan
+[2026-01-29T23:46:45.004Z] getMemberById - ID: 31, ChurchID: 5
+   -> FOUND: Turenne
+[2026-01-29T23:46:45.197Z] getMemberById - ID: 31, ChurchID: 5
+   -> FOUND: Turenne
+[2026-01-29T23:47:56.752Z] getMemberById - ID: 31, ChurchID: 5
+   -> FOUND: Turenne
+[2026-01-29T23:47:56.898Z] getMemberById - ID: 31, ChurchID: 5
+   -> FOUND: Turenne
+[2026-01-30T00:16:27.494Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-30T00:16:27.652Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-30T00:24:29.952Z] getMemberById - ID: 29, ChurchID: 5
+   -> FOUND: Odva
+[2026-01-30T00:24:30.186Z] getMemberById - ID: 29, ChurchID: 5
+   -> FOUND: Odva
+[2026-01-30T00:50:40.413Z] getMemberById - ID: 33, ChurchID: 5
+   -> FOUND: John 
+[2026-01-30T00:50:40.748Z] getMemberById - ID: 33, ChurchID: 5
+   -> FOUND: John 
+[2026-01-30T23:49:49.276Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-30T23:49:49.471Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-31T00:22:51.024Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-31T00:22:51.172Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-31T00:24:15.771Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-31T00:24:15.926Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-01-31T00:27:03.469Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-01-31T00:27:03.569Z] getMemberById - ID: 28, ChurchID: 5
+   -> FOUND: Galenson
+[2026-02-02T13:29:42.831Z] getMemberById - ID: 35, ChurchID: 5
+   -> FOUND: Ketza
+[2026-02-02T13:29:42.905Z] getMemberById - ID: 35, ChurchID: 5
+   -> FOUND: Ketza
+[2026-02-02T13:32:41.332Z] getMemberById - ID: 35, ChurchID: 5
+   -> FOUND: Ketza
+[2026-02-02T13:34:19.003Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-02T13:34:19.080Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-02T13:34:37.854Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-02T13:36:17.272Z] getMemberById - ID: 32, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-05T17:39:23.343Z] getMemberById - ID: 31, ChurchID: 5
+   -> FOUND: Turenne
+[2026-02-05T17:39:24.592Z] getMemberById - ID: 31, ChurchID: 5
+   -> FOUND: Turenne
+[2026-02-06T23:54:01.980Z] getMemberById - ID: 34, ChurchID: 5
+   -> FOUND: Bellta
+[2026-02-06T23:54:02.194Z] getMemberById - ID: 34, ChurchID: 5
+   -> FOUND: Bellta
+[2026-02-08T02:24:35.576Z] getMemberById - ID: 37, ChurchID: 6
+   -> FOUND: Pierre
+[2026-02-08T02:24:35.844Z] getMemberById - ID: 37, ChurchID: 6
+   -> FOUND: Pierre
+[2026-02-08T02:51:05.627Z] getMemberById - ID: 39, ChurchID: 6
+   -> FOUND: John Widno
+[2026-02-08T02:51:05.839Z] getMemberById - ID: 39, ChurchID: 6
+   -> FOUND: John Widno
+[2026-02-08T03:40:24.910Z] getMemberById - ID: 46, ChurchID: 6
+   -> FOUND: Jean louis
+[2026-02-08T03:40:25.009Z] getMemberById - ID: 46, ChurchID: 6
+   -> FOUND: Jean louis
+[2026-02-16T18:40:27.223Z] getMemberById - ID: 35, ChurchID: 5
+   -> FOUND: Ketza
+[2026-02-16T18:40:27.373Z] getMemberById - ID: 35, ChurchID: 5
+   -> FOUND: Ketza
+[2026-02-21T21:44:49.509Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:44:49.683Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:45:23.758Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:47:07.751Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:47:07.946Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:50:22.860Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:50:22.934Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:53:28.415Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:53:28.495Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:54:53.327Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:54:53.388Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:56:23.075Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:56:23.119Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:56:50.388Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:56:50.475Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:56:56.749Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T21:56:56.809Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:01:38.023Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:01:44.323Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:02:32.446Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:02:32.598Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:03:51.285Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:03:51.540Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:04:10.962Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:04:11.156Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:04:34.514Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:04:34.581Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:05:00.900Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-21T22:05:00.962Z] getMemberById - ID: 100, ChurchID: 61
+   -> FOUND: Jehpte
+[2026-02-22T18:11:49.670Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T18:11:49.820Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T18:12:08.578Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T18:12:08.658Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T20:30:08.120Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T20:30:08.304Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T20:32:17.767Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T20:32:17.844Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T20:32:39.088Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T20:32:39.158Z] getMemberById - ID: 12, ChurchID: 12
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:06:21.051Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:06:21.181Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:06:25.104Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:06:25.203Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:06:34.167Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:06:34.247Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:07:40.322Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:07:40.474Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:08:07.532Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:08:07.701Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.status n'existe pas
+[2026-02-22T22:08:25.954Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:08:26.122Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:15:17.205Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:15:17.336Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:15:31.782Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:15:31.858Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:17:36.637Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:17:36.793Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:25:50.905Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:25:51.062Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:25:52.876Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:25:52.985Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:25:59.117Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:25:59.203Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:26:22.025Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:26:22.138Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:28:03.593Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:28:03.731Z] getMemberById - ID: 13, ChurchID: 5
+   -> ERROR: la colonne sundaySchoolClasses->sunday_school_member.joinedAt n'existe pas
+[2026-02-22T22:34:00.192Z] getMemberById - ID: 13, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-22T22:34:00.345Z] getMemberById - ID: 13, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-22T22:36:20.911Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-22T22:36:21.061Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-22T22:36:29.399Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-22T22:36:35.523Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-22T22:37:37.087Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-22T22:37:50.155Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-23T01:13:36.559Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T01:13:36.794Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T01:18:56.432Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T01:18:56.562Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T01:20:11.960Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T01:20:12.055Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T12:23:58.404Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-23T12:23:58.818Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-23T12:24:15.351Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-23T13:11:51.905Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T13:11:52.446Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T15:49:58.567Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T15:49:58.714Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T15:53:50.320Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T15:53:50.550Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T15:54:24.206Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T15:57:54.952Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T15:57:55.079Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T15:58:40.274Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T15:58:40.349Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-23T15:58:54.391Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T15:58:54.531Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T16:00:02.306Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T16:00:02.383Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-23T16:00:55.817Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T16:00:55.950Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T16:03:02.062Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-23T16:03:02.170Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-24T12:52:28.500Z] getMemberById - ID: 5, ChurchID: 5
+   -> FOUND: Super
+[2026-02-24T12:52:28.753Z] getMemberById - ID: 5, ChurchID: 5
+   -> FOUND: Super
+[2026-02-24T12:54:16.382Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-24T12:54:16.662Z] getMemberById - ID: 14, ChurchID: 5
+   -> FOUND: John
+[2026-02-24T13:58:57.522Z] getMemberById - ID: 5, ChurchID: 5
+   -> FOUND: Super
+[2026-02-24T13:58:57.662Z] getMemberById - ID: 5, ChurchID: 5
+   -> FOUND: Super
+[2026-02-24T14:06:21.300Z] getMemberById - ID: 13, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-24T14:06:21.697Z] getMemberById - ID: 13, ChurchID: 5
+   -> FOUND: john widno
+[2026-02-24T14:09:01.796Z] getMemberById - ID: 5, ChurchID: 5
+   -> FOUND: Super
+[2026-02-24T14:09:01.926Z] getMemberById - ID: 5, ChurchID: 5
+   -> FOUND: Super
+[2026-02-24T20:37:39.997Z] getMemberById - ID: 345, ChurchID: 12
+   -> FOUND: Jean
+[2026-02-24T20:37:40.165Z] getMemberById - ID: 345, ChurchID: 12
+   -> FOUND: Jean
+[2026-02-24T20:45:11.849Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-24T20:45:11.964Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-24T20:52:22.225Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-24T20:52:22.536Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-24T20:53:44.437Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-24T20:53:44.588Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-24T21:00:46.123Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-24T21:00:46.508Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-24T22:56:13.692Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-24T22:56:13.978Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T12:19:53.222Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:19:53.359Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:20:08.847Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:20:08.926Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:22:39.422Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:23:20.177Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:23:20.284Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:23:46.593Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:23:46.676Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T12:24:47.813Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:24:47.884Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:35:27.553Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:35:27.711Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:36:34.058Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:45:03.960Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:45:04.142Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:47:08.739Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:47:08.796Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:50:30.621Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-25T12:50:30.695Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-25T12:57:32.594Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:57:32.655Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:58:24.508Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T12:58:24.579Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:07:13.434Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:11:22.539Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:11:22.725Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:13:17.383Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:13:17.522Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:17:58.672Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:26:01.268Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:26:17.383Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:26:17.943Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:27:50.104Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:27:50.292Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:30:44.106Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:30:44.315Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:35:57.090Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:35:57.368Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:36:16.692Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:36:16.962Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:36:42.095Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:36:42.403Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:37:09.002Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:41:31.930Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:41:32.103Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:44:37.603Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T13:44:37.725Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T13:45:54.581Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:45:54.698Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T13:46:23.898Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:46:23.989Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:47:43.157Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:47:43.358Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T13:51:17.718Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:51:17.869Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:51:18.805Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:52:43.568Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:52:43.748Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:53:50.282Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:53:50.555Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:58:14.002Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:58:14.151Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:59:24.148Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:59:31.258Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:59:31.421Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T13:59:46.719Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:08:02.946Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:08:03.071Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:08:18.419Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:08:18.589Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:08:40.317Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T14:08:40.456Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T14:08:47.503Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T14:08:47.593Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T14:09:06.653Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:09:06.739Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:09:30.214Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T14:09:30.332Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T14:10:15.417Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T14:10:15.500Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-25T14:10:46.450Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:10:46.566Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T14:12:29.566Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T14:12:29.669Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T14:15:10.380Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:15:10.715Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:15:51.429Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:15:51.623Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:19:35.132Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:19:35.342Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:20:23.709Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:20:23.817Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:34:29.508Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:34:29.825Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:34:53.993Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:34:54.104Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:38:19.965Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:38:20.094Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:47:37.495Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:47:37.870Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:53:09.139Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:53:09.250Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:58:09.151Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T14:58:09.267Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:45:11.534Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:45:12.747Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:45:15.199Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:45:15.684Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:45:52.929Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:45:53.235Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:46:33.358Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:46:34.152Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:49:10.922Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:50:01.785Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T15:52:08.844Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:03:18.107Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:03:18.273Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:03:34.970Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:03:35.130Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:07:49.632Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:08:50.078Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:08:50.270Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:09:10.379Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T16:09:10.520Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T16:09:41.830Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T16:09:42.160Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T16:10:20.072Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T16:41:39.759Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:41:39.891Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:46:11.157Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:46:11.264Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:46:46.899Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:47:19.281Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:47:41.401Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:47:48.015Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:47:48.110Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:48:07.021Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:48:10.662Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:48:10.776Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:49:53.836Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:49:54.011Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:50:20.526Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:50:20.683Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T16:56:40.667Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T16:56:40.894Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T16:56:45.576Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T16:56:45.675Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T17:17:33.247Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T17:17:33.391Z] getMemberById - ID: een@elyonsys.com, ChurchID: 12
+   -> ERROR: syntaxe en entrée invalide pour le type integer : « een@elyonsys.com »
+[2026-02-25T17:18:16.074Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:18:16.347Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:18:47.665Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:18:47.979Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:19:09.852Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:19:10.178Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:19:35.524Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:19:35.768Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:19:48.001Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:19:48.243Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:23:26.040Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:23:26.338Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:27:31.819Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:29:00.601Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:29:01.033Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T17:34:13.648Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:34:13.980Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:34:47.677Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:34:47.946Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:35:25.003Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:35:25.342Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:36:37.083Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:36:37.444Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T17:39:47.871Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T17:39:48.157Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T17:44:28.784Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T17:45:11.710Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T18:00:13.225Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T18:00:13.752Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T18:01:01.870Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-25T18:29:13.042Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T18:32:41.045Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T18:32:41.251Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T18:33:21.202Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T18:33:21.400Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-25T19:04:49.951Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T19:04:50.051Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-25T19:26:12.955Z] getMemberById - ID: 17, ChurchID: 5
+   -> NOT FOUND
+[2026-02-25T19:26:18.678Z] getMemberById - ID: 17, ChurchID: 5
+   -> NOT FOUND
+[2026-02-26T00:53:57.731Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T00:53:57.973Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T00:55:48.558Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T00:55:48.790Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T00:55:55.480Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T00:55:55.685Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T00:59:57.009Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T00:59:57.237Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:06:13.528Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:06:13.880Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:12:03.222Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:12:11.051Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:13:16.182Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:13:16.490Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:21:59.105Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T01:21:59.326Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T01:22:07.178Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T01:22:07.286Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T01:38:40.961Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:38:41.336Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:39:27.213Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:39:48.290Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T01:39:48.462Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T02:21:38.140Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T02:21:38.395Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T02:29:36.999Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T02:29:37.307Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T02:53:27.774Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T02:53:28.127Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:00:44.426Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:00:44.784Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:10:49.260Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:10:49.651Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:11:11.863Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:11:12.208Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:26:09.591Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:35:35.231Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:35:35.997Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:35:50.210Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:35:50.335Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:36:45.586Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:36:45.760Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T03:36:50.444Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T03:36:50.535Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T03:39:10.977Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T03:39:11.276Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T03:39:29.125Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T03:39:29.291Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T03:43:01.715Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T03:43:01.863Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T03:59:49.579Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T03:59:49.769Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T04:00:30.234Z] getMemberById - ID: 20, ChurchID: 12
+   -> FOUND: Bryan
+[2026-02-26T04:03:38.920Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T04:03:39.225Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T04:04:02.983Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T04:04:03.110Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T04:04:23.358Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T04:04:23.465Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T04:04:46.570Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T04:04:46.666Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T04:05:00.015Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T04:05:10.580Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T04:05:20.728Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T04:05:22.682Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T04:05:30.963Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T04:05:39.524Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T04:05:46.294Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:05:57.846Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:05:57.950Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:17:50.651Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:17:50.809Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:20:06.793Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:20:06.966Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:29:27.895Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:29:28.020Z] getMemberById - ID: 19, ChurchID: 12
+   -> FOUND: john widno
+[2026-02-26T04:55:11.384Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T04:55:11.520Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T05:33:42.521Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T05:33:42.852Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T05:38:24.661Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T05:38:24.944Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T05:38:39.564Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T05:38:39.821Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T14:29:25.959Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T14:29:26.147Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T15:01:24.604Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T15:01:24.750Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-02-26T16:33:02.427Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T16:33:02.598Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:08:53.759Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:08:54.187Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:38:10.722Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:38:11.216Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:38:44.702Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T17:38:44.882Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T17:50:33.141Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:50:33.371Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T17:50:45.184Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T17:50:45.323Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T17:51:02.993Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T17:51:03.150Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T17:52:05.390Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T17:52:05.633Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T18:13:56.897Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T18:13:57.327Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T18:41:37.677Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T18:41:37.890Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T19:11:58.735Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T19:11:58.950Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T19:20:57.633Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:20:57.770Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:21:48.539Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:22:31.439Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:22:31.538Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:27:48.701Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:27:48.815Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:50:31.689Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T19:50:32.050Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T19:50:34.690Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:50:34.834Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:56:39.641Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:56:39.770Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:57:15.702Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:57:15.878Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:57:35.236Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T19:57:35.397Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:09:11.442Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T20:36:22.633Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T20:36:22.875Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T20:36:44.350Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T20:36:44.431Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T20:37:43.457Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T20:37:43.550Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-26T20:37:55.434Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:37:55.516Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:42:25.385Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:42:25.670Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:48:44.838Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:48:44.991Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:48:49.393Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:48:49.630Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:57:25.046Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:57:25.187Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:58:48.433Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T20:58:48.614Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T21:23:56.943Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T21:23:57.142Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T21:39:23.563Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T21:39:23.804Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-26T23:13:15.838Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:13:16.221Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:15:54.866Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:15:55.035Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:24:06.972Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:24:07.120Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:24:23.908Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:25:09.888Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:25:10.064Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-26T23:32:32.792Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:32:32.942Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:32:47.176Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:32:47.396Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:33:10.735Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:33:10.953Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:35:59.326Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-26T23:35:59.612Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T00:25:41.589Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:25:41.781Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:29:49.422Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:29:49.648Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:30:20.123Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:30:20.334Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:31:47.847Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:31:48.121Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T00:41:36.324Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T00:41:36.478Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T00:44:26.521Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T00:44:26.674Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T00:44:32.401Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T00:44:32.602Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T04:40:08.480Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-27T04:40:08.672Z] getMemberById - ID: 17, ChurchID: 12
+   -> FOUND: Pierre
+[2026-02-27T04:40:35.922Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T04:40:36.112Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T04:57:04.877Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T04:57:05.061Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-02-27T05:04:57.645Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T05:04:57.762Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T06:22:37.171Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T06:22:37.513Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T06:32:12.558Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T06:32:12.824Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T06:43:07.349Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-27T06:43:07.672Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-02-28T18:14:08.069Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-28T18:14:08.354Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-28T18:16:17.557Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-28T18:16:17.726Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-28T18:18:34.472Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-02-28T18:18:34.663Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T12:12:22.251Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T12:12:22.541Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T12:33:36.344Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T12:33:36.526Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T14:13:26.797Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T14:13:27.216Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T14:52:49.167Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T14:52:53.865Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-02T15:01:31.000Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-03-02T15:01:31.480Z] getMemberById - ID: 410, ChurchID: 12
+   -> FOUND: Pierre 
+[2026-03-02T15:01:52.513Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-02T15:01:52.646Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-03T22:59:29.100Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-03T22:59:29.604Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-03T23:00:57.571Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-03-03T23:00:57.721Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-03-04T02:18:13.186Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T02:18:13.467Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T02:19:34.051Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T02:20:37.072Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T02:20:37.256Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T03:41:35.685Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T03:41:35.971Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T03:42:57.447Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T03:42:57.661Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T03:43:28.908Z] getMemberById - ID: 411, ChurchID: 12
+   -> FOUND: John Widno
+[2026-03-04T12:21:08.271Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T12:21:08.422Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T13:53:04.086Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T13:53:04.409Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T14:05:52.061Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T14:05:52.386Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T14:06:46.887Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T14:06:47.179Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T14:12:02.999Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T14:12:03.301Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T20:56:10.947Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T20:56:11.249Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T22:59:11.547Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T22:59:11.838Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T23:15:28.342Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-03-04T23:15:28.616Z] getMemberById - ID: 12, ChurchID: 12
+   -> FOUND: Admin
+[2026-03-04T23:15:40.259Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T23:15:40.421Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T23:22:52.768Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-04T23:22:53.069Z] getMemberById - ID: 27, ChurchID: 12
+   -> FOUND: Abda Briny
+[2026-03-05T01:25:36.187Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-05T01:25:37.057Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-05T13:43:42.158Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T13:43:43.482Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T14:03:03.488Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T14:03:03.920Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T17:02:58.485Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T17:02:58.938Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T17:48:10.956Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T17:48:11.848Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:02:35.232Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:02:35.634Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:03:05.566Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:03:06.026Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:03:26.814Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:03:27.295Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T18:46:00.238Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T18:46:01.106Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T18:46:11.648Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T18:46:12.239Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T18:49:24.502Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-05T18:49:25.132Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-05T19:19:11.679Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:19:12.328Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:19:22.064Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:19:22.625Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:19:56.675Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:19:57.149Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:20:33.146Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:20:33.792Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:21:33.010Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:21:33.637Z] getMemberById - ID: 341, ChurchID: 4
+   -> ERROR: column member_request.targetUserId does not exist
+[2026-03-05T19:21:52.528Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:21:53.978Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:22:27.654Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:22:28.073Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:23:20.076Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:23:20.488Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:23:34.655Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:23:35.634Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:42:51.477Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T19:42:52.369Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T20:09:54.813Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T20:09:55.342Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T20:15:59.955Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza
+[2026-03-05T20:16:00.660Z] getMemberById - ID: 341, ChurchID: 4
+   -> FOUND: Ketza

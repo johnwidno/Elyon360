@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from "./context/ThemeContext";
 import Home from "./pages/Public/Home";
 import Login from "./pages/Public/Login";
@@ -7,6 +8,8 @@ import Services from "./pages/Public/Services";
 import PublicEvents from "./pages/Public/Events";
 import Contact from "./pages/Public/Contact";
 import ChurchRegister from "./pages/SaaS/ChurchRegister";
+import PaymentSuccess from "./pages/SaaS/PaymentSuccess";
+import PaymentCancelled from "./pages/SaaS/PaymentCancelled";
 import SuperAdminDashboard from "./pages/SaaS/SuperAdminDashboard";
 import AdminHome from "./pages/Admin/Home";
 import DebugDashboard from "./pages/Admin/DebugDashboard"; // NEW
@@ -38,10 +41,24 @@ import Expenses from "./pages/Admin/Finances/Expenses";
 import Budgets from "./pages/Admin/Finances/Budgets";
 import Accounts from "./pages/Admin/Finances/Accounts";
 import MemberProfile from "./pages/Admin/Members/MemberProfile";
+import CardTemplatesManager from './pages/Admin/Services/CardTemplatesManager';
+import AdvancedSearchBuilder from './pages/Admin/Services/AdvancedSearchBuilder';
+import MemberRequestsManager from './pages/Admin/Services/MemberRequestsManager';
 import OrganizationProfile from "./pages/Admin/Contacts/OrganizationProfile";
 import Birthdays from "./pages/Admin/Members/Birthdays";
 import PublicActivityRegistration from "./pages/Public/PublicActivityRegistration";
 import PublicEventRegistration from "./pages/Public/PublicEventRegistration";
+import LogisticsDashboard from "./pages/Admin/Logistics/LogisticsDashboard";
+import Spaces from "./pages/Admin/Logistics/Spaces";
+import RoomProfile from "./pages/Admin/Logistics/RoomProfile";
+
+
+import Resources from "./pages/Admin/Logistics/Resources";
+import Reservations from "./pages/Admin/Logistics/Reservations";
+import Maintenance from "./pages/Admin/Logistics/Maintenance";
+import Assignments from "./pages/Admin/Logistics/Assignments";
+import Suspended from "./pages/Public/Suspended";
+import FirstPasswordChangeModal from "./components/FirstPasswordChangeModal";
 
 
 
@@ -75,6 +92,8 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
+        <Toaster position="top-right" />
+        <FirstPasswordChangeModal />
         <Routes>
           {/* Routes Publiques */}
           <Route path="/" element={subdomain ? <ChurchPublicHome subdomain={subdomain} /> : <Home />} />
@@ -84,8 +103,11 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login subdomain={subdomain} />} />
           <Route path="/register-church" element={<ChurchRegister />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancelled" element={<PaymentCancelled />} />
           <Route path="/public/register/:token" element={<PublicActivityRegistration />} />
           <Route path="/public/event/register/:token" element={<PublicEventRegistration />} />
+          <Route path="/suspended" element={<Suspended />} />
 
 
           {/* Routes Protégées (Super Admin) */}
@@ -211,6 +233,30 @@ function App() {
             }
           />
           <Route
+            path="/admin/services/cards"
+            element={
+              <ProtectedRoute permission="services">
+                <CardTemplatesManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/search-builder"
+            element={
+              <ProtectedRoute permission="services">
+                <AdvancedSearchBuilder />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/requests"
+            element={
+              <ProtectedRoute permission="services">
+                <MemberRequestsManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/finances"
             element={
               <ProtectedRoute permission="finances">
@@ -287,6 +333,64 @@ function App() {
             element={
               <ProtectedRoute permission="ceremonies">
                 <Ceremonies />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Logistics Routes */}
+          <Route
+            path="/admin/logistics"
+            element={
+              <ProtectedRoute permission="logistics">
+                <LogisticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/spaces"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Spaces />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/rooms/:id"
+            element={
+              <ProtectedRoute permission="logistics">
+                <RoomProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/resources"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Resources />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/reservations"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Reservations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/maintenance"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Maintenance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/assignments"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Assignments />
               </ProtectedRoute>
             }
           />

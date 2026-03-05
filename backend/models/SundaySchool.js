@@ -40,6 +40,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN,
             defaultValue: false
         },
+        memberStatus: {
+            type: Sequelize.STRING,
+            defaultValue: 'any'
+        },
         isDynamic: {
             type: Sequelize.BOOLEAN,
             defaultValue: true
@@ -47,6 +51,20 @@ module.exports = (sequelize, Sequelize) => {
         memberCategoryId: {
             type: Sequelize.INTEGER,
             allowNull: true
+        },
+        // Room Reservation for Recurring Classes
+        roomId: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'rooms',
+                key: 'id'
+            }
+        },
+        recurringSchedule: {
+            type: Sequelize.JSON,
+            allowNull: true
+            // Format: {"day": "Dimanche", "startTime": "09:00", "endTime": "10:30"}
         }
     });
 

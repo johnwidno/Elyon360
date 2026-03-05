@@ -1,5 +1,6 @@
 const db = require('../models');
 const { v4: uuidv4 } = require('uuid');
+const roomScheduler = require('../services/roomScheduler');
 
 // Create Event
 exports.createEvent = async (req, res) => {
@@ -9,7 +10,32 @@ exports.createEvent = async (req, res) => {
 
         if (!req.church) return res.status(400).json({ message: "Contexte manquant (Church not found)." });
 
-        const { title, description, startDate, endDate, location, type, status, registrationExpiresAt } = req.body;
+        const { title, description, startDate, endDate, location, type, status, registrationExpiresAt, roomId, recurringSchedule } = req.body;
+
+        // Check Room Availability
+        if (roomId && startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const dateStr = start.toISOString().split('T')[0];
+            const startTimeStr = start.toTimeString().slice(0, 5);
+            const endTimeStr = end.toTimeString().slice(0, 5);
+
+            const availability = await roomScheduler.checkRoomAvailability({
+                churchId: req.church.id,
+                roomId,
+                date: dateStr,
+                startTime: startTimeStr,
+                endTime: endTimeStr,
+                type: 'event'
+            });
+
+            if (!availability.available) {
+                return res.status(409).json({
+                    message: `La salle est déjà occupée sur ce créneau par : ${availability.conflict.details.name || availability.conflict.details.title}.`,
+                    conflict: availability.conflict
+                });
+            }
+        }
 
         const event = await db.Event.create({
             churchId: req.church.id,
@@ -21,7 +47,9 @@ exports.createEvent = async (req, res) => {
             type,
             status: status || 'planned',
             registrationExpiresAt: registrationExpiresAt || null,
-            registrationToken: registrationExpiresAt ? uuidv4() : null
+            registrationToken: registrationExpiresAt ? uuidv4() : null,
+            roomId: roomId || null,
+            recurringSchedule
         });
 
         res.status(201).json({ message: "Événement créé.", event });
@@ -38,10 +66,17 @@ exports.getAllEvents = async (req, res) => {
 
         const events = await db.Event.findAll({
             where: { churchId: req.church.id },
-            include: [{
-                model: db.EventParticipant,
-                as: 'eventParticipants' // Fixed alias from model index
-            }],
+            include: [
+                {
+                    model: db.EventParticipant,
+                    as: 'eventParticipants'
+                },
+                {
+                    model: db.Room,
+                    as: 'room',
+                    include: [{ model: db.Building, as: 'building', attributes: ['name'] }]
+                }
+            ],
             order: [['startDate', 'ASC']]
         });
 
@@ -56,10 +91,41 @@ exports.getAllEvents = async (req, res) => {
 exports.updateEvent = async (req, res) => {
     try {
         const { id } = req.params;
+        const { roomId, recurringSchedule } = req.body; // Explicitly extract these alongside others in req.body spread logic if needed, but spread handles it.
         const event = await db.Event.findOne({ where: { id, churchId: req.church.id } });
         if (!event) return res.status(404).json({ message: "Événement non trouvé." });
 
         const updateData = { ...req.body };
+
+        // Check Room Availability (if roomId or dates changed)
+        if (updateData.roomId || updateData.startDate || updateData.endDate) {
+            const rId = updateData.roomId || event.roomId;
+            const start = updateData.startDate ? new Date(updateData.startDate) : new Date(event.startDate);
+            const end = updateData.endDate ? new Date(updateData.endDate) : new Date(event.endDate);
+
+            if (rId && start && end) {
+                const dateStr = start.toISOString().split('T')[0];
+                const startTimeStr = start.toTimeString().slice(0, 5);
+                const endTimeStr = end.toTimeString().slice(0, 5);
+
+                const availability = await roomScheduler.checkRoomAvailability({
+                    churchId: req.church.id,
+                    roomId: rId,
+                    date: dateStr,
+                    startTime: startTimeStr,
+                    endTime: endTimeStr,
+                    excludeId: id,
+                    type: 'event'
+                });
+
+                if (!availability.available) {
+                    return res.status(409).json({
+                        message: `La salle est déjà occupée sur ce nouveau créneau par : ${availability.conflict.details.name || availability.conflict.details.title}.`,
+                        conflict: availability.conflict
+                    });
+                }
+            }
+        }
 
         // Generate token if expiration is set and no token exists
         if (updateData.registrationExpiresAt && !event.registrationToken) {
@@ -97,15 +163,22 @@ exports.getEventDetails = async (req, res) => {
         const { id } = req.params;
         const event = await db.Event.findOne({
             where: { id, churchId: req.church.id },
-            include: [{
-                model: db.EventParticipant,
-                as: 'eventParticipants',
-                include: [{
-                    model: db.User,
-                    as: 'user',
-                    attributes: ['firstName', 'lastName', 'photo', 'phone', 'email']
-                }]
-            }]
+            include: [
+                {
+                    model: db.EventParticipant,
+                    as: 'eventParticipants',
+                    include: [{
+                        model: db.User,
+                        as: 'user',
+                        attributes: ['firstName', 'lastName', 'photo', 'phone', 'email']
+                    }]
+                },
+                {
+                    model: db.Room,
+                    as: 'room',
+                    include: [{ model: db.Building, as: 'building', attributes: ['name'] }]
+                }
+            ]
         });
 
         if (!event) return res.status(404).json({ message: "Événement non trouvé." });
