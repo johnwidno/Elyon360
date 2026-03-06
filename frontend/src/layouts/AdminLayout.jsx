@@ -308,20 +308,41 @@ const AdminLayout = ({ children }) => {
             <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-[#0D0D0D] transition-colors duration-500">
                 {/* Top Header */}
                 <header className="bg-white/80 dark:bg-black/80 backdrop-blur-xl z-[90] transition-all duration-500 py-6 px-12 border-b border-gray-100 dark:border-white/5 shrink-0">
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center w-full">
                         <div className="flex items-center gap-6">
                             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-3 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-2xl transition-all active:scale-95 shadow-sm">
                                 <svg className={`w-5 h-5 transition-transform duration-500 ${sidebarOpen ? '' : 'rotate-180'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
-                            <h2 className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                                {t('admin')} / <span className="text-gray-900 dark:text-white">{location.pathname.split('/').pop()}</span>
+                            <h2 className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest hidden md:block">
+                                {t('admin')} / <span className="text-gray-900 dark:text-white">{location.pathname.split('/').pop() || 'dashboard'}</span>
                             </h2>
                         </div>
-                        <div className="flex items-center space-x-10">
+                        <div className="flex items-center space-x-6">
+
+                            {/* Global Search Bar */}
+                            <div className="relative hidden lg:block group">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher un membre..."
+                                    className="pl-10 pr-4 py-2 w-72 bg-gray-50 dark:bg-[#1A1D2D] border border-transparent dark:border-white/5 rounded-2xl text-[13px] font-medium focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && e.target.value.trim()) {
+                                            navigate(`/admin/members?search=${encodeURIComponent(e.target.value.trim())}`);
+                                            e.target.value = '';
+                                        }
+                                    }}
+                                />
+                            </div>
+
                             {/* Language Toggle */}
-                            <div className="flex items-center p-1.5 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl shadow-sm">
+                            <div className="flex items-center p-1.5 bg-gray-50 dark:bg-[#1A1D2D] border border-transparent dark:border-white/5 rounded-2xl shadow-sm">
                                 <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${language === 'fr' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
                                 <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${language === 'en' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
                             </div>
