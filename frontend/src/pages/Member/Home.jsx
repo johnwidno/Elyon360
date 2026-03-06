@@ -682,7 +682,7 @@ export default function MemberHome() {
 
                 {/* ── TOP HEADER BAR ──────────────────────────────────────── */}
                 <div className="flex items-center justify-between px-4 sm:px-6 shrink-0"
-                    style={{ height: '56px', background: '#fff', borderBottom: `1px solid ${BORDER_CLR}`, zIndex: 10 }}>
+                    style={{ height: '56px', background: '#fff', borderBottom: `1px solid ${BORDER_CLR}`, zIndex: 50 }}>
                     <div className="flex items-center gap-3">
                         {/* Hamburger (mobile/tablet) */}
                         <button className="lg:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-400"
@@ -722,7 +722,7 @@ export default function MemberHome() {
                             {/* Dropdown Menu */}
                             {isProfileDropdownOpen && (
                                 <>
-                                    <div className="fixed inset-0 z-40" onClick={() => setIsProfileDropdownOpen(false)}></div>
+                                    <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setIsProfileDropdownOpen(false)}></div>
                                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
                                         <div className="p-4 border-b border-gray-100 bg-gray-50/50">
                                             <p className="font-bold text-gray-900 text-[14px]">
