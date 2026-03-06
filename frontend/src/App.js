@@ -87,6 +87,12 @@ function App() {
     }
   }
 
+  // Liste des sous-domaines considérés comme SaaS (système principal)
+  const saasSubdomains = ['www', 'app', 'elyonsyst360', 'elyonssys360-frontend'];
+  if (subdomain && saasSubdomains.includes(subdomain.toLowerCase())) {
+    subdomain = null;
+  }
+
   console.log("App Routing - Detected Subdomain:", subdomain);
 
   return (
