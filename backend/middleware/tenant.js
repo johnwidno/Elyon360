@@ -37,7 +37,10 @@ const tenantMiddleware = async (req, res, next) => {
     // Priorité 2: Host / Origin (Pou production)
 
     let subdomain = req.headers['x-tenant-id']?.trim();
-    const host = req.headers.host || req.headers.origin;
+    let host = req.headers.host || req.headers.origin || '';
+
+    // Nettoyer le format d'origine s'il contient http:// ou https://
+    host = host.replace(/^https?:\/\//, '');
 
     if (!subdomain && host) {
         if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
@@ -51,8 +54,11 @@ const tenantMiddleware = async (req, res, next) => {
     console.log(`[TenantMiddleware] Host: ${host}, Header Subdomain: ${req.headers['x-tenant-id']}`);
     console.log(`[TenantMiddleware] Detected Subdomain: ${subdomain}`);
 
+    // Liste des sous-domaines considérés comme SaaS (système principal)
+    const saasSubdomains = ['www', 'app', 'elyonsyst360', 'elyonssys360-frontend'];
+
     // 3. Si pa gen sous-domaine, nou sou sit prensipal la (SaaS)
-    if (!subdomain || subdomain === 'www' || subdomain === 'app') {
+    if (!subdomain || saasSubdomains.includes(subdomain.toLowerCase())) {
         req.isSaaS = true;
         req.church = null;
         console.log("[TenantMiddleware] Switching to SaaS mode");
