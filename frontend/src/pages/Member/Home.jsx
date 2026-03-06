@@ -8,7 +8,7 @@ import {
     User, Bell, Heart, MessageSquare, LogOut, LayoutDashboard,
     Settings, BookOpen, Users, Building2, Activity,
     Mail, Phone, Edit3, Check, X, Menu, ChevronRight,
-    MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search
+    MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import MemberRequests from './MemberRequests';
@@ -129,7 +129,7 @@ function Badge({ label, color = 'gray' }) {
 export default function MemberHome() {
     const navigate = useNavigate();
     const { logout, user: authUser, updateUser } = useAuth();
-    const { t, language } = useLanguage();
+    const { t, language, toggleLanguage } = useLanguage();
     const [donations, setDonations] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [profile, setProfile] = useState(null);
@@ -139,6 +139,13 @@ export default function MemberHome() {
     const [savingProfile, setSavingProfile] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);  // mobile drawer
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Dropdown for profile
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false); // Dropdown for notifications
+    const [isActivityExpanded, setIsActivityExpanded] = useState(false); // Accordion for recent activity
+    const [isOldNotificationsExpanded, setIsOldNotificationsExpanded] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const searchRef = useRef(null);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -168,6 +175,19 @@ export default function MemberHome() {
     const [zoomedImageUrl, setZoomedImageUrl] = useState(null);
 
     // ── fetch ──────────────────────────────────────────────────────────────────
+    const handleNotificationClick = async (notif) => {
+        if (!notif.isRead) {
+            try {
+                await api.put(`/notifications/${notif.id}/read`);
+                setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+            } catch (err) {
+                console.error("Mark as read error:", err);
+            }
+        }
+        goTab('notifications');
+        setIsNotificationsOpen(false);
+    };
+
     const fetchData = async () => {
         try {
             console.log("MemberHome: Fetching data...");
@@ -244,6 +264,25 @@ export default function MemberHome() {
             setLoading(false);
         }
     };
+
+
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setSearchResults([]);
+            return;
+        }
+        const timer = setTimeout(async () => {
+            try {
+                // Search for members
+                const res = await api.get(`/members?search=${searchQuery}`);
+                setSearchResults(Array.isArray(res.data) ? res.data : []);
+            } catch (err) {
+                console.error("Search error:", err);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     useEffect(() => { fetchData(); }, []);
 
     const userRoles = Array.isArray(profile?.role) ? profile.role : [profile?.role].filter(Boolean);
@@ -569,15 +608,15 @@ export default function MemberHome() {
 
     // ── nav items ──────────────────────────────────────────────────────────────
     const navItems = [
-        { id: 'dashboard', label: "Vue d'ensemble", icon: <LayoutDashboard size={15} /> },
-        { id: 'profile', label: 'Mon Profil', icon: <User size={15} /> },
-        { id: 'activity', label: 'Activité Récente', icon: <Activity size={15} /> },
-        { id: 'requests', label: 'Mes Demandes', icon: <FileText size={15} /> },
-        { id: 'donations', label: 'Historique des Dons', icon: <Heart size={15} /> },
-        { id: 'sunday', label: 'Classes Dominicales', icon: <BookOpen size={15} /> },
-        { id: 'groups', label: 'Groupes', icon: <Users size={15} /> },
-        { id: 'ministries', label: 'Ministères', icon: <Building2 size={15} /> },
-        { id: 'my_card', label: 'Ma Carte Membre', icon: <CreditCard size={15} /> }
+        { id: 'dashboard', label: t('overview', "Vue d'ensemble"), icon: <LayoutDashboard size={15} /> },
+        { id: 'profile', label: t('my_profile', 'Mon profil'), icon: <User size={15} /> },
+        { id: 'activity', label: t('recent_activity', 'Activité récente'), icon: <Activity size={15} /> },
+        { id: 'requests', label: t('my_requests', 'Mes demandes'), icon: <FileText size={15} /> },
+        { id: 'donations', label: t('donation_history', 'Historique des dons'), icon: <Heart size={15} /> },
+        { id: 'sunday', label: t('sunday_school', 'Classes dominicales'), icon: <BookOpen size={15} /> },
+        { id: 'groups', label: t('groups', 'Groupes'), icon: <Users size={15} /> },
+        { id: 'ministries', label: t('ministries', 'Ministères'), icon: <Building2 size={15} /> },
+        { id: 'my_card', label: t('my_member_card', 'Ma carte membre'), icon: <CreditCard size={15} /> }
     ];
 
     // ── nav click (close sidebar on mobile) ────────────────────────────────────
@@ -681,82 +720,226 @@ export default function MemberHome() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
                 {/* ── TOP HEADER BAR ──────────────────────────────────────── */}
-                <div className="flex items-center justify-between px-4 sm:px-6 shrink-0"
-                    style={{ height: '56px', background: '#fff', borderBottom: `1px solid ${BORDER_CLR}`, zIndex: 50 }}>
+                <div className="flex items-center justify-between px-4 sm:px-6 shrink-0 relative"
+                    style={{ height: '64px', background: '#fff', borderBottom: `1px solid ${BORDER_CLR}`, zIndex: 90 }}>
                     <div className="flex items-center gap-3">
                         {/* Hamburger (mobile/tablet) */}
                         <button className="lg:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-400"
                             onClick={() => setSidebarOpen(true)}>
-                            <Menu size={18} />
+                            <Menu size={20} />
                         </button>
-                        <div className="flex items-center gap-2 text-gray-400 text-sm">
-                            <LayoutDashboard size={14} className="text-gray-300" />
-                            <span className="font-medium text-gray-500 text-[13px]">
-                                {navItems.find(n => n.id === activeTab)?.label || 'Espace Membre'}
+                        <div className="hidden sm:flex items-center gap-2 text-gray-400 text-sm">
+                            <LayoutDashboard size={16} className="text-gray-300" />
+                            <span className="font-bold text-gray-800 text-[14px] tracking-tight">
+                                {navItems.find(n => n.id === activeTab) ? t(navItems.find(n => n.id === activeTab).id, navItems.find(n => n.id === activeTab).label) : t('member_space', 'Espace Membre')}
                             </span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        {/* Global Search Button */}
-                        <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-colors"
-                            style={{ color: '#8a94a6' }} title="Recherche globale">
-                            <Search size={17} />
-                        </button>
 
-                        <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-colors"
-                            style={{ color: '#8a94a6' }} onClick={() => goTab('notifications')}>
-                            <Bell size={17} />
-                            {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full" />}
-                        </button>
+                    <div className="flex items-center gap-2 sm:gap-4">
+                        {/* 1. Global Search Bar */}
+                        <div className="relative group flex items-center" ref={searchRef}>
+                            {/* Desktop Search */}
+                            <div className="hidden md:flex items-center relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <Search size={15} className="text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder={t('search_member_or_post', "Rechercher un membre ou un post...")}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10 pr-4 py-2 w-48 lg:w-64 bg-gray-50 border border-transparent focus:border-indigo-100 rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-indigo-500/5 text-gray-900 transition-all placeholder-gray-400 outline-none"
+                                />
 
-                        {/* Profile Dropdown Container */}
+                                {/* Desktop Search Results */}
+                                {searchQuery.trim() && (
+                                    <div className="absolute top-full left-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[101] overflow-hidden max-h-80 overflow-y-auto noscrollbar">
+                                        <div className="p-3 border-b border-gray-50 bg-gray-50/30">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('member_results', 'Résultats membres')}</p>
+                                        </div>
+                                        {searchResults.length === 0 ? (
+                                            <div className="p-4 text-center text-gray-400 text-xs italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
+                                        ) : (
+                                            searchResults.map(m => (
+                                                <div key={m.id} className="p-3 hover:bg-indigo-50 transition-colors cursor-pointer flex items-center gap-3 border-b border-gray-50"
+                                                    onClick={() => { goTab('profile'); setProfile(m); setSearchQuery(''); setIsSearchOpen(false); }}>
+                                                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-indigo-100 flex items-center justify-center text-indigo-500 text-[10px] font-bold">
+                                                        {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-xs font-bold text-gray-900 truncate">
+                                                            {m.firstName} {m.lastName}
+                                                        </p>
+                                                        <p className="text-[10px] text-gray-400 font-medium truncate capitalize">{m.status || 'Membre'}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Mobile Search Button & Toggleable Overlay */}
+                            <div className="md:hidden">
+                                <button
+                                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isSearchOpen ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                                    onClick={() => setIsSearchOpen(!isSearchOpen)}
+                                >
+                                    {isSearchOpen ? <X size={20} /> : <Search size={20} />}
+                                </button>
+
+                                {isSearchOpen && (
+                                    <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 z-[101] animate-in slide-in-from-top-2">
+                                        <div className="relative mb-3">
+                                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                placeholder={t('search_member_or_post')}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border-none rounded-xl text-xs font-semibold outline-none text-gray-900"
+                                                onKeyDown={(e) => e.key === 'Escape' && setIsSearchOpen(false)}
+                                            />
+                                        </div>
+
+                                        {/* Mobile Results inside the dropdown */}
+                                        {searchQuery.trim() && (
+                                            <div className="max-h-60 overflow-y-auto noscrollbar border-t border-gray-50 pt-2">
+                                                {searchResults.length === 0 ? (
+                                                    <div className="p-4 text-center text-gray-400 text-[11px] italic">Aucun résultat</div>
+                                                ) : (
+                                                    searchResults.map(m => (
+                                                        <div key={m.id} className="p-2 hover:bg-indigo-50 rounded-xl transition-colors cursor-pointer flex items-center gap-3 mb-1"
+                                                            onClick={() => { goTab('profile'); setProfile(m); setSearchQuery(''); setIsSearchOpen(false); }}>
+                                                            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-indigo-100 flex items-center justify-center text-indigo-500 text-[9px] font-bold">
+                                                                {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-[11px] font-bold text-gray-900 truncate">{m.firstName} {m.lastName}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 2. Language Toggle */}
+                        <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100">
+                            <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${language === 'fr' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>FR</button>
+                            <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${language === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>EN</button>
+                        </div>
+
+                        {/* 3. Notifications */}
                         <div className="relative">
-                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black cursor-pointer overflow-hidden border border-gray-100"
+                            <button
+                                className={`relative w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isNotificationsOpen ? 'bg-amber-50 text-amber-600' : 'hover:bg-gray-50 text-gray-400'}`}
+                                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                            >
+                                <Bell size={19} />
+                                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full border-2 border-white animate-pulse" />}
+                            </button>
+
+                            {isNotificationsOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-[100]" onClick={() => setIsNotificationsOpen(false)}></div>
+                                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-[2rem] shadow-2xl border border-gray-100 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                                        <div className="p-6 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
+                                            <h4 className="font-black text-gray-900 text-sm italic uppercase tracking-widest">{t('notifications', 'Notifications')}</h4>
+                                            {unreadCount > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] font-black rounded-full italic">{unreadCount} {t('new_notifications_count', 'nouvelle(s)')}</span>}
+                                        </div>
+                                        <div className="max-h-[350px] overflow-y-auto noscrollbar">
+                                            {notifications.length === 0 ? (
+                                                <div className="p-8 text-center text-gray-400 italic">Aucune notification</div>
+                                            ) : (
+                                                notifications.map(n => (
+                                                    <div key={n.id} className={`p-4 border-b border-gray-50 flex gap-3 hover:bg-gray-50 transition-colors cursor-pointer ${!n.isRead ? 'bg-amber-50/20' : ''}`}
+                                                        onClick={() => handleNotificationClick(n)}>
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${!n.isRead ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
+                                                            <Bell size={14} />
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className="text-[12px] font-bold text-gray-900 tracking-tight leading-snug">{n.title}</p>
+                                                            <p className="text-[10px] text-gray-500 mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                        <button onClick={() => { goTab('notifications'); setIsNotificationsOpen(false); }}
+                                            className="w-full p-4 text-[11px] font-black uppercase text-indigo-600 hover:bg-indigo-50 transition-colors bg-white">
+                                            {t('view_all_notifications', 'Voir toutes les notifications')}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* 4. Add Post Button (Send) */}
+                        <button
+                            onClick={() => setIsPostModalOpen(true)}
+                            title={t('publish_message', 'Publier un message')}
+                            className="flex items-center justify-center p-2.5 text-dark rounded-xl shadow-lg shadow-indigo-50 hover:bg-indigo-70 hover:scale-105 active:scale-95 transition-all"
+                        >
+                            <Send size={18} strokeWidth={2} />
+                        </button>
+
+                        {/* 5. Profile Dropdown Container */}
+                        <div className="relative">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black cursor-pointer overflow-hidden border border-gray-100 group shadow-sm transition-all active:scale-95"
                                 style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)} title={`${profile?.firstName} ${profile?.lastName}`}>
                                 {profile?.photo ? (
-                                    <img src={getImageUrl(profile.photo)} alt="P" className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(profile.photo)} alt="P" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : initials}
                             </div>
 
                             {/* Dropdown Menu */}
                             {isProfileDropdownOpen && (
                                 <>
-                                    <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setIsProfileDropdownOpen(false)}></div>
-                                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
-                                        <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                                            <p className="font-bold text-gray-900 text-[14px]">
+                                    <div className="fixed inset-0 z-[100] cursor-pointer" onClick={() => setIsProfileDropdownOpen(false)}></div>
+                                    <div className="absolute right-0 mt-3 w-64 bg-white rounded-[2rem] shadow-2xl border border-gray-100 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                                        <div className="px-6 py-6 border-b border-gray-50 bg-gray-50/50">
+                                            <p className="font-black text-gray-900 text-[15px] italic">
                                                 {profile?.firstName} {profile?.lastName}
                                             </p>
-                                            <p className="text-gray-500 text-[11px] truncate mt-0.5" title={profile?.email}>
+                                            <p className="text-gray-500 text-[11px] font-medium truncate mt-1 italic" title={profile?.email}>
                                                 {profile?.email}
                                             </p>
                                         </div>
-                                        <div className="p-2 space-y-1">
+                                        <div className="p-3 space-y-1">
                                             <button
                                                 onClick={() => { goTab('profile'); setIsProfileDropdownOpen(false); }}
-                                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors text-[13px] font-medium"
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all"
                                             >
-                                                <User size={15} />
-                                                Mon Profil
+                                                <User size={16} /> {t('my_profile', 'Mon Profil')}
                                             </button>
                                             {isStaff && (
                                                 <button
                                                     onClick={() => navigate('/admin')}
-                                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-50 text-indigo-600 transition-colors text-[13px] font-medium"
+                                                    className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                                                 >
-                                                    <LayoutDashboard size={15} />
-                                                    Espace Administrateur
+                                                    <LayoutDashboard size={16} />
+                                                    {t('admin_space', 'Espace administrateur')}
                                                 </button>
                                             )}
-                                        </div>
-                                        <div className="p-2 border-t border-gray-100">
                                             <button
-                                                onClick={() => { setIsProfileDropdownOpen(false); logout(); }}
-                                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-colors text-[13px] font-medium"
+                                                onClick={() => { goTab('settings'); setIsProfileDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all"
                                             >
-                                                <LogOut size={15} />
-                                                Déconnexion
+                                                <Settings size={16} /> {t('settings', 'Paramètres')}
+                                            </button>
+                                            <div className="h-px bg-gray-100/50 my-1 mx-4" />
+                                            <button
+                                                onClick={logout}
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                            >
+                                                <LogOut size={16} /> {t('logout', 'Déconnexion')}
                                             </button>
                                         </div>
                                     </div>
@@ -793,99 +976,85 @@ export default function MemberHome() {
                 <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 sm:pb-6">
 
                     {/* ══════════════════════════════════════════════════════ */}
-                    {/* VUE D'ENSEMBLE                                        */}
+                    {/* Vue d'ensemble                                        */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'dashboard' && (
-                        <div className="space-y-5 animate-in fade-in duration-300">
-                            <div className="flex flex-col sm:flex-row items-center gap-5">
-                                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-md border-2 border-white shrink-0"
+                        <div className="space-y-8 animate-in mt-2 fade-in duration-300">
+                            <div className="flex flex-col sm:flex-row items-center gap-8 bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                                <div className="w-28 h-28 rounded-[2.2rem] overflow-hidden shadow-2xl shadow-indigo-200 border-4 border-white shrink-0"
                                     style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
                                     {profile?.photo ? (
                                         <img src={getImageUrl(profile.photo)} alt="Me" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-white text-2xl font-black">
+                                        <div className="w-full h-full flex items-center justify-center text-white text-3xl font-black italic">
                                             {initials}
                                         </div>
                                     )}
                                 </div>
-                                <div className="text-center sm:text-left">
-                                    <h1 className="font-bold text-gray-900" style={{ fontSize: '24px' }}>
-                                        {t('hello', 'Bonjour')}, {profile ? `${profile.firstName} ${profile.lastName}` : 'Chargement...'} 👋
+                                <div className="text-center sm:text-left space-y-2">
+                                    <h1 className="font-black text-gray-900 tracking-tight italic" style={{ fontSize: '32px', lineHeight: '1' }}>
+                                        {t('hello', 'Bonjour')}, {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')} 👋
                                     </h1>
-                                    <p className="text-gray-400 text-sm mt-0.5">{t('welcome_member_space', 'Bienvenue dans votre espace membre')}</p>
+                                    <p className="text-gray-400 font-medium italic text-lg">{t('welcome_member_space', 'Bienvenue dans votre espace membre')}</p>
                                 </div>
-                                <div className="sm:ml-auto">
+                            </div>
+
+                            {/* ── Dashboard Content (Activity Accordion) ── */}
+                            <div className="w-full">
+                                <div className={`group bg-white rounded-[2rem] border overflow-hidden transition-all duration-500 shadow-sm ${isActivityExpanded ? 'shadow-lg border-indigo-100' : 'border-gray-100'}`}>
                                     <button
-                                        onClick={() => setIsPostModalOpen(true)}
-                                        title="Publier un message"
-                                        className="group flex items-center justify-center w-[54px] h-[54px] rounded-2xl  text-indigo shadow-[0_12px_35px_-10px_rgba(99,102,241,0.4)] hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.5)] hover:bg-indigo-150 transition-all duration-300 active:scale-95 border-2 border-transparent hover:border-white/10"
+                                        onClick={() => setIsActivityExpanded(!isActivityExpanded)}
+                                        className="w-full p-8 flex items-center justify-between hover:bg-gray-50/50 transition-colors cursor-pointer"
                                     >
-                                        <div className="flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
-                                            <Send size={20} strokeWidth={2.5} />
+                                        <div className="flex items-center gap-5">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 ${isActivityExpanded ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-indigo-50 text-indigo-500 shadow-indigo-50'}`}>
+                                                <Activity size={24} strokeWidth={2.5} />
+                                            </div>
+                                            <div className="text-left">
+                                                <h4 className="font-black text-[16px] text-gray-900 uppercase tracking-widest italic leading-none mb-1">{t('recent_activity', 'Activité récente')}</h4>
+                                                <p className="text-gray-400 text-[12px] font-medium italic">{t('follow_your_latest_activity', 'Suivez vos derniers mouvements')}</p>
+                                            </div>
+                                        </div>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 text-gray-400 transition-transform duration-500 ${isActivityExpanded ? 'rotate-90 bg-indigo-50 text-indigo-600' : ''}`}>
+                                            <ChevronRight size={20} />
                                         </div>
                                     </button>
+
+                                    {isActivityExpanded && (
+                                        <div className="px-8 pb-8 space-y-4 animate-in slide-in-from-top-4 duration-500">
+                                            <div className="h-px bg-gray-50 mb-6"></div>
+                                            {activityItems.slice(0, 10).map((item, i) => (
+                                                <div key={i} className="flex items-center gap-5 p-4 rounded-2xl hover:bg-gray-50 transition-all group/item">
+                                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${item.amber ? 'bg-amber-100 text-amber-500' : 'bg-blue-100 text-blue-500'}`}>
+                                                        {item.icon}
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-[14px] font-bold text-gray-800 tracking-tight leading-tight mb-1 group-hover/item:text-indigo-600 transition-colors">{item.text}</p>
+                                                        <p className="text-[11px] text-gray-400 font-medium italic">{item.date}</p>
+                                                    </div>
+                                                    <div className="shrink-0">
+                                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest italic ${item.badgeColor === 'rose' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                            {item.badge}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {activityItems.length === 0 && <p className="text-gray-400 text-[13px] italic text-center py-8">{t('no_recent_activity', 'Aucune activité enregistrée')}</p>}
+                                            <button onClick={() => goTab('activity')} className="w-full mt-4 py-4 border-2 border-dashed border-gray-100 rounded-2xl text-[11px] font-black uppercase text-gray-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50 transition-all tracking-widest italic">
+                                                {t('view_all_history', "Voir tout l'historique détaillé")}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* ── Dashboard Content (Activity & Notifications) ── */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Recent Activity */}
-                                <Card className="p-6">
-                                    <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-4">
-                                        <h4 className="font-black text-[14px] text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                                            <Activity size={18} className="text-indigo-500" />
-                                            Activité Récente
-                                        </h4>
-                                        <button onClick={() => goTab('activity')} className="text-indigo-500 text-[11px] font-bold hover:underline">Voir tout</button>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {activityItems.slice(0, 5).map((item, i) => (
-                                            <div key={i} className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
-                                                    {item.icon}
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-[12px] font-medium text-gray-700 truncate">{item.text}</p>
-                                                    <p className="text-[10px] text-gray-400">{item.date}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {activityItems.length === 0 && <p className="text-gray-400 text-[12px] italic">Aucune activité</p>}
-                                    </div>
-                                </Card>
-
-                                {/* Recent Notifications */}
-                                <Card className="p-6">
-                                    <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-4">
-                                        <h4 className="font-black text-[14px] text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                                            <Bell size={18} className="text-amber-500" />
-                                            Notifications
-                                        </h4>
-                                        <button onClick={() => goTab('notifications')} className="text-amber-500 text-[11px] font-bold hover:underline">Voir tout</button>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {notifications.slice(0, 5).map((n, i) => (
-                                            <div key={i} className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
-                                                    <Bell size={14} />
-                                                </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-[12px] font-medium text-gray-700 truncate">{n.title}</p>
-                                                    <p className="text-[10px] text-gray-400">{new Date(n.createdAt).toLocaleDateString()}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {notifications.length === 0 && <p className="text-gray-400 text-[12px] italic">Aucune notification</p>}
-                                    </div>
-                                </Card>
-                            </div>
 
                             {/* ── Community Posts Feed (Mobile: Horizontal Scroll) ── */}
                             <div className="mt-4 sm:hidden">
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="font-bold text-gray-800 text-[15px] flex items-center gap-2">
                                         <MessageSquare size={16} className="text-indigo-500" />
-                                        Communauté
+                                        {t('community', 'Communauté')}
                                     </h3>
                                     {communityPosts.length > postsLimit && (
                                         <button onClick={() => setPostsLimit(prev => prev === 5 ? 10 : prev + 10)} className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
@@ -944,7 +1113,7 @@ export default function MemberHome() {
                                         );
                                     })}
                                     {communityPosts.length === 0 && (
-                                        <p className="text-gray-400 text-sm py-4 italic">Aucune publication</p>
+                                        <p className="text-gray-400 text-sm py-4 italic">{t('no_publication', 'Aucune publication')}</p>
                                     )}
 
                                     {postsLimit > 5 && communityPosts.length > postsLimit && (
@@ -964,16 +1133,16 @@ export default function MemberHome() {
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="font-bold text-gray-800 text-[18px] flex items-center gap-3">
                                         <MessageSquare size={20} className="text-indigo-500" />
-                                        Publications de la Communauté
+                                        {t('community_posts', 'Publications de la communauté')}
                                     </h3>
                                     <div className="flex items-center gap-2">
-                                        <label className="text-[10px] font-black uppercase text-gray-400">Filtrer par :</label>
+                                        <label className="text-[10px] font-black uppercase text-gray-400">{t('filter_by', 'Filtrer par :')}</label>
                                         <select
                                             value={postFilter}
                                             onChange={(e) => setPostFilter(e.target.value)}
                                             className="px-4 py-2 rounded-xl bg-white border border-gray-100 text-[12px] font-bold text-gray-600 focus:outline-none focus:ring-2 ring-indigo-500/20"
                                         >
-                                            <option value="all">Toutes</option>
+                                            <option value="all">{t('all', 'Toutes')}</option>
                                             {POST_CATEGORIES.map(cat => (
                                                 <option key={cat.value} value={cat.value}>{cat.label.split(' ')[1]}</option>
                                             ))}
@@ -982,61 +1151,69 @@ export default function MemberHome() {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {communityPosts.filter(p => postFilter === 'all' || p.type === postFilter).slice(0, postsLimit).map(post => {
-                                        const dateLabel = new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-                                        const category = POST_CATEGORIES.find(c => c.value === post.type) || POST_CATEGORIES[0];
-                                        const isAuthor = post.authorId == profile?.id;
-                                        const isAdmin = isStaff;
+                                    {communityPosts
+                                        .filter(p => (postFilter === 'all' || p.type === postFilter))
+                                        .filter(p =>
+                                            !searchQuery ||
+                                            p.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            p.author?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            p.author?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+                                        )
+                                        .slice(0, postsLimit).map(post => {
+                                            const dateLabel = new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                                            const category = POST_CATEGORIES.find(c => c.value === post.type) || POST_CATEGORIES[0];
+                                            const isAuthor = post.authorId == profile?.id;
+                                            const isAdmin = isStaff;
 
-                                        return (
-                                            <Card key={post.id} className="p-6 border-l-4 hover:shadow-xl hover:shadow-indigo-500/5 transition-all" style={{ borderLeftColor: category.color === 'blue' ? '#6366f1' : (category.color === 'rose' ? '#f43f5e' : (category.color === 'amber' ? '#f59e0b' : '#10b981')) }}>
-                                                <div className="flex items-center justify-between gap-4 mb-5">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-11 h-11 rounded-full overflow-hidden text-white flex justify-center items-center text-xs font-black shadow-sm shrink-0"
-                                                            style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                                            {post.author?.photo ? <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" /> : post.author?.firstName?.[0] || 'A'}
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-black text-[14px] text-gray-900 tracking-tight">{post.author?.firstName} {post.author?.lastName}</p>
-                                                            <div className="flex items-center gap-2 mt-0.5">
-                                                                <span className="text-[10px] text-gray-400 font-medium">{dateLabel}</span>
-                                                                {post.targetSubtype && (
-                                                                    <>
-                                                                        <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                                                                        <span className="text-[9px] font-bold text-gray-400 uppercase">🎯 {post.targetSubtype.name}</span>
-                                                                    </>
-                                                                )}
+                                            return (
+                                                <Card key={post.id} className="p-6 border-l-4 hover:shadow-xl hover:shadow-indigo-500/5 transition-all" style={{ borderLeftColor: category.color === 'blue' ? '#6366f1' : (category.color === 'rose' ? '#f43f5e' : (category.color === 'amber' ? '#f59e0b' : '#10b981')) }}>
+                                                    <div className="flex items-center justify-between gap-4 mb-5">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-11 h-11 rounded-full overflow-hidden text-white flex justify-center items-center text-xs font-black shadow-sm shrink-0"
+                                                                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                                                                {post.author?.photo ? <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" /> : post.author?.firstName?.[0] || 'A'}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-black text-[14px] text-gray-900 tracking-tight">{post.author?.firstName} {post.author?.lastName}</p>
+                                                                <div className="flex items-center gap-2 mt-0.5">
+                                                                    <span className="text-[10px] text-gray-400 font-medium">{dateLabel}</span>
+                                                                    {post.targetSubtype && (
+                                                                        <>
+                                                                            <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
+                                                                            <span className="text-[9px] font-bold text-gray-400 uppercase">🎯 {post.targetSubtype.name}</span>
+                                                                        </>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Badge label={category.label.split(' ')[1]} color={category.color} />
-                                                        {(isAuthor || isAdmin) && (
-                                                            <div className="flex items-center gap-1">
-                                                                <button onClick={() => handleEditPost(post)} className="p-2 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all">
-                                                                    <Edit3 size={14} />
-                                                                </button>
-                                                                <button onClick={() => handleDeletePost(post.id)} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                                                    <X size={14} />
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                {post.title && <h3 className="font-bold text-base text-gray-900 mb-2 leading-tight">{post.title}</h3>}
-                                                <p className="text-gray-600 text-[13px] whitespace-pre-line mb-4 leading-relaxed line-clamp-4">{post.content}</p>
-                                                {post.imageUrl && (
-                                                    <div className="relative group rounded-xl overflow-hidden mt-4 bg-gray-50 border border-gray-100 h-48 cursor-pointer"
-                                                        onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
-                                                        <img src={getImageUrl(post.imageUrl)} alt="Attachment" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                        <div className="absolute top-3 right-3 w-10 h-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                                            <Maximize2 size={20} />
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge label={category.label.split(' ')[1]} color={category.color} />
+                                                            {(isAuthor || isAdmin) && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <button onClick={() => handleEditPost(post)} className="p-2 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all">
+                                                                        <Edit3 size={14} />
+                                                                    </button>
+                                                                    <button onClick={() => handleDeletePost(post.id)} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                                                                        <X size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                )}
-                                            </Card>
-                                        );
-                                    })}
+                                                    {post.title && <h3 className="font-bold text-base text-gray-900 mb-2 leading-tight">{post.title}</h3>}
+                                                    <p className="text-gray-600 text-[13px] whitespace-pre-line mb-4 leading-relaxed line-clamp-4">{post.content}</p>
+                                                    {post.imageUrl && (
+                                                        <div className="relative group rounded-xl overflow-hidden mt-4 bg-gray-50 border border-gray-100 h-48 cursor-pointer"
+                                                            onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
+                                                            <img src={getImageUrl(post.imageUrl)} alt="Attachment" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                            <div className="absolute top-3 right-3 w-10 h-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                                                                <Maximize2 size={20} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </Card>
+                                            );
+                                        })}
                                 </div>
 
                                 {communityPosts.length > postsLimit && (
@@ -1045,7 +1222,7 @@ export default function MemberHome() {
                                             onClick={() => setPostsLimit(prev => prev + 4)}
                                             className="px-12 py-4 rounded-[1.5rem] bg-white border-2 border-indigo-50 text-indigo-600 font-black text-[12px] uppercase tracking-widest hover:border-indigo-600/20 hover:bg-indigo-50 transition-all flex items-center gap-3 shadow-sm active:scale-95"
                                         >
-                                            Charger les publications anciennes <ChevronRight size={18} />
+                                            {t('load_older_posts', 'Charger les publications anciennes')} <ChevronRight size={18} />
                                         </button>
                                     </div>
                                 )}
@@ -1053,7 +1230,7 @@ export default function MemberHome() {
                                 {communityPosts.length === 0 && (
                                     <div className="text-center py-16 bg-white/50 rounded-[2rem] border-2 border-dashed border-gray-200">
                                         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400"><MessageSquare size={24} /></div>
-                                        <p className="text-gray-500 text-[14px] font-medium">Aucune publication pour l'instant.</p>
+                                        <p className="text-gray-500 text-[14px] font-medium">{t('no_publication_yet', 'Aucune publication pour l\'instant.')}</p>
                                     </div>
                                 )}
                             </div>
@@ -1061,79 +1238,77 @@ export default function MemberHome() {
                     )}
 
                     {/* ══════════════════════════════════════════════════════ */}
-                    {/* MON PROFIL                                            */}
+                    {/* Mon profil                                            */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {
                         activeTab === 'profile' && (
                             <div className="animate-in fade-in duration-300 w-full space-y-6">
 
                                 {/* Avatar card with Cover */}
-                                <Card className="overflow-hidden p-0 relative border-0 shadow-lg">
+                                <Card className="overflow-hidden p-0 relative border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white">
                                     {/* Cover Background */}
-                                    <div className="h-40 sm:h-52 w-full relative z-0 bg-indigo-900 border-b border-white/10">
+                                    <div className="h-48 sm:h-64 w-full relative z-0 overflow-hidden">
                                         {profile?.photo ? (
                                             <>
-                                                {/* Blurred background version of photo */}
-                                                <img src={getImageUrl(profile.photo)} alt="Cover Blur" className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-50 scale-125" crossOrigin="anonymous" />
-                                                {/* Overlay to darken and integrate */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-black/20 mix-blend-multiply"></div>
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/60 to-transparent"></div>
+                                                <img src={getImageUrl(profile.photo)} alt="Cover" className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent"></div>
+                                                {/* Bottom Fade for Text Visibility */}
+                                                <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 to-transparent"></div>
                                             </>
                                         ) : (
-                                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-800 to-[#1a2035]"></div>
+                                            <div className="absolute inset-0 bg-gray-50"></div>
                                         )}
                                     </div>
 
                                     {/* Lower section with info */}
-                                    <div className="px-8 pb-8 pt-0 flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left relative z-10 -mt-[60px]">
+                                    <div className="px-10 pb-10 pt-0 flex flex-col sm:flex-row items-center sm:items-end gap-10 text-center sm:text-left relative z-10 -mt-[80px]">
                                         {/* Avatar element */}
-                                        <div className="relative group w-[120px] h-[120px] rounded-full flex items-center justify-center text-white font-serif text-[36px] shrink-0 shadow-2xl overflow-hidden cursor-pointer ring-4 ring-white"
-                                            style={{ background: '#1a2035' }}>
+                                        <div className="relative group w-[160px] h-[160px] rounded-[3rem] flex items-center justify-center text-white font-black italic text-[48px] shrink-0 shadow-2xl overflow-hidden cursor-pointer ring-8 ring-white"
+                                            style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
                                             {profile?.photo ? (
-                                                <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onClick={handlePhotoClick} crossOrigin="anonymous" />
+                                                <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" onClick={handlePhotoClick} crossOrigin="anonymous" />
                                             ) : (
                                                 <div onClick={() => fileInputRef.current.click()}>{initials}</div>
                                             )}
 
                                             {/* Overlay pour modifier la photo */}
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300"
                                                 onClick={() => fileInputRef.current.click()}>
-                                                <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
-                                                    <Edit3 size={20} className="text-white" />
+                                                <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md border border-white/20 scale-90 group-hover:scale-100 transition-transform">
+                                                    <Edit3 size={24} className="text-white" />
                                                 </div>
                                             </div>
                                             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
                                         </div>
 
                                         {/* Name + email */}
-                                        <div className="flex-1 min-w-0 mt-4 sm:mt-0 sm:pb-2">
-                                            <h2 className="font-black text-white text-3xl sm:text-4xl drop-shadow-md tracking-tight mb-1"
-                                                style={{ fontFamily: SERIF }}>
-                                                {profile ? `${profile.firstName} ${profile.lastName}` : 'Chargement...'}
-                                            </h2>
-                                            <p className="text-gray-200 text-lg mb-4 drop-shadow-sm font-medium" style={{ fontFamily: FONT }}>
-                                                {profile?.email || '...'}
-                                            </p>
+                                        <div className="flex-1 min-w-0 sm:pb-4 space-y-3">
+                                            <div>
+                                                <h2 className={`font-black text-4xl sm:text-5xl tracking-tighter ${profile?.photo ? 'text-white drop-shadow-2xl' : 'text-gray-900'}`}
+                                                    style={{ lineHeight: '1.2' }}>
+                                                    {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')}
+                                                </h2>
+                                                <p className={`text-xl mt-2 font-bold ${profile?.photo ? 'text-white drop-shadow-lg' : 'text-indigo-600'}`}>
+                                                    {profile?.email || '...'}
+                                                </p>
+                                            </div>
                                             <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                                                <span className="px-5 py-1.5 rounded-full text-[13px] font-bold border shadow-sm"
-                                                    style={{ background: '#fdf3e7', color: '#856404', borderColor: '#f1e5d1' }}>
-                                                    Membre {profile?.status || 'actif'}
+                                                <span className={`px-6 py-2 rounded-2xl text-[13px] font-black uppercase tracking-widest border italic ${profile?.photo ? 'border-white/10 bg-black/40 text-white backdrop-blur-md' : 'border-gray-100 bg-gray-50 text-gray-500'}`}>
+                                                    {t('status_member', 'Membre')} {profile?.status || t('active', 'actif')}
                                                 </span>
                                                 {profile?.joinDate && (
-                                                    <span className="px-5 py-1.5 rounded-full text-[13px] font-bold border shadow-sm"
-                                                        style={{ background: '#fff', color: '#1a2035', borderColor: '#e8eaf0' }}>
-                                                        Depuis {new Date(profile.joinDate).getFullYear()}
+                                                    <span className={`px-6 py-2 rounded-2xl text-[13px] font-black uppercase tracking-widest border italic ${profile?.photo ? 'border-white/10 bg-indigo-600/50 text-white backdrop-blur-md' : 'border-indigo-50 bg-indigo-50/50 text-indigo-600'}`}>
+                                                        {t('since', 'Depuis')} {new Date(profile.joinDate).getFullYear()}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
                                         {/* Edit button */}
                                         {!editing && (
-                                            <div className="sm:ml-auto">
+                                            <div className="sm:ml-auto pb-4">
                                                 <button onClick={() => setEditing(true)}
-                                                    className="flex items-center gap-2 px-6 py-2.5 border rounded-xl text-[13px] font-bold text-gray-600 hover:bg-gray-50 transition-all hover:shadow-sm"
-                                                    style={{ borderColor: BORDER_CLR }}>
-                                                    <Edit3 size={15} /> Modifier
+                                                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[14px] font-black sentence case tracking-widest transition-all shadow-xl hover:shadow-2xl active:scale-95 border-b-4 italic ${profile?.photo ? 'bg-white text-indigo-50 border-gray-100' : 'bg-indigo-50 '}`}>
+                                                    <Edit3 size={18} />
                                                 </button>
                                             </div>
                                         )}
@@ -1144,7 +1319,7 @@ export default function MemberHome() {
                                 <Card className="p-10">
                                     <h3 className="font-bold text-[#1a2035] mb-8"
                                         style={{ fontSize: '20px', fontFamily: SERIF }}>
-                                        Informations Personnelles
+                                        {t('personal_information', 'Informations personnelles')}
                                     </h3>
 
                                     {/* Removed roles/status badges section per user request */}
@@ -1153,17 +1328,17 @@ export default function MemberHome() {
                                         <form onSubmit={handleUpdateProfile} className="space-y-8">
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                                                 {[
-                                                    { label: 'Prénom', key: 'firstName' },
-                                                    { label: 'Nom', key: 'lastName' },
-                                                    { label: 'SousNom (Surnom)', key: 'nickname' },
-                                                    { label: 'Sexe', key: 'gender' },
-                                                    { label: 'Lieu de naissance', key: 'birthPlace' },
-                                                    { label: 'Statut', key: 'status' },
-                                                    { label: 'Statut matrimonial', key: 'maritalStatus' },
-                                                    { label: 'Nom conjoint', key: 'spouseName' },
-                                                    { label: 'Email', key: 'email', type: 'email' },
-                                                    { label: 'Téléphone', key: 'phone' },
-                                                    { label: 'Adresse', key: 'address' },
+                                                    { label: t('first_name', 'Prénom'), key: 'firstName' },
+                                                    { label: t('last_name', 'Nom'), key: 'lastName' },
+                                                    { label: t('nickname', 'Surnom'), key: 'nickname' },
+                                                    { label: t('gender_label', 'Sexe'), key: 'gender' },
+                                                    { label: t('birth_place', 'Lieu de naissance'), key: 'birthPlace' },
+                                                    { label: t('status', 'Statut'), key: 'status' },
+                                                    { label: t('marital_status_label', 'État civil'), key: 'maritalStatus' },
+                                                    { label: t('spouse_name', 'Nom conjoint'), key: 'spouseName' },
+                                                    { label: t('email', 'Email'), key: 'email', type: 'email' },
+                                                    { label: t('phone', 'Téléphone'), key: 'phone' },
+                                                    { label: t('address', 'Adresse'), key: 'address' },
                                                 ].map(f => (
                                                     <div key={f.key}>
                                                         <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-2">{f.label}</label>
@@ -1178,31 +1353,31 @@ export default function MemberHome() {
                                                 <button type="button" onClick={() => setEditing(false)}
                                                     className="flex-1 py-3 border rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors"
                                                     style={{ borderColor: BORDER_CLR }}>
-                                                    Annuler
+                                                    {t('cancel', 'Annuler')}
                                                 </button>
                                                 <button type="submit" disabled={savingProfile}
                                                     className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md active:scale-95"
                                                     style={{ background: '#1a2035' }}>
-                                                    {savingProfile ? '...' : 'Enregistrer'}
+                                                    {savingProfile ? '...' : t('save', 'Enregistrer')}
                                                 </button>
                                             </div>
                                         </form>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
                                             {[
-                                                { label: 'Surnom', value: profile?.nickname },
-                                                { label: 'Sexe', value: profile?.gender === 'M' ? 'Masculin' : (profile?.gender === 'F' ? 'Féminin' : profile?.gender) },
-                                                { label: 'Lieu de naissance', value: profile?.birthPlace },
-                                                { label: 'Statut', value: profile?.status },
-                                                { label: 'Statut matrimonial', value: profile?.maritalStatus },
-                                                profile?.maritalStatus?.toLowerCase().includes('marié') && { label: 'Nom conjoint', value: profile?.spouseName },
-                                                { label: 'Catégorie de membre', value: profile?.contactSubtype?.name || 'Membre' },
-                                                { label: 'Téléphone', value: profile?.phone },
-                                                { label: 'Email', value: profile?.email },
-                                                { label: 'Adresse', value: [profile?.address, profile?.city].filter(Boolean).join(', ') || '–' },
-                                                { label: 'Date de naissance', value: profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–' },
-                                                { label: 'Date d\'adhésion', value: profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–' },
-                                                { label: 'Code membre', value: profile?.memberCode || '–' },
+                                                { label: t('nickname', 'Surnom'), value: profile?.nickname },
+                                                { label: t('gender_label', 'Sexe'), value: profile?.gender === 'M' ? t('masculine', 'Masculin') : (profile?.gender === 'F' ? t('feminine', 'Féminin') : profile?.gender) },
+                                                { label: t('birth_place', 'Lieu de naissance'), value: profile?.birthPlace },
+                                                { label: t('status', 'Statut'), value: profile?.status },
+                                                { label: t('marital_status_label', 'État civil'), value: profile?.maritalStatus },
+                                                profile?.maritalStatus?.toLowerCase().includes('marié') && { label: t('spouse_name', 'Nom conjoint'), value: profile?.spouseName },
+                                                { label: t('member_category', 'Catégorie de membre'), value: profile?.contactSubtype?.name || t('member', 'Membre') },
+                                                { label: t('phone', 'Téléphone'), value: profile?.phone },
+                                                { label: t('email', 'Email'), value: profile?.email },
+                                                { label: t('address', 'Adresse'), value: [profile?.address, profile?.city].filter(Boolean).join(', ') || '–' },
+                                                { label: t('birth_date', 'Date de naissance'), value: profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–' },
+                                                { label: t('join_date', "Date d'adhésion"), value: profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–' },
+                                                { label: t('member_code', 'Code membre'), value: profile?.memberCode || '–' },
                                             ].filter(Boolean).map((item, i) => (
                                                 <div key={i} className="flex flex-col gap-1.5">
                                                     <p className="text-[11px] font-bold uppercase tracking-widest text-[#8a94a6]">{item.label}</p>
@@ -1220,12 +1395,12 @@ export default function MemberHome() {
 
                     {activeTab === 'activity' && (
                         <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title="Activité Récente" />
+                            <PageTitle title={t('recent_activity', 'Activité récente')} />
                             <div className="space-y-3 w-full">
                                 {activityItems.length === 0 ? (
                                     <Card className="p-12 text-center text-gray-400">
                                         <Activity size={36} className="mx-auto text-gray-200 mb-3" />
-                                        <p>Aucune activité récente</p>
+                                        <p>{t('no_recent_activity', 'Aucune activité récente')}</p>
                                     </Card>
                                 ) : (
                                     activityItems.map((item, i) => (
@@ -1246,12 +1421,12 @@ export default function MemberHome() {
                     )}
 
                     {/* ══════════════════════════════════════════════════════ */}
-                    {/* MES DEMANDES                                          */}
+                    {/* Mes demandes                                          */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {
                         activeTab === 'requests' && (
                             <div className="animate-in fade-in duration-300 w-full">
-                                <PageTitle title="Mes Demandes" />
+                                <PageTitle title={t('my_requests', 'Mes demandes')} />
                                 {/* Use MemberRequests component but wrap the list items in our style */}
                                 <MemberRequests renderMode="cards" />
                             </div>
@@ -1259,13 +1434,13 @@ export default function MemberHome() {
                     }
 
                     {/* ══════════════════════════════════════════════════════ */}
-                    {/* MA CARTE MEMBRE                                     */}
+                    {/* Ma carte membre                                     */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'my_card' && (
                         <div className="animate-in fade-in zoom-in-95 duration-500 w-full flex flex-col items-center">
                             <PageTitle
-                                title="Ma Carte Membre"
-                                subtitle="Votre identification officielle au sein de la communauté."
+                                title={t('my_member_card', 'Ma carte membre')}
+                                subtitle={t('card_id_desc', 'Votre identification officielle au sein de la communauté.')}
                             />
 
                             {!activeCard ? (
@@ -1274,16 +1449,16 @@ export default function MemberHome() {
                                         <CreditCard size={40} />
                                     </div>
                                     <div className="space-y-4">
-                                        <p className="text-gray-900 font-black text-lg">Aucune carte active</p>
+                                        <p className="text-gray-900 font-black text-lg">{t('no_active_card', 'Aucune carte active')}</p>
                                         <p className="text-gray-500 text-sm max-w-md mx-auto">
-                                            Votre carte de membre n'a pas encore été générée ou est en attente d'activation. Si vous n'en avez jamais fait la demande, vous pouvez le faire maintenant.
+                                            {t('card_not_generated_desc', "Votre carte de membre n'a pas encore été générée ou est en attente d'activation. Si vous n'en avez jamais fait la demande, vous pouvez le faire maintenant.")}
                                         </p>
                                         <div className="pt-4 border-t border-gray-100 flex justify-center">
                                             <button
                                                 onClick={() => handleQuickCardRequest('member_card_new', 'Demande de Nouvelle Carte Membre')}
                                                 className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm flex items-center gap-2"
                                             >
-                                                <Plus size={16} /> Effectuer une demande de carte
+                                                <Plus size={16} /> {t('request_member_card', 'Effectuer une demande de carte')}
                                             </button>
                                         </div>
                                     </div>
@@ -1294,13 +1469,13 @@ export default function MemberHome() {
                                         <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
                                             <Settings size={18} className="text-amber-600" />
                                         </div>
-                                        <span>Cette carte est votre document d'identité officiel. Notez qu'elle ne peut pas être modifiée par l'utilisateur.</span>
+                                        <span>{t('card_id_official_desc', "Cette carte est votre document d'identité officiel. Notez qu'elle ne peut pas être modifiée par l'utilisateur.")}</span>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 place-items-center relative">
-                                        {/* RECTO */}
+                                        {/* Recto */}
                                         <div className="space-y-4 w-full flex flex-col items-center">
-                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Côté Recto</p>
+                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('front_side', 'Côté recto')}</p>
                                             <div
                                                 className="shadow-2xl shadow-indigo-200/50 rounded-xl overflow-hidden ring-1 ring-black/5 cursor-zoom-in group relative transition-transform hover:-translate-y-1"
                                                 onClick={() => setCardZoomSide('front')}
@@ -1314,9 +1489,9 @@ export default function MemberHome() {
                                             </div>
                                         </div>
 
-                                        {/* VERSO */}
+                                        {/* Verso */}
                                         <div className="space-y-4 w-full flex flex-col items-center">
-                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Côté Verso</p>
+                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('back_side', 'Côté verso')}</p>
                                             <div
                                                 className="shadow-2xl shadow-indigo-200/50 rounded-xl overflow-hidden ring-1 ring-black/5 cursor-zoom-in group relative transition-transform hover:-translate-y-1"
                                                 onClick={() => setCardZoomSide('back')}
@@ -1333,28 +1508,28 @@ export default function MemberHome() {
 
                                     <div className="flex flex-col items-center gap-4 pt-8">
                                         <div className="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-[12px] font-black tracking-widest uppercase border border-indigo-100">
-                                            Statut de la carte: {activeCard.status}
+                                            {t('card_status', 'Statut de la carte')}: {activeCard.status}
                                         </div>
-                                        <p className="text-gray-400 text-[11px] font-medium italic">Identification Member ID: {activeCard.cardNumber}</p>
+                                        <p className="text-gray-400 text-[11px] font-medium italic">{t('member_id_identification', 'Identification member ID')}: {activeCard.cardNumber}</p>
 
                                         <div className="mt-6 flex flex-wrap justify-center gap-3">
                                             <button
-                                                onClick={() => handleQuickCardRequest('member_card_lost', 'Déclaration de Carte Perdue')}
+                                                onClick={() => handleQuickCardRequest('member_card_lost', t('declare_lost_card', 'Déclaration de Carte Perdue'))}
                                                 className="px-4 py-2 border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl text-xs font-bold transition-colors"
                                             >
-                                                J'ai perdu ma carte
+                                                {t('declare_lost_card', 'Déclarer une carte perdue')}
                                             </button>
                                             <button
-                                                onClick={() => handleQuickCardRequest('member_card_stolen', 'Déclaration de Carte Volée')}
-                                                className="px-4 py-2 border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors"
+                                                onClick={() => handleQuickCardRequest('member_card_stolen', t('declare_stolen_card', 'Déclaration de Carte Volée'))}
+                                                className="px-4 py-2 border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl text-xs font-bold transition-colors"
                                             >
-                                                On a volé ma carte
+                                                {t('declare_stolen_card', 'Déclarer une carte volée')}
                                             </button>
                                             <button
-                                                onClick={() => handleQuickCardRequest('member_card_defective', 'Déclaration de Carte Défectueuse')}
+                                                onClick={() => handleQuickCardRequest('member_card_defective', t('declare_defective_card', 'Déclaration de Carte Défectueuse'))}
                                                 className="px-4 py-2 border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-xl text-xs font-bold transition-colors"
                                             >
-                                                Ma carte est défectueuse
+                                                {t('my_card_is_defective', 'Ma carte est défectueuse')}
                                             </button>
                                         </div>
                                     </div>
@@ -1370,10 +1545,10 @@ export default function MemberHome() {
                     {activeTab === 'donations' && (
                         <div className="animate-in fade-in duration-300 w-full">
                             <div className="flex items-start justify-between mb-6">
-                                <PageTitle title="Historique des Dons" />
+                                <PageTitle title={t('donation_history', 'Historique des Dons')} />
                                 <Card className="px-4 py-3 text-right shrink-0 ml-4">
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
-                                        Total {new Date().getFullYear()}
+                                        {t('total', 'Total')} {new Date().getFullYear()}
                                     </p>
                                     <p className="font-bold text-gray-900 mt-0.5" style={{ fontSize: '18px' }}>
                                         {displayTotal}
@@ -1385,14 +1560,14 @@ export default function MemberHome() {
                                 {donations.length === 0 ? (
                                     <Card className="p-12 text-center">
                                         <Heart size={36} className="mx-auto text-gray-200 mb-3" />
-                                        <p className="text-gray-400 text-sm">Aucun don enregistré</p>
+                                        <p className="text-gray-400 text-sm">{t('no_donation_recorded', 'Aucun don enregistré')}</p>
                                     </Card>
                                 ) : donations.map(d => (
                                     <RowCard key={d.id}
                                         left={<IconCircle icon={<Heart size={16} />} amber />}
                                         center={
                                             <>
-                                                <p className="text-gray-800 font-medium text-[13px]">{d.type || 'Don'}</p>
+                                                <p className="text-gray-800 font-medium text-[13px]">{t('donation', 'Don')}</p>
                                                 <p className="text-gray-400 text-[11px] mt-0.5">
                                                     {d.date ? new Date(d.date).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                                                     {d.paymentMethod && <> · {d.paymentMethod}</>}
@@ -1412,40 +1587,99 @@ export default function MemberHome() {
 
                     {activeTab === 'notifications' && (
                         <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title="Notifications"
-                                subtitle={unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}` : 'Tout est à jour'} />
-                            <div className="space-y-3">
-                                {notifications.length === 0 ? (
+                            <PageTitle title={t('notifications', 'Notifications')}
+                                subtitle={unreadCount > 0 ? `${unreadCount} ${t('unread', 'non lue')}${unreadCount > 1 ? 's' : ''}` : t('all_up_to_date', 'Tout est à jour')} />
+
+                            <div className="space-y-4">
+                                {/* New Notifications Section */}
+                                <div className="space-y-3">
+                                    {notifications.filter(n => !n.isRead).length === 0 ? (
+                                        notifications.length > 0 && notifications.filter(n => !n.isRead).length === 0 && (
+                                            <div className="mb-4 p-6 bg-indigo-50/30 border-2 border-dashed border-indigo-100/50 rounded-[1.5rem] text-center">
+                                                <p className="text-gray-400 text-[11px] font-black italic uppercase tracking-widest">{t('no_unread_notifs', 'Saisie à jour : aucune nouvelle notification')}</p>
+                                            </div>
+                                        )
+                                    ) : notifications.filter(n => !n.isRead).map(n => (
+                                        <RowCard key={n.id}
+                                            onClick={() => handleNotificationClick(n)}
+                                            left={<IconCircle icon={<Bell size={16} />} amber />}
+                                            center={
+                                                <>
+                                                    <p className="text-gray-800 font-bold text-[13px]">{n.title}</p>
+                                                    <p className="text-gray-400 text-[11px] mt-0.5">
+                                                        {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                                                    </p>
+                                                    {n.message && <p className="text-gray-500 text-[12px] mt-1 line-clamp-2">{n.message}</p>}
+                                                </>
+                                            }
+                                            right={<span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-200 animate-pulse" />}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Older Notifications Accordion */}
+                                {notifications.filter(n => n.isRead).length > 0 && (
+                                    <div className="pt-4">
+                                        <button
+                                            onClick={() => setIsOldNotificationsExpanded(!isOldNotificationsExpanded)}
+                                            className="w-full flex items-center justify-between p-5 bg-white border border-gray-100 rounded-[1.5rem] hover:bg-gray-50 transition-all group active:scale-[0.99] shadow-sm"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-white transition-colors">
+                                                    <Clock size={18} />
+                                                </div>
+                                                <div className="text-left">
+                                                    <h3 className="text-[13px] font-black italic uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors">
+                                                        {t('older_notifications', 'Anciennes notifications')}
+                                                    </h3>
+                                                    <p className="text-[11px] text-gray-400 font-medium">
+                                                        {notifications.filter(n => n.isRead).length} {t('read_notifications', 'conversations lues')}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className={`transition-transform duration-500 ${isOldNotificationsExpanded ? 'rotate-180 text-indigo-600' : 'text-gray-300'}`}>
+                                                <ChevronDown size={20} />
+                                            </div>
+                                        </button>
+
+                                        {isOldNotificationsExpanded && (
+                                            <div className="mt-3 space-y-3 animate-in slide-in-from-top-4 duration-500">
+                                                {notifications.filter(n => n.isRead).map(n => (
+                                                    <RowCard key={n.id}
+                                                        left={<IconCircle icon={<Bell size={16} />} amber={false} />}
+                                                        center={
+                                                            <>
+                                                                <p className="text-gray-500 font-medium text-[13px]">{n.title}</p>
+                                                                <p className="text-gray-400 text-[11px] mt-0.5">
+                                                                    {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                                                                </p>
+                                                                {n.message && <p className="text-gray-400 text-[12px] mt-1 opacity-75">{n.message}</p>}
+                                                            </>
+                                                        }
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {notifications.length === 0 && (
                                     <Card className="p-12 text-center">
                                         <Bell size={36} className="mx-auto text-gray-200 mb-3" />
-                                        <p className="text-gray-400 text-sm">Aucune notification</p>
+                                        <p className="text-gray-400 text-sm">{t('no_notifications', 'Aucune notification')}</p>
                                     </Card>
-                                ) : notifications.map(n => (
-                                    <RowCard key={n.id}
-                                        left={<IconCircle icon={<Bell size={16} />} amber={!n.isRead} />}
-                                        center={
-                                            <>
-                                                <p className="text-gray-800 font-medium text-[13px]">{n.title}</p>
-                                                <p className="text-gray-400 text-[11px] mt-0.5">
-                                                    {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
-                                                </p>
-                                                {n.message && <p className="text-gray-500 text-[12px] mt-1">{n.message}</p>}
-                                            </>
-                                        }
-                                        right={!n.isRead ? <span className="w-2 h-2 rounded-full bg-amber-500 block" /> : null}
-                                    />
-                                ))}
+                                )}
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'sunday' && (
                         <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title="Classes Dominicales" />
+                            <PageTitle title={t('sunday_school_classes', 'Classes dominicales')} />
                             {!profile?.sundaySchoolClasses || profile.sundaySchoolClasses.length === 0 ? (
                                 <Card className="p-12 text-center text-gray-400">
                                     <BookOpen size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>Vous n'êtes inscrit à aucune classe dominicale.</p>
+                                    <p>{t('no_sunday_school_desc', "Vous n'êtes inscrit à aucune classe dominicale.")}</p>
                                 </Card>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1455,7 +1689,7 @@ export default function MemberHome() {
                                                 <BookOpen size={20} />
                                             </div>
                                             <h4 className="font-bold text-gray-800 mb-1">{cls.name}</h4>
-                                            <p className="text-sm text-gray-500 line-clamp-2">{cls.description || 'Pas de description.'}</p>
+                                            <p className="text-sm text-gray-500 line-clamp-2">{cls.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
                                     ))}
                                 </div>
@@ -1465,11 +1699,11 @@ export default function MemberHome() {
 
                     {activeTab === 'groups' && (
                         <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title="Groupes" />
+                            <PageTitle title={t('groups', 'Groupes')} />
                             {(!profile?.memberGroups || profile.memberGroups.filter(g => g.type !== 'ministry').length === 0) ? (
                                 <Card className="p-12 text-center text-gray-400">
                                     <Users size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>Vous n'êtes membre d'aucun groupe.</p>
+                                    <p>{t('no_group_desc', "Vous n'êtes membre d'aucun groupe.")}</p>
                                 </Card>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1479,8 +1713,8 @@ export default function MemberHome() {
                                                 <Users size={20} />
                                             </div>
                                             <h4 className="font-bold text-gray-800 mb-1">{g.name}</h4>
-                                            <p className="text-[11px] text-gray-400 uppercase font-black tracking-wider mb-2">{g.type || 'Groupe'}</p>
-                                            <p className="text-sm text-gray-500 line-clamp-2">{g.description || 'Pas de description.'}</p>
+                                            <p className="text-[11px] text-gray-400 uppercase font-black tracking-wider mb-2">{g.type || t('group', 'Groupe')}</p>
+                                            <p className="text-sm text-gray-500 line-clamp-2">{g.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
                                     ))}
                                 </div>
@@ -1490,11 +1724,11 @@ export default function MemberHome() {
 
                     {activeTab === 'ministries' && (
                         <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title="Ministères" />
+                            <PageTitle title={t('ministries', 'Ministères')} />
                             {(!profile?.memberGroups || profile.memberGroups.filter(g => g.type === 'ministry').length === 0) ? (
                                 <Card className="p-12 text-center text-gray-400">
                                     <Building2 size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>Vous ne faites partie d'aucun ministère.</p>
+                                    <p>{t('no_ministry_desc', "Vous ne faites partie d'aucun ministère.")}</p>
                                 </Card>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1504,7 +1738,7 @@ export default function MemberHome() {
                                                 <Building2 size={20} />
                                             </div>
                                             <h4 className="font-bold text-gray-800 mb-1">{m.name}</h4>
-                                            <p className="text-sm text-gray-500 line-clamp-2">{m.description || 'Pas de description.'}</p>
+                                            <p className="text-sm text-gray-500 line-clamp-2">{m.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
                                     ))}
                                 </div>
@@ -1512,7 +1746,7 @@ export default function MemberHome() {
                         </div>
                     )}
                 </div> {/* end scrollable content */}
-            </div> {/* end main area */}
+            </div > {/* end main area */}
 
             {/* ── CREATE POST MODAL (Professional Version) ── */}
             {
@@ -1525,9 +1759,9 @@ export default function MemberHome() {
                                         <span className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
                                             {editingPostId ? <Edit3 size={20} /> : <MessageSquare size={20} />}
                                         </span>
-                                        {editingPostId ? 'Modifier la Publication' : 'Nouvelle Publication'}
+                                        {editingPostId ? t('edit_post', 'Modifier la publication') : t('new_post', 'Nouvelle publication')}
                                     </h2>
-                                    <p className="text-gray-400 text-[12px] font-medium mt-1 ml-13 italic">Partagez avec votre communauté</p>
+                                    <p className="text-gray-400 text-[12px] font-medium mt-1 ml-13 italic">{t('share_with_community', 'Partagez avec votre communauté')}</p>
                                 </div>
                                 <button onClick={() => { setIsPostModalOpen(false); setEditingPostId(null); }} className="p-3 rounded-2xl hover:bg-gray-100 transition-all text-gray-400 hover:text-gray-900 active:scale-90">
                                     <X size={20} strokeWidth={2.5} />
@@ -1537,7 +1771,7 @@ export default function MemberHome() {
                             <form onSubmit={handlePostSubmit} className="p-8 space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div className="space-y-2">
-                                        <label className="text-[11px] font-black uppercase tracking-[0.1em] text-gray-400 ml-1">Catégorie de post</label>
+                                        <label className="text-[11px] font-black sentence case tracking-[0.1em] text-gray-400 ml-1">{t('post_category', 'Catégorie de post')}</label>
                                         <select
                                             value={newPost.type}
                                             onChange={e => setNewPost({ ...newPost, type: e.target.value })}
@@ -1549,31 +1783,31 @@ export default function MemberHome() {
                                         </select>
                                     </div>
                                     <div className="space-y-2 col-span-1 sm:col-span-2">
-                                        <label className="text-[11px] font-black uppercase tracking-[0.1em] text-gray-400 ml-1">Visible pour (Destinataire)</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <label className="text-[11px] font-black sentence case tracking-[0.1em] text-gray-400 ml-1">{t('visible_to', 'Visible pour (Destinataire)')}</label>
+                                        <div className="flex flex-row overflow-x-auto sm:grid sm:grid-cols-3 gap-3 noscrollbar pb-2">
                                             <button
                                                 type="button"
                                                 onClick={() => setNewPost({ ...newPost, visibilityScope: 'church', targetSubtypeId: '' })}
-                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${newPost.visibilityScope === 'church' ? 'border-indigo-600 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-100'}`}
+                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'church' ? 'border-indigo-600 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-100'}`}
                                             >
                                                 <Users size={18} className={newPost.visibilityScope === 'church' ? 'text-indigo-600' : 'text-gray-400'} />
-                                                <span className={`text-[11px] font-bold ${newPost.visibilityScope === 'church' ? 'text-indigo-700' : 'text-gray-500'}`}>Toute l'Église</span>
+                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'church' ? 'text-indigo-700' : 'text-gray-500'}`}>{t('entire_church', "Toute l'Église")}</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setNewPost({ ...newPost, visibilityScope: 'global', targetSubtypeId: '' })}
-                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${newPost.visibilityScope === 'global' ? 'border-amber-600 bg-amber-50/50' : 'border-gray-100 hover:border-amber-100'}`}
+                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'global' ? 'border-amber-600 bg-amber-50/50' : 'border-gray-100 hover:border-amber-100'}`}
                                             >
                                                 <Home size={18} className={newPost.visibilityScope === 'global' ? 'text-amber-600' : 'text-gray-400'} />
-                                                <span className={`text-[11px] font-bold ${newPost.visibilityScope === 'global' ? 'text-amber-700' : 'text-gray-500'}`}>Tout Elyon360</span>
+                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'global' ? 'text-amber-700' : 'text-gray-500'}`}>{t('all_elyon360', 'Tout Elyon360')}</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setNewPost({ ...newPost, visibilityScope: 'subtype' })}
-                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${newPost.visibilityScope === 'subtype' ? 'border-violet-600 bg-violet-50/50' : 'border-gray-100 hover:border-violet-100'}`}
+                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'subtype' ? 'border-violet-600 bg-violet-50/50' : 'border-gray-100 hover:border-violet-100'}`}
                                             >
                                                 <Activity size={18} className={newPost.visibilityScope === 'subtype' ? 'text-violet-600' : 'text-gray-400'} />
-                                                <span className={`text-[11px] font-bold ${newPost.visibilityScope === 'subtype' ? 'text-violet-700' : 'text-gray-500'}`}>Cible précise</span>
+                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'subtype' ? 'text-violet-700' : 'text-gray-500'}`}>{t('precise_target', 'Cible précise')}</span>
                                             </button>
                                         </div>
 
@@ -1583,7 +1817,7 @@ export default function MemberHome() {
                                                 onChange={e => setNewPost({ ...newPost, targetSubtypeId: e.target.value })}
                                                 className="w-full mt-3 p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none text-[13px] font-bold text-gray-700 transition-all appearance-none cursor-pointer animate-in slide-in-from-top-2 duration-300"
                                             >
-                                                <option value="">Sélectionner une catégorie...</option>
+                                                <option value="">{t('select_category_placeholder', 'Sélectionner une catégorie...')}</option>
                                                 {subtypes.map(sub => (
                                                     <option key={sub.id} value={sub.id}>{sub.name}</option>
                                                 ))}
@@ -1593,10 +1827,10 @@ export default function MemberHome() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[11px] font-black uppercase tracking-[0.1em] text-gray-400 ml-1">Titre (Optionnel)</label>
+                                    <label className="text-[11px] font-black uppercase tracking-[0.1em] text-gray-400 ml-1">{t('post_title_optional', 'Titre (Optionnel)')}</label>
                                     <input
                                         type="text"
-                                        placeholder="Donnez un titre percutant..."
+                                        placeholder={t('post_title_placeholder', 'Donnez un titre percutant...')}
                                         value={newPost.title}
                                         onChange={e => setNewPost({ ...newPost, title: e.target.value })}
                                         className="w-full p-5 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none focus:ring-4 ring-indigo-500/5 transition-all text-[14px] font-medium text-gray-800 placeholder:text-gray-300"
@@ -1604,9 +1838,9 @@ export default function MemberHome() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[11px] font-black uppercase tracking-[0.1em] text-gray-400 ml-1">Votre Message</label>
+                                    <label className="text-[11px] font-black uppercase tracking-[0.1em] text-gray-400 ml-1">{t('your_message', 'Votre Message')}</label>
                                     <textarea
-                                        placeholder="Que souhaitez-vous dire aujourd'hui ?"
+                                        placeholder={t('what_to_say_today', "Que souhaitez-vous dire aujourd'hui ?")}
                                         value={newPost.content}
                                         onChange={e => setNewPost({ ...newPost, content: e.target.value })}
                                         required
@@ -1614,11 +1848,11 @@ export default function MemberHome() {
                                     />
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-4 border-t border-gray-50">
-                                    <label className="cursor-pointer group w-full sm:w-auto">
-                                        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-indigo-50 text-indigo-600 font-black text-[12px] uppercase tracking-widest group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 border-2 border-indigo-100/50 shadow-sm shadow-indigo-100/20">
-                                            <Plus size={20} />
-                                            {newPost.imageFile ? 'Changer l\'image' : 'Ajouter une Photo'}
+                                <div className="flex flex-row items-center justify-between gap-6 pt-4 border-t border-gray-50">
+                                    <label className="cursor-pointer group">
+                                        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 border-2 border-indigo-100/50 shadow-sm"
+                                            title={newPost.imageFile ? t('change_image', "Changer l'image") : t('add_photo', 'Ajouter une photo')}>
+                                            {newPost.imageFile ? <RefreshCw size={22} /> : <Image size={24} />}
                                         </div>
                                         <input type="file" accept="image/*" className="hidden" onChange={e => setNewPost({ ...newPost, imageFile: e.target.files[0] })} />
                                     </label>
@@ -1637,10 +1871,10 @@ export default function MemberHome() {
                                         {posting ? (
                                             <>
                                                 <div className="w-2 h-2 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                                Enregistrement...
+                                                {t('saving_post', 'Enregistrement...')}
                                             </>
                                         ) : (
-                                            <><Send size={20} /> {editingPostId ? '' : ''}</>
+                                            <><Send size={20} /> {editingPostId ? t('save', 'Enregistrer') : t('save', 'Enregistrer')}</>
                                         )}
                                     </button>
                                 </div>
@@ -1659,48 +1893,50 @@ export default function MemberHome() {
             />
 
             {/* Modal de Demande de Carte (Raison Optionnelle) */}
-            {cardRequestModal.show && (
-                <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 border border-gray-100">
-                        <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>
-                        <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-6">
-                            <FileText size={24} />
-                        </div>
-                        <h2 className="text-xl font-black text-gray-900 mb-2 leading-tight">{cardRequestModal.desc}</h2>
-                        <p className="text-sm text-gray-500 mb-6 font-medium">
-                            {cardRequestModal.type === 'member_card_new'
-                                ? "Souhaitez-vous ajouter une remarque ? (Optionnel)"
-                                : "Veuillez fournir une raison justifiable pour cette déclaration s'il vous plaît (Obligatoire)."}
-                        </p>
+            {
+                cardRequestModal.show && (
+                    <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                        <div className="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 border border-gray-100">
+                            <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>
+                            <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-6">
+                                <FileText size={24} />
+                            </div>
+                            <h2 className="text-xl font-black text-gray-900 mb-2 leading-tight">{cardRequestModal.desc}</h2>
+                            <p className="text-sm text-gray-500 mb-6 font-medium">
+                                {cardRequestModal.type === 'member_card_new'
+                                    ? t('add_note_optional', "Souhaitez-vous ajouter une remarque ? (Optionnel)")
+                                    : t('provide_justification', "Veuillez fournir une raison justifiable pour cette déclaration s'il vous plaît (Obligatoire).")}
+                            </p>
 
-                        <div className="mb-8">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Explications supplémentaires <span className={cardRequestModal.type !== 'member_card_new' ? 'text-rose-500' : ''}>{cardRequestModal.type !== 'member_card_new' ? '*' : '(Optionnel)'}</span></label>
-                            <textarea
-                                value={cardRequestModal.reason}
-                                onChange={(e) => setCardRequestModal({ ...cardRequestModal, reason: e.target.value })}
-                                placeholder={cardRequestModal.type === 'member_card_new' ? "Remarque additionnelle..." : "Indiquez les circonstances justificatives (ex: perdue le 15, rayée)..."}
-                                rows="4"
-                                className={`w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none resize-none transition-all ${cardRequestModal.type !== 'member_card_new' && !cardRequestModal.reason.trim() ? 'border-rose-200 focus:border-rose-400 focus:ring-rose-400/20 bg-rose-50/30' : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-400/20 focus:shadow-lg focus:shadow-indigo-500/10'}`}
-                            ></textarea>
-                        </div>
+                            <div className="mb-8">
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{t('additional_explanations', 'Explications supplémentaires')} <span className={cardRequestModal.type !== 'member_card_new' ? 'text-rose-500' : ''}>{cardRequestModal.type !== 'member_card_new' ? `* (${t('required', 'Obligatoire')})` : `(${t('optional', 'Optionnel')})`}</span></label>
+                                <textarea
+                                    value={cardRequestModal.reason}
+                                    onChange={(e) => setCardRequestModal({ ...cardRequestModal, reason: e.target.value })}
+                                    placeholder={cardRequestModal.type === 'member_card_new' ? t('additional_note_placeholder', "Remarque additionnelle...") : t('justification_placeholder', "Indiquez les circonstances justificatives (ex: perdue le 15, rayée)...")}
+                                    rows="4"
+                                    className={`w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none resize-none transition-all ${cardRequestModal.type !== 'member_card_new' && !cardRequestModal.reason.trim() ? 'border-rose-200 focus:border-rose-400 focus:ring-rose-400/20 bg-rose-50/30' : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-400/20 focus:shadow-lg focus:shadow-indigo-500/10'}`}
+                                ></textarea>
+                            </div>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setCardRequestModal({ show: false, type: '', desc: '', reason: '' })}
-                                className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl text-sm transition-colors"
-                            >
-                                Annuler
-                            </button>
-                            <button
-                                onClick={handleConfirmCardRequest}
-                                className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
-                            >
-                                <Send size={16} /> Envoyer
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setCardRequestModal({ show: false, type: '', desc: '', reason: '' })}
+                                    className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl text-sm transition-colors"
+                                >
+                                    {t('cancel', 'Annuler')}
+                                </button>
+                                <button
+                                    onClick={handleConfirmCardRequest}
+                                    className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                                >
+                                    <Send size={16} /> {t('send', 'Envoyer')}
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Modal Zoom Photo (Generalized) */}
             {
@@ -1716,32 +1952,34 @@ export default function MemberHome() {
             }
 
             {/* Modal Zoom Card */}
-            {cardZoomSide && activeCard && (
-                <div
-                    className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300 backdrop-blur-sm cursor-zoom-out"
-                    onClick={() => setCardZoomSide(null)}
-                >
-                    <button className="absolute top-6 right-6 text-white/50 hover:text-white active:scale-95 transition-all bg-white/10 p-3 rounded-full hover:bg-white/20">
-                        <X size={24} />
-                    </button>
-
-                    <p className="text-white/50 text-[11px] font-black uppercase tracking-[0.3em] mb-8 animate-in slide-in-from-bottom-4 duration-500 delay-100">
-                        {cardZoomSide === 'front' ? 'Vue Détaillée Recto' : 'Vue Détaillée Verso'}
-                    </p>
-
+            {
+                cardZoomSide && activeCard && (
                     <div
-                        className="shadow-2xl shadow-indigo-500/20 rounded-2xl overflow-hidden ring-1 ring-white/10 animate-in zoom-in-95 duration-500"
-                        onClick={(e) => e.stopPropagation()} // Prevent clicking the card itself from closing
-                        style={{ transform: 'scale(1.5)', transformOrigin: 'center' }}
+                        className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300 backdrop-blur-sm cursor-zoom-out"
+                        onClick={() => setCardZoomSide(null)}
                     >
-                        <CardDisplay card={activeCard} side={cardZoomSide} />
-                    </div>
+                        <button className="absolute top-6 right-6 text-white/50 hover:text-white active:scale-95 transition-all bg-white/10 p-3 rounded-full hover:bg-white/20">
+                            <X size={24} />
+                        </button>
 
-                    <p className="text-white/30 text-[10px] font-medium mt-16 animate-in fade-in duration-700 delay-300">
-                        Cliquez n'importe où pour fermer
-                    </p>
-                </div>
-            )}
+                        <p className="text-white/50 text-[11px] font-black uppercase tracking-[0.3em] mb-8 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+                            {cardZoomSide === 'front' ? t('front_detailed_view', 'Vue Détaillée Recto') : t('back_detailed_view', 'Vue Détaillée Verso')}
+                        </p>
+
+                        <div
+                            className="shadow-2xl shadow-indigo-500/20 rounded-2xl overflow-hidden ring-1 ring-white/10 animate-in zoom-in-95 duration-500"
+                            onClick={(e) => e.stopPropagation()} // Prevent clicking the card itself from closing
+                            style={{ transform: 'scale(1.5)', transformOrigin: 'center' }}
+                        >
+                            <CardDisplay card={activeCard} side={cardZoomSide} />
+                        </div>
+
+                        <p className="text-white/30 text-[10px] font-medium mt-16 animate-in fade-in duration-700 delay-300">
+                            {t('click_to_close', "Cliquez n'importe où pour fermer")}
+                        </p>
+                    </div>
+                )
+            }
 
             {/* Menu de Changement de Rôle (si Admin/Secrétaire présent dans les rôles) */}
             {
@@ -1770,8 +2008,8 @@ export default function MemberHome() {
                                                 {r === 'member' ? <User size={14} /> : <Settings size={14} />}
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-[13px] leading-tight capitalize">Connecté comme {r}</p>
-                                                <p className="text-[10px] text-gray-400 mt-0.5">Cliquez pour basculer</p>
+                                                <p className="text-[13px] leading-tight capitalize">{t('connected_as', 'Connecté comme')} {r}</p>
+                                                <p className="text-[10px] text-gray-400 mt-0.5">{t('click_to_switch', 'Cliquez pour basculer')}</p>
                                             </div>
                                         </button>
                                     ))}

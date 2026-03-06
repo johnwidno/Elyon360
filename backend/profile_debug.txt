@@ -3490,3 +3490,27 @@
    -> FOUND: Ketza
 [2026-03-05T20:16:00.660Z] getMemberById - ID: 341, ChurchID: 4
    -> FOUND: Ketza
+[2026-03-06T18:04:54.295Z] getMemberById - ID: 342, ChurchID: 4
+   -> FOUND: Edwine
+[2026-03-06T18:04:54.839Z] getMemberById - ID: 342, ChurchID: 4
+   -> FOUND: Edwine
+[2026-03-06T18:30:26.230Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua
+[2026-03-06T18:30:27.173Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua
+[2026-03-06T18:30:52.683Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua
+[2026-03-06T20:34:59.587Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-06T20:35:02.013Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-06T20:35:17.613Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-06T20:35:34.504Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua
+[2026-03-06T20:35:35.333Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua
+[2026-03-06T20:36:24.505Z] getMemberById - ID: 4, ChurchID: 4
+   -> FOUND: Admin
+[2026-03-06T20:36:25.204Z] getMemberById - ID: 4, ChurchID: 4
+   -> FOUND: Admin

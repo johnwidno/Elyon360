@@ -1,16 +1,23 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import axios from 'axios';
+import api from '../api/axios';
+import { Search, User, LogOut, Setting, Bell, Activity } from 'lucide-react';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useLanguage } from '../context/LanguageContext';
 import MustChangePasswordModal from '../components/Admin/MustChangePasswordModal';
 
 const AdminLayout = ({ children }) => {
     const { logout, user } = useAuth();
-    const { t, language, toggleLanguage } = useLanguage();
+    const { language, toggleLanguage, t } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     const [openMenus, setOpenMenus] = useState({});
 
@@ -330,15 +337,64 @@ const AdminLayout = ({ children }) => {
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder="Rechercher un membre..."
-                                    className="pl-10 pr-4 py-2 w-72 bg-gray-50 dark:bg-[#1A1D2D] border border-transparent dark:border-white/5 rounded-2xl text-[13px] font-medium focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
+                                    placeholder={t('search_member', 'Rechercher un membre...')}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10 pr-4 py-3 w-72 bg-gray-50 dark:bg-[#1A1D2D] border border-transparent dark:border-white/5 rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-blue-500/10 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
                                     onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && e.target.value.trim()) {
-                                            navigate(`/admin/members?search=${encodeURIComponent(e.target.value.trim())}`);
-                                            e.target.value = '';
+                                        if (e.key === 'Enter' && searchQuery.trim()) {
+                                            navigate(`/admin/members?search=${encodeURIComponent(searchQuery.trim())}`);
+                                            setSearchQuery('');
                                         }
                                     }}
                                 />
+
+                                {/* Search Results Dropdown */}
+                                {searchQuery.trim() && (
+                                    <div className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-[#1A1D2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 z-[100] max-h-[400px] overflow-y-auto noscrollbar">
+                                        <div className="p-4 border-b border-gray-50 dark:border-white/5 bg-gray-50/50 dark:bg-black/20">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('member_results', 'Résultats membres')}</p>
+                                        </div>
+                                        {searchResults.length === 0 && !isSearching ? (
+                                            <div className="p-6 text-center text-gray-400 dark:text-gray-500 text-xs italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
+                                        ) : (
+                                            <div className="p-2">
+                                                {searchResults.map(m => (
+                                                    <div key={m.id} className="p-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 rounded-xl transition-all cursor-pointer flex items-center gap-4 group/item"
+                                                        onClick={() => { navigate(`/admin/members/${m.id}`); setSearchQuery(''); }}>
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs font-black">
+                                                            {m.photo ? <img src={m.photo.startsWith('http') ? m.photo : `${process.env.REACT_APP_API_URL || ''}/uploads/${m.photo}`} className="w-full h-full object-cover" /> : (m.firstName?.[0] || 'M')}
+                                                        </div>
+                                                        <div className="min-w-0 flex-1">
+                                                            <p className="text-[13px] font-bold text-gray-900 dark:text-white group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors truncate">
+                                                                {m.firstName} {m.lastName}
+                                                            </p>
+                                                            <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium truncate capitalize">{m.status || (m.type?.name) || 'Membre'}</p>
+                                                        </div>
+                                                        <div className="opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                                            <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {isSearching && (
+                                                    <div className="p-4 flex justify-center">
+                                                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {searchResults.length > 5 && (
+                                            <div className="p-3 border-t border-gray-50 dark:border-white/5 text-center">
+                                                <button onClick={() => { navigate(`/admin/members?search=${searchQuery}`); setSearchQuery(''); }}
+                                                    className="text-[11px] font-black text-blue-600 uppercase tracking-widest hover:underline">
+                                                    {t('view_all_results', 'Voir tous les résultats')}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Language Toggle */}

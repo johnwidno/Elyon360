@@ -417,7 +417,7 @@ const CardTemplatesManager = () => {
             {/* Header */}
             <header className={`h-16 flex items-center justify-between px-8 border-b ${theme === 'dark' ? 'bg-[#121212] border-white/5' : 'bg-white border-gray-100'} z-50`}>
                 <div className="flex items-center gap-6">
-                    <button onClick={() => navigate('/admin/services')} className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center hover:bg-stripe-blue hover:text-white transition-all">←</button>
+                    <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center hover:bg-stripe-blue hover:text-white transition-all">←</button>
                     <div>
                         <h1 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                             Gestionnaire de Profils
