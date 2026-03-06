@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const backendURL = isLocalhost
+    ? 'http://localhost:5000/api'
+    : 'https://elyonsyst360.onrender.com/api';
+
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // Modifye si backend lan gen lòt URL
+    baseURL: process.env.REACT_APP_API_URL || backendURL,
     headers: {
         'Content-Type': 'application/json',
     },
