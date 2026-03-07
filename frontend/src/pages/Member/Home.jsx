@@ -736,9 +736,9 @@ export default function MemberHome() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-1 sm:gap-4 ml-auto">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         {/* 1. Global Search Bar */}
-                        <div className="relative group flex items-center shrink-0" ref={searchRef}>
+                        <div className="relative group flex items-center" ref={searchRef}>
                             {/* Desktop Search */}
                             <div className="hidden md:flex items-center relative">
                                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -781,12 +781,12 @@ export default function MemberHome() {
                             </div>
 
                             {/* Mobile Search Button & Toggleable Overlay */}
-                            <div className="md:hidden flex items-center">
+                            <div className="md:hidden">
                                 <button
-                                    className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shrink-0 ${isSearchOpen ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isSearchOpen ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
                                     onClick={() => setIsSearchOpen(!isSearchOpen)}
                                 >
-                                    {isSearchOpen ? <X size={18} /> : <Search size={18} />}
+                                    {isSearchOpen ? <X size={20} /> : <Search size={20} />}
                                 </button>
 
                                 {isSearchOpen && (
@@ -808,7 +808,7 @@ export default function MemberHome() {
                                         {searchQuery.trim() && (
                                             <div className="max-h-60 overflow-y-auto noscrollbar border-t border-gray-50 pt-2">
                                                 {searchResults.length === 0 ? (
-                                                    <div className="p-4 text-center text-gray-400 text-[11px] italic">{t('no_member_found', 'Aucun résultat')}</div>
+                                                    <div className="p-4 text-center text-gray-400 text-[11px] italic">Aucun résultat</div>
                                                 ) : (
                                                     searchResults.map(m => (
                                                         <div key={m.id} className="p-2 hover:bg-indigo-50 rounded-xl transition-colors cursor-pointer flex items-center gap-3 mb-1"
@@ -830,19 +830,19 @@ export default function MemberHome() {
                         </div>
 
                         {/* 2. Language Toggle */}
-                        <div className="flex items-center bg-gray-50 p-0.5 rounded-xl border border-gray-100 shrink-0 scale-90 sm:scale-100">
-                            <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-2 py-1 rounded-lg text-[9px] font-black tracking-tighter transition-all ${language === 'fr' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>FR</button>
-                            <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-2 py-1 rounded-lg text-[9px] font-black tracking-tighter transition-all ${language === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>EN</button>
+                        <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100">
+                            <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${language === 'fr' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>FR</button>
+                            <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${language === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>EN</button>
                         </div>
 
                         {/* 3. Notifications */}
-                        <div className="relative shrink-0">
+                        <div className="relative">
                             <button
-                                className={`relative w-9 h-9 flex items-center justify-center rounded-xl transition-all ${isNotificationsOpen ? 'bg-amber-50 text-amber-600' : 'hover:bg-gray-50 text-gray-400'}`}
+                                className={`relative w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isNotificationsOpen ? 'bg-amber-50 text-amber-600' : 'hover:bg-gray-50 text-gray-400'}`}
                                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                             >
-                                <Bell size={18} />
-                                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full border border-white animate-pulse" />}
+                                <Bell size={19} />
+                                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full border-2 border-white animate-pulse" />}
                             </button>
 
                             {isNotificationsOpen && (
@@ -855,7 +855,7 @@ export default function MemberHome() {
                                         </div>
                                         <div className="max-h-[350px] overflow-y-auto noscrollbar">
                                             {notifications.length === 0 ? (
-                                                <div className="p-8 text-center text-gray-400 italic">{t('no_notifications', 'Aucune notification')}</div>
+                                                <div className="p-8 text-center text-gray-400 italic">Aucune notification</div>
                                             ) : (
                                                 notifications.map(n => (
                                                     <div key={n.id} className={`p-4 border-b border-gray-50 flex gap-3 hover:bg-gray-50 transition-colors cursor-pointer ${!n.isRead ? 'bg-amber-50/20' : ''}`}
@@ -884,14 +884,14 @@ export default function MemberHome() {
                         <button
                             onClick={() => setIsPostModalOpen(true)}
                             title={t('publish_message', 'Publier un message')}
-                            className="flex items-center justify-center w-9 h-9 text-gray-400 rounded-xl hover:bg-gray-50 hover:text-indigo-600 transition-all shrink-0"
+                            className="flex items-center justify-center p-2.5 text-dark rounded-xl shadow-lg shadow-indigo-50 hover:bg-indigo-70 hover:scale-105 active:scale-95 transition-all"
                         >
                             <Send size={18} strokeWidth={2} />
                         </button>
 
                         {/* 5. Profile Dropdown Container */}
-                        <div className="relative shrink-0">
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[10px] font-black cursor-pointer overflow-hidden border border-gray-100 group shadow-sm transition-all active:scale-95 shrink-0"
+                        <div className="relative">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black cursor-pointer overflow-hidden border border-gray-100 group shadow-sm transition-all active:scale-95"
                                 style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)} title={`${profile?.firstName} ${profile?.lastName}`}>
                                 {profile?.photo ? (
