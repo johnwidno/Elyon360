@@ -20,7 +20,7 @@ const ReportIcon = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24
 const SundaySchoolClassDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { t } = useLanguage();
+    const { t, lang } = useLanguage();
     const [cls, setCls] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -31,6 +31,7 @@ const SundaySchoolClassDetails = () => {
     const [memberSubTab, setMemberSubTab] = useState('active'); // 'active' | 'history'
     const [memberSearchTerm, setMemberSearchTerm] = useState('');
     const [memberDateRange, setMemberDateRange] = useState({ start: '', end: '' });
+    const [reportDateRange, setReportDateRange] = useState({ start: '', end: '', month: 'all', year: new Date().getFullYear().toString() });
     const [reports, setReports] = useState([]);
     const [alertMessage, setAlertMessage] = useState({ show: false, title: '', message: '', type: 'success' });
     const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
@@ -773,35 +774,95 @@ const SundaySchoolClassDetails = () => {
                     </div>
                 ) : (
                     <div className="bg-white dark:bg-[#1A1A1A] rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="px-10 py-8 border-b border-gray-50 dark:border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('reports_history', 'Historique des Rapports')}</h2>
-                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                                {reports.length > 0 && (
-                                    <button
-                                        onClick={handleDeleteAllReports}
-                                        className="px-4 py-2 bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 rounded-xl hover:bg-rose-600 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest border border-rose-100 dark:border-rose-800/30 flex items-center gap-2"
+                        <div className="px-10 py-8 border-b border-gray-50 dark:border-white/5 flex flex-col gap-6">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('reports_history', 'Historique des Rapports')}</h2>
+                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                                    {reports.length > 0 && (
+                                        <button
+                                            onClick={handleDeleteAllReports}
+                                            className="px-4 py-2 bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 rounded-xl hover:bg-rose-600 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest border border-rose-100 dark:border-rose-800/30 flex items-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            {t('delete_all', 'Tout supprimer')}
+                                        </button>
+                                    )}
+                                    <div className="h-4 w-[1px] bg-gray-100 dark:bg-white/10 hidden md:block"></div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleExportReportsExcel}
+                                            title={t('export_excel')}
+                                            className="p-3 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm active:scale-95 border border-green-100 dark:border-green-800/30"
+                                        >
+                                            <ExcelIcon />
+                                        </button>
+                                        <button
+                                            onClick={handleExportReportsPDF}
+                                            title={t('export_pdf')}
+                                            className="p-3 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm active:scale-95 border border-red-100 dark:border-red-800/30"
+                                        >
+                                            <PDFIcon />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Reports Filters */}
+                            <div className="flex flex-wrap items-end gap-4 p-6 bg-gray-50/50 dark:bg-black/10 rounded-[2rem] border border-gray-100 dark:border-white/5">
+                                <div className="flex-1 min-w-[140px]">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{t('from', 'Du')}</label>
+                                    <input
+                                        type="date"
+                                        value={reportDateRange.start}
+                                        onChange={(e) => setReportDateRange({ ...reportDateRange, start: e.target.value })}
+                                        className="w-full bg-white dark:bg-black/20 border-gray-100 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 ring-indigo-500/20 outline-none transition-all dark:text-white"
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-[140px]">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{t('to', 'Au')}</label>
+                                    <input
+                                        type="date"
+                                        value={reportDateRange.end}
+                                        onChange={(e) => setReportDateRange({ ...reportDateRange, end: e.target.value })}
+                                        className="w-full bg-white dark:bg-black/20 border-gray-100 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 ring-indigo-500/20 outline-none transition-all dark:text-white"
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-[140px]">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{t('month', 'Mois')}</label>
+                                    <select
+                                        value={reportDateRange.month}
+                                        onChange={(e) => setReportDateRange({ ...reportDateRange, month: e.target.value })}
+                                        className="w-full bg-white dark:bg-black/20 border-gray-100 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 ring-indigo-500/20 outline-none transition-all dark:text-white appearance-none cursor-pointer"
                                     >
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                        {t('delete_all', 'Tout supprimer')}
+                                        <option value="all">{t('all', 'Tous')}</option>
+                                        {Array.from({ length: 12 }, (_, i) => (
+                                            <option key={i + 1} value={i + 1}>
+                                                {new Date(2000, i, 1).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { month: 'long' })}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="flex-1 min-w-[120px]">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{t('year', 'Année')}</label>
+                                    <select
+                                        value={reportDateRange.year}
+                                        onChange={(e) => setReportDateRange({ ...reportDateRange, year: e.target.value })}
+                                        className="w-full bg-white dark:bg-black/20 border-gray-100 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 ring-indigo-500/20 outline-none transition-all dark:text-white appearance-none cursor-pointer"
+                                    >
+                                        {Array.from({ length: 10 }, (_, i) => {
+                                            const y = new Date().getFullYear() - 5 + i;
+                                            return <option key={y} value={y}>{y}</option>;
+                                        })}
+                                    </select>
+                                </div>
+                                {(reportDateRange.start || reportDateRange.end || reportDateRange.month !== 'all') && (
+                                    <button
+                                        onClick={() => setReportDateRange({ start: '', end: '', month: 'all', year: new Date().getFullYear().toString() })}
+                                        className="h-[42px] px-6 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest"
+                                    >
+                                        {t('clear', 'Réinitialiser')}
                                     </button>
                                 )}
-                                <div className="h-4 w-[1px] bg-gray-100 dark:bg-white/10 hidden md:block"></div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={handleExportReportsExcel}
-                                        title={t('export_excel')}
-                                        className="p-3 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm active:scale-95 border border-green-100 dark:border-green-800/30"
-                                    >
-                                        <ExcelIcon />
-                                    </button>
-                                    <button
-                                        onClick={handleExportReportsPDF}
-                                        title={t('export_pdf')}
-                                        className="p-3 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm active:scale-95 border border-red-100 dark:border-red-800/30"
-                                    >
-                                        <PDFIcon />
-                                    </button>
-                                </div>
                             </div>
                         </div>
                         <div className="overflow-x-auto">
@@ -817,7 +878,20 @@ const SundaySchoolClassDetails = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                                    {reports.map(report => (
+                                    {reports.filter(r => {
+                                        const d = new Date(r.date);
+                                        const dateStr = d.toISOString().split('T')[0];
+
+                                        // Range match
+                                        const startMatch = !reportDateRange.start || dateStr >= reportDateRange.start;
+                                        const endMatch = !reportDateRange.end || dateStr <= reportDateRange.end;
+
+                                        // Month/Year match
+                                        const monthMatch = reportDateRange.month === 'all' || (d.getMonth() + 1).toString() === reportDateRange.month;
+                                        const yearMatch = !reportDateRange.year || d.getFullYear().toString() === reportDateRange.year;
+
+                                        return startMatch && endMatch && monthMatch && yearMatch;
+                                    }).map(report => (
                                         <tr key={report.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                                             <td className="px-10 py-6 text-sm font-black text-indigo-600 dark:text-indigo-400">
                                                 {new Date(report.date).toLocaleDateString()}

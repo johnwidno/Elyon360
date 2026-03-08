@@ -3550,3 +3550,31 @@
    -> FOUND: Abda Briny Thiargua
 [2026-03-08T16:21:10.987Z] getMemberById - ID: 344, ChurchID: 4
    -> FOUND: Abda Briny Thiargua
+[2026-03-08T16:47:21.843Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T16:47:22.254Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T17:03:49.019Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T18:08:48.692Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T18:08:49.425Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T20:56:10.809Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T20:56:11.518Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:16:02.251Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:23:42.793Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:23:48.355Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:39:43.076Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:39:47.759Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:47:13.836Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T21:47:15.499Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta

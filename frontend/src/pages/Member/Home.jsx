@@ -159,11 +159,11 @@ export default function MemberHome() {
     const [isMinistriesHistoryExpanded, setIsMinistriesHistoryExpanded] = useState(false);
     const [isSundayAttendanceExpanded, setIsSundayAttendanceExpanded] = useState(false);
     const [isSundayPastAttendanceExpanded, setIsSundayPastAttendanceExpanded] = useState(false);
-    const [ssAttendanceFilter, setSsAttendanceFilter] = useState({ day: '', month: '', year: new Date().getFullYear().toString() });
+    const [ssAttendanceFilter, setSsAttendanceFilter] = useState({ startDate: '', endDate: '', month: 'all', year: new Date().getFullYear().toString() });
     const [sundayAttendance, setSundayAttendance] = useState([]);
     const [sundayClassReports, setSundayClassReports] = useState([]);
     const [ssReportModal, setSsReportModal] = useState({ show: false, id: null });
-    const [ssReportFilter, setSsReportFilter] = useState({ query: '', date: '' });
+    const [ssReportFilter, setSsReportFilter] = useState({ query: '', startDate: '', endDate: '' });
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [postResults, setPostResults] = useState([]);
@@ -660,10 +660,17 @@ export default function MemberHome() {
 
     const processedAttendance = sundayAttendance.filter(a => {
         const d = new Date(a.date);
-        const dayMatch = !ssAttendanceFilter.day || d.getDate().toString() === ssAttendanceFilter.day;
-        const monthMatch = !ssAttendanceFilter.month || (d.getMonth() + 1).toString() === ssAttendanceFilter.month;
+        const dateStr = d.toISOString().split('T')[0];
+
+        // Range match
+        const startMatch = !ssAttendanceFilter.startDate || dateStr >= ssAttendanceFilter.startDate;
+        const endMatch = !ssAttendanceFilter.endDate || dateStr <= ssAttendanceFilter.endDate;
+
+        // Month/Year match
+        const monthMatch = ssAttendanceFilter.month === 'all' || (d.getMonth() + 1).toString() === ssAttendanceFilter.month;
         const yearMatch = !ssAttendanceFilter.year || d.getFullYear().toString() === ssAttendanceFilter.year;
-        return dayMatch && monthMatch && yearMatch;
+
+        return startMatch && endMatch && monthMatch && yearMatch;
     });
 
     const processedReports = sundayClassReports.filter(r => {
@@ -673,10 +680,11 @@ export default function MemberHome() {
             (r.title?.toLowerCase().includes(q)) ||
             (r.class?.name?.toLowerCase().includes(q));
 
-        const dateMatch = !ssReportFilter.date ||
-            new Date(r.date).toISOString().split('T')[0] === ssReportFilter.date;
+        const d = new Date(r.date).toISOString().split('T')[0];
+        const startMatch = !ssReportFilter.startDate || d >= ssReportFilter.startDate;
+        const endMatch = !ssReportFilter.endDate || d <= ssReportFilter.endDate;
 
-        return titleMatch && dateMatch;
+        return titleMatch && startMatch && endMatch;
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // ── nav items ──────────────────────────────────────────────────────────────
@@ -1917,7 +1925,7 @@ export default function MemberHome() {
                                                     <Clock size={18} />
                                                 </div>
                                                 <div className="text-left">
-                                                    <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors">
+                                                    <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors">
                                                         {t('older_notifications', 'Anciennes notifications')}
                                                     </h3>
                                                     <p className="text-[11px] text-gray-400 font-medium">
@@ -2010,7 +2018,7 @@ export default function MemberHome() {
                                             <CheckCircle size={18} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black italic tracking-widest text-emerald-600 dark:text-emerald-400">
+                                            <h3 className="text-[13px] font-black tracking-widest text-emerald-600 dark:text-emerald-400">
                                                 {t('attendance_current_month', 'Présence aux classes (mois en cours)')}
                                             </h3>
                                         </div>
@@ -2067,7 +2075,7 @@ export default function MemberHome() {
                                             <Filter size={18} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black italic tracking-widest text-indigo-500 dark:text-indigo-300">
+                                            <h3 className="text-[13px] font-black tracking-widest text-indigo-500 dark:text-indigo-300">
                                                 {t('past_attendance_filter', 'Présence passée et filtres')}
                                             </h3>
                                         </div>
@@ -2076,42 +2084,67 @@ export default function MemberHome() {
                                 </button>
                                 {isSundayPastAttendanceExpanded && (
                                     <div className="mt-4 p-6 bg-white dark:bg-slate-800/40 border border-gray-100 dark:border-slate-700/50 rounded-[2rem] animate-in slide-in-from-top-4 duration-500 shadow-sm">
-                                        <div className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-slate-900/50 rounded-2xl">
-                                            <div className="flex-1 min-w-[80px]">
-                                                <label className="block text-[8px] font-black tracking-widest text-gray-400 mb-1 ml-1">{t('day', 'Jour')}</label>
-                                                <input
-                                                    type="number" min="1" max="31"
-                                                    value={ssAttendanceFilter.day}
-                                                    onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, day: e.target.value })}
-                                                    placeholder="--"
-                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl p-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-indigo-500/20 outline-none"
-                                                />
+                                        <div className="flex flex-wrap items-end gap-4 mb-6 p-6 bg-gray-50 dark:bg-slate-900/50 rounded-[2rem] border border-gray-100/50 dark:border-slate-800 shadow-sm transition-all focus-within:shadow-indigo-500/5">
+                                            <div className="flex-1 min-w-[150px] relative">
+                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('from', 'Du')}</label>
+                                                <div className="relative group">
+                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none group-focus-within:scale-110 transition-transform" />
+                                                    <input
+                                                        type="date"
+                                                        value={ssAttendanceFilter.startDate}
+                                                        onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, startDate: e.target.value })}
+                                                        className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-[100px]">
-                                                <label className="block text-[8px] font-black tracking-widest text-gray-400 mb-1 ml-1">{t('month', 'Mois')}</label>
+                                            <div className="flex-1 min-w-[150px] relative">
+                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('to', 'Au')}</label>
+                                                <div className="relative group">
+                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none group-focus-within:scale-110 transition-transform" />
+                                                    <input
+                                                        type="date"
+                                                        value={ssAttendanceFilter.endDate}
+                                                        onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, endDate: e.target.value })}
+                                                        className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 min-w-[130px] relative">
+                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('month', 'Mois')}</label>
                                                 <select
                                                     value={ssAttendanceFilter.month}
                                                     onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, month: e.target.value })}
-                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl p-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-indigo-500/20 outline-none appearance-none"
+                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl px-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all appearance-none cursor-pointer"
                                                 >
-                                                    <option value="">{t('all_months', 'Tous')}</option>
+                                                    <option value="all">{t('all', 'Tous')}</option>
                                                     {Array.from({ length: 12 }, (_, i) => (
-                                                        <option key={i + 1} value={i + 1}>{new Date(0, i).toLocaleString(locale, { month: 'long' })}</option>
+                                                        <option key={i + 1} value={i + 1}>
+                                                            {new Date(2000, i, 1).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { month: 'long' })}
+                                                        </option>
                                                     ))}
                                                 </select>
                                             </div>
-                                            <div className="flex-1 min-w-[80px]">
-                                                <label className="block text-[8px] font-black tracking-widest text-gray-400 mb-1 ml-1">{t('year', 'Année')}</label>
-                                                <input
-                                                    type="number"
+                                            <div className="flex-1 min-w-[110px] relative">
+                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('year', 'Année')}</label>
+                                                <select
                                                     value={ssAttendanceFilter.year}
                                                     onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, year: e.target.value })}
-                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl p-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-indigo-500/20 outline-none"
-                                                />
+                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl px-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all appearance-none cursor-pointer"
+                                                >
+                                                    {Array.from({ length: 10 }, (_, i) => {
+                                                        const y = new Date().getFullYear() - 5 + i;
+                                                        return <option key={y} value={y}>{y}</option>;
+                                                    })}
+                                                </select>
                                             </div>
-                                            <button className="h-[42px] px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] font-black tracking-widest transition-all active:scale-95 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 mt-4 sm:mt-0">
-                                                <Search size={14} /> {t('filter', 'Filtrer')}
-                                            </button>
+                                            {(ssAttendanceFilter.startDate || ssAttendanceFilter.endDate || ssAttendanceFilter.month !== 'all') && (
+                                                <button
+                                                    onClick={() => setSsAttendanceFilter({ startDate: '', endDate: '', month: 'all', year: new Date().getFullYear().toString() })}
+                                                    className="h-[42px] px-5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95"
+                                                >
+                                                    {t('clear', 'Effacer')}
+                                                </button>
+                                            )}
                                         </div>
 
                                         <div className="space-y-1">
@@ -2154,7 +2187,7 @@ export default function MemberHome() {
                                             <FileText size={18} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
+                                            <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
                                                 {t('class_reports', 'Rapports de classe')}
                                             </h3>
                                         </div>
@@ -2162,28 +2195,77 @@ export default function MemberHome() {
                                     <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isSundayHistoryExpanded ? 'rotate-180 text-amber-500' : ''}`} />
                                 </button>
                                 {isSundayHistoryExpanded && (
-                                    <div className="mt-4 p-2 bg-white dark:bg-slate-800/20 border border-gray-100 dark:border-slate-800 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
-                                        {sundayClassReports.length === 0 ? (
-                                            <div className="p-8 text-center">
+                                    <div className="mt-4 p-4 bg-white dark:bg-slate-800/20 border border-gray-100 dark:border-slate-800 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
+                                        {/* Report Filters */}
+                                        <div className="flex flex-wrap items-center gap-4 mb-6 p-6 bg-amber-50/30 dark:bg-amber-950/10 rounded-[2rem] border border-amber-100/30 dark:border-amber-900/10 shadow-sm">
+                                            <div className="flex-1 min-w-[200px] relative">
+                                                <label className="block text-[8px] font-black tracking-widest text-amber-500/60 mb-2 ml-1 uppercase">{t('search', 'Rechercher')}</label>
+                                                <div className="relative">
+                                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400" />
+                                                    <input
+                                                        type="text"
+                                                        value={ssReportFilter.query}
+                                                        onChange={e => setSsReportFilter({ ...ssReportFilter, query: e.target.value })}
+                                                        placeholder={t('search_lesson_placeholder', 'Leçon, classe...')}
+                                                        className="w-full bg-white dark:bg-slate-900 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-amber-500/20 outline-none shadow-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 min-w-[150px] relative">
+                                                <label className="block text-[8px] font-black tracking-widest text-amber-500/60 mb-2 ml-1 uppercase">{t('from', 'Du')}</label>
+                                                <div className="relative">
+                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
+                                                    <input
+                                                        type="date"
+                                                        value={ssReportFilter.startDate}
+                                                        onChange={e => setSsReportFilter({ ...ssReportFilter, startDate: e.target.value })}
+                                                        className="w-full bg-white dark:bg-slate-900 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-amber-500/20 outline-none shadow-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 min-w-[150px] relative">
+                                                <label className="block text-[8px] font-black tracking-widest text-amber-500/60 mb-2 ml-1 uppercase">{t('to', 'Au')}</label>
+                                                <div className="relative">
+                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
+                                                    <input
+                                                        type="date"
+                                                        value={ssReportFilter.endDate}
+                                                        onChange={e => setSsReportFilter({ ...ssReportFilter, endDate: e.target.value })}
+                                                        className="w-full bg-white dark:bg-slate-900 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-amber-500/20 outline-none shadow-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                            {(ssReportFilter.query || ssReportFilter.startDate || ssReportFilter.endDate) && (
+                                                <button
+                                                    onClick={() => setSsReportFilter({ query: '', startDate: '', endDate: '' })}
+                                                    className="h-[42px] px-5 bg-amber-100/50 text-amber-700 rounded-xl hover:bg-amber-100 transition-all text-[10px] font-black uppercase tracking-widest mt-4 sm:mt-6"
+                                                >
+                                                    {t('clear', 'Effacer')}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {processedReports.length === 0 ? (
+                                            <div className="p-12 text-center">
                                                 <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
                                                 <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_reports_found', 'Aucun rapport de classe trouvé.')}</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-1">
-                                                {sundayClassReports.map(report => (
+                                                {processedReports.map(report => (
                                                     <div key={report.id} className="flex items-center justify-between p-4 hover:bg-amber-50/30 dark:hover:bg-amber-900/10 rounded-2xl transition-all group">
                                                         <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                                                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center transition-transform group-hover:scale-110">
                                                                 <BookOpen size={18} />
                                                             </div>
                                                             <div>
-                                                                <p className="text-[13px] font-bold text-gray-700 dark:text-gray-200">{report.lessonTitle || report.title || t('weekly_report', 'Rapport hebdomadaire')}</p>
+                                                                <p className="text-[13px] font-bold text-gray-700 dark:text-gray-200 line-clamp-1">{report.lessonTitle || report.title || t('weekly_report', 'Rapport hebdomadaire')}</p>
                                                                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{report.class?.name} • {new Date(report.date).toLocaleDateString(locale)}</p>
                                                             </div>
                                                         </div>
                                                         <button
                                                             onClick={() => setSsReportModal({ show: true, id: report.id })}
-                                                            className="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-xl text-[10px] font-black tracking-widest transition-all"
+                                                            className="px-6 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-xl text-[10px] font-black tracking-widest transition-all active:scale-95 whitespace-nowrap"
                                                         >
                                                             {t('view', 'Voir')}
                                                         </button>
@@ -2231,7 +2313,7 @@ export default function MemberHome() {
                                             <History size={18} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
+                                            <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
                                                 {t('history_past_groups', 'Historique / groupes passés')}
                                             </h3>
                                         </div>
@@ -2281,7 +2363,7 @@ export default function MemberHome() {
                                             <History size={18} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
+                                            <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
                                                 {t('history_past_ministries', 'Historique / ministères passés')}
                                             </h3>
                                         </div>

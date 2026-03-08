@@ -3,16 +3,23 @@ import AdminLayout from '../../../layouts/AdminLayout';
 import api from '../../../api/axios';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useAuth } from '../../../auth/useAuth';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, LineChart, Line, Legend
+    PieChart, Pie, Cell, LineChart, Line, Legend, BarChart, Bar
 } from 'recharts';
+import {
+    Users, Layout, BookOpen, CheckCircle, AlertTriangle, TrendingUp,
+    ArrowUpRight, ArrowDownRight, Calendar, UserPlus, GraduationCap,
+    Layers, Activity, Heart, Bookmark, Award, FileText
+} from 'lucide-react';
 
 export default function SundaySchoolOverview() {
     const { t } = useLanguage();
     const { user } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [activeChart, setActiveChart] = useState('attendance'); // 'attendance' | 'offering'
 
     const roles = Array.isArray(user?.role) ? user.role : [user?.role];
     const isMonitor = roles.includes('monitor') && !roles.includes('admin') && !roles.includes('super_admin');
@@ -32,298 +39,442 @@ export default function SundaySchoolOverview() {
         fetchStats();
     }, []);
 
-    const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+    const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4'];
 
     if (loading) return (
         <AdminLayout>
-            <div className="flex items-center justify-center h-[60vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="flex items-center justify-center h-[70vh]">
+                <div className="relative w-16 h-16">
+                    <div className="absolute inset-0 rounded-full border-4 border-indigo-100 dark:border-indigo-900/30"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                </div>
             </div>
         </AdminLayout>
     );
 
     const { kpis, weeklyTrend, classStats, transitionsDue, alerts, recentActivity } = stats || {};
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1 }
+    };
+
     return (
         <AdminLayout>
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        {t('sunday_school')} <span className="text-indigo-600 dark:text-indigo-400">{t('overview')}</span>
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
-                        {isMonitor ? t('monitor_dashboard_desc', 'Gérez vos classes et suivez la présence.') : t('dashboard_welcome_desc')}
-                    </p>
-                </div>
-                {!isMonitor && (
-                    <div className="flex items-center gap-3">
-                        <div className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-100 dark:border-indigo-800">
-                            {t('superintendent_view', 'Vue Surintendant')}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="max-w-[1600px] mx-auto px-4 lg:px-8 py-6"
+            >
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                    <motion.div variants={itemVariants}>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+                                <GraduationCap size={22} />
+                            </div>
+                            <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">{t('sunday_school_module', 'Module École Dominicale')}</h4>
                         </div>
-                    </div>
-                )}
-            </div>
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-3">
+                            {t('dashboard_overview', 'Tableau de Bord')}
+                        </h1>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium max-w-lg">
+                            {isMonitor ? t('monitor_dashboard_desc', 'Gérez vos classes et suivez la présence de vos élèves.') : t('superintendent_dashboard_desc', 'Vue d\'ensemble de la santé et de la croissance du programme.')}
+                        </p>
+                    </motion.div>
 
-            {/* KPI Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 mb-10">
-                <KPICard
-                    title={t('total_members')}
-                    value={kpis?.totalMembers}
-                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                    color="indigo"
-                />
-                <KPICard
-                    title={t('total_active_classes')}
-                    value={kpis?.activeClasses}
-                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                    color="emerald"
-                />
-                <KPICard
-                    title={t('monitors')}
-                    value={kpis?.totalMonitors}
-                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                    color="amber"
-                />
-                <KPICard
-                    title={t('attendance_rate')}
-                    value={`${kpis?.attendanceRate}%`}
-                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                    color="blue"
-                />
-                <KPICard
-                    title={t('new_members')}
-                    value={kpis?.newMembersThisMonth}
-                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                    color="rose"
-                />
-                <KPICard
-                    title={t('transitions_due')}
-                    value={kpis?.transitionsDueCount}
-                    icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                    color="violet"
-                />
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                {/* Column 1 & 2: Charts & Transitions */}
-                <div className="xl:col-span-2 space-y-8">
-                    {/* Attendance Chart */}
-                    <div className="bg-white dark:bg-[#1A1A1A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('attendance_trend')}</h3>
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('last_8_weeks')}</span>
-                        </div>
-                        <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={weeklyTrend}>
-                                    <defs>
-                                        <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366F1" stopOpacity={0.1} />
-                                            <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB33" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                                    <Tooltip
-                                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                    />
-                                    <Area type="monotone" dataKey="present" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#colorPresent)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    {/* Transition Monitor */}
-                    {!isMonitor && (
-                        <div className="bg-white dark:bg-[#1A1A1A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                            <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('near_transition')}</h3>
-                                <div className="bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                                    {transitionsDue?.length || 0} {t('members_flagged', 'Membres')}
+                    <motion.div variants={itemVariants} className="flex items-center gap-4">
+                        <div className="bg-white dark:bg-[#1A1A1A] p-4 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm flex items-center gap-4">
+                            <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center text-emerald-500 shrink-0">
+                                <Activity size={18} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">{t('program_health', 'Santé du Programme')}</p>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg font-black text-gray-900 dark:text-white">{(kpis?.attendanceRate > 80 ? 'Excellente' : kpis?.attendanceRate > 60 ? 'Bonne' : 'À suivre')}</span>
+                                    <div className={`w-2 h-2 rounded-full ${kpis?.attendanceRate > 80 ? 'bg-emerald-500' : kpis?.attendanceRate > 60 ? 'bg-amber-500' : 'bg-rose-500'} animate-pulse`}></div>
                                 </div>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="border-b border-gray-100 dark:border-white/5">
-                                            <th className="pb-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('name')}</th>
-                                            <th className="pb-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('current_class')}</th>
-                                            <th className="pb-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('age')}</th>
-                                            <th className="pb-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('transition_reason')}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                        {transitionsDue?.length > 0 ? transitionsDue.map((member, i) => (
-                                            <tr key={i} className="group">
-                                                <td className="py-4 font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{member.name}</td>
-                                                <td className="py-4 text-sm text-gray-500 dark:text-gray-400">{member.currentClass}</td>
-                                                <td className="py-4 text-sm font-medium text-gray-900 dark:text-white">{member.age} ans</td>
-                                                <td className="py-4">
-                                                    <span className="px-2 py-1 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-[10px] font-bold rounded-lg uppercase tracking-widest">
-                                                        {member.reason}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        )) : (
-                                            <tr>
-                                                <td colSpan="4" className="py-10 text-center text-gray-400 italic text-sm">
-                                                    {t('no_transitions_due', 'Aucune transition nécessaire pour le moment.')}
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
-                    )}
+                    </motion.div>
                 </div>
 
-                {/* Column 3: Stats & Alerts */}
-                <div className="space-y-8">
-                    {/* Distribution Pie */}
-                    <div className="bg-white dark:bg-[#1A1A1A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight mb-8">{t('class_distribution')}</h3>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={classStats || []}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={90}
-                                        paddingAngle={8}
-                                        dataKey="memberCount"
-                                        nameKey="name"
-                                        stroke="none"
+                {/* KPI Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
+                    <EnhancedKPICard
+                        title={t('total_members', 'Élèves')}
+                        value={kpis?.totalMembers}
+                        icon={<Users size={20} />}
+                        color="indigo"
+                        trend={kpis?.newMembersThisMonth > 0 ? `+${kpis.newMembersThisMonth}` : null}
+                        trendLabel={t('this_month', 'Ce mois')}
+                    />
+                    <EnhancedKPICard
+                        title={t('active_classes', 'Classes')}
+                        value={kpis?.activeClasses}
+                        icon={<Layers size={20} />}
+                        color="emerald"
+                    />
+                    <EnhancedKPICard
+                        title={t('attendance_rate', 'Assiduité')}
+                        value={`${kpis?.attendanceRate}%`}
+                        icon={<CheckCircle size={20} />}
+                        color="blue"
+                        trend={kpis?.attendanceRate > 75 ? "Optimal" : "Target 85%"}
+                    />
+                    <EnhancedKPICard
+                        title={t('offering', 'Offrandes')}
+                        value={`${kpis?.totalOfferingThisMonth || 0} HTG`}
+                        icon={<Heart size={20} />}
+                        color="rose"
+                        trend={t('this_month')}
+                    />
+                    <EnhancedKPICard
+                        title={t('monitors', 'Moniteurs')}
+                        value={kpis?.totalMonitors}
+                        icon={<Layout size={20} />}
+                        color="amber"
+                    />
+                    <EnhancedKPICard
+                        title={t('transitions', 'Transitions')}
+                        value={kpis?.transitionsDueCount}
+                        icon={<ArrowUpRight size={20} />}
+                        color="violet"
+                        alert={kpis?.transitionsDueCount > 5}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+                    {/* Main Content Area (8 Columns) */}
+                    <div className="xl:col-span-8 space-y-10">
+                        {/* Primary Charts Card */}
+                        <motion.div variants={itemVariants} className="bg-white dark:bg-[#1A1A1A] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 relative z-10">
+                                <div>
+                                    <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-1">{t('growth_and_attendance', 'Croissance & Assiduité')}</h3>
+                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{t('last_8_weeks_stats', 'Statistiques sur les 8 dernières semaines')}</p>
+                                </div>
+                                <div className="flex bg-gray-50 dark:bg-black/40 p-1.5 rounded-2xl border border-gray-100 dark:border-white/5">
+                                    <button
+                                        onClick={() => setActiveChart('attendance')}
+                                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeChart === 'attendance' ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-xl shadow-indigo-500/10' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white'}`}
                                     >
-                                        {classStats?.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={8} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                                    />
-                                    <Legend iconType="circle" />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
+                                        {t('attendance', 'Présence')}
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveChart('offering')}
+                                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeChart === 'offering' ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-xl shadow-indigo-500/10' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white'}`}
+                                    >
+                                        {t('offerings', 'Offrandes')}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="h-[400px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AnimatePresence mode="wait">
+                                        {activeChart === 'attendance' ? (
+                                            <motion.div
+                                                key="attendance"
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                className="w-full h-full"
+                                            >
+                                                <AreaChart data={weeklyTrend}>
+                                                    <defs>
+                                                        <linearGradient id="primaryGrad" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#6366F1" stopOpacity={0.2} />
+                                                            <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#8B5CF611" />
+                                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }} dy={15} />
+                                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }} />
+                                                    <Tooltip
+                                                        content={<CustomTooltip />}
+                                                        cursor={{ stroke: '#6366F1', strokeWidth: 2, strokeDasharray: '5 5' }}
+                                                    />
+                                                    <Area
+                                                        type="monotone"
+                                                        dataKey="present"
+                                                        stroke="#6366F1"
+                                                        strokeWidth={4}
+                                                        fillOpacity={1}
+                                                        fill="url(#primaryGrad)"
+                                                        animationDuration={1500}
+                                                    />
+                                                </AreaChart>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="offering"
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                className="w-full h-full"
+                                            >
+                                                <BarChart data={weeklyTrend}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB11" />
+                                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }} dy={15} />
+                                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }} />
+                                                    <Tooltip content={<CustomTooltip currency="HTG" />} />
+                                                    <Bar dataKey="offering" fill="#EC4899" radius={[8, 8, 0, 0]} animationDuration={1500} />
+                                                </BarChart>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </ResponsiveContainer>
+                            </div>
+                        </motion.div>
+
+                        {/* Transitions Section */}
+                        {!isMonitor && (
+                            <motion.div variants={itemVariants} className="bg-white dark:bg-[#1A1A1A] rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
+                                <div className="px-10 py-8 border-b border-gray-50 dark:border-white/5 flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('pending_transitions', 'Transitions en Attente')}</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('members_eligible_promotion', 'Membres éligibles à un changement de classe')}</p>
+                                    </div>
+                                    <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest">
+                                        {transitionsDue?.length || 0} Critical
+                                    </div>
+                                </div>
+                                <div className="p-2 overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50 dark:bg-black/20">
+                                                <th className="px-8 py-5 rounded-l-2xl">{t('student', 'Élève')}</th>
+                                                <th className="px-8 py-5">{t('current_class', 'Classe Actuelle')}</th>
+                                                <th className="px-8 py-5">{t('age', 'Âge')}</th>
+                                                <th className="px-8 py-5 rounded-r-2xl">{t('action_required', 'Action Requise')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                            {transitionsDue?.length > 0 ? transitionsDue.map((member, i) => (
+                                                <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                                                    <td className="px-8 py-6">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-9 h-9 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center text-sm font-bold text-gray-400">{member.name[0]}</div>
+                                                            <span className="font-bold text-gray-900 dark:text-white">{member.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-6 text-sm text-gray-500">{member.currentClass}</td>
+                                                    <td className="px-8 py-6"><span className="px-3 py-1 bg-gray-50 dark:bg-white/5 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400">{member.age} ans</span></td>
+                                                    <td className="px-8 py-6">
+                                                        <div className="flex items-center gap-2 text-rose-500">
+                                                            <AlertTriangle size={14} />
+                                                            <span className="text-[11px] font-black uppercase tracking-widest">{member.reason}</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="4" className="py-20 text-center">
+                                                        <Bookmark size={40} className="mx-auto text-gray-100 mb-4 opacity-50" />
+                                                        <p className="text-gray-400 font-bold tracking-widest text-[11px] uppercase">{t('no_transitions_needed', 'Aucune transition à prévoir pour le moment')}</p>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
 
-                    {/* Alerts Panel */}
-                    {!isMonitor && (
-                        <div className="bg-white dark:bg-[#1A1A1A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight mb-8">{t('alerts_notifications')}</h3>
-                            <div className="space-y-4">
-                                {alerts?.missingMonitorsCount > 0 && (
-                                    <AlertItem
-                                        icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                                        label={t('missing_monitors')}
-                                        value={alerts.missingMonitorsCount}
-                                        color="amber"
-                                    />
-                                )}
-                                {alerts?.missingReportsCount > 0 && (
-                                    <AlertItem
-                                        icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                                        label={t('pending_reports', 'Rapports en attente')}
-                                        value={alerts.missingReportsCount}
-                                        color="indigo"
-                                    />
-                                )}
-                                {kpis?.attendanceRate < 70 && (
-                                    <AlertItem
-                                        icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>}
-                                        label={t('low_attendance_alert', 'Baisse de fréquentation')}
-                                        value={`${kpis?.attendanceRate}%`}
-                                        color="rose"
-                                    />
+                    {/* Sidebar Area (4 Columns) */}
+                    <div className="xl:col-span-4 space-y-10">
+                        {/* Class Distribution Pie */}
+                        <motion.div variants={itemVariants} className="bg-white dark:bg-[#1A1A1A] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight mb-8">{t('class_distribution', 'Répartition par Classe')}</h3>
+                            <div className="h-64 relative mb-6">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={classStats || []}
+                                            innerRadius={70}
+                                            outerRadius={100}
+                                            paddingAngle={8}
+                                            dataKey="memberCount"
+                                            nameKey="name"
+                                            stroke="none"
+                                        >
+                                            {classStats?.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={10} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip content={<CustomPieTooltip />} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <span className="text-3xl font-black text-gray-900 dark:text-white leading-none">{kpis?.totalMembers}</span>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('total', 'Total')}</span>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                {classStats?.map((entry, index) => (
+                                    <div key={index} className="flex items-center justify-between text-[11px] font-bold">
+                                        <div className="flex items-center gap-2 text-gray-500">
+                                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                                            <span>{entry.name}</span>
+                                        </div>
+                                        <span className="text-gray-900 dark:text-white">{entry.memberCount} ({Math.round(entry.memberCount / kpis?.totalMembers * 100)}%)</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+
+                        {/* Critical Alerts Panel */}
+                        {!isMonitor && (
+                            <motion.div variants={itemVariants} className="bg-indigo-600 rounded-[3rem] p-10 shadow-2xl shadow-indigo-600/20 text-white relative overflow-hidden">
+                                <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/10 blur-[60px] rounded-full translate-x-1/2 translate-y-1/2"></div>
+                                <h3 className="text-xl font-black tracking-tight mb-8 flex items-center gap-3">
+                                    <AlertTriangle size={22} className="text-white/80" />
+                                    {t('critical_alerts', 'Alertes Critiques')}
+                                </h3>
+                                <div className="space-y-4">
+                                    <AlertRow icon={<Users size={16} />} title={t('monitors_alert', 'Moniteurs manquants')} value={alerts?.missingMonitorsCount} />
+                                    <AlertRow icon={<FileText size={16} />} title={t('reports_alert', 'Rapports en attente')} value={alerts?.missingReportsCount} />
+                                    <AlertRow icon={<TrendingUp size={16} />} title={t('low_attendance', 'Assiduité faible')} value={kpis?.attendanceRate < 70 ? `${kpis.attendanceRate}%` : null} />
+                                </div>
+                                <button className="w-full mt-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all active:scale-95 border border-white/20">
+                                    {t('resolve_alerts', 'Résoudre les alertes')}
+                                </button>
+                            </motion.div>
+                        )}
+
+                        {/* Activity Log */}
+                        <motion.div variants={itemVariants} className="bg-white dark:bg-[#1A1A1A] p-10 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-sm">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('recent_flow', 'Flux récent')}</h3>
+                                <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-xl text-gray-400">
+                                    <Activity size={16} />
+                                </div>
+                            </div>
+                            <div className="space-y-8 relative">
+                                <div className="absolute left-[13px] top-2 bottom-6 w-px bg-gray-100 dark:bg-white/5"></div>
+                                {recentActivity?.length > 0 ? recentActivity.map((act, i) => (
+                                    <div key={i} className="flex gap-6 relative z-10">
+                                        <div className="w-7 h-7 bg-white dark:bg-[#1A1A1A] border-2 border-indigo-100 dark:border-indigo-900/50 rounded-full flex items-center justify-center text-[10px] shrink-0 shadow-sm">
+                                            {act.icon}
+                                        </div>
+                                        <div className="pt-0.5">
+                                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-tight mb-1">{act.text}</p>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{formatRelativeTime(act.time, t)}</span>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <p className="text-center py-4 text-gray-400 italic text-sm">{t('no_activity', 'Pas d\'activité')}</p>
                                 )}
                             </div>
-                        </div>
-                    )}
-
-                    {/* Recent Activity */}
-                    <div className="bg-white dark:bg-[#1A1A1A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight mb-8">{t('recent_activity')}</h3>
-                        <div className="space-y-6">
-                            {recentActivity?.length > 0 ? recentActivity.map((act, i) => (
-                                <ActivityItem
-                                    key={i}
-                                    icon={act.icon}
-                                    text={act.text}
-                                    time={formatRelativeTime(act.time, t)}
-                                />
-                            )) : (
-                                <div className="text-center py-6 text-gray-400 italic text-sm">
-                                    {t('no_recent_activity', 'Aucune activité récente.')}
-                                </div>
-                            )}
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </AdminLayout>
     );
 }
 
-function KPICard({ title, value, icon, color }) {
-    const colors = {
+function EnhancedKPICard({ title, value, icon, color, trend, trendLabel, alert }) {
+    const colorStyles = {
         indigo: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
         emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
-        amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400',
         blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
         rose: 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400',
+        amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400',
         violet: 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400',
     };
 
     return (
-        <div className="bg-white dark:bg-[#1A1A1A] p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow group">
-            <div className="flex items-center gap-3 mb-4">
-                <div className={`p-2.5 rounded-xl transition-transform group-hover:scale-110 ${colors[color]}`}>
-                    {icon}
+        <motion.div
+            variants={{
+                hidden: { y: 20, opacity: 0 },
+                visible: { y: 0, opacity: 1 }
+            }}
+            className={`bg-white dark:bg-[#1A1A1A] p-7 rounded-[2.5rem] border ${alert ? 'border-rose-200 dark:border-rose-900/30' : 'border-gray-100 dark:border-white/5'} shadow-sm relative overflow-hidden group`}
+        >
+            <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-5">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all group-hover:rotate-12 ${colorStyles[color]}`}>
+                        {icon}
+                    </div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{title}</span>
                 </div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{title}</span>
+                <div className="flex items-end justify-between">
+                    <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter leading-none">{value || 0}</h2>
+                    {trend && (
+                        <div className="text-right">
+                            <p className="text-[13px] font-black text-emerald-500 leading-none mb-1">{trend}</p>
+                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{trendLabel}</p>
+                        </div>
+                    )}
+                </div>
             </div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-                {value ?? 0}
-            </div>
-        </div>
+            {alert && <div className="absolute top-4 right-4 w-2 h-2 bg-rose-500 rounded-full animate-ping"></div>}
+        </motion.div>
     );
 }
 
-function AlertItem({ icon, label, value, color }) {
-    const colors = {
-        amber: 'text-amber-600 bg-amber-50 dark:bg-amber-900/20',
-        rose: 'text-rose-600 bg-rose-50 dark:bg-rose-900/20',
-        indigo: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20',
-    };
-
+function AlertRow({ icon, title, value }) {
+    if (value === null || value === undefined || (typeof value === 'number' && value === 0)) return null;
     return (
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-transparent hover:border-gray-100 dark:hover:border-white/5 transition-all">
+        <div className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
             <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${colors[color]}`}>
-                    {icon}
-                </div>
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{label}</span>
+                <span className="p-1.5 bg-white/10 rounded-lg">{icon}</span>
+                <span className="text-xs font-bold text-white/90">{title}</span>
             </div>
-            <span className={`text-sm font-black ${colors[color]} px-2 py-0.5 rounded-lg`}>{value}</span>
+            <span className="text-xs font-black text-white">{value}</span>
         </div>
     );
 }
 
-function ActivityItem({ icon, text, time }) {
-    return (
-        <div className="flex gap-4">
-            <div className="text-lg">{icon}</div>
-            <div className="flex-1">
-                <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{text}</p>
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-1 block">{time}</span>
+function CustomTooltip({ active, payload, label, currency = '' }) {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white dark:bg-black/80 backdrop-blur-xl border border-gray-100 dark:border-white/10 p-5 rounded-2xl shadow-2xl">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">{label}</p>
+                {payload.map((entry, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                        <span className="text-[15px] font-black text-gray-900 dark:text-white">
+                            {entry.value.toLocaleString()} {currency}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{entry.name}</span>
+                    </div>
+                ))}
             </div>
-        </div>
-    );
+        );
+    }
+    return null;
+}
+
+function CustomPieTooltip({ active, payload }) {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="bg-white dark:bg-black/80 backdrop-blur-xl border border-gray-100 dark:border-white/10 p-4 rounded-xl shadow-2xl">
+                <p className="text-xs font-black text-gray-900 dark:text-white mb-1">{data.name}</p>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-black text-indigo-500">{data.memberCount} éléves</span>
+                </div>
+            </div>
+        );
+    }
+    return null;
 }
 
 function formatRelativeTime(dateString, t) {
@@ -337,7 +488,7 @@ function formatRelativeTime(dateString, t) {
 
     if (diffInSeconds < 60) return t('just_now', 'À l\'instant');
     if (diffInMinutes < 60) return `${t('ago', 'Il y a')} ${diffInMinutes}m`;
-    if (diffInHours < 24) return `${t('ago', 'Il y a')} ${diffInHours}h`;
+    if (diffInHours < 24) return `${t('today', 'Aujourd\'hui')} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     if (diffInDays === 1) return t('yesterday', 'Hier');
     return date.toLocaleDateString();
 }
