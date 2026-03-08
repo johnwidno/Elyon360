@@ -3514,3 +3514,7 @@
    -> FOUND: Admin
 [2026-03-06T20:36:25.204Z] getMemberById - ID: 4, ChurchID: 4
    -> FOUND: Admin
+[2026-03-08T03:37:07.550Z] getMemberById - ID: 343, ChurchID: 4
+   -> FOUND: Jean Kemy
+[2026-03-08T03:37:08.334Z] getMemberById - ID: 343, ChurchID: 4
+   -> FOUND: Jean Kemy

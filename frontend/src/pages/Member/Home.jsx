@@ -4,22 +4,25 @@ import api from '../../api/axios';
 import { useAuth } from '../../auth/AuthProvider';
 import AlertModal from '../../components/ChurchAlertModal';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import {
     User, Bell, Heart, MessageSquare, LogOut, LayoutDashboard,
     Settings, BookOpen, Users, Building2, Activity,
     Mail, Phone, Edit3, Check, X, Menu, ChevronRight,
-    MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown
+    MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown,
+    Moon, Sun
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import MemberRequests from './MemberRequests';
 import MemberCardGeneratorModal from '../../components/Admin/Members/MemberCardGeneratorModal';
 
 // ─── SHARED STYLES ────────────────────────────────────────────────────────────
-const SIDEBAR_BG = '#1a2035';
-const ACTIVE_BG = 'rgba(99,102,241,0.18)';
-const ACTIVE_CLR = '#818cf8';
-const BORDER_CLR = '#e8eaf0';
-const BG_CLR = '#f0f2f8';
+const SIDEBAR_BG = '#0f172a';
+const SIDEBAR_BORDER = '#1e293b';
+const ACTIVE_BG = '#1e293b';
+const ACTIVE_CLR = '#6366f1';
+const BORDER_CLR = '#f1f5f9';
+const BG_CLR = '#f8fafc';
 const FONT = "'Inter','Segoe UI',sans-serif";
 const SERIF = "'Inter', sans-serif"; // Using Inter for headers as well for consistency
 
@@ -59,10 +62,12 @@ const getImageUrl = (path) => {
     return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 function Card({ children, className = '', style = {} }) {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     return (
         <div
-            className={`bg-white rounded-2xl border ${className}`}
-            style={{ borderColor: BORDER_CLR, ...style }}
+            className={`bg-white dark:bg-slate-800 rounded-2xl border transition-colors ${className}`}
+            style={{ borderColor: isDark ? '#1e293b' : '#f1f5f9', ...style }}
         >
             {children}
         </div>
@@ -73,7 +78,7 @@ function Card({ children, className = '', style = {} }) {
 function PageTitle({ title, subtitle }) {
     return (
         <div className="mb-6">
-            <h1 className="font-bold text-gray-900" style={{ fontSize: '24px', letterSpacing: '-0.2px' }}>{title}</h1>
+            <h1 className="font-bold text-gray-900 dark:text-white dark:text-white" style={{ fontSize: '24px', letterSpacing: '-0.2px' }}>{title}</h1>
             {subtitle && <p className="text-gray-400 mt-1 text-sm">{subtitle}</p>}
         </div>
     );
@@ -81,12 +86,14 @@ function PageTitle({ title, subtitle }) {
 
 // ─── ICON CIRCLE ──────────────────────────────────────────────────────────────
 function IconCircle({ icon, amber = false }) {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     return (
         <div
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
             style={{
-                background: amber ? '#fef3c7' : '#eef0f6',
-                color: amber ? '#f59e0b' : '#8a94a6'
+                background: amber ? (isDark ? '#451a03' : '#fef3c7') : (isDark ? '#1e293b' : '#eef0f6'),
+                color: amber ? (isDark ? '#f59e0b' : '#f59e0b') : (isDark ? '#94a3b8' : '#8a94a6')
             }}
         >
             {icon}
@@ -129,9 +136,12 @@ function Badge({ label, color = 'gray' }) {
 export default function MemberHome() {
     const navigate = useNavigate();
     const { logout, user: authUser, updateUser } = useAuth();
-    const { t, language, toggleLanguage } = useLanguage();
+    const { t, lang, toggleLang } = useLanguage();
+    const { theme, toggleTheme } = useTheme();
+    const isDark = theme === 'dark';
     const [donations, setDonations] = useState([]);
     const [notifications, setNotifications] = useState([]);
+    const [events, setEvents] = useState([]);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -191,12 +201,13 @@ export default function MemberHome() {
     const fetchData = async () => {
         try {
             console.log("MemberHome: Fetching data...");
-            const [profRes, donRes, notifRes, postsRes, subRes] = await Promise.all([
+            const [profRes, donRes, notifRes, postsRes, subRes, eventsRes] = await Promise.all([
                 api.get('/members/profile').catch(err => { console.error("Profile fetch error:", err); return { data: null }; }),
                 api.get('/donations/my').catch(err => { console.error("Donations fetch error:", err); return { data: [] }; }),
                 api.get('/notifications').catch(err => { console.error("Notifications fetch error:", err); return { data: [] }; }),
                 api.get('/community-posts').catch(err => { console.error("Posts fetch error:", err); return { data: [] }; }),
-                api.get('/contact-subtypes').catch(err => { console.error("Subtypes fetch error:", err); return { data: [] }; })
+                api.get('/contact-subtypes').catch(err => { console.error("Subtypes fetch error:", err); return { data: [] }; }),
+                api.get('/events').catch(err => { console.error("Events fetch error:", err); return { data: [] }; })
             ]);
 
             if (subRes.data) {
@@ -223,6 +234,7 @@ export default function MemberHome() {
             setDonations(Array.isArray(donRes.data) ? donRes.data : []);
             setNotifications(Array.isArray(notifRes.data) ? notifRes.data : []);
             setCommunityPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
+            setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : []);
 
             // NEW: Sync authUser with latest roles and church info to ensure switcher works
             if (profRes.data && authUser) {
@@ -571,7 +583,7 @@ export default function MemberHome() {
 
     // ── helpers ────────────────────────────────────────────────────────────────
     const unreadCount = notifications.filter(n => !n.isRead).length;
-    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
+    const locale = lang === 'FR' ? 'fr-FR' : 'en-US';
 
     const totalGivingHTG = donations
         .filter(d => (d.currency || 'HTG') === 'HTG')
@@ -592,17 +604,17 @@ export default function MemberHome() {
             id: `don-${d.id}`,
             timestamp: new Date(d.date).getTime(),
             icon: <Heart size={16} />, amber: true,
-            text: `Don de ${parseFloat(d.amount).toLocaleString()} ${d.currency || 'HTG'} enregistré`,
-            date: d.date ? new Date(d.date).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : '',
-            badge: 'Don', badgeColor: 'rose'
+            text: `${t('donation_of', 'Don de')} ${parseFloat(d.amount).toLocaleString()} ${d.currency || 'HTG'} ${t('recorded', 'enregistré')}`,
+            date: d.date ? new Date(d.date).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
+            badge: t('donation', 'Don'), badgeColor: 'rose'
         })),
         ...notifications.map(n => ({
             id: `notif-${n.id}`,
             timestamp: new Date(n.createdAt).getTime(),
             icon: <Bell size={16} />, amber: false,
             text: n.title,
-            date: n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : '',
-            badge: 'Notif', badgeColor: 'blue'
+            date: n.createdAt ? new Date(n.createdAt).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
+            badge: t('notification', 'Notification'), badgeColor: 'blue'
         }))
     ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 15);
 
@@ -610,6 +622,7 @@ export default function MemberHome() {
     const navItems = [
         { id: 'dashboard', label: t('overview', "Vue d'ensemble"), icon: <LayoutDashboard size={15} /> },
         { id: 'profile', label: t('my_profile', 'Mon profil'), icon: <User size={15} /> },
+        { id: 'events', label: t('upcoming_events', 'Événements à venir'), icon: <Calendar size={15} /> },
         { id: 'activity', label: t('recent_activity', 'Activité récente'), icon: <Activity size={15} /> },
         { id: 'requests', label: t('my_requests', 'Mes demandes'), icon: <FileText size={15} /> },
         { id: 'donations', label: t('donation_history', 'Historique des dons'), icon: <Heart size={15} /> },
@@ -636,53 +649,53 @@ export default function MemberHome() {
     // SIDEBAR (shared between desktop + mobile drawer)
     // ═══════════════════════════════════════════════════════════════════════════
     const SidebarContent = () => (
-        <div className="flex flex-col h-full" style={{ background: SIDEBAR_BG }}>
+        <div className="flex flex-col h-full border-r" style={{ background: SIDEBAR_BG, borderColor: SIDEBAR_BORDER }}>
             {/* Logo & Church Info */}
-            <div className="px-5 py-6 border-b border-white/5">
-                <div className="flex items-center gap-4 mb-3">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-white text-[17px] font-black overflow-hidden bg-white shadow-lg">
+            <div className="px-5 py-8 border-b" style={{ borderColor: SIDEBAR_BORDER }}>
+                <div className="flex items-center gap-5 mb-5">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 text-white text-[19px] font-black overflow-hidden bg-white shadow-lg border-2 border-slate-800">
                         {profile?.church?.logoUrl ? (
-                            <img src={getImageUrl(profile.church.logoUrl)} alt="Logo" className="w-full h-full object-contain" />
+                            <img src={getImageUrl(profile.church.logoUrl)} alt="Logo" className="w-full h-full object-contain p-1" />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f59e0b,#f97316)' }}>
+                            <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
                                 <span className="font-black text-white">{(profile?.church?.acronym || profile?.church?.name || '✝')[0].toUpperCase()}</span>
                             </div>
                         )}
                     </div>
-                    <div className="min-w-0">
-                        <p className="text-[9px] font-bold text-indigo-400 tracking-[0.15em] mb-1 uppercase">
+                    <div className="min-w-0 flex flex-col gap-1">
+                        <p className="text-[10px] font-black text-indigo-400 tracking-[0.2em] uppercase">
                             ELYONSYS 360
                         </p>
-                        <p className="text-white font-black text-[17px] leading-tight tracking-tight uppercase truncate">
+                        <p className="text-white font-black text-[18px] leading-relaxed tracking-tight uppercase truncate">
                             {profile?.church?.acronym || 'SIGLE'}
                         </p>
                     </div>
                 </div>
                 {profile?.church?.name && (
-                    <p className="text-white/50 text-[11px] font-medium leading-tight truncate px-1" title={profile.church.name}>
+                    <p className="text-slate-400 text-[12px] font-semibold leading-loose truncate px-1" title={profile.church.name}>
                         {profile.church.name}
                     </p>
                 )}
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-3 py-4 overflow-y-auto noscrollbar">
-                <p className="text-[9px] font-black uppercase tracking-[0.12em] text-white/25 px-3 mb-2">Navigation</p>
-                <div className="space-y-0.5">
+            <nav className="flex-1 px-3 py-6 overflow-y-auto noscrollbar">
+                <div className="space-y-1">
                     {navItems.map(item => {
                         const active = activeTab === item.id;
                         return (
                             <button key={item.id} onClick={() => goTab(item.id)}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left"
-                                style={{ background: active ? ACTIVE_BG : 'transparent' }}
-                            >
-                                <span style={{ color: active ? ACTIVE_CLR : 'rgba(255,255,255,0.4)' }}>{item.icon}</span>
-                                <span className="text-[12.5px] font-medium flex-1 truncate"
-                                    style={{ color: active ? '#a5b4fc' : 'rgba(255,255,255,0.5)' }}>
-                                    {item.label}
+                                className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-left group"
+                                style={{
+                                    background: active ? ACTIVE_BG : 'transparent',
+                                    color: active ? '#fff' : '#94a3b8'
+                                }}>
+                                <span className={`transition-transform duration-300 group-hover:scale-110 ${active ? 'text-indigo-600' : 'text-slate-400'}`}>
+                                    {item.icon}
                                 </span>
+                                <span className={`text-[13px] ${active ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
                                 {item.badge && (
-                                    <span className="w-5 h-5 bg-amber-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shrink-0">
+                                    <span className="ml-auto w-5 h-5 bg-amber-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shrink-0 shadow-sm">
                                         {item.badge}
                                     </span>
                                 )}
@@ -699,7 +712,7 @@ export default function MemberHome() {
     // RENDER
     // ═══════════════════════════════════════════════════════════════════════════
     return (
-        <div className="flex h-screen overflow-hidden" style={{ fontFamily: FONT, background: BG_CLR }}>
+        <div className={`flex h-screen overflow-hidden transition-colors ${isDark ? 'bg-slate-950' : ''}`} style={{ fontFamily: FONT, background: isDark ? '#020617' : BG_CLR }}>
 
             {/* ── DESKTOP SIDEBAR ──────────────────────────────────────────── */}
             <div className="hidden lg:flex flex-col shrink-0 h-full overflow-hidden" style={{ width: '260px' }}>
@@ -720,8 +733,8 @@ export default function MemberHome() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
                 {/* ── TOP HEADER BAR ──────────────────────────────────────── */}
-                <div className="flex items-center justify-between px-4 sm:px-6 shrink-0 relative"
-                    style={{ height: '64px', background: '#fff', borderBottom: `1px solid ${BORDER_CLR}`, zIndex: 90 }}>
+                <div className="flex items-center justify-between px-4 sm:px-6 shrink-0 relative transition-colors"
+                    style={{ height: '64px', background: isDark ? '#0f172a' : '#fff', borderBottom: `1px solid ${isDark ? '#1e293b' : BORDER_CLR}`, zIndex: 90 }}>
                     <div className="flex items-center gap-3">
                         {/* Hamburger (mobile/tablet) */}
                         <button className="lg:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-400"
@@ -730,13 +743,14 @@ export default function MemberHome() {
                         </button>
                         <div className="hidden sm:flex items-center gap-2 text-gray-400 text-sm">
                             <LayoutDashboard size={16} className="text-gray-300" />
-                            <span className="font-bold text-gray-800 text-[14px] tracking-tight">
+                            <span className="font-bold text-gray-800 dark:text-slate-200 text-[14px] tracking-tight">
                                 {navItems.find(n => n.id === activeTab) ? t(navItems.find(n => n.id === activeTab).id, navItems.find(n => n.id === activeTab).label) : t('member_space', 'Espace Membre')}
                             </span>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4">
+
                         {/* 1. Global Search Bar */}
                         <div className="relative group flex items-center" ref={searchRef}>
                             {/* Desktop Search */}
@@ -746,29 +760,29 @@ export default function MemberHome() {
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder={t('search_member_or_post', "Rechercher un membre ou un post...")}
+                                    placeholder={t('search_posts', "Rechercher des publications...")}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 pr-4 py-2 w-48 lg:w-64 bg-gray-50 border border-transparent focus:border-indigo-100 rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-indigo-500/5 text-gray-900 transition-all placeholder-gray-400 outline-none"
+                                    className="pl-10 pr-4 py-2 w-48 lg:w-64 bg-gray-50 dark:bg-slate-900/50 border border-transparent focus:border-indigo-100 dark:focus:border-indigo-500/20 rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-indigo-500/5 text-gray-900 dark:text-white dark:text-gray-100 transition-all placeholder-gray-400 outline-none"
                                 />
 
                                 {/* Desktop Search Results */}
                                 {searchQuery.trim() && (
-                                    <div className="absolute top-full left-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[101] overflow-hidden max-h-80 overflow-y-auto noscrollbar">
-                                        <div className="p-3 border-b border-gray-50 bg-gray-50/30">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('member_results', 'Résultats membres')}</p>
+                                    <div className="absolute top-full left-0 mt-3 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden max-h-80 overflow-y-auto noscrollbar">
+                                        <div className="p-3 border-b border-gray-50 dark:border-slate-700 bg-gray-50/30 dark:bg-slate-900/30">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('member_results', 'Membres')}</p>
                                         </div>
                                         {searchResults.length === 0 ? (
                                             <div className="p-4 text-center text-gray-400 text-xs italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
                                         ) : (
                                             searchResults.map(m => (
-                                                <div key={m.id} className="p-3 hover:bg-indigo-50 transition-colors cursor-pointer flex items-center gap-3 border-b border-gray-50"
-                                                    onClick={() => { goTab('profile'); setProfile(m); setSearchQuery(''); setIsSearchOpen(false); }}>
-                                                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-indigo-100 flex items-center justify-center text-indigo-500 text-[10px] font-bold">
+                                                <div key={m.id} className="p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer flex items-center gap-3 border-b border-gray-50 dark:border-slate-700"
+                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(`${m.firstName} ${m.lastName}`); setIsSearchOpen(false); }}>
+                                                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 text-[10px] font-bold">
                                                         {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-xs font-bold text-gray-900 truncate">
+                                                        <p className="text-xs font-bold text-gray-900 dark:text-white dark:text-gray-100 truncate">
                                                             {m.firstName} {m.lastName}
                                                         </p>
                                                         <p className="text-[10px] text-gray-400 font-medium truncate capitalize">{m.status || 'Membre'}</p>
@@ -783,56 +797,69 @@ export default function MemberHome() {
                             {/* Mobile Search Button & Toggleable Overlay */}
                             <div className="md:hidden">
                                 <button
-                                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isSearchOpen ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:bg-gray-50'}`}
+                                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isSearchOpen ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
                                     onClick={() => setIsSearchOpen(!isSearchOpen)}
                                 >
                                     {isSearchOpen ? <X size={20} /> : <Search size={20} />}
                                 </button>
 
                                 {isSearchOpen && (
-                                    <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 z-[101] animate-in slide-in-from-top-2">
-                                        <div className="relative mb-3">
-                                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                                            <input
-                                                autoFocus
-                                                type="text"
-                                                placeholder={t('search_member_or_post')}
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border-none rounded-xl text-xs font-semibold outline-none text-gray-900"
-                                                onKeyDown={(e) => e.key === 'Escape' && setIsSearchOpen(false)}
-                                            />
-                                        </div>
-
-                                        {/* Mobile Results inside the dropdown */}
-                                        {searchQuery.trim() && (
-                                            <div className="max-h-60 overflow-y-auto noscrollbar border-t border-gray-50 pt-2">
-                                                {searchResults.length === 0 ? (
-                                                    <div className="p-4 text-center text-gray-400 text-[11px] italic">Aucun résultat</div>
-                                                ) : (
-                                                    searchResults.map(m => (
-                                                        <div key={m.id} className="p-2 hover:bg-indigo-50 rounded-xl transition-colors cursor-pointer flex items-center gap-3 mb-1"
-                                                            onClick={() => { goTab('profile'); setProfile(m); setSearchQuery(''); setIsSearchOpen(false); }}>
-                                                            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-indigo-100 flex items-center justify-center text-indigo-500 text-[9px] font-bold">
-                                                                {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <p className="text-[11px] font-bold text-gray-900 truncate">{m.firstName} {m.lastName}</p>
-                                                            </div>
-                                                        </div>
-                                                    ))
-                                                )}
+                                    <div className="fixed inset-0 z-[120] bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top duration-300">
+                                        <div className="p-4 border-b border-gray-100 dark:border-slate-800 flex items-center gap-3">
+                                            <div className="flex-1 relative">
+                                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                                <input
+                                                    autoFocus
+                                                    type="text"
+                                                    placeholder={t('search_posts', "Rechercher des publications...")}
+                                                    value={searchQuery}
+                                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-[15px] font-bold outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Escape') setIsSearchOpen(false);
+                                                        if (e.key === 'Enter') setIsSearchOpen(false);
+                                                    }}
+                                                />
                                             </div>
-                                        )}
+                                            <button
+                                                onClick={() => setIsSearchOpen(false)}
+                                                className="p-3 text-gray-500 font-bold text-sm uppercase tracking-wider"
+                                            >
+                                                {t('close', 'Fermer')}
+                                            </button>
+                                        </div>
+                                        <div className="p-4 max-h-[calc(100vh-100px)] overflow-y-auto noscrollbar">
+                                            {searchQuery.trim() && (
+                                                <div className="space-y-4">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{t('member_results', 'Membres')}</p>
+                                                    {searchResults.length === 0 ? (
+                                                        <div className="p-8 text-center text-gray-400 text-sm italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
+                                                    ) : (
+                                                        searchResults.map(m => (
+                                                            <div key={m.id} className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-[1.5rem] flex items-center gap-4 active:scale-95 transition-all shadow-sm"
+                                                                onClick={() => { setActiveTab('dashboard'); setSearchQuery(`${m.firstName} ${m.lastName}`); setIsSearchOpen(false); }}>
+                                                                <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 font-bold">
+                                                                    {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase text-lg">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{m.firstName} {m.lastName}</p>
+                                                                    <p className="text-[11px] text-gray-400 font-medium capitalize mt-1">{m.status || 'Membre'}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         {/* 2. Language Toggle */}
-                        <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-100">
-                            <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${language === 'fr' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>FR</button>
-                            <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${language === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}>EN</button>
+                        <div className="flex items-center bg-gray-50 dark:bg-slate-900 p-1 rounded-xl border border-gray-100 dark:border-slate-800">
+                            <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${lang === 'FR' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-gray-400'}`}>FR</button>
+                            <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${lang === 'EN' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-gray-400'}`}>EN</button>
                         </div>
 
                         {/* 3. Notifications */}
@@ -848,23 +875,23 @@ export default function MemberHome() {
                             {isNotificationsOpen && (
                                 <>
                                     <div className="fixed inset-0 z-[100]" onClick={() => setIsNotificationsOpen(false)}></div>
-                                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-[2rem] shadow-2xl border border-gray-100 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
-                                        <div className="p-6 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
-                                            <h4 className="font-black text-gray-900 text-sm italic uppercase tracking-widest">{t('notifications', 'Notifications')}</h4>
-                                            {unreadCount > 0 && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] font-black rounded-full italic">{unreadCount} {t('new_notifications_count', 'nouvelle(s)')}</span>}
+                                    <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                                        <div className="p-6 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50 flex items-center justify-between">
+                                            <h4 className="font-black text-gray-900 dark:text-white dark:text-gray-100 text-sm italic uppercase tracking-widest">{t('notifications', 'Notifications')}</h4>
+                                            {unreadCount > 0 && <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-black rounded-full italic">{unreadCount} {t('new_notifications_count', 'nouvelle(s)')}</span>}
                                         </div>
                                         <div className="max-h-[350px] overflow-y-auto noscrollbar">
                                             {notifications.length === 0 ? (
                                                 <div className="p-8 text-center text-gray-400 italic">Aucune notification</div>
                                             ) : (
                                                 notifications.map(n => (
-                                                    <div key={n.id} className={`p-4 border-b border-gray-50 flex gap-3 hover:bg-gray-50 transition-colors cursor-pointer ${!n.isRead ? 'bg-amber-50/20' : ''}`}
+                                                    <div key={n.id} className={`p-4 border-b border-gray-50 dark:border-slate-700 flex gap-3 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors cursor-pointer ${!n.isRead ? 'bg-amber-50/20 dark:bg-amber-900/10' : ''}`}
                                                         onClick={() => handleNotificationClick(n)}>
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${!n.isRead ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${!n.isRead ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' : 'bg-gray-100 dark:bg-slate-700 text-gray-400'}`}>
                                                             <Bell size={14} />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-[12px] font-bold text-gray-900 tracking-tight leading-snug">{n.title}</p>
+                                                            <p className="text-[12px] font-bold text-gray-900 dark:text-white dark:text-gray-100 tracking-tight leading-snug">{n.title}</p>
                                                             <p className="text-[10px] text-gray-500 mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
@@ -872,7 +899,7 @@ export default function MemberHome() {
                                             )}
                                         </div>
                                         <button onClick={() => { goTab('notifications'); setIsNotificationsOpen(false); }}
-                                            className="w-full p-4 text-[11px] font-black uppercase text-indigo-600 hover:bg-indigo-50 transition-colors bg-white">
+                                            className="w-full p-4 text-[11px] font-black uppercase text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors bg-white dark:bg-slate-800">
                                             {t('view_all_notifications', 'Voir toutes les notifications')}
                                         </button>
                                     </div>
@@ -880,13 +907,22 @@ export default function MemberHome() {
                             )}
                         </div>
 
+                        {/* Theme Toggle (Desktop - After notifications) */}
+                        <button
+                            onClick={toggleTheme}
+                            className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-500/20 shadow-sm"
+                            title={isDark ? "Light Mode" : "Dark Mode"}
+                        >
+                            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
+
                         {/* 4. Add Post Button (Send) */}
                         <button
                             onClick={() => setIsPostModalOpen(true)}
                             title={t('publish_message', 'Publier un message')}
-                            className="flex items-center justify-center p-2.5 text-dark rounded-xl shadow-lg shadow-indigo-50 hover:bg-indigo-70 hover:scale-105 active:scale-95 transition-all"
+                            className="flex items-center justify-center p-2.5 rounded-xl shadow-lg shadow-indigo-50 dark:shadow-none bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
                         >
-                            <Send size={18} strokeWidth={2} />
+                            <Send size={18} strokeWidth={2.5} />
                         </button>
 
                         {/* 5. Profile Dropdown Container */}
@@ -903,19 +939,19 @@ export default function MemberHome() {
                             {isProfileDropdownOpen && (
                                 <>
                                     <div className="fixed inset-0 z-[100] cursor-pointer" onClick={() => setIsProfileDropdownOpen(false)}></div>
-                                    <div className="absolute right-0 mt-3 w-64 bg-white rounded-[2rem] shadow-2xl border border-gray-100 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
-                                        <div className="px-6 py-6 border-b border-gray-50 bg-gray-50/50">
-                                            <p className="font-black text-gray-900 text-[15px] italic">
+                                    <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
+                                        <div className="px-6 py-6 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50">
+                                            <p className="font-black text-gray-900 dark:text-white dark:text-gray-100 text-[15px] italic">
                                                 {profile?.firstName} {profile?.lastName}
                                             </p>
-                                            <p className="text-gray-500 text-[11px] font-medium truncate mt-1 italic" title={profile?.email}>
+                                            <p className="text-gray-500 dark:text-gray-400 text-[11px] font-medium truncate mt-1 italic" title={profile?.email}>
                                                 {profile?.email}
                                             </p>
                                         </div>
                                         <div className="p-3 space-y-1">
                                             <button
                                                 onClick={() => { goTab('profile'); setIsProfileDropdownOpen(false); }}
-                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all"
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all"
                                             >
                                                 <User size={16} /> {t('my_profile', 'Mon Profil')}
                                             </button>
@@ -950,24 +986,19 @@ export default function MemberHome() {
                 </div>
 
                 {/* ── MOBILE BOTTOM NAV ────────────────────────────────────── */}
-                <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1"
-                    style={{ background: '#fff', borderTop: `1px solid ${BORDER_CLR}`, height: '58px' }}>
+                <div className="sm:hidden fixed bottom-1 left-0 right-0 z-40 flex items-center justify-around px-2 py-1 transition-all mx-4 rounded-3xl"
+                    style={{ background: isDark ? '#0f172a' : '#fff', border: `1px solid ${isDark ? '#1e293b' : BORDER_CLR}`, height: '58px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
                     {[
                         { id: 'dashboard', icon: <Home size={18} /> },
                         { id: 'activity', icon: <Activity size={18} /> },
                         { id: 'requests', icon: <FileText size={18} /> },
                         { id: 'donations', icon: <Heart size={18} /> },
-                        { id: 'notifications', icon: <Bell size={18} />, badge: unreadCount },
+                        { id: 'toggle-theme', icon: isDark ? <Sun size={18} /> : <Moon size={18} />, action: toggleTheme },
                     ].map(item => (
-                        <button key={item.id} onClick={() => goTab(item.id)}
+                        <button key={item.id} onClick={item.action ? item.action : () => goTab(item.id)}
                             className="relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors"
-                            style={{ color: activeTab === item.id ? '#6366f1' : '#9ca3af' }}>
+                            style={{ color: (activeTab === item.id) ? '#6366f1' : '#9ca3af' }}>
                             {item.icon}
-                            {item.badge > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-amber-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">
-                                    {item.badge}
-                                </span>
-                            )}
                         </button>
                     ))}
                 </div>
@@ -980,71 +1011,102 @@ export default function MemberHome() {
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'dashboard' && (
                         <div className="space-y-8 animate-in mt-2 fade-in duration-300">
-                            <div className="flex flex-col sm:flex-row items-center gap-8 bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                                <div className="w-28 h-28 rounded-[2.2rem] overflow-hidden shadow-2xl shadow-indigo-200 border-4 border-white shrink-0"
-                                    style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                    {profile?.photo ? (
-                                        <img src={getImageUrl(profile.photo)} alt="Me" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-white text-3xl font-black italic">
-                                            {initials}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="text-center sm:text-left space-y-2">
-                                    <h1 className="font-black text-gray-900 tracking-tight italic" style={{ fontSize: '32px', lineHeight: '1' }}>
-                                        {t('hello', 'Bonjour')}, {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')} 👋
-                                    </h1>
-                                    <p className="text-gray-400 font-medium italic text-lg">{t('welcome_member_space', 'Bienvenue dans votre espace membre')}</p>
+                            {/* Welcome Card */}
+                            <div className={`p-8 rounded-[2rem] border shadow-sm relative overflow-hidden group transition-colors ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-100'}`}>
+                                <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110 ${isDark ? 'bg-indigo-500/5' : 'bg-indigo-50/50'}`} />
+                                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8 text-center sm:text-left">
+                                    <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl shadow-indigo-100/20 border-4 border-white dark:border-slate-800 shrink-0"
+                                        style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                                        {profile?.photo ? (
+                                            <img src={getImageUrl(profile.photo)} alt="Me" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+                                                {initials}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                                            {t('hello', 'Hello')}, {profile ? `${profile.firstName} ${profile.lastName}` : t('loading')} 👋
+                                        </h1>
+                                        <p className="text-slate-500 font-medium text-lg">{t('welcome_member_space', 'Welcome to your member space')}</p>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* ── Dashboard Content (Activity Accordion) ── */}
-                            <div className="w-full">
-                                <div className={`group bg-white rounded-[2rem] border overflow-hidden transition-all duration-500 shadow-sm ${isActivityExpanded ? 'shadow-lg border-indigo-100' : 'border-gray-100'}`}>
-                                    <button
-                                        onClick={() => setIsActivityExpanded(!isActivityExpanded)}
-                                        className="w-full p-8 flex items-center justify-between hover:bg-gray-50/50 transition-colors cursor-pointer"
-                                    >
-                                        <div className="flex items-center gap-5">
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 ${isActivityExpanded ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-indigo-50 text-indigo-500 shadow-indigo-50'}`}>
-                                                <Activity size={24} strokeWidth={2.5} />
-                                            </div>
-                                            <div className="text-left">
-                                                <h4 className="font-black text-[16px] text-gray-900 uppercase tracking-widest italic leading-none mb-1">{t('recent_activity', 'Activité récente')}</h4>
-                                                <p className="text-gray-400 text-[12px] font-medium italic">{t('follow_your_latest_activity', 'Suivez vos derniers mouvements')}</p>
-                                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                {/* Left Column: Upcoming Events */}
+                                <div className="lg:col-span-2 space-y-8">
+                                    <div className="w-full">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                <Calendar className="text-indigo-500" size={20} />
+                                                {t('upcoming_events')}
+                                            </h3>
+                                            <button onClick={() => goTab('events')} className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+                                                {t('view_all')}
+                                            </button>
                                         </div>
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 text-gray-400 transition-transform duration-500 ${isActivityExpanded ? 'rotate-90 bg-indigo-50 text-indigo-600' : ''}`}>
-                                            <ChevronRight size={20} />
-                                        </div>
-                                    </button>
-
-                                    {isActivityExpanded && (
-                                        <div className="px-8 pb-8 space-y-4 animate-in slide-in-from-top-4 duration-500">
-                                            <div className="h-px bg-gray-50 mb-6"></div>
-                                            {activityItems.slice(0, 10).map((item, i) => (
-                                                <div key={i} className="flex items-center gap-5 p-4 rounded-2xl hover:bg-gray-50 transition-all group/item">
-                                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${item.amber ? 'bg-amber-100 text-amber-500' : 'bg-blue-100 text-blue-500'}`}>
-                                                        {item.icon}
-                                                    </div>
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="text-[14px] font-bold text-gray-800 tracking-tight leading-tight mb-1 group-hover/item:text-indigo-600 transition-colors">{item.text}</p>
-                                                        <p className="text-[11px] text-gray-400 font-medium italic">{item.date}</p>
-                                                    </div>
-                                                    <div className="shrink-0">
-                                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest italic ${item.badgeColor === 'rose' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
-                                                            {item.badge}
-                                                        </span>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {events.filter(e => new Date(e.startDate) >= new Date()).slice(0, 4).map(event => (
+                                                <div key={event.id} className="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group border-b-4 border-b-transparent hover:border-b-indigo-500">
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                                                            <span className="text-[10px] font-bold uppercase leading-none">{new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { month: 'short' })}</span>
+                                                            <span className="text-lg font-bold leading-none mt-1">{new Date(event.startDate).getDate()}</span>
+                                                        </div>
+                                                        <div className="min-w-0 flex-1">
+                                                            <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 transition-colors">{event.title}</h4>
+                                                            <div className="flex items-center gap-2 mt-2 text-slate-400 text-[11px] font-medium">
+                                                                <Clock size={12} />
+                                                                <span>{new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                                {event.location && (
+                                                                    <>
+                                                                        <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                                                                        <MapPin size={12} />
+                                                                        <span className="truncate">{event.location}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
-                                            {activityItems.length === 0 && <p className="text-gray-400 text-[13px] italic text-center py-8">{t('no_recent_activity', 'Aucune activité enregistrée')}</p>}
-                                            <button onClick={() => goTab('activity')} className="w-full mt-4 py-4 border-2 border-dashed border-gray-100 rounded-2xl text-[11px] font-black uppercase text-gray-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50 transition-all tracking-widest italic">
-                                                {t('view_all_history', "Voir tout l'historique détaillé")}
+                                            {events.filter(e => new Date(e.startDate) >= new Date()).length === 0 && (
+                                                <div className="col-span-full py-12 text-center bg-white dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+                                                    <p className="text-slate-400 text-sm italic">{t('no_upcoming_events', 'Aucun événement à venir')}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Recent Activity */}
+                                <div className="space-y-8">
+                                    <div className="w-full">
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 mb-6">
+                                            <Activity className="text-indigo-500" size={20} />
+                                            {t('recent_activity')}
+                                        </h3>
+                                        <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+                                            {activityItems.slice(0, 5).map((item, i) => (
+                                                <div key={i} className="flex gap-4 group/item">
+                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${item.amber ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-500' : 'bg-slate-50 dark:bg-slate-700/50 text-indigo-500 dark:text-indigo-400'}`}>
+                                                        {item.icon}
+                                                    </div>
+                                                    <div className="min-w-0 flex-1 pt-1">
+                                                        <p className="text-[13px] font-bold text-slate-800 dark:text-slate-100 leading-snug group-hover/item:text-indigo-600 transition-colors">{item.text}</p>
+                                                        <p className="text-[11px] text-slate-400 font-medium mt-1">{item.date}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {activityItems.length === 0 && <p className="text-slate-400 text-xs text-center py-4">{t('no_recent_activity')}</p>}
+                                            <button onClick={() => goTab('activity')} className="w-full py-3 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider rounded-xl transition-all">
+                                                {t('view_all_history')}
                                             </button>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -1052,7 +1114,7 @@ export default function MemberHome() {
                             {/* ── Community Posts Feed (Mobile: Horizontal Scroll) ── */}
                             <div className="mt-4 sm:hidden">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="font-bold text-gray-800 text-[15px] flex items-center gap-2">
+                                    <h3 className="font-bold text-gray-800 dark:text-slate-200 text-[15px] flex items-center gap-2">
                                         <MessageSquare size={16} className="text-indigo-500" />
                                         {t('community', 'Communauté')}
                                     </h3>
@@ -1063,55 +1125,63 @@ export default function MemberHome() {
                                     )}
                                 </div>
                                 <div className={postsLimit > 5 ? "space-y-4" : "flex gap-4 overflow-x-auto pb-4 snap-x -mx-4 px-4 scrollbar-hide"}>
-                                    {communityPosts.filter(p => postFilter === 'all' || p.type === postFilter).slice(0, postsLimit).map(post => {
-                                        const category = POST_CATEGORIES.find(c => c.value === post.type) || POST_CATEGORIES[0];
-                                        const isAuthor = post.authorId == profile?.id;
-                                        const isAdmin = isStaff;
+                                    {communityPosts
+                                        .filter(p => postFilter === 'all' || p.type === postFilter)
+                                        .filter(p =>
+                                            !searchQuery ||
+                                            p.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            p.author?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            p.author?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
+                                        )
+                                        .slice(0, postsLimit).map(post => {
+                                            const category = POST_CATEGORIES.find(c => c.value === post.type) || POST_CATEGORIES[0];
+                                            const isAuthor = post.authorId == profile?.id;
+                                            const isAdmin = isStaff;
 
-                                        return (
-                                            <div key={post.id} className="min-w-[280px] snap-center">
-                                                <Card className="p-4 h-full border-2 border-indigo-50/50 relative overflow-hidden">
-                                                    <div className="flex items-center justify-between gap-3 mb-3">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                                                {post.author?.photo ? <img src={getImageUrl(post.author.photo)} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white text-[10px] uppercase">{post.author?.firstName?.[0] || 'A'}</div>}
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <p className="text-[12px] font-bold text-gray-900 truncate">{post.author?.firstName} {post.author?.lastName}</p>
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <span className="text-[9px] text-indigo-500 font-bold uppercase tracking-wider">{category.label.split(' ')[1]}</span>
-                                                                    {post.targetSubtype && <span className="text-[8px] font-bold text-gray-400 uppercase">🎯 {post.targetSubtype.name}</span>}
+                                            return (
+                                                <div key={post.id} className="min-w-[280px] snap-center">
+                                                    <Card className="p-4 h-full border-2 border-indigo-50/50 relative overflow-hidden">
+                                                        <div className="flex items-center justify-between gap-3 mb-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-8 h-8 rounded-full overflow-hidden shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                                                                    {post.author?.photo ? <img src={getImageUrl(post.author.photo)} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white text-[10px] uppercase">{post.author?.firstName?.[0] || 'A'}</div>}
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="text-[12px] font-bold text-gray-900 dark:text-white truncate">{post.author?.firstName} {post.author?.lastName}</p>
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <span className="text-[9px] text-indigo-500 font-bold uppercase tracking-wider">{category.label.split(' ')[1]}</span>
+                                                                        {post.targetSubtype && <span className="text-[8px] font-bold text-gray-400 uppercase">🎯 {post.targetSubtype.name}</span>}
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                            {(isAuthor || isAdmin) && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <button onClick={() => handleEditPost(post)} className="p-1.5 bg-indigo-50 text-indigo-400 rounded-lg">
+                                                                        <Edit3 size={12} />
+                                                                    </button>
+                                                                    <button onClick={() => handleDeletePost(post.id)} className="p-1.5 bg-red-50 text-red-400 rounded-lg">
+                                                                        <X size={12} />
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        {(isAuthor || isAdmin) && (
-                                                            <div className="flex items-center gap-1">
-                                                                <button onClick={() => handleEditPost(post)} className="p-1.5 bg-indigo-50 text-indigo-400 rounded-lg">
-                                                                    <Edit3 size={12} />
-                                                                </button>
-                                                                <button onClick={() => handleDeletePost(post.id)} className="p-1.5 bg-red-50 text-red-400 rounded-lg">
-                                                                    <X size={12} />
-                                                                </button>
+                                                        <p className="text-[12px] text-gray-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-3">{post.content}</p>
+                                                        {post.imageUrl && post.imageUrl.trim() !== '' && (
+                                                            <div className="relative group h-32 rounded-xl overflow-hidden mb-3 border border-gray-100 dark:border-slate-700 cursor-pointer"
+                                                                onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
+                                                                <img src={getImageUrl(post.imageUrl)} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                                                <div className="absolute top-2 right-2 w-8 h-8 bg-black/40 backdrop-blur-md rounded-lg flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <Maximize2 size={16} />
+                                                                </div>
                                                             </div>
                                                         )}
-                                                    </div>
-                                                    <p className="text-[12px] text-gray-600 line-clamp-3 leading-relaxed mb-3">{post.content}</p>
-                                                    {post.imageUrl && (
-                                                        <div className="relative group h-32 rounded-xl overflow-hidden mb-3 border border-gray-100 cursor-pointer"
-                                                            onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
-                                                            <img src={getImageUrl(post.imageUrl)} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                                            <div className="absolute top-2 right-2 w-8 h-8 bg-black/40 backdrop-blur-md rounded-lg flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <Maximize2 size={16} />
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    <p className="text-[9px] text-gray-400 font-medium">
-                                                        {new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
-                                                    </p>
-                                                </Card>
-                                            </div>
-                                        );
-                                    })}
+                                                        <p className="text-[9px] text-gray-400 font-medium">
+                                                            {new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+                                                        </p>
+                                                    </Card>
+                                                </div>
+                                            );
+                                        })}
                                     {communityPosts.length === 0 && (
                                         <p className="text-gray-400 text-sm py-4 italic">{t('no_publication', 'Aucune publication')}</p>
                                     )}
@@ -1131,7 +1201,7 @@ export default function MemberHome() {
                             {/* ── Community Posts Feed (Desktop Only) ── */}
                             <div className="hidden sm:block mt-8 w-full">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="font-bold text-gray-800 text-[18px] flex items-center gap-3">
+                                    <h3 className="font-bold text-gray-800 dark:text-slate-200 text-[18px] flex items-center gap-3">
                                         <MessageSquare size={20} className="text-indigo-500" />
                                         {t('community_posts', 'Publications de la communauté')}
                                     </h3>
@@ -1174,7 +1244,7 @@ export default function MemberHome() {
                                                                 {post.author?.photo ? <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" /> : post.author?.firstName?.[0] || 'A'}
                                                             </div>
                                                             <div>
-                                                                <p className="font-black text-[14px] text-gray-900 tracking-tight">{post.author?.firstName} {post.author?.lastName}</p>
+                                                                <p className="font-black text-[14px] text-gray-900 dark:text-white tracking-tight">{post.author?.firstName} {post.author?.lastName}</p>
                                                                 <div className="flex items-center gap-2 mt-0.5">
                                                                     <span className="text-[10px] text-gray-400 font-medium">{dateLabel}</span>
                                                                     {post.targetSubtype && (
@@ -1200,10 +1270,10 @@ export default function MemberHome() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    {post.title && <h3 className="font-bold text-base text-gray-900 mb-2 leading-tight">{post.title}</h3>}
-                                                    <p className="text-gray-600 text-[13px] whitespace-pre-line mb-4 leading-relaxed line-clamp-4">{post.content}</p>
-                                                    {post.imageUrl && (
-                                                        <div className="relative group rounded-xl overflow-hidden mt-4 bg-gray-50 border border-gray-100 h-48 cursor-pointer"
+                                                    {post.title && <h3 className="font-bold text-base text-gray-900 dark:text-white mb-2 leading-tight">{post.title}</h3>}
+                                                    <p className="text-gray-600 dark:text-slate-400 text-[13px] whitespace-pre-line mb-4 leading-relaxed line-clamp-4">{post.content}</p>
+                                                    {post.imageUrl && post.imageUrl.trim() !== '' && (
+                                                        <div className="relative group rounded-xl overflow-hidden mt-4 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-700 h-48 cursor-pointer"
                                                             onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
                                                             <img src={getImageUrl(post.imageUrl)} alt="Attachment" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                             <div className="absolute top-3 right-3 w-10 h-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -1228,9 +1298,68 @@ export default function MemberHome() {
                                 )}
 
                                 {communityPosts.length === 0 && (
-                                    <div className="text-center py-16 bg-white/50 rounded-[2rem] border-2 border-dashed border-gray-200">
-                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400"><MessageSquare size={24} /></div>
-                                        <p className="text-gray-500 text-[14px] font-medium">{t('no_publication_yet', 'Aucune publication pour l\'instant.')}</p>
+                                    <div className="text-center py-16 bg-white/50 dark:bg-slate-800/30 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-slate-700">
+                                        <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400"><MessageSquare size={24} /></div>
+                                        <p className="text-gray-500 dark:text-gray-400 text-[14px] font-medium italic">{t('no_publication_yet', 'Aucune publication pour l\'instant.')}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ══════════════════════════════════════════════════════ */}
+                    {/* Événements                                            */}
+                    {/* ══════════════════════════════════════════════════════ */}
+                    {activeTab === 'events' && (
+                        <div className="animate-in fade-in duration-300 w-full space-y-8">
+                            <PageTitle title={t('upcoming_events')} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {events.map(event => {
+                                    const isUpcoming = new Date(event.startDate) >= new Date();
+                                    return (
+                                        <Card key={event.id} className={`p-0 overflow-hidden group border-0 shadow-xl shadow-indigo-500/5 transition-all hover:scale-[1.02] ${isUpcoming ? 'bg-white dark:bg-slate-800' : 'bg-gray-50/50 dark:bg-slate-900/50 grayscale opacity-70'}`}>
+                                            <div className="h-40 relative">
+                                                {event.imageUrl ? (
+                                                    <img src={getImageUrl(event.imageUrl)} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white">
+                                                        <Calendar size={48} className="opacity-20" />
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-sm">
+                                                    <Badge label={isUpcoming ? t('upcoming', 'À venir') : t('past', 'Passé')} color={isUpcoming ? 'blue' : 'gray'} />
+                                                </div>
+                                            </div>
+                                            <div className="p-6 space-y-4">
+                                                <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-2">{event.title}</h3>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-3 text-slate-400 text-xs font-medium">
+                                                        <Calendar size={14} className="text-indigo-400" />
+                                                        {new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                    </div>
+                                                    <div className="flex items-center gap-3 text-slate-400 text-xs font-medium">
+                                                        <Clock size={14} className="text-indigo-400" />
+                                                        {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                    {event.location && (
+                                                        <div className="flex items-center gap-3 text-slate-400 text-xs font-medium">
+                                                            <MapPin size={14} className="text-indigo-400" />
+                                                            <span className="truncate">{event.location}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                {event.description && <p className="text-slate-400 text-xs line-clamp-2 italic">{event.description}</p>}
+                                            </div>
+                                        </Card>
+                                    );
+                                })}
+                                {events.length === 0 && (
+                                    <div className="col-span-full py-24 text-center bg-white dark:bg-slate-800/50 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
+                                        <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-200">
+                                            <Calendar size={32} />
+                                        </div>
+                                        <h4 className="text-slate-900 dark:text-white font-bold mb-2">{t('no_events_found', 'Aucun événement trouvé')}</h4>
+                                        <p className="text-slate-400 text-sm italic">{t('check_back_later', 'Revenez plus tard pour de nouvelles activités !')}</p>
                                     </div>
                                 )}
                             </div>
@@ -1245,7 +1374,7 @@ export default function MemberHome() {
                             <div className="animate-in fade-in duration-300 w-full space-y-6">
 
                                 {/* Avatar card with Cover */}
-                                <Card className="overflow-hidden p-0 relative border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white">
+                                <Card className="overflow-hidden p-0 relative border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white dark:bg-slate-800">
                                     {/* Cover Background */}
                                     <div className="h-48 sm:h-64 w-full relative z-0 overflow-hidden">
                                         {profile?.photo ? (
@@ -1256,14 +1385,14 @@ export default function MemberHome() {
                                                 <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 to-transparent"></div>
                                             </>
                                         ) : (
-                                            <div className="absolute inset-0 bg-gray-50"></div>
+                                            <div className="absolute inset-0 bg-gray-50 dark:bg-slate-900"></div>
                                         )}
                                     </div>
 
                                     {/* Lower section with info */}
                                     <div className="px-10 pb-10 pt-0 flex flex-col sm:flex-row items-center sm:items-end gap-10 text-center sm:text-left relative z-10 -mt-[80px]">
                                         {/* Avatar element */}
-                                        <div className="relative group w-[160px] h-[160px] rounded-[3rem] flex items-center justify-center text-white font-black italic text-[48px] shrink-0 shadow-2xl overflow-hidden cursor-pointer ring-8 ring-white"
+                                        <div className="relative group w-[160px] h-[160px] rounded-[3rem] flex items-center justify-center text-white font-black italic text-[48px] shrink-0 shadow-2xl overflow-hidden cursor-pointer ring-8 ring-white dark:ring-slate-800"
                                             style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
                                             {profile?.photo ? (
                                                 <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" onClick={handlePhotoClick} crossOrigin="anonymous" />
@@ -1284,7 +1413,7 @@ export default function MemberHome() {
                                         {/* Name + email */}
                                         <div className="flex-1 min-w-0 sm:pb-4 space-y-3">
                                             <div>
-                                                <h2 className={`font-black text-4xl sm:text-5xl tracking-tighter ${profile?.photo ? 'text-white drop-shadow-2xl' : 'text-gray-900'}`}
+                                                <h2 className={`font-black text-4xl sm:text-5xl tracking-tighter ${profile?.photo ? 'text-white drop-shadow-2xl' : 'text-gray-900 dark:text-white'}`}
                                                     style={{ lineHeight: '1.2' }}>
                                                     {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')}
                                                 </h2>
@@ -1307,7 +1436,7 @@ export default function MemberHome() {
                                         {!editing && (
                                             <div className="sm:ml-auto pb-4">
                                                 <button onClick={() => setEditing(true)}
-                                                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[14px] font-black sentence case tracking-widest transition-all shadow-xl hover:shadow-2xl active:scale-95 border-b-4 italic ${profile?.photo ? 'bg-white text-indigo-50 border-gray-100' : 'bg-indigo-50 '}`}>
+                                                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[14px] font-black sentence case tracking-widest transition-all shadow-xl hover:shadow-2xl active:scale-95 border-b-4 italic ${profile?.photo ? 'bg-white text-indigo-900 border-gray-100' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-800'}`}>
                                                     <Edit3 size={18} />
                                                 </button>
                                             </div>
@@ -1317,7 +1446,7 @@ export default function MemberHome() {
 
                                 {/* Info card */}
                                 <Card className="p-10">
-                                    <h3 className="font-bold text-[#1a2035] mb-8"
+                                    <h3 className="font-bold text-[#1a2035] dark:text-white mb-8"
                                         style={{ fontSize: '20px', fontFamily: SERIF }}>
                                         {t('personal_information', 'Informations personnelles')}
                                     </h3>
@@ -1344,8 +1473,8 @@ export default function MemberHome() {
                                                         <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-2">{f.label}</label>
                                                         <input type={f.type || 'text'} value={formData[f.key] || ''}
                                                             onChange={e => setFormData({ ...formData, [f.key]: e.target.value })}
-                                                            className="w-full px-5 py-3.5 rounded-xl border text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
-                                                            style={{ borderColor: BORDER_CLR }} />
+                                                            className="w-full px-5 py-3.5 rounded-xl border dark:border-slate-700 dark:bg-slate-900 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 transition-all dark:text-white"
+                                                            style={{ borderColor: isDark ? '#334155' : BORDER_CLR }} />
                                                     </div>
                                                 ))}
                                             </div>
@@ -1356,32 +1485,32 @@ export default function MemberHome() {
                                                     {t('cancel', 'Annuler')}
                                                 </button>
                                                 <button type="submit" disabled={savingProfile}
-                                                    className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md active:scale-95"
-                                                    style={{ background: '#1a2035' }}>
+                                                    className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md active:scale-95 bg-[#1a2035] dark:bg-indigo-600"
+                                                >
                                                     {savingProfile ? '...' : t('save', 'Enregistrer')}
                                                 </button>
                                             </div>
                                         </form>
                                     ) : (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                             {[
-                                                { label: t('nickname', 'Surnom'), value: profile?.nickname },
-                                                { label: t('gender_label', 'Sexe'), value: profile?.gender === 'M' ? t('masculine', 'Masculin') : (profile?.gender === 'F' ? t('feminine', 'Féminin') : profile?.gender) },
-                                                { label: t('birth_place', 'Lieu de naissance'), value: profile?.birthPlace },
-                                                { label: t('status', 'Statut'), value: profile?.status },
-                                                { label: t('marital_status_label', 'État civil'), value: profile?.maritalStatus },
-                                                profile?.maritalStatus?.toLowerCase().includes('marié') && { label: t('spouse_name', 'Nom conjoint'), value: profile?.spouseName },
-                                                { label: t('member_category', 'Catégorie de membre'), value: profile?.contactSubtype?.name || t('member', 'Membre') },
-                                                { label: t('phone', 'Téléphone'), value: profile?.phone },
-                                                { label: t('email', 'Email'), value: profile?.email },
-                                                { label: t('address', 'Adresse'), value: [profile?.address, profile?.city].filter(Boolean).join(', ') || '–' },
-                                                { label: t('birth_date', 'Date de naissance'), value: profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–' },
-                                                { label: t('join_date', "Date d'adhésion"), value: profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–' },
-                                                { label: t('member_code', 'Code membre'), value: profile?.memberCode || '–' },
+                                                { label: t('nickname', 'Surnom'), value: profile?.nickname, icon: <User size={14} className="text-indigo-400" /> },
+                                                { label: t('gender_label', 'Sexe'), value: profile?.gender === 'M' ? t('masculine', 'Masculin') : (profile?.gender === 'F' ? t('feminine', 'Féminin') : profile?.gender), icon: <Users size={14} className="text-indigo-400" /> },
+                                                { label: t('marital_status_label', 'État civil'), value: profile?.maritalStatus, icon: <Heart size={14} className="text-indigo-400" /> },
+                                                { label: t('member_category', 'Catégorie de membre'), value: profile?.contactSubtype?.name || t('member', 'Membre'), icon: <LayoutDashboard size={14} className="text-indigo-400" /> },
+                                                { label: t('phone', 'Téléphone'), value: profile?.phone, icon: <Phone size={14} className="text-indigo-400" /> },
+                                                { label: t('email', 'Email'), value: profile?.email, icon: <Mail size={14} className="text-indigo-400" /> },
+                                                { label: t('address', 'Adresse'), value: [profile?.address, profile?.city].filter(Boolean).join(', ') || '–', icon: <MapPin size={14} className="text-indigo-400" /> },
+                                                { label: t('birth_date', 'Date de naissance'), value: profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–', icon: <Calendar size={14} className="text-indigo-400" /> },
+                                                { label: t('join_date', "Date d'adhésion"), value: profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–', icon: <Clock size={14} className="text-indigo-400" /> },
+                                                { label: t('member_code', 'Code membre'), value: profile?.memberCode || '–', icon: <CreditCard size={14} className="text-indigo-400" /> },
                                             ].filter(Boolean).map((item, i) => (
-                                                <div key={i} className="flex flex-col gap-1.5">
-                                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#8a94a6]">{item.label}</p>
-                                                    <p className="text-[15px] font-medium text-[#1a2035]" style={{ fontFamily: FONT }}>
+                                                <div key={i} className="flex flex-col gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all group">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        {item.icon}
+                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-indigo-500 transition-colors uppercase">{item.label}</p>
+                                                    </div>
+                                                    <p className="text-[14px] font-bold text-slate-800 dark:text-slate-100 break-words pl-5" style={{ fontFamily: FONT }}>
                                                         {item.value || '–'}
                                                     </p>
                                                 </div>
@@ -1408,7 +1537,7 @@ export default function MemberHome() {
                                             left={<IconCircle icon={item.icon} amber={item.amber} />}
                                             center={
                                                 <>
-                                                    <p className="text-gray-800 font-medium text-[13px]">{item.text}</p>
+                                                    <p className="text-gray-800 dark:text-slate-200 font-medium text-[13px]">{item.text}</p>
                                                     <p className="text-gray-400 text-[11px] mt-0.5">{item.date}</p>
                                                 </>
                                             }
@@ -1444,12 +1573,12 @@ export default function MemberHome() {
                             />
 
                             {!activeCard ? (
-                                <Card className="w-full max-w-2xl p-16 text-center border-dashed border-2 flex flex-col items-center gap-6">
-                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+                                <Card className="w-full max-w-2xl p-16 text-center border-dashed border-2 dark:border-slate-700 flex flex-col items-center gap-6">
+                                    <div className="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-300 dark:text-slate-600">
                                         <CreditCard size={40} />
                                     </div>
                                     <div className="space-y-4">
-                                        <p className="text-gray-900 font-black text-lg">{t('no_active_card', 'Aucune carte active')}</p>
+                                        <p className="text-gray-900 dark:text-white font-black text-lg">{t('no_active_card', 'Aucune carte active')}</p>
                                         <p className="text-gray-500 text-sm max-w-md mx-auto">
                                             {t('card_not_generated_desc', "Votre carte de membre n'a pas encore été générée ou est en attente d'activation. Si vous n'en avez jamais fait la demande, vous pouvez le faire maintenant.")}
                                         </p>
@@ -1465,9 +1594,9 @@ export default function MemberHome() {
                                 </Card>
                             ) : (
                                 <div className="w-full max-w-4xl space-y-12 pb-12">
-                                    <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-4 text-amber-800 text-[13px] font-medium shadow-sm">
-                                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
-                                            <Settings size={18} className="text-amber-600" />
+                                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 p-4 rounded-2xl flex items-center gap-4 text-amber-800 dark:text-amber-200 text-[13px] font-medium shadow-sm">
+                                        <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center shrink-0">
+                                            <Settings size={18} className="text-amber-600 dark:text-amber-400" />
                                         </div>
                                         <span>{t('card_id_official_desc', "Cette carte est votre document d'identité officiel. Notez qu'elle ne peut pas être modifiée par l'utilisateur.")}</span>
                                     </div>
@@ -1482,7 +1611,7 @@ export default function MemberHome() {
                                             >
                                                 <CardDisplay card={activeCard} side="front" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
-                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-900 p-3 rounded-full shadow-lg backdrop-blur-sm">
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-900 dark:text-white p-3 rounded-full shadow-lg backdrop-blur-sm">
                                                         <Maximize2 size={24} />
                                                     </div>
                                                 </div>
@@ -1498,7 +1627,7 @@ export default function MemberHome() {
                                             >
                                                 <CardDisplay card={activeCard} side="back" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
-                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-900 p-3 rounded-full shadow-lg backdrop-blur-sm">
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-900 dark:text-white p-3 rounded-full shadow-lg backdrop-blur-sm">
                                                         <Maximize2 size={24} />
                                                     </div>
                                                 </div>
@@ -1550,7 +1679,7 @@ export default function MemberHome() {
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
                                         {t('total', 'Total')} {new Date().getFullYear()}
                                     </p>
-                                    <p className="font-bold text-gray-900 mt-0.5" style={{ fontSize: '18px' }}>
+                                    <p className="font-bold text-gray-900 dark:text-white mt-0.5" style={{ fontSize: '18px' }}>
                                         {displayTotal}
                                     </p>
                                 </Card>
@@ -1567,7 +1696,7 @@ export default function MemberHome() {
                                         left={<IconCircle icon={<Heart size={16} />} amber />}
                                         center={
                                             <>
-                                                <p className="text-gray-800 font-medium text-[13px]">{t('donation', 'Don')}</p>
+                                                <p className="text-gray-800 dark:text-slate-200 font-medium text-[13px]">{t('donation', 'Don')}</p>
                                                 <p className="text-gray-400 text-[11px] mt-0.5">
                                                     {d.date ? new Date(d.date).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                                                     {d.paymentMethod && <> · {d.paymentMethod}</>}
@@ -1575,7 +1704,7 @@ export default function MemberHome() {
                                             </>
                                         }
                                         right={
-                                            <p className="font-bold text-gray-900 text-[15px]">
+                                            <p className="font-bold text-gray-900 dark:text-white text-[15px]">
                                                 {parseFloat(d.amount).toLocaleString(locale)} {d.currency || 'HTG'}
                                             </p>
                                         }
@@ -1605,7 +1734,7 @@ export default function MemberHome() {
                                             left={<IconCircle icon={<Bell size={16} />} amber />}
                                             center={
                                                 <>
-                                                    <p className="text-gray-800 font-bold text-[13px]">{n.title}</p>
+                                                    <p className="text-gray-800 dark:text-slate-200 font-bold text-[13px]">{n.title}</p>
                                                     <p className="text-gray-400 text-[11px] mt-0.5">
                                                         {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                                                     </p>
@@ -1629,7 +1758,7 @@ export default function MemberHome() {
                                                     <Clock size={18} />
                                                 </div>
                                                 <div className="text-left">
-                                                    <h3 className="text-[13px] font-black italic uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors">
+                                                    <h3 className="text-[13px] font-black italic uppercase tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors">
                                                         {t('older_notifications', 'Anciennes notifications')}
                                                     </h3>
                                                     <p className="text-[11px] text-gray-400 font-medium">
@@ -1688,7 +1817,7 @@ export default function MemberHome() {
                                             <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
                                                 <BookOpen size={20} />
                                             </div>
-                                            <h4 className="font-bold text-gray-800 mb-1">{cls.name}</h4>
+                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{cls.name}</h4>
                                             <p className="text-sm text-gray-500 line-clamp-2">{cls.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
                                     ))}
@@ -1712,7 +1841,7 @@ export default function MemberHome() {
                                             <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-4">
                                                 <Users size={20} />
                                             </div>
-                                            <h4 className="font-bold text-gray-800 mb-1">{g.name}</h4>
+                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{g.name}</h4>
                                             <p className="text-[11px] text-gray-400 uppercase font-black tracking-wider mb-2">{g.type || t('group', 'Groupe')}</p>
                                             <p className="text-sm text-gray-500 line-clamp-2">{g.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
@@ -1737,7 +1866,7 @@ export default function MemberHome() {
                                             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
                                                 <Building2 size={20} />
                                             </div>
-                                            <h4 className="font-bold text-gray-800 mb-1">{m.name}</h4>
+                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{m.name}</h4>
                                             <p className="text-sm text-gray-500 line-clamp-2">{m.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
                                     ))}
@@ -1752,10 +1881,10 @@ export default function MemberHome() {
             {
                 isPostModalOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-                        <Card className="w-full max-w-2xl bg-white overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-300 rounded-[2.5rem] border-0">
-                            <div className="flex items-center justify-between p-8 border-b border-gray-50 bg-gray-50/30">
+                        <Card className="w-full max-w-2xl bg-white dark:bg-slate-800 overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-300 rounded-[2.5rem] border-0">
+                            <div className="flex items-center justify-between p-8 border-b border-gray-50 dark:border-slate-700 bg-gray-50/30 dark:bg-slate-900/40">
                                 <div>
-                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
                                         <span className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200">
                                             {editingPostId ? <Edit3 size={20} /> : <MessageSquare size={20} />}
                                         </span>
@@ -1763,7 +1892,7 @@ export default function MemberHome() {
                                     </h2>
                                     <p className="text-gray-400 text-[12px] font-medium mt-1 ml-13 italic">{t('share_with_community', 'Partagez avec votre communauté')}</p>
                                 </div>
-                                <button onClick={() => { setIsPostModalOpen(false); setEditingPostId(null); }} className="p-3 rounded-2xl hover:bg-gray-100 transition-all text-gray-400 hover:text-gray-900 active:scale-90">
+                                <button onClick={() => { setIsPostModalOpen(false); setEditingPostId(null); }} className="p-3 rounded-2xl hover:bg-gray-100 transition-all text-gray-400 hover:text-gray-900 dark:text-white active:scale-90">
                                     <X size={20} strokeWidth={2.5} />
                                 </button>
                             </div>
@@ -1775,7 +1904,7 @@ export default function MemberHome() {
                                         <select
                                             value={newPost.type}
                                             onChange={e => setNewPost({ ...newPost, type: e.target.value })}
-                                            className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none text-[13px] font-bold text-gray-700 transition-all appearance-none cursor-pointer"
+                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-slate-900 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white dark:focus:bg-slate-700 shadow-sm focus:outline-none text-[13px] font-bold text-gray-700 dark:text-slate-100 transition-all appearance-none cursor-pointer"
                                         >
                                             {POST_CATEGORIES.map(cat => (
                                                 <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -1788,26 +1917,26 @@ export default function MemberHome() {
                                             <button
                                                 type="button"
                                                 onClick={() => setNewPost({ ...newPost, visibilityScope: 'church', targetSubtypeId: '' })}
-                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'church' ? 'border-indigo-600 bg-indigo-50/50' : 'border-gray-100 hover:border-indigo-100'}`}
+                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'church' ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/40' : 'border-gray-100 dark:border-slate-700 hover:border-indigo-100 dark:hover:border-indigo-500/30'}`}
                                             >
                                                 <Users size={18} className={newPost.visibilityScope === 'church' ? 'text-indigo-600' : 'text-gray-400'} />
-                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'church' ? 'text-indigo-700' : 'text-gray-500'}`}>{t('entire_church', "Toute l'Église")}</span>
+                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'church' ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-500'}`}>{t('entire_church', "Toute l'Église")}</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setNewPost({ ...newPost, visibilityScope: 'global', targetSubtypeId: '' })}
-                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'global' ? 'border-amber-600 bg-amber-50/50' : 'border-gray-100 hover:border-amber-100'}`}
+                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'global' ? 'border-amber-600 bg-amber-50/50 dark:bg-amber-900/40' : 'border-gray-100 dark:border-slate-700 hover:border-amber-100 dark:hover:border-amber-500/30'}`}
                                             >
                                                 <Home size={18} className={newPost.visibilityScope === 'global' ? 'text-amber-600' : 'text-gray-400'} />
-                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'global' ? 'text-amber-700' : 'text-gray-500'}`}>{t('all_elyon360', 'Tout Elyon360')}</span>
+                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'global' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500'}`}>{t('all_elyon360', 'Tout Elyon360')}</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setNewPost({ ...newPost, visibilityScope: 'subtype' })}
-                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'subtype' ? 'border-violet-600 bg-violet-50/50' : 'border-gray-100 hover:border-violet-100'}`}
+                                                className={`p-3 sm:p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 shrink-0 min-w-[100px] sm:min-w-0 ${newPost.visibilityScope === 'subtype' ? 'border-violet-600 bg-violet-50/50 dark:bg-violet-900/40' : 'border-gray-100 dark:border-slate-700 hover:border-violet-100 dark:hover:border-violet-500/30'}`}
                                             >
                                                 <Activity size={18} className={newPost.visibilityScope === 'subtype' ? 'text-violet-600' : 'text-gray-400'} />
-                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'subtype' ? 'text-violet-700' : 'text-gray-500'}`}>{t('precise_target', 'Cible précise')}</span>
+                                                <span className={`text-[10px] sm:text-[11px] font-bold ${newPost.visibilityScope === 'subtype' ? 'text-violet-700 dark:text-violet-300' : 'text-gray-500'}`}>{t('precise_target', 'Cible précise')}</span>
                                             </button>
                                         </div>
 
@@ -1815,7 +1944,7 @@ export default function MemberHome() {
                                             <select
                                                 value={newPost.targetSubtypeId}
                                                 onChange={e => setNewPost({ ...newPost, targetSubtypeId: e.target.value })}
-                                                className="w-full mt-3 p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none text-[13px] font-bold text-gray-700 transition-all appearance-none cursor-pointer animate-in slide-in-from-top-2 duration-300"
+                                                className="w-full mt-3 p-4 rounded-2xl bg-gray-50 dark:bg-slate-900 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white dark:focus:bg-slate-800 focus:outline-none text-[13px] font-bold text-gray-700 dark:text-slate-200 transition-all appearance-none cursor-pointer animate-in slide-in-from-top-2 duration-300"
                                             >
                                                 <option value="">{t('select_category_placeholder', 'Sélectionner une catégorie...')}</option>
                                                 {subtypes.map(sub => (
@@ -1833,7 +1962,7 @@ export default function MemberHome() {
                                         placeholder={t('post_title_placeholder', 'Donnez un titre percutant...')}
                                         value={newPost.title}
                                         onChange={e => setNewPost({ ...newPost, title: e.target.value })}
-                                        className="w-full p-5 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none focus:ring-4 ring-indigo-500/5 transition-all text-[14px] font-medium text-gray-800 placeholder:text-gray-300"
+                                        className="w-full p-5 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none focus:ring-4 ring-indigo-500/5 transition-all text-[14px] font-medium text-gray-800 dark:text-slate-200 placeholder:text-gray-300"
                                     />
                                 </div>
 
@@ -1844,7 +1973,7 @@ export default function MemberHome() {
                                         value={newPost.content}
                                         onChange={e => setNewPost({ ...newPost, content: e.target.value })}
                                         required
-                                        className="w-full p-5 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white focus:outline-none focus:ring-4 ring-indigo-500/5 transition-all text-[14px] font-medium min-h-[160px] resize-none text-gray-800 placeholder:text-gray-300"
+                                        className="w-full p-5 rounded-2xl bg-gray-50 dark:bg-slate-900 border-2 border-transparent focus:border-indigo-500/20 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 ring-indigo-500/5 transition-all text-[14px] font-medium min-h-[160px] resize-none text-gray-800 dark:text-slate-200 placeholder:text-gray-300"
                                     />
                                 </div>
 
@@ -1896,18 +2025,17 @@ export default function MemberHome() {
             {
                 cardRequestModal.show && (
                     <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-                        <div className="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 border border-gray-100">
+                        <div className="bg-white dark:bg-slate-800 rounded-[2rem] w-full max-w-md p-8 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-slate-700">
                             <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>
-                            <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-6">
+                            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-500 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-6">
                                 <FileText size={24} />
                             </div>
-                            <h2 className="text-xl font-black text-gray-900 mb-2 leading-tight">{cardRequestModal.desc}</h2>
-                            <p className="text-sm text-gray-500 mb-6 font-medium">
+                            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-2 leading-tight">{cardRequestModal.desc}</h2>
+                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-6 font-medium">
                                 {cardRequestModal.type === 'member_card_new'
                                     ? t('add_note_optional', "Souhaitez-vous ajouter une remarque ? (Optionnel)")
                                     : t('provide_justification', "Veuillez fournir une raison justifiable pour cette déclaration s'il vous plaît (Obligatoire).")}
                             </p>
-
                             <div className="mb-8">
                                 <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{t('additional_explanations', 'Explications supplémentaires')} <span className={cardRequestModal.type !== 'member_card_new' ? 'text-rose-500' : ''}>{cardRequestModal.type !== 'member_card_new' ? `* (${t('required', 'Obligatoire')})` : `(${t('optional', 'Optionnel')})`}</span></label>
                                 <textarea
@@ -1915,14 +2043,14 @@ export default function MemberHome() {
                                     onChange={(e) => setCardRequestModal({ ...cardRequestModal, reason: e.target.value })}
                                     placeholder={cardRequestModal.type === 'member_card_new' ? t('additional_note_placeholder', "Remarque additionnelle...") : t('justification_placeholder', "Indiquez les circonstances justificatives (ex: perdue le 15, rayée)...")}
                                     rows="4"
-                                    className={`w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none resize-none transition-all ${cardRequestModal.type !== 'member_card_new' && !cardRequestModal.reason.trim() ? 'border-rose-200 focus:border-rose-400 focus:ring-rose-400/20 bg-rose-50/30' : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-400/20 focus:shadow-lg focus:shadow-indigo-500/10'}`}
+                                    className={`w-full px-5 py-4 rounded-2xl border text-sm font-medium outline-none resize-none transition-all ${cardRequestModal.type !== 'member_card_new' && !cardRequestModal.reason.trim() ? 'border-rose-200 focus:border-rose-400 focus:ring-rose-400/20 bg-rose-50/30' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:border-indigo-400 dark:focus:border-indigo-400 focus:ring-indigo-400/20 focus:shadow-lg focus:shadow-indigo-500/10 dark:text-white'}`}
                                 ></textarea>
                             </div>
 
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setCardRequestModal({ show: false, type: '', desc: '', reason: '' })}
-                                    className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl text-sm transition-colors"
+                                    className="flex-1 py-3.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-slate-300 font-bold rounded-xl text-sm transition-colors"
                                 >
                                     {t('cancel', 'Annuler')}
                                 </button>
@@ -1981,44 +2109,6 @@ export default function MemberHome() {
                 )
             }
 
-            {/* Menu de Changement de Rôle (si Admin/Secrétaire présent dans les rôles) */}
-            {
-                authUser?.role && Array.isArray(authUser.role) && authUser.role.length > 1 && (
-                    <div className="fixed bottom-6 right-6 z-40">
-                        <div className="group relative">
-                            <button className="w-14 h-14 rounded-full bg-indigo-600 text-white shadow-xl flex items-center justify-center hover:bg-indigo-700 transition-all active:scale-95 overflow-hidden">
-                                {profile?.church?.logoUrl ? (
-                                    <img src={getImageUrl(profile.church.logoUrl)} alt="L" className="w-full h-full object-contain p-2" />
-                                ) : (
-                                    <Users size={24} />
-                                )}
-                            </button>
-                            <div className="absolute bottom-full right-0 mb-4 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200">
-                                <div className="p-4 border-b border-gray-50 bg-gray-50/50 flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded bg-indigo-100 flex items-center justify-center">
-                                        <Building2 size={12} className="text-indigo-600" />
-                                    </div>
-                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Espaces de travail</p>
-                                </div>
-                                <div className="p-2 space-y-1">
-                                    {authUser.role.map(r => (
-                                        <button key={r} onClick={() => window.location.href = (r === 'member' ? '/member' : '/admin')}
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${r === 'member' ? 'bg-indigo-50 text-indigo-700 font-bold' : 'hover:bg-gray-50 text-gray-600'}`}>
-                                            <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
-                                                {r === 'member' ? <User size={14} /> : <Settings size={14} />}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="text-[13px] leading-tight capitalize">{t('connected_as', 'Connecté comme')} {r}</p>
-                                                <p className="text-[10px] text-gray-400 mt-0.5">{t('click_to_switch', 'Cliquez pour basculer')}</p>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
         </div >
     );
 }

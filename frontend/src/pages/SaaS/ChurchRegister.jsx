@@ -14,6 +14,7 @@ const ChurchRegister = () => {
         contactPhone: '',
         plan: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [plans, setPlans] = useState([]);
@@ -87,16 +88,16 @@ const ChurchRegister = () => {
     const helperClasses = 'text-[11px] text-gray-400 mt-1.5 font-medium';
 
     return (
-        <div className="min-h-screen bg-[#fafaf9] font-['Inter',sans-serif] relative">
-            {/* Top Navigation */}
-            <nav className="flex items-center justify-between px-10 py-5 border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="min-h-screen lg:bg-[#fafaf9] bg-[#f0f0f5] font-['Inter',sans-serif] relative flex flex-col">
+            {/* Top Navigation - Desktop Only */}
+            <nav className="hidden lg:flex items-center justify-between px-10 py-5 border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold text-sm">E</span>
                     </div>
                     <span className="font-bold text-gray-800 text-[15px] tracking-tight">ElyonSys 360</span>
                 </div>
-                <div className="hidden md:flex items-center gap-8">
+                <div className="flex items-center gap-8">
                     <Link to="/" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">Accueil</Link>
                     <Link to="/services" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">Services</Link>
                     <Link to="/contact" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">Contact</Link>
@@ -104,8 +105,19 @@ const ChurchRegister = () => {
                 </div>
             </nav>
 
+            {/* Mobile Header */}
+            <div className="lg:hidden flex items-center justify-between px-6 py-4 bg-[#1a1f4d] text-white shrink-0">
+                <Link to="/" className="flex items-center gap-2 font-bold hover:opacity-80 transition-opacity">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    <span className="text-xl tracking-tight">E<span className="text-[#ea762a]">360</span></span>
+                </Link>
+                <Link to="/login" className="px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-[#ea762a] text-white">
+                    Se connecter
+                </Link>
+            </div>
+
             {/* Main Content */}
-            <div className="max-w-[1320px] mx-auto px-8 py-3 flex gap-16 min-h-[calc(100vh-73px)]">
+            <div className="flex-1 max-w-[1320px] mx-auto px-6 py-8 sm:px-8 sm:py-3 lg:flex gap-16 w-full">
                 {/* Left - Form Area */}
                 <div className="flex-1 max-w-[820px]">
                     {/* Header */}
@@ -196,17 +208,27 @@ const ChurchRegister = () => {
                                 />
                                 <p className={helperClasses}>Utilisé pour la connexion au tableau de bord</p>
                             </div>
-                            <div>
+                            <div className="relative">
                                 <label className={labelClasses('adminPassword')}>Mot de passe</label>
                                 <input
-                                    type="password" name="adminPassword" required
-                                    className={inputClasses('adminPassword')}
+                                    type={showPassword ? "text" : "password"} name="adminPassword" required
+                                    className={inputClasses('adminPassword') + ' pr-10'}
                                     placeholder="••••••••"
                                     onFocus={() => setFocusedField('adminPassword')}
                                     onBlur={() => setFocusedField(null)}
                                     onChange={handleChange}
                                 />
-                                <p className={helperClasses}>Minimum 6 caractères</p>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-0 top-[26px] p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                                >
+                                    {showPassword ? (
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                                    ) : (
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    )}
+                                </button>
                             </div>
                         </div>
 
@@ -386,6 +408,19 @@ const ChurchRegister = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Mobile Footer */}
+            <div className="lg:hidden bg-[#1a1f4d] flex flex-col items-center justify-center py-10 px-6 text-center mt-auto">
+                <h3 className="text-white text-2xl font-bold mb-2">Elyon<span className="text-[#ea762a]">360</span></h3>
+                <p className="text-[#8e9cb1] text-[13px] font-medium max-w-[250px] leading-relaxed relative z-10">
+                    La plateforme unifiée pour gérer votre église
+                </p>
+                <div className="mt-8 flex gap-4">
+                    <span className="w-2 h-2 rounded-full bg-white/20"></span>
+                    <span className="w-2 h-2 rounded-full bg-white/20"></span>
+                    <span className="w-2 h-2 rounded-full bg-white/20"></span>
                 </div>
             </div>
 

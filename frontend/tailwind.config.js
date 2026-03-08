@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
       },
       colors: {
         stripe: {
@@ -25,6 +26,14 @@ module.exports = {
           border: '#E2E8F0',
           text: '#1E293B',
           subtext: '#64748B',
+        },
+        lovable: {
+          navy: '#0f133d',
+          deep: '#12162b',
+          orange: '#ea762a',
+          purple: '#2b2060',
+          accent: '#191e57',
+          light: '#f9f9fb',
         }
       },
       boxShadow: {

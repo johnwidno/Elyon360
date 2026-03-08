@@ -1,160 +1,216 @@
 import React from 'react';
 import PublicLayout from '../../layouts/PublicLayout';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
+import {
+    Users,
+    CalendarDays,
+    LayoutGrid,
+    DollarSign,
+    BarChart3,
+    UserCircle,
+    Globe,
+    Settings,
+    Shield,
+    Headphones,
+    RefreshCw,
+    CheckCircle2,
+    Sparkles
+} from 'lucide-react';
 
 const Home = () => {
+    const { theme } = useTheme();
+    const { t } = useLanguage();
+    const isDark = theme === 'dark';
+
+    const features = [
+        { icon: Users, titleKey: 'feat_1_title', descKey: 'feat_1_desc' },
+        { icon: CalendarDays, titleKey: 'feat_2_title', descKey: 'feat_2_desc' },
+        { icon: LayoutGrid, titleKey: 'feat_3_title', descKey: 'feat_3_desc' },
+        { icon: DollarSign, titleKey: 'feat_4_title', descKey: 'feat_4_desc' },
+        { icon: BarChart3, titleKey: 'feat_5_title', descKey: 'feat_5_desc' },
+        { icon: UserCircle, titleKey: 'feat_6_title', descKey: 'feat_6_desc' },
+        { icon: Globe, titleKey: 'feat_7_title', descKey: 'feat_7_desc' },
+        { icon: Settings, titleKey: 'feat_8_title', descKey: 'feat_8_desc' },
+    ];
+
+    const objectives = [
+        { icon: Sparkles, textKey: 'obj_item_1' },
+        { icon: Shield, textKey: 'obj_item_2' },
+        { icon: Headphones, textKey: 'obj_item_3' },
+        { icon: RefreshCw, textKey: 'obj_item_4' },
+        { icon: CheckCircle2, textKey: 'obj_item_5' },
+    ];
+
+    const gradientBg = 'linear-gradient(135deg, #0f133d 0%, #2b2060 40%, #191e57 100%)';
+    const jakartaFont = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+
     return (
         <PublicLayout>
-            {/* Hero Section */}
-            <div className="bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-800 text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-black opacity-20"></div>
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center relative z-10">
-                    <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-                        Une solution divine pour une gestion <span className="text-yellow-300">moderne</span>
-                    </h1>
-                    <p className="text-xl md:text-2xl text-indigo-100 mb-4 max-w-3xl mx-auto font-light">
-                        La vision complète pour l'église d'aujourd'hui et de demain.
-                    </p>
-                    <p className="text-lg md:text-xl text-indigo-200 mb-10 max-w-4xl mx-auto">
-                        ElyonSys 360 offre tous les outils pour gérer vos membres, vos événements,
-                        vos finances et votre site web en un seul endroit.
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <Link to="/register-church" className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-300 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                            Créer mon église gratuitement
-                        </Link>
-                        <Link to="/login" className="bg-transparent border-2 border-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-indigo-700 transition duration-300">
-                            Se connecter
-                        </Link>
-                    </div>
+            {/* ===== HERO ===== */}
+            <section className="relative overflow-hidden min-h-[90vh] sm:min-h-0 flex flex-col justify-center" style={{ background: gradientBg }}>
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-1/3 -left-24 w-80 sm:w-[500px] h-80 sm:h-[500px] bg-[#ea762a]/5 rounded-full blur-[150px]" />
+                    <div className="absolute bottom-0 -right-24 w-72 sm:w-[400px] h-72 sm:h-[400px] bg-purple-500/5 rounded-full blur-[120px]" />
                 </div>
-            </div>
 
-            {/* À Propos Section */}
-            <div className="py-20 bg-white" id="about">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-extrabold text-gray-900 mb-4">À propos d'ElyonSys 360</h2>
-                        <div className="w-24 h-1 bg-indigo-600 mx-auto mb-8"></div>
-                        <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                            ElyonSys 360 est une plateforme SaaS conçue pour faciliter la <strong>gestion administrative, spirituelle et communautaire</strong> des églises modernes. Grâce à une interface intuitive et sécurisée, chaque église dispose de son propre espace personnalisé pour gérer ses membres, ses activités, ses finances et sa croissance spirituelle.
+                <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 text-center py-16 sm:py-32 md:py-40">
+                    <motion.h1
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7 }}
+                        className="text-[1.75rem] sm:text-4xl md:text-[3.25rem] lg:text-[3.75rem] font-extrabold text-white leading-[1.2] tracking-tight mb-8 sm:mb-12"
+                        style={jakartaFont}
+                    >
+                        {t('hero_title_1')}{' '}
+                        <br className="hidden sm:block" />
+                        {t('hero_title_2') && <>{t('hero_title_2')} </>}
+                        <span className="text-[#ea762a] italic">{t('hero_title_accent')}</span>
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 0.15 }}
+                        className="text-sm sm:text-base md:text-lg text-gray-300/90 mb-12 sm:mb-16 max-w-xl sm:max-w-2xl mx-auto leading-[1.8] px-2"
+                    >
+                        {t('hero_desc')}
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 0.3 }}
+                        className="flex flex-col sm:flex-row justify-center items-center gap-4"
+                    >
+                        <Link to="/register-church" className="w-full sm:w-auto bg-[#ea762a] text-white px-8 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-[#ea762a]/20 hover:bg-[#d56820] transition-all hover:scale-[1.03] active:scale-95 text-center">
+                            {t('hero_cta')}
+                        </Link>
+                        <Link to="/login" className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full border-2 border-white/20 text-white font-bold text-sm sm:text-base hover:bg-white/5 transition-all text-center">
+                            {t('hero_login')}
+                        </Link>
+                    </motion.div>
+                </div>
+
+                {/* Wave */}
+                <div className="absolute bottom-0 left-0 w-full">
+                    <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+                        <path d="M0 60C360 100 1080 0 1440 60V100H0V60Z" fill={isDark ? '#111638' : '#f0f0f5'} />
+                    </svg>
+                </div>
+            </section>
+
+            {/* ===== À PROPOS ===== */}
+            <section className={`py-16 sm:py-24 md:py-28 transition-colors duration-300 ${isDark ? 'bg-[#111638]' : 'bg-[#f0f0f5]'}`} id="about">
+                <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8 text-center">
+                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                        <h2 className={`text-2xl sm:text-3xl md:text-[2.5rem] font-extrabold mb-10 ${isDark ? 'text-white' : 'text-[#1a1f4d]'}`} style={jakartaFont}>
+                            {t('about_title')}
+                        </h2>
+                        <div className="w-16 h-1 bg-[#ea762a] mx-auto rounded-full mb-12 sm:mb-16" />
+                        <p className={`text-sm sm:text-base md:text-lg leading-[1.8] mt-8 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {t('about_desc')}
+                        </p>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* ===== FONCTIONNALITÉS ===== */}
+            <section className={`py-16 sm:py-24 md:py-28 transition-colors duration-300 ${isDark ? 'bg-[#0d1030]' : 'bg-[#f0f0f5]'}`} id="services">
+                <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12 sm:mb-16">
+                        <h2 className={`text-2xl sm:text-3xl md:text-[2.5rem] font-extrabold mb-8 ${isDark ? 'text-white' : 'text-[#1a1f4d]'}`} style={jakartaFont}>
+                            {t('features_title')}
+                        </h2>
+                        <div className="w-16 h-1 bg-[#ea762a] mx-auto rounded-full mb-8" />
+                        <p className={`text-sm sm:text-base mt-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {t('features_subtitle')}
                         </p>
                     </div>
-                </div>
-            </div>
 
-            {/* Fonctionnalités Section */}
-            <div className="py-20 bg-gray-50" id="features">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-extrabold text-gray-900 mb-4">Fonctionnalités clés</h2>
-                        <div className="w-24 h-1 bg-indigo-600 mx-auto mb-8"></div>
-                        <p className="mt-4 text-lg text-gray-500">Une suite complète d'outils pour servir votre communauté.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-5xl mb-4">👥</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Gestion des membres & profils</h3>
-                            <p className="text-gray-600">Suivez les parcours spirituels, les baptêmes et l'engagement de vos fidèles avec des profils complets.</p>
-                        </div>
-
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-5xl mb-4">📅</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Planification des cultes et activités</h3>
-                            <p className="text-gray-600">Organisez vos cultes, gérez les inscriptions et coordonnez toutes vos activités depuis un seul endroit.</p>
-                        </div>
-
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-5xl mb-4">📊</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Tableau de bord administratif</h3>
-                            <p className="text-gray-600">Visualisez toutes les données importantes et prenez des décisions éclairées pour votre église.</p>
-                        </div>
-
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-5xl mb-4">💳</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Gestion des finances / dons</h3>
-                            <p className="text-gray-600">Gérez les dîmes, les offrandes et la comptabilité en toute transparence et sécurité.</p>
-                        </div>
-
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-5xl mb-4">📈</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Statistiques en temps réel</h3>
-                            <p className="text-gray-600">Accédez à des rapports détaillés et des analyses pour mesurer la croissance de votre communauté.</p>
-                        </div>
-
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                            <div className="text-5xl mb-4">👤</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Espace membre personnalisé</h3>
-                            <p className="text-gray-600">Chaque membre dispose d'un espace personnel pour suivre son parcours et ses contributions.</p>
-                        </div>
-
-                        <div className="p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 md:col-span-2 lg:col-span-1">
-                            <div className="text-5xl mb-4">🌐</div>
-                            <h3 className="text-xl font-bold mb-3 text-gray-900">Accès par sous-domaine</h3>
-                            <p className="text-gray-600">Votre église dispose de son propre sous-domaine personnalisé (ex: assemblee.elyonsys360.com)</p>
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+                        {features.map((feature, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: i * 0.05 }}
+                                className={`rounded-2xl p-6 sm:p-7 border transition-all group hover:shadow-lg ${isDark ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-gray-100 hover:shadow-gray-200/50'
+                                    }`}
+                            >
+                                <div className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center mb-5 transition-colors ${isDark ? 'border-white/15 group-hover:border-[#ea762a]/50' : 'border-[#1a1f4d]/15 group-hover:border-[#ea762a]/30'
+                                    }`}>
+                                    <feature.icon className={`w-6 h-6 transition-colors ${isDark ? 'text-gray-400 group-hover:text-[#ea762a]' : 'text-[#1a1f4d]/70 group-hover:text-[#ea762a]'}`} strokeWidth={1.5} />
+                                </div>
+                                <h3 className={`text-sm sm:text-base font-bold mb-3 ${isDark ? 'text-white' : 'text-[#1a1f4d]'}`} style={jakartaFont}>
+                                    {t(feature.titleKey)}
+                                </h3>
+                                <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {t(feature.descKey)}
+                                </p>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Vision/Objectif Section */}
-            <div className="py-20 bg-indigo-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col lg:flex-row items-center gap-12">
-                        <div className="lg:w-1/2">
-                            <h2 className="text-4xl font-extrabold text-gray-900 mb-6">Notre Objectif</h2>
-                            <div className="w-24 h-1 bg-indigo-600 mb-8"></div>
-                            <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                                Offrir aux églises un <strong className="text-indigo-700">outil numérique puissant, centralisé, et accessible</strong> pour mieux organiser leur vision, suivre leurs fidèles, et impacter leur communauté.
-                            </p>
-                            <p className="text-lg text-gray-600 leading-relaxed">
-                                Nous croyons que chaque église mérite d'avoir accès aux meilleures technologies pour accomplir sa mission. ElyonSys 360 est votre partenaire de confiance pour une gestion efficace et spirituellement enrichissante.
-                            </p>
+            {/* ===== OBJECTIF ===== */}
+            <section className={`py-16 sm:py-24 md:py-28 transition-colors duration-300 ${isDark ? 'bg-[#111638]' : 'bg-white'}`}>
+                <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-start gap-10 lg:gap-20">
+                        <div className="lg:w-1/2 w-full">
+                            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                                <h2 className={`text-2xl sm:text-3xl md:text-[2.5rem] font-extrabold mb-10 leading-tight ${isDark ? 'text-white' : 'text-[#1a1f4d]'}`} style={jakartaFont}>
+                                    {t('obj_title')}
+                                </h2>
+                                <p className={`text-base sm:text-lg leading-relaxed mb-10 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    {t('obj_desc_1')}
+                                </p>
+                                <p className={`text-sm sm:text-base leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {t('obj_desc_2')}
+                                </p>
+                            </motion.div>
                         </div>
-                        <div className="lg:w-1/2">
-                            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-8 rounded-2xl shadow-2xl text-white">
-                                <h3 className="text-2xl font-bold mb-6">Pourquoi choisir ElyonSys 360 ?</h3>
-                                <ul className="space-y-4">
-                                    <li className="flex items-start">
-                                        <span className="text-yellow-300 text-2xl mr-3">✓</span>
-                                        <span className="text-lg">Interface intuitive et facile à utiliser</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span className="text-yellow-300 text-2xl mr-3">✓</span>
-                                        <span className="text-lg">Sécurité et confidentialité garanties</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span className="text-yellow-300 text-2xl mr-3">✓</span>
-                                        <span className="text-lg">Support technique réactif</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span className="text-yellow-300 text-2xl mr-3">✓</span>
-                                        <span className="text-lg">Mises à jour régulières et nouvelles fonctionnalités</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <span className="text-yellow-300 text-2xl mr-3">✓</span>
-                                        <span className="text-lg">Personnalisation selon vos besoins</span>
-                                    </li>
-                                </ul>
-                            </div>
+                        <div className="lg:w-1/2 w-full">
+                            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+                                className="rounded-3xl p-7 sm:p-10 relative overflow-hidden"
+                                style={{ background: gradientBg }}
+                            >
+                                <div className="space-y-5 sm:space-y-6">
+                                    {objectives.map((item, i) => (
+                                        <div key={i} className="flex items-center gap-4">
+                                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#ea762a] flex items-center justify-center shrink-0">
+                                                <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                            </div>
+                                            <span className="text-white text-sm sm:text-base font-medium">{t(item.textKey)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Call to Action */}
-            <div className="bg-gray-900 py-20 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-40"></div>
-                <div className="relative z-10 max-w-4xl mx-auto px-4">
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Prêt à transformer votre gestion ?</h2>
-                    <p className="text-xl text-gray-300 mb-10">Rejoignez les églises qui font confiance à ElyonSys 360</p>
-                    <Link to="/register-church" className="inline-block bg-indigo-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-indigo-700 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                        Créer mon église maintenant
-                    </Link>
+            {/* ===== CTA ===== */}
+            <section className="py-16 sm:py-24 md:py-28 text-center" style={{ background: gradientBg }}>
+                <div className="max-w-3xl mx-auto px-5">
+                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                        <h2 className="text-2xl sm:text-3xl md:text-[2.5rem] font-extrabold text-white mb-10 sm:mb-12" style={jakartaFont}>
+                            {t('cta_title')}
+                        </h2>
+                        <p className="text-gray-300 text-sm sm:text-base mb-12 sm:mb-16">
+                            {t('cta_desc')}
+                        </p>
+                        <Link to="/register-church" className="inline-block bg-[#ea762a] text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-[#ea762a]/20 hover:bg-[#d56820] transition-all hover:scale-[1.03]">
+                            {t('cta_btn')}
+                        </Link>
+                    </motion.div>
                 </div>
-            </div>
+            </section>
         </PublicLayout>
     );
 };

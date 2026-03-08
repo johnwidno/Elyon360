@@ -86,7 +86,7 @@ const Accordion = ({ title, icon, badge, defaultOpen, headerRight, children, acc
 
 // ─── Main Component ───────────────────────────────────────────────
 const AdvancedSearchBuilder = () => {
-    const { t, language, toggleLanguage } = useLanguage();
+    const { t, lang, toggleLang } = useLanguage();
     const { user } = useAuth();
 
     const [tables, setTables] = useState([]);
@@ -378,10 +378,10 @@ const AdvancedSearchBuilder = () => {
                             <Save size={14} /> {t('save_btn', 'Sauvegarder')}
                         </button>
                         <button
-                            onClick={toggleLanguage}
+                            onClick={toggleLang}
                             className="px-5 py-3 rounded-2xl bg-indigo-600 text-white text-[10px] font-black tracking-widest hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20"
                         >
-                            {language === 'fr' ? 'EN' : 'FR'}
+                            {lang === 'FR' ? 'EN' : 'FR'}
                         </button>
                     </div>
                 </div>

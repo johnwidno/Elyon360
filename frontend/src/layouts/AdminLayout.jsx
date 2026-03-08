@@ -11,7 +11,7 @@ import MustChangePasswordModal from '../components/Admin/MustChangePasswordModal
 
 const AdminLayout = ({ children }) => {
     const { logout, user } = useAuth();
-    const { language, toggleLanguage, t } = useLanguage();
+    const { lang, toggleLang, t } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -399,8 +399,8 @@ const AdminLayout = ({ children }) => {
 
                             {/* Language Toggle */}
                             <div className="flex items-center p-1.5 bg-gray-50 dark:bg-[#1A1D2D] border border-transparent dark:border-white/5 rounded-2xl shadow-sm">
-                                <button onClick={() => language !== 'fr' && toggleLanguage()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${language === 'fr' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
-                                <button onClick={() => language !== 'en' && toggleLanguage()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${language === 'en' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
+                                <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${lang === 'FR' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
+                                <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${lang === 'EN' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
                             </div>
 
                             <div className="p-1 px-3 bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl shadow-sm">
