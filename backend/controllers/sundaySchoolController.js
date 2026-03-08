@@ -798,16 +798,53 @@ exports.getReportById = async (req, res) => {
 
         if (!report) return res.status(404).json({ message: "Rapport non trouvé." });
 
-        // Also fetch attendance specifically for this report
-        const attendance = await db.SundaySchoolAttendance.findAll({
-            where: {
-                reportId: report.id,
-                churchId: req.church.id
-            },
-            include: [{ model: db.User, as: 'user', attributes: ['firstName', 'lastName', 'memberCode'] }]
-        });
+        // Access Control: Check if user has permission or is a member of this class
+        const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
+        const isAdmin = userRoles.includes('admin') || userRoles.includes('super_admin') || userRoles.includes('superaduser') || userRoles.includes('superintendent');
+        let isMonitor = false;
+        let isMember = false;
 
-        res.json({ report, attendance });
+        if (!isAdmin) {
+            // Check if user is a monitor of this class
+            const monitorCheck = await db.SundaySchoolMonitor.findOne({
+                where: { userId: req.user.id, classId: report.classId, churchId: req.church.id }
+            });
+            isMonitor = !!monitorCheck;
+
+            if (!isMonitor) {
+                // Check if user is an active member of this class
+                const memberCheck = await db.SundaySchoolMember.findOne({
+                    where: { userId: req.user.id, sundaySchoolId: report.classId, level: 'Actuel' }
+                });
+                isMember = !!memberCheck;
+
+                if (!isMember) {
+                    return res.status(403).json({ message: "Vous n'avez pas accès à ce rapport." });
+                }
+            }
+        }
+
+        // Fetch attendance specifically for this report
+        // Only return attendance list to Admins or Monitors
+        let attendance = [];
+        const canManage = isAdmin || isMonitor;
+
+        if (canManage) {
+            attendance = await db.SundaySchoolAttendance.findAll({
+                where: {
+                    reportId: report.id,
+                    churchId: req.church.id
+                },
+                include: [{ model: db.User, as: 'user', attributes: ['firstName', 'lastName', 'memberCode'] }]
+            });
+        }
+
+        res.json({
+            report,
+            attendance,
+            canExport: canManage,
+            canViewAttendance: canManage
+        });
     } catch (err) {
         res.status(500).json({ message: "Erreur lors de la récupération du rapport." });
     }
@@ -1187,6 +1224,62 @@ exports.getStats = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Erreur lors de la récupération des statistiques." });
+    }
+};
+
+// My Data (For Members)
+exports.getMyAttendance = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const attendance = await db.SundaySchoolAttendance.findAll({
+            where: { userId, churchId: req.church.id },
+            include: [
+                { model: db.SundaySchool, as: 'class', attributes: ['id', 'name'] },
+                { model: db.User, as: 'monitor', attributes: ['firstName', 'lastName'] },
+                { model: db.SundaySchoolReport, as: 'report', attributes: ['id', 'lessonTitle', 'title'] }
+            ],
+            order: [['date', 'DESC']]
+        });
+        res.json(attendance);
+    } catch (err) {
+        console.error("getMyAttendance error:", err);
+        res.status(500).json({ message: "Erreur lors de la récupération de vos présences." });
+    }
+};
+
+exports.getMyClassReports = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const churchId = req.church.id;
+
+        // Find classes where the user is an active member
+        const assignments = await db.SundaySchoolMember.findAll({
+            where: { userId, level: 'Actuel' },
+            attributes: ['sundaySchoolId']
+        });
+
+        const classIds = assignments.map(a => a.sundaySchoolId);
+
+        if (classIds.length === 0) {
+            return res.json([]);
+        }
+
+        const reports = await db.SundaySchoolReport.findAll({
+            where: {
+                classId: { [Op.in]: classIds },
+                churchId
+            },
+            include: [
+                { model: db.SundaySchool, as: 'class', attributes: ['name'] },
+                { model: db.User, as: 'submittedBy', attributes: ['firstName', 'lastName'] }
+            ],
+            order: [['date', 'DESC']]
+        });
+
+        res.json(reports);
+    } catch (err) {
+        console.error("getMyClassReports error:", err);
+        res.status(500).json({ message: "Erreur lors de la récupération des rapports de classe." });
     }
 };
 

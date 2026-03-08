@@ -5,33 +5,34 @@ const { protect, hasPermission } = require('../middleware/authGuard');
 
 // Apply auth middleware to all routes
 router.use(protect);
-router.use(hasPermission('sunday-school'));
 
 // Classes
-router.get('/classes', sundaySchoolController.getClasses);
-router.get('/classes/:id', sundaySchoolController.getClassById);
-router.post('/classes', sundaySchoolController.createClass);
-router.put('/classes/:id', sundaySchoolController.updateClass);
-router.delete('/classes/:id', sundaySchoolController.deleteClass);
+router.get('/classes', hasPermission('sunday-school'), sundaySchoolController.getClasses);
+router.get('/classes/:id', hasPermission('sunday-school'), sundaySchoolController.getClassById);
+router.post('/classes', hasPermission('sunday-school'), sundaySchoolController.createClass);
+router.put('/classes/:id', hasPermission('sunday-school'), sundaySchoolController.updateClass);
+router.delete('/classes/:id', hasPermission('sunday-school'), sundaySchoolController.deleteClass);
 
 // Monitors
-router.get('/monitors', sundaySchoolController.getMonitors);
-router.post('/monitors', sundaySchoolController.assignMonitor);
-router.put('/monitors/:id', sundaySchoolController.updateMonitor);
-router.delete('/monitors/:id', sundaySchoolController.removeMonitor);
+router.get('/monitors', hasPermission('sunday-school'), sundaySchoolController.getMonitors);
+router.post('/monitors', hasPermission('sunday-school'), sundaySchoolController.assignMonitor);
+router.put('/monitors/:id', hasPermission('sunday-school'), sundaySchoolController.updateMonitor);
+router.delete('/monitors/:id', hasPermission('sunday-school'), sundaySchoolController.removeMonitor);
 
 // Attendance
-router.post('/attendance', sundaySchoolController.markAttendance);
+router.post('/attendance', hasPermission('sunday-school'), sundaySchoolController.markAttendance);
+router.get('/my-attendance', sundaySchoolController.getMyAttendance);
 
 // Reports
-router.get('/reports', sundaySchoolController.getReports);
-router.delete('/reports-bulk/:classId', sundaySchoolController.deleteAllReports);
-router.get('/reports/:id', sundaySchoolController.getReportById);
-router.post('/reports', sundaySchoolController.submitReport);
-router.put('/reports/:id', sundaySchoolController.updateReport);
-router.delete('/reports/:id', sundaySchoolController.deleteReport);
+router.get('/reports', hasPermission('sunday-school'), sundaySchoolController.getReports);
+router.get('/my-class-reports', sundaySchoolController.getMyClassReports);
+router.delete('/reports-bulk/:classId', hasPermission('sunday-school'), sundaySchoolController.deleteAllReports);
+router.get('/reports/:id', sundaySchoolController.getReportById); // Allow viewing specific report (will check access in controller)
+router.post('/reports', hasPermission('sunday-school'), sundaySchoolController.submitReport);
+router.put('/reports/:id', hasPermission('sunday-school'), sundaySchoolController.updateReport);
+router.delete('/reports/:id', hasPermission('sunday-school'), sundaySchoolController.deleteReport);
 
 // Stats
-router.get('/stats', sundaySchoolController.getStats);
+router.get('/stats', hasPermission('sunday-school'), sundaySchoolController.getStats);
 
 module.exports = router;

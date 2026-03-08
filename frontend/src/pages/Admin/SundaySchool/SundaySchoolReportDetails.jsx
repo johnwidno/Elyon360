@@ -120,14 +120,16 @@ const SundaySchoolReportDetails = ({ isOpen, onClose, reportId }) => {
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={handleExportDetailedPDF}
-                                        className="p-3 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-red-500 rounded-2xl transition-all active:scale-95 shadow-sm flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
-                                    >
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                                        {t('export_pdf')}
-                                    </button>
+                                    {data?.canExport && (
+                                        <button
+                                            type="button"
+                                            onClick={handleExportDetailedPDF}
+                                            className="p-3 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-red-500 rounded-2xl transition-all active:scale-95 shadow-sm flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                            {t('export_pdf')}
+                                        </button>
+                                    )}
                                     <button type="button" onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors">
                                         <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
@@ -135,7 +137,7 @@ const SundaySchoolReportDetails = ({ isOpen, onClose, reportId }) => {
                             </div>
 
                             {/* Body */}
-                            <div className="flex-1 overflow-y-auto p-10 space-y-12">
+                            <div className="flex-1 overflow-y-auto p-10 space-y-12 text-left">
                                 {/* Qualitative Info Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div className="bg-gray-50/50 dark:bg-black/20 p-6 rounded-3xl border border-gray-100 dark:border-white/5">
@@ -212,39 +214,41 @@ const SundaySchoolReportDetails = ({ isOpen, onClose, reportId }) => {
                                 </div>
 
                                 {/* Attendance List */}
-                                <section>
-                                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 border-b border-gray-50 dark:border-white/5 pb-4">{t('attendance_list')}</h3>
-                                    <div className="bg-white dark:bg-black/20 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden">
-                                        <table className="w-full text-left">
-                                            <thead className="bg-gray-50 dark:bg-black/40">
-                                                <tr className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                    <th className="px-6 py-4">{t('name')}</th>
-                                                    <th className="px-6 py-4">{t('code')}</th>
-                                                    <th className="px-6 py-4 text-center">{t('status')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                                                {attendance.map(a => (
-                                                    <tr key={a.id} className="text-[13px]">
-                                                        <td className="px-6 py-4 font-bold text-gray-700 dark:text-gray-200">
-                                                            {a.user?.firstName} {a.user?.lastName}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-gray-400 font-mono text-[11px]">
-                                                            {a.user?.memberCode || '-'}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-center">
-                                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${a.status === 'present' ? 'bg-emerald-50 text-emerald-600' :
-                                                                a.status === 'absent' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
-                                                                }`}>
-                                                                {t(a.status)}
-                                                            </span>
-                                                        </td>
+                                {data?.canViewAttendance && (
+                                    <section>
+                                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 border-b border-gray-50 dark:border-white/5 pb-4">{t('attendance_list')}</h3>
+                                        <div className="bg-white dark:bg-black/20 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden">
+                                            <table className="w-full text-left">
+                                                <thead className="bg-gray-50 dark:bg-black/40">
+                                                    <tr className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                        <th className="px-6 py-4">{t('name')}</th>
+                                                        <th className="px-6 py-4">{t('code')}</th>
+                                                        <th className="px-6 py-4 text-center">{t('status')}</th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </section>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                                    {attendance.map(a => (
+                                                        <tr key={a.id} className="text-[13px]">
+                                                            <td className="px-6 py-4 font-bold text-gray-700 dark:text-gray-200">
+                                                                {a.user?.firstName} {a.user?.lastName}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-gray-400 font-mono text-[11px]">
+                                                                {a.user?.memberCode || '-'}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-center">
+                                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${a.status === 'present' ? 'bg-emerald-50 text-emerald-600' :
+                                                                    a.status === 'absent' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+                                                                    }`}>
+                                                                    {t(a.status)}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </section>
+                                )}
                             </div>
 
                             {/* Footer */}

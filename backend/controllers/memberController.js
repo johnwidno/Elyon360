@@ -462,7 +462,15 @@ exports.getProfile = async (req, res) => {
                 { model: db.Church, as: 'church', attributes: ['name', 'subdomain', 'acronym', 'logoUrl', 'contactEmail', 'churchEmail', 'contactPhone', 'address', 'pastorName'] },
                 { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] },
                 { model: db.Group, as: 'memberGroups', attributes: ['id', 'name', 'type', 'description'] },
-                { model: db.SundaySchool, as: 'sundaySchoolClasses', attributes: ['id', 'name', 'description'] },
+                {
+                    model: db.SundaySchool,
+                    as: 'sundaySchoolClasses',
+                    attributes: ['id', 'name', 'description'],
+                    through: {
+                        attributes: ['status', 'level', 'joinedAt'],
+                        as: 'membership'
+                    }
+                },
                 { model: db.User, as: 'registrant', attributes: ['firstName', 'lastName'] }
             ]
         });

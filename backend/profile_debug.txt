@@ -3518,3 +3518,35 @@
    -> FOUND: Jean Kemy
 [2026-03-08T03:37:08.334Z] getMemberById - ID: 343, ChurchID: 4
    -> FOUND: Jean Kemy
+[2026-03-08T15:33:10.790Z] getMemberById - ID: 4, ChurchID: 4
+   -> FOUND: Admin
+[2026-03-08T15:33:11.312Z] getMemberById - ID: 4, ChurchID: 4
+   -> FOUND: Admin
+[2026-03-08T15:34:13.971Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-08T15:34:15.133Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-08T16:07:42.341Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:07:42.845Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:13:19.952Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:13:20.583Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:14:02.010Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:16:14.121Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:16:14.506Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:16:24.208Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Bellta
+[2026-03-08T16:18:44.476Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T16:18:45.188Z] getMemberById - ID: 347, ChurchID: 4
+   -> FOUND: Belleta
+[2026-03-08T16:21:10.410Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua
+[2026-03-08T16:21:10.987Z] getMemberById - ID: 344, ChurchID: 4
+   -> FOUND: Abda Briny Thiargua

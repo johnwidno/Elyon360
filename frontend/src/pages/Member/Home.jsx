@@ -10,11 +10,12 @@ import {
     Settings, BookOpen, Users, Building2, Activity,
     Mail, Phone, Edit3, Check, X, Menu, ChevronRight,
     MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown,
-    Moon, Sun
+    Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import MemberRequests from './MemberRequests';
 import MemberCardGeneratorModal from '../../components/Admin/Members/MemberCardGeneratorModal';
+import SundaySchoolReportDetails from '../Admin/SundaySchool/SundaySchoolReportDetails';
 
 // ─── SHARED STYLES ────────────────────────────────────────────────────────────
 const SIDEBAR_BG = '#0f172a';
@@ -151,11 +152,23 @@ export default function MemberHome() {
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false); // Dropdown for profile
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false); // Dropdown for notifications
     const [isActivityExpanded, setIsActivityExpanded] = useState(false); // Accordion for recent activity
+    const searchRef = useRef(null);
     const [isOldNotificationsExpanded, setIsOldNotificationsExpanded] = useState(false);
+    const [isSundayHistoryExpanded, setIsSundayHistoryExpanded] = useState(false);
+    const [isGroupsHistoryExpanded, setIsGroupsHistoryExpanded] = useState(false);
+    const [isMinistriesHistoryExpanded, setIsMinistriesHistoryExpanded] = useState(false);
+    const [isSundayAttendanceExpanded, setIsSundayAttendanceExpanded] = useState(false);
+    const [isSundayPastAttendanceExpanded, setIsSundayPastAttendanceExpanded] = useState(false);
+    const [ssAttendanceFilter, setSsAttendanceFilter] = useState({ day: '', month: '', year: new Date().getFullYear().toString() });
+    const [sundayAttendance, setSundayAttendance] = useState([]);
+    const [sundayClassReports, setSundayClassReports] = useState([]);
+    const [ssReportModal, setSsReportModal] = useState({ show: false, id: null });
+    const [ssReportFilter, setSsReportFilter] = useState({ query: '', date: '' });
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [postResults, setPostResults] = useState([]);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const searchRef = useRef(null);
+    const [ceremonies, setCeremonies] = useState([]);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -201,14 +214,23 @@ export default function MemberHome() {
     const fetchData = async () => {
         try {
             console.log("MemberHome: Fetching data...");
-            const [profRes, donRes, notifRes, postsRes, subRes, eventsRes] = await Promise.all([
+            const [
+                profRes, donRes, notifRes, postsRes, subRes, eventsRes, ceremoniesRes,
+                ssAttendanceRes, ssReportsRes
+            ] = await Promise.all([
                 api.get('/members/profile').catch(err => { console.error("Profile fetch error:", err); return { data: null }; }),
                 api.get('/donations/my').catch(err => { console.error("Donations fetch error:", err); return { data: [] }; }),
                 api.get('/notifications').catch(err => { console.error("Notifications fetch error:", err); return { data: [] }; }),
                 api.get('/community-posts').catch(err => { console.error("Posts fetch error:", err); return { data: [] }; }),
                 api.get('/contact-subtypes').catch(err => { console.error("Subtypes fetch error:", err); return { data: [] }; }),
-                api.get('/events').catch(err => { console.error("Events fetch error:", err); return { data: [] }; })
+                api.get('/events').catch(err => { console.error("Events fetch error:", err); return { data: [] }; }),
+                api.get('/ceremonies').catch(err => { console.error("Ceremonies fetch error:", err); return { data: [] }; }),
+                api.get('/sunday-school/my-attendance').catch(err => { console.error("SS Attendance fetch error:", err); return { data: [] }; }),
+                api.get('/sunday-school/my-class-reports').catch(err => { console.error("SS Reports fetch error:", err); return { data: [] }; })
             ]);
+
+            if (ssAttendanceRes?.data) setSundayAttendance(ssAttendanceRes.data);
+            if (ssReportsRes?.data) setSundayClassReports(ssReportsRes.data);
 
             if (subRes.data) {
                 setSubtypes(subRes.data.filter(s => s.type?.name === 'Membre' || s.contactTypeId === 1)); // Adjust filter based on API response
@@ -235,6 +257,7 @@ export default function MemberHome() {
             setNotifications(Array.isArray(notifRes.data) ? notifRes.data : []);
             setCommunityPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
             setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : []);
+            setCeremonies(Array.isArray(ceremoniesRes?.data) ? ceremoniesRes.data : []);
 
             // NEW: Sync authUser with latest roles and church info to ensure switcher works
             if (profRes.data && authUser) {
@@ -286,14 +309,22 @@ export default function MemberHome() {
         const timer = setTimeout(async () => {
             try {
                 // Search for members
-                const res = await api.get(`/members?search=${searchQuery}`);
-                setSearchResults(Array.isArray(res.data) ? res.data : []);
+                const mRes = await api.get(`/members?search=${searchQuery}`);
+                setSearchResults(Array.isArray(mRes.data) ? mRes.data.slice(0, 5) : []);
+
+                // Filter local posts
+                const matches = communityPosts.filter(p =>
+                    p.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.authorName?.toLowerCase().includes(searchQuery.toLowerCase())
+                ).slice(0, 5);
+                setPostResults(matches);
             } catch (err) {
                 console.error("Search error:", err);
             }
-        }, 500);
+        }, 300);
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [searchQuery, communityPosts]);
 
     useEffect(() => { fetchData(); }, []);
 
@@ -618,6 +649,36 @@ export default function MemberHome() {
         }))
     ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 15);
 
+    // Sunday School Helpers
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    const currentMonthAttendance = sundayAttendance.filter(a => {
+        const d = new Date(a.date);
+        return (d.getMonth() + 1) === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    const processedAttendance = sundayAttendance.filter(a => {
+        const d = new Date(a.date);
+        const dayMatch = !ssAttendanceFilter.day || d.getDate().toString() === ssAttendanceFilter.day;
+        const monthMatch = !ssAttendanceFilter.month || (d.getMonth() + 1).toString() === ssAttendanceFilter.month;
+        const yearMatch = !ssAttendanceFilter.year || d.getFullYear().toString() === ssAttendanceFilter.year;
+        return dayMatch && monthMatch && yearMatch;
+    });
+
+    const processedReports = sundayClassReports.filter(r => {
+        const q = ssReportFilter.query.toLowerCase();
+        const titleMatch = !q ||
+            (r.lessonTitle?.toLowerCase().includes(q)) ||
+            (r.title?.toLowerCase().includes(q)) ||
+            (r.class?.name?.toLowerCase().includes(q));
+
+        const dateMatch = !ssReportFilter.date ||
+            new Date(r.date).toISOString().split('T')[0] === ssReportFilter.date;
+
+        return titleMatch && dateMatch;
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
     // ── nav items ──────────────────────────────────────────────────────────────
     const navItems = [
         { id: 'dashboard', label: t('overview', "Vue d'ensemble"), icon: <LayoutDashboard size={15} /> },
@@ -626,7 +687,8 @@ export default function MemberHome() {
         { id: 'activity', label: t('recent_activity', 'Activité récente'), icon: <Activity size={15} /> },
         { id: 'requests', label: t('my_requests', 'Mes demandes'), icon: <FileText size={15} /> },
         { id: 'donations', label: t('donation_history', 'Historique des dons'), icon: <Heart size={15} /> },
-        { id: 'sunday', label: t('sunday_school', 'Classes dominicales'), icon: <BookOpen size={15} /> },
+        { id: 'communion', label: t('holy_communion', 'Sainte Cène'), icon: <Droplets size={15} /> },
+        { id: 'sunday_school', label: t('sunday_school', 'École du dimanche'), icon: <BookOpen size={15} /> },
         { id: 'groups', label: t('groups', 'Groupes'), icon: <Users size={15} /> },
         { id: 'ministries', label: t('ministries', 'Ministères'), icon: <Building2 size={15} /> },
         { id: 'my_card', label: t('my_member_card', 'Ma carte membre'), icon: <CreditCard size={15} /> }
@@ -705,6 +767,14 @@ export default function MemberHome() {
                 </div>
             </nav>
 
+            {/* Logout at bottom */}
+            <div className="p-3 mt-auto border-t" style={{ borderColor: SIDEBAR_BORDER }}>
+                <button onClick={logout}
+                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-red-400 hover:bg-red-500/10 group">
+                    <LogOut size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
+                    <span className="text-[13px] font-bold">{t('logout', 'Déconnexion')}</span>
+                </button>
+            </div>
         </div >
     );
 
@@ -766,14 +836,15 @@ export default function MemberHome() {
                                     className="pl-10 pr-4 py-2 w-48 lg:w-64 bg-gray-50 dark:bg-slate-900/50 border border-transparent focus:border-indigo-100 dark:focus:border-indigo-500/20 rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-indigo-500/5 text-gray-900 dark:text-white dark:text-gray-100 transition-all placeholder-gray-400 outline-none"
                                 />
 
-                                {/* Desktop Search Results */}
+                                {/* Desktop Search Results with Publications */}
                                 {searchQuery.trim() && (
-                                    <div className="absolute top-full left-0 mt-3 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden max-h-80 overflow-y-auto noscrollbar">
-                                        <div className="p-3 border-b border-gray-50 dark:border-slate-700 bg-gray-50/30 dark:bg-slate-900/30">
+                                    <div className="absolute top-full left-0 mt-3 w-96 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden max-h-[80vh] overflow-y-auto noscrollbar">
+                                        {/* Membres Section */}
+                                        <div className="p-4 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('member_results', 'Membres')}</p>
                                         </div>
                                         {searchResults.length === 0 ? (
-                                            <div className="p-4 text-center text-gray-400 text-xs italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
+                                            <div className="p-4 text-center text-gray-400 text-[11px] italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
                                         ) : (
                                             searchResults.map(m => (
                                                 <div key={m.id} className="p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer flex items-center gap-3 border-b border-gray-50 dark:border-slate-700"
@@ -785,8 +856,23 @@ export default function MemberHome() {
                                                         <p className="text-xs font-bold text-gray-900 dark:text-white dark:text-gray-100 truncate">
                                                             {m.firstName} {m.lastName}
                                                         </p>
-                                                        <p className="text-[10px] text-gray-400 font-medium truncate capitalize">{m.status || 'Membre'}</p>
                                                     </div>
+                                                </div>
+                                            ))
+                                        )}
+
+                                        {/* Publications Section */}
+                                        <div className="p-4 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('publication_results', 'Publications')}</p>
+                                        </div>
+                                        {postResults.length === 0 ? (
+                                            <div className="p-4 text-center text-gray-400 text-[11px] italic">{t('no_post_found', 'Aucune publication trouvée')}</div>
+                                        ) : (
+                                            postResults.map(p => (
+                                                <div key={p.id} className="p-4 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer border-b border-gray-50 dark:border-slate-700"
+                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(p.title || p.content.slice(0, 10)); setIsSearchOpen(false); }}>
+                                                    <p className="text-[12px] font-bold text-gray-900 dark:text-white line-clamp-1">{p.title || t('untitled_post', 'Sans titre')}</p>
+                                                    <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">{p.content}</p>
                                                 </div>
                                             ))
                                         )}
@@ -830,24 +916,42 @@ export default function MemberHome() {
                                         </div>
                                         <div className="p-4 max-h-[calc(100vh-100px)] overflow-y-auto noscrollbar">
                                             {searchQuery.trim() && (
-                                                <div className="space-y-4">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{t('member_results', 'Membres')}</p>
-                                                    {searchResults.length === 0 ? (
-                                                        <div className="p-8 text-center text-gray-400 text-sm italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
-                                                    ) : (
-                                                        searchResults.map(m => (
-                                                            <div key={m.id} className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-[1.5rem] flex items-center gap-4 active:scale-95 transition-all shadow-sm"
-                                                                onClick={() => { setActiveTab('dashboard'); setSearchQuery(`${m.firstName} ${m.lastName}`); setIsSearchOpen(false); }}>
-                                                                <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 font-bold">
-                                                                    {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase text-lg">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
+                                                <div className="space-y-6">
+                                                    {/* Membres Section */}
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{t('member_results', 'Membres')}</p>
+                                                        {searchResults.length === 0 ? (
+                                                            <div className="p-6 text-center text-gray-400 text-sm italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
+                                                        ) : (
+                                                            searchResults.map(m => (
+                                                                <div key={m.id} className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-[1.5rem] flex items-center gap-4 active:scale-95 transition-all shadow-sm"
+                                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(`${m.firstName} ${m.lastName}`); setIsSearchOpen(false); }}>
+                                                                    <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 font-bold">
+                                                                        {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase text-lg">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{m.firstName} {m.lastName}</p>
+                                                                    </div>
                                                                 </div>
-                                                                <div className="min-w-0">
-                                                                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{m.firstName} {m.lastName}</p>
-                                                                    <p className="text-[11px] text-gray-400 font-medium capitalize mt-1">{m.status || 'Membre'}</p>
+                                                            ))
+                                                        )}
+                                                    </div>
+
+                                                    {/* Publications Section */}
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{t('publication_results', 'Publications')}</p>
+                                                        {postResults.length === 0 ? (
+                                                            <div className="p-6 text-center text-gray-400 text-sm italic">{t('no_post_found', 'Aucune publication trouvée')}</div>
+                                                        ) : (
+                                                            postResults.map(p => (
+                                                                <div key={p.id} className="p-5 bg-white dark:bg-slate-800 rounded-[1.5rem] border border-gray-100 dark:border-slate-700 active:scale-95 transition-all"
+                                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(p.title || p.content.slice(0, 10)); setIsSearchOpen(false); }}>
+                                                                    <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-2 truncate">{p.title || t('untitled_post', 'Sans titre')}</h4>
+                                                                    <p className="text-[12px] text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">{p.content}</p>
                                                                 </div>
-                                                            </div>
-                                                        ))
-                                                    )}
+                                                            ))
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -992,6 +1096,7 @@ export default function MemberHome() {
                         { id: 'dashboard', icon: <Home size={18} /> },
                         { id: 'activity', icon: <Activity size={18} /> },
                         { id: 'requests', icon: <FileText size={18} /> },
+                        { id: 'communion', icon: <Droplets size={18} /> },
                         { id: 'donations', icon: <Heart size={18} /> },
                         { id: 'toggle-theme', icon: isDark ? <Sun size={18} /> : <Moon size={18} />, action: toggleTheme },
                     ].map(item => (
@@ -1636,7 +1741,7 @@ export default function MemberHome() {
                                     </div>
 
                                     <div className="flex flex-col items-center gap-4 pt-8">
-                                        <div className="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-[12px] font-black tracking-widest uppercase border border-indigo-100">
+                                        <div className="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-[12px] font-black tracking-widest border border-indigo-100">
                                             {t('card_status', 'Statut de la carte')}: {activeCard.status}
                                         </div>
                                         <p className="text-gray-400 text-[11px] font-medium italic">{t('member_id_identification', 'Identification member ID')}: {activeCard.cardNumber}</p>
@@ -1674,9 +1779,9 @@ export default function MemberHome() {
                     {activeTab === 'donations' && (
                         <div className="animate-in fade-in duration-300 w-full">
                             <div className="flex items-start justify-between mb-6">
-                                <PageTitle title={t('donation_history', 'Historique des Dons')} />
+                                <PageTitle title={t('donation_history', 'Historique des dons')} />
                                 <Card className="px-4 py-3 text-right shrink-0 ml-4">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
+                                    <p className="text-[10px] font-bold text-gray-400 tracking-wide">
                                         {t('total', 'Total')} {new Date().getFullYear()}
                                     </p>
                                     <p className="font-bold text-gray-900 dark:text-white mt-0.5" style={{ fontSize: '18px' }}>
@@ -1714,18 +1819,73 @@ export default function MemberHome() {
                         </div>
                     )}
 
+                    {activeTab === 'communion' && (
+                        <div className="animate-in fade-in duration-300 w-full text-left">
+                            <PageTitle
+                                title={t('holy_communion_participation', 'Participation à la Sainte Cène')}
+                                subtitle={t('communion_desc', 'Suivez vos participations aux cérémonies de communion.')}
+                            />
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <Card className="p-6 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white border-0 shadow-lg shadow-indigo-100">
+                                    <Droplets className="mb-4 opacity-50" size={32} />
+                                    <p className="text-[11px] font-black tracking-widest opacity-80">{t('total_participations', 'Total participations')}</p>
+                                    <p className="text-4xl font-black mt-1">
+                                        {ceremonies.filter(c => c.type === 'sainte_cene').length}
+                                    </p>
+                                </Card>
+                                <Card className="p-6">
+                                    <Calendar className="mb-4 text-amber-500" size={32} />
+                                    <p className="text-[11px] font-black tracking-widest text-gray-400">{t('last_participation', 'Dernière participation')}</p>
+                                    <p className="text-xl font-bold mt-1 text-gray-900 dark:text-white">
+                                        {ceremonies.filter(c => c.type === 'sainte_cene')[0]?.date ? new Date(ceremonies.filter(c => c.type === 'sainte_cene')[0].date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : t('none', 'Aucune')}
+                                    </p>
+                                </Card>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 tracking-tight flex items-center gap-3">
+                                    <Clock size={18} className="text-indigo-500" />
+                                    {t('participation_history', 'Historique des participations')}
+                                </h3>
+
+                                {ceremonies.filter(c => c.type === 'sainte_cene').length === 0 ? (
+                                    <Card className="p-16 text-center border-dashed border-2 dark:border-slate-700">
+                                        <Droplets size={48} className="mx-auto text-gray-100 mb-4" />
+                                        <p className="text-gray-400 font-medium">{t('no_communion_history', "Aucun historique de participation à la Sainte Cène n'est enregistré pour le moment.")}</p>
+                                    </Card>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {ceremonies.filter(c => c.type === 'sainte_cene').map(c => (
+                                            <RowCard
+                                                key={c.id}
+                                                left={<IconCircle icon={<Droplets size={16} />} amber={false} />}
+                                                center={
+                                                    <>
+                                                        <p className="text-gray-900 dark:text-white font-bold text-[14px]">{c.title || t('holy_communion', 'Sainte Cène')}</p>
+                                                        <p className="text-gray-400 text-[11px] mt-0.5">{new Date(c.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                        {c.description && <p className="text-gray-500 text-[12px] mt-1 italic">{c.description}</p>}
+                                                    </>
+                                                }
+                                                right={<Badge label={t('present', 'Présent')} color="green" />}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     {activeTab === 'notifications' && (
-                        <div className="animate-in fade-in duration-300 w-full">
+                        <div className="animate-in fade-in duration-300 w-full text-left">
                             <PageTitle title={t('notifications', 'Notifications')}
                                 subtitle={unreadCount > 0 ? `${unreadCount} ${t('unread', 'non lue')}${unreadCount > 1 ? 's' : ''}` : t('all_up_to_date', 'Tout est à jour')} />
 
                             <div className="space-y-4">
-                                {/* New Notifications Section */}
                                 <div className="space-y-3">
                                     {notifications.filter(n => !n.isRead).length === 0 ? (
                                         notifications.length > 0 && notifications.filter(n => !n.isRead).length === 0 && (
                                             <div className="mb-4 p-6 bg-indigo-50/30 border-2 border-dashed border-indigo-100/50 rounded-[1.5rem] text-center">
-                                                <p className="text-gray-400 text-[11px] font-black italic uppercase tracking-widest">{t('no_unread_notifs', 'Saisie à jour : aucune nouvelle notification')}</p>
+                                                <p className="text-gray-400 text-[11px] font-black italic tracking-widest">{t('no_unread_notifs', 'Saisie à jour : aucune nouvelle notification')}</p>
                                             </div>
                                         )
                                     ) : notifications.filter(n => !n.isRead).map(n => (
@@ -1746,7 +1906,6 @@ export default function MemberHome() {
                                     ))}
                                 </div>
 
-                                {/* Older Notifications Accordion */}
                                 {notifications.filter(n => n.isRead).length > 0 && (
                                     <div className="pt-4">
                                         <button
@@ -1758,7 +1917,7 @@ export default function MemberHome() {
                                                     <Clock size={18} />
                                                 </div>
                                                 <div className="text-left">
-                                                    <h3 className="text-[13px] font-black italic uppercase tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors">
+                                                    <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors">
                                                         {t('older_notifications', 'Anciennes notifications')}
                                                     </h3>
                                                     <p className="text-[11px] text-gray-400 font-medium">
@@ -1802,32 +1961,244 @@ export default function MemberHome() {
                         </div>
                     )}
 
-                    {activeTab === 'sunday' && (
-                        <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title={t('sunday_school_classes', 'Classes dominicales')} />
-                            {!profile?.sundaySchoolClasses || profile.sundaySchoolClasses.length === 0 ? (
+
+                    {activeTab === 'sunday_school' && (
+                        <div className="animate-in fade-in duration-300 w-full text-left">
+                            <PageTitle title={t('sunday_school', 'École du dimanche')} subtitle={t('ss_subtitle', 'Gérez vos classes et suivez vos progrès spirituels')} />
+
+                            {/* Current Classes */}
+                            {(!profile?.sundaySchoolClasses || profile.sundaySchoolClasses.length === 0) ? (
                                 <Card className="p-12 text-center text-gray-400">
                                     <BookOpen size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>{t('no_sunday_school_desc', "Vous n'êtes inscrit à aucune classe dominicale.")}</p>
+                                    <p>{t('no_ss_class', "Vous n'êtes inscrit dans aucune classe pour le moment.")}</p>
                                 </Card>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                                     {profile.sundaySchoolClasses.map(cls => (
-                                        <Card key={cls.id} className="p-5 flex flex-col hover:border-indigo-200 transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
-                                                <BookOpen size={20} />
+                                        <Card key={cls.id} className="p-6 relative overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-500">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
+                                            <div className="flex items-start justify-between relative z-10">
+                                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mb-4 transition-transform group-hover:-rotate-6">
+                                                    <BookOpen size={24} />
+                                                </div>
                                             </div>
-                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{cls.name}</h4>
-                                            <p className="text-sm text-gray-500 line-clamp-2">{cls.description || t('no_description', 'Pas de description.')}</p>
+                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 text-lg mb-1">{cls.name || t('class', 'Classe')}</h4>
+                                            <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">{cls.membership?.level || t('member', 'Membre')}</p>
+                                            <div className="flex items-center gap-3 mt-auto">
+                                                <div className="flex -space-x-2">
+                                                    {[1, 2].map(i => (
+                                                        <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-800 bg-gray-100 dark:bg-slate-700 overflow-hidden">
+                                                            <div className="w-full h-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-[10px] text-indigo-400 font-bold">U</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <span className="text-[11px] text-gray-500">{t('active_class', 'Classe active')}</span>
+                                            </div>
                                         </Card>
                                     ))}
                                 </div>
                             )}
+
+                            {/* Attendance Current Month */}
+                            <div className="mt-8">
+                                <button
+                                    onClick={() => setIsSundayAttendanceExpanded(!isSundayAttendanceExpanded)}
+                                    className="w-full flex items-center justify-between p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-[1.5rem] border border-transparent hover:border-emerald-100 dark:hover:border-emerald-900/30 transition-all group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm transition-transform group-hover:scale-110">
+                                            <CheckCircle size={18} />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="text-[13px] font-black italic tracking-widest text-emerald-600 dark:text-emerald-400">
+                                                {t('attendance_current_month', 'Présence aux classes (mois en cours)')}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <ChevronDown size={20} className={`text-emerald-300 transition-transform duration-500 ${isSundayAttendanceExpanded ? 'rotate-180 text-emerald-500' : ''}`} />
+                                </button>
+                                {isSundayAttendanceExpanded && (
+                                    <div className="mt-4 p-2 bg-white dark:bg-slate-800/20 border border-gray-100 dark:border-slate-800 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
+                                        {currentMonthAttendance.length === 0 ? (
+                                            <div className="p-8 text-center">
+                                                <Calendar size={32} className="mx-auto text-gray-200 mb-3" />
+                                                <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_attendance_this_month', 'Aucune présence enregistrée ce mois-ci.')}</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-1">
+                                                {currentMonthAttendance.map(att => (
+                                                    <div key={att.id} className="flex items-center justify-between p-4 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 rounded-2xl transition-all group">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 ${att.status === 'present' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                                                                <Check size={18} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[13px] font-bold text-gray-700 dark:text-gray-200">{att.class?.name}</p>
+                                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{new Date(att.date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <Badge label={t(att.status)} color={att.status === 'present' ? 'green' : 'rose'} />
+                                                            {att.report?.id && (
+                                                                <button
+                                                                    onClick={() => setSsReportModal({ show: true, id: att.report.id })}
+                                                                    className="block mt-1 text-[9px] font-black tracking-widest text-indigo-500 hover:text-indigo-600 hover:underline"
+                                                                >
+                                                                    {t('view_report', 'Voir le rapport')}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Past Attendance with Filter */}
+                            <div className="mt-4">
+                                <button
+                                    onClick={() => setIsSundayPastAttendanceExpanded(!isSundayPastAttendanceExpanded)}
+                                    className="w-full flex items-center justify-between p-6 bg-indigo-50/30 dark:bg-indigo-950/10 rounded-[1.5rem] border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-400 shadow-sm group-hover:rotate-12 transition-all">
+                                            <Filter size={18} />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="text-[13px] font-black italic tracking-widest text-indigo-500 dark:text-indigo-300">
+                                                {t('past_attendance_filter', 'Présence passée et filtres')}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <ChevronDown size={20} className={`text-indigo-200 transition-transform duration-500 ${isSundayPastAttendanceExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
+                                </button>
+                                {isSundayPastAttendanceExpanded && (
+                                    <div className="mt-4 p-6 bg-white dark:bg-slate-800/40 border border-gray-100 dark:border-slate-700/50 rounded-[2rem] animate-in slide-in-from-top-4 duration-500 shadow-sm">
+                                        <div className="flex flex-wrap items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-slate-900/50 rounded-2xl">
+                                            <div className="flex-1 min-w-[80px]">
+                                                <label className="block text-[8px] font-black tracking-widest text-gray-400 mb-1 ml-1">{t('day', 'Jour')}</label>
+                                                <input
+                                                    type="number" min="1" max="31"
+                                                    value={ssAttendanceFilter.day}
+                                                    onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, day: e.target.value })}
+                                                    placeholder="--"
+                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl p-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-indigo-500/20 outline-none"
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-[100px]">
+                                                <label className="block text-[8px] font-black tracking-widest text-gray-400 mb-1 ml-1">{t('month', 'Mois')}</label>
+                                                <select
+                                                    value={ssAttendanceFilter.month}
+                                                    onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, month: e.target.value })}
+                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl p-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-indigo-500/20 outline-none appearance-none"
+                                                >
+                                                    <option value="">{t('all_months', 'Tous')}</option>
+                                                    {Array.from({ length: 12 }, (_, i) => (
+                                                        <option key={i + 1} value={i + 1}>{new Date(0, i).toLocaleString(locale, { month: 'long' })}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="flex-1 min-w-[80px]">
+                                                <label className="block text-[8px] font-black tracking-widest text-gray-400 mb-1 ml-1">{t('year', 'Année')}</label>
+                                                <input
+                                                    type="number"
+                                                    value={ssAttendanceFilter.year}
+                                                    onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, year: e.target.value })}
+                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl p-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-indigo-500/20 outline-none"
+                                                />
+                                            </div>
+                                            <button className="h-[42px] px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] font-black tracking-widest transition-all active:scale-95 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 mt-4 sm:mt-0">
+                                                <Search size={14} /> {t('filter', 'Filtrer')}
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            {processedAttendance.length === 0 ? (
+                                                <div className="p-8 text-center border-2 border-dashed border-gray-100 dark:border-slate-800 rounded-[1.5rem]">
+                                                    <History size={32} className="mx-auto text-gray-100 mb-3" />
+                                                    <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_past_attendance_found', 'Aucun résultat pour cette période.')}</p>
+                                                </div>
+                                            ) : (
+                                                processedAttendance.map(att => (
+                                                    <div key={att.id} className="flex items-center justify-between p-4 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 rounded-2xl transition-all group">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${att.status === 'present' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                                                                <Clock size={14} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[12px] font-bold text-gray-700 dark:text-gray-200">{att.class?.name}</p>
+                                                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{new Date(att.date).toLocaleDateString(locale)}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <Badge label={t(att.status)} color={att.status === 'present' ? 'green' : 'rose'} />
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Class Reports / Historique */}
+                            <div className="mt-4">
+                                <button
+                                    onClick={() => setIsSundayHistoryExpanded(!isSundayHistoryExpanded)}
+                                    className="w-full flex items-center justify-between p-6 bg-gray-50/50 dark:bg-slate-900/50 rounded-[1.5rem] border border-transparent hover:border-gray-100 dark:hover:border-slate-800 transition-all group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-amber-500 transition-colors shadow-sm">
+                                            <FileText size={18} />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
+                                                {t('class_reports', 'Rapports de classe')}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isSundayHistoryExpanded ? 'rotate-180 text-amber-500' : ''}`} />
+                                </button>
+                                {isSundayHistoryExpanded && (
+                                    <div className="mt-4 p-2 bg-white dark:bg-slate-800/20 border border-gray-100 dark:border-slate-800 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
+                                        {sundayClassReports.length === 0 ? (
+                                            <div className="p-8 text-center">
+                                                <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
+                                                <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_reports_found', 'Aucun rapport de classe trouvé.')}</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-1">
+                                                {sundayClassReports.map(report => (
+                                                    <div key={report.id} className="flex items-center justify-between p-4 hover:bg-amber-50/30 dark:hover:bg-amber-900/10 rounded-2xl transition-all group">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                                                                <BookOpen size={18} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[13px] font-bold text-gray-700 dark:text-gray-200">{report.lessonTitle || report.title || t('weekly_report', 'Rapport hebdomadaire')}</p>
+                                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{report.class?.name} • {new Date(report.date).toLocaleDateString(locale)}</p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => setSsReportModal({ show: true, id: report.id })}
+                                                            className="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-xl text-[10px] font-black tracking-widest transition-all"
+                                                        >
+                                                            {t('view', 'Voir')}
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
                     {activeTab === 'groups' && (
-                        <div className="animate-in fade-in duration-300 w-full">
+                        <div className="animate-in fade-in duration-300 w-full text-left">
                             <PageTitle title={t('groups', 'Groupes')} />
                             {(!profile?.memberGroups || profile.memberGroups.filter(g => g.type !== 'ministry').length === 0) ? (
                                 <Card className="p-12 text-center text-gray-400">
@@ -1842,17 +2213,43 @@ export default function MemberHome() {
                                                 <Users size={20} />
                                             </div>
                                             <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{g.name}</h4>
-                                            <p className="text-[11px] text-gray-400 uppercase font-black tracking-wider mb-2">{g.type || t('group', 'Groupe')}</p>
+                                            <p className="text-[11px] text-gray-400 font-black tracking-wider mb-2">{g.type || t('group', 'Groupe')}</p>
                                             <p className="text-sm text-gray-500 line-clamp-2">{g.description || t('no_description', 'Pas de description.')}</p>
                                         </Card>
                                     ))}
                                 </div>
                             )}
+
+                            {/* Historique Accordion */}
+                            <div className="mt-8">
+                                <button
+                                    onClick={() => setIsGroupsHistoryExpanded(!isGroupsHistoryExpanded)}
+                                    className="w-full flex items-center justify-between p-6 bg-gray-50 dark:bg-slate-900/50 rounded-[1.5rem] border border-transparent hover:border-gray-100 dark:hover:border-slate-800 transition-all group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors shadow-sm">
+                                            <History size={18} />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
+                                                {t('history_past_groups', 'Historique / groupes passés')}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isGroupsHistoryExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
+                                </button>
+                                {isGroupsHistoryExpanded && (
+                                    <div className="mt-4 p-8 text-center bg-white dark:bg-slate-800/20 border border-dashed border-gray-200 dark:border-slate-700 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
+                                        <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
+                                        <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_inactive_found', 'Aucun groupe inactif ou historique trouvé.')}</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
                     {activeTab === 'ministries' && (
-                        <div className="animate-in fade-in duration-300 w-full">
+                        <div className="animate-in fade-in duration-300 w-full text-left">
                             <PageTitle title={t('ministries', 'Ministères')} />
                             {(!profile?.memberGroups || profile.memberGroups.filter(g => g.type === 'ministry').length === 0) ? (
                                 <Card className="p-12 text-center text-gray-400">
@@ -1872,9 +2269,35 @@ export default function MemberHome() {
                                     ))}
                                 </div>
                             )}
+
+                            {/* Historique Accordion */}
+                            <div className="mt-8">
+                                <button
+                                    onClick={() => setIsMinistriesHistoryExpanded(!isMinistriesHistoryExpanded)}
+                                    className="w-full flex items-center justify-between p-6 bg-gray-50 dark:bg-slate-900/50 rounded-[1.5rem] border border-transparent hover:border-gray-100 dark:hover:border-slate-800 transition-all group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors shadow-sm">
+                                            <History size={18} />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="text-[13px] font-black italic tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
+                                                {t('history_past_ministries', 'Historique / ministères passés')}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isMinistriesHistoryExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
+                                </button>
+                                {isMinistriesHistoryExpanded && (
+                                    <div className="mt-4 p-8 text-center bg-white dark:bg-slate-800/20 border border-dashed border-gray-200 dark:border-slate-700 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
+                                        <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
+                                        <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_inactive_found', 'Aucun ministère inactif ou historique trouvé.')}</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
-                </div> {/* end scrollable content */}
+                </div > {/* end scrollable content */}
             </div > {/* end main area */}
 
             {/* ── CREATE POST MODAL (Professional Version) ── */}
@@ -2109,6 +2532,13 @@ export default function MemberHome() {
                 )
             }
 
+            {ssReportModal.show && (
+                <SundaySchoolReportDetails
+                    isOpen={ssReportModal.show}
+                    onClose={() => setSsReportModal({ show: false, id: null })}
+                    reportId={ssReportModal.id}
+                />
+            )}
         </div >
     );
 }
