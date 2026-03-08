@@ -1488,72 +1488,65 @@ export default function MemberHome() {
 
                                 {/* Avatar card with Cover */}
                                 <Card className="overflow-hidden p-0 relative border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white dark:bg-slate-800">
-                                    {/* Cover Background */}
-                                    <div className="h-48 sm:h-64 w-full relative z-0 overflow-hidden">
-                                        {profile?.photo ? (
-                                            <>
-                                                <img src={getImageUrl(profile.photo)} alt="Cover" className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent"></div>
-                                                {/* Bottom Fade for Text Visibility */}
-                                                <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 to-transparent"></div>
-                                            </>
-                                        ) : (
-                                            <div className="absolute inset-0 bg-gray-50 dark:bg-slate-900"></div>
-                                        )}
-                                    </div>
+                                    {/* Clean Gradient Header */}
+                                    <div className="bg-gradient-to-br from-white via-indigo-50/60 to-slate-50 dark:from-slate-800 dark:via-indigo-950/40 dark:to-slate-900 px-10 pt-10 pb-10 border-b border-gray-100/50 dark:border-white/5">
 
-                                    {/* Lower section with info */}
-                                    <div className="px-10 pb-10 pt-0 flex flex-col sm:flex-row items-center sm:items-end gap-10 text-center sm:text-left relative z-10 -mt-[80px]">
-                                        {/* Avatar element */}
-                                        <div className="relative group w-[160px] h-[160px] rounded-[3rem] flex items-center justify-center text-white font-black italic text-[48px] shrink-0 shadow-2xl overflow-hidden cursor-pointer ring-8 ring-white dark:ring-slate-800"
-                                            style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                            {profile?.photo ? (
-                                                <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" onClick={handlePhotoClick} crossOrigin="anonymous" />
-                                            ) : (
-                                                <div onClick={() => fileInputRef.current.click()}>{initials}</div>
-                                            )}
+                                        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-8 text-center sm:text-left">
+                                            {/* Avatar element */}
+                                            <div className="relative group w-[140px] h-[140px] rounded-[2.5rem] flex items-center justify-center text-white font-black text-[48px] shrink-0 shadow-2xl shadow-indigo-500/10 overflow-hidden cursor-pointer ring-[5px] ring-indigo-100 dark:ring-indigo-500/20 transition-all duration-500 group-hover:rounded-[2rem] group-hover:scale-105"
+                                                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                                                {profile?.photo ? (
+                                                    <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" onClick={handlePhotoClick} crossOrigin="anonymous" />
+                                                ) : (
+                                                    <div onClick={() => fileInputRef.current.click()}>{initials}</div>
+                                                )}
 
-                                            {/* Overlay pour modifier la photo */}
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300"
-                                                onClick={() => fileInputRef.current.click()}>
-                                                <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md border border-white/20 scale-90 group-hover:scale-100 transition-transform">
-                                                    <Edit3 size={24} className="text-white" />
+                                                {/* Overlay pour modifier la photo */}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300"
+                                                    onClick={() => fileInputRef.current.click()}>
+                                                    <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md border border-white/20 scale-90 group-hover:scale-100 transition-transform">
+                                                        <Edit3 size={24} className="text-white" />
+                                                    </div>
+                                                </div>
+                                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+                                            </div>
+
+                                            {/* Name + email */}
+                                            <div className="flex-1 min-w-0 sm:pb-2 space-y-3">
+                                                <div>
+                                                    <h2 className="font-black text-3xl sm:text-4xl tracking-tighter text-gray-900 dark:text-white leading-tight">
+                                                        {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')}
+                                                    </h2>
+                                                    <p className="text-base mt-2 font-bold text-indigo-500 dark:text-indigo-400">
+                                                        {profile?.email || '...'}
+                                                    </p>
+                                                </div>
+                                                <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                                                    <span className="px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300">
+                                                        {t('status_member', 'Membre')} {profile?.status || t('active', 'actif')}
+                                                    </span>
+                                                    {profile?.joinDate && (
+                                                        <span className="px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                                            {t('since', 'Depuis')} {new Date(profile.joinDate).getFullYear()}
+                                                        </span>
+                                                    )}
+                                                    {profile?.memberCode && (
+                                                        <span className="px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-indigo-200 dark:border-indigo-500/20 bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+                                                            {profile.memberCode}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+                                            {/* Edit button */}
+                                            {!editing && (
+                                                <div className="sm:ml-auto pb-2">
+                                                    <button onClick={() => setEditing(true)}
+                                                        className="flex items-center gap-3 px-8 py-4 rounded-2xl text-[13px] font-black tracking-widest transition-all shadow-lg hover:shadow-xl active:scale-95 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40">
+                                                        <Edit3 size={18} />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-
-                                        {/* Name + email */}
-                                        <div className="flex-1 min-w-0 sm:pb-4 space-y-3">
-                                            <div>
-                                                <h2 className={`font-black text-4xl sm:text-5xl tracking-tighter ${profile?.photo ? 'text-white drop-shadow-2xl' : 'text-gray-900 dark:text-white'}`}
-                                                    style={{ lineHeight: '1.2' }}>
-                                                    {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')}
-                                                </h2>
-                                                <p className={`text-xl mt-2 font-bold ${profile?.photo ? 'text-white drop-shadow-lg' : 'text-indigo-600'}`}>
-                                                    {profile?.email || '...'}
-                                                </p>
-                                            </div>
-                                            <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-                                                <span className={`px-6 py-2 rounded-2xl text-[13px] font-black uppercase tracking-widest border italic ${profile?.photo ? 'border-white/10 bg-black/40 text-white backdrop-blur-md' : 'border-gray-100 bg-gray-50 text-gray-500'}`}>
-                                                    {t('status_member', 'Membre')} {profile?.status || t('active', 'actif')}
-                                                </span>
-                                                {profile?.joinDate && (
-                                                    <span className={`px-6 py-2 rounded-2xl text-[13px] font-black uppercase tracking-widest border italic ${profile?.photo ? 'border-white/10 bg-indigo-600/50 text-white backdrop-blur-md' : 'border-indigo-50 bg-indigo-50/50 text-indigo-600'}`}>
-                                                        {t('since', 'Depuis')} {new Date(profile.joinDate).getFullYear()}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {/* Edit button */}
-                                        {!editing && (
-                                            <div className="sm:ml-auto pb-4">
-                                                <button onClick={() => setEditing(true)}
-                                                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-[14px] font-black sentence case tracking-widest transition-all shadow-xl hover:shadow-2xl active:scale-95 border-b-4 italic ${profile?.photo ? 'bg-white text-indigo-900 border-gray-100' : 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-800'}`}>
-                                                    <Edit3 size={18} />
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                 </Card>
 
