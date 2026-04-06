@@ -3578,3 +3578,11 @@
    -> FOUND: Belleta
 [2026-03-08T21:47:15.499Z] getMemberById - ID: 347, ChurchID: 4
    -> FOUND: Belleta
+[2026-03-09T13:34:57.951Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-09T13:34:58.465Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: john widno
+[2026-03-14T17:00:30.109Z] getMemberById - ID: 343, ChurchID: 4
+   -> FOUND: Jean Kemy
+[2026-03-14T17:00:30.766Z] getMemberById - ID: 343, ChurchID: 4
+   -> FOUND: Jean Kemy

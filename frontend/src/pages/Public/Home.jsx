@@ -195,7 +195,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* ===== CTA ===== */}
+            {/* ===== CTA ===== */} 
             <section className="py-16 sm:py-24 md:py-28 text-center" style={{ background: gradientBg }}>
                 <div className="max-w-3xl mx-auto px-5">
                     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
