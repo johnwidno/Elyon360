@@ -39,13 +39,21 @@ const tenantMiddleware = async (req, res, next) => {
     let subdomain = req.headers['x-tenant-id']?.trim();
     let host = req.headers.host || req.headers.origin || '';
 
-    // Nettoyer le format d'origine s'il contient http:// ou https://
+    // Nettoyer le format d'host/origine
     host = host.replace(/^https?:\/\//, '');
+
+    // Si le subdomain contient un domaine complet (ex: een.ekklesia360.com), on ne garde que le premier segment
+    if (subdomain && subdomain.includes('.')) {
+        subdomain = subdomain.split('.')[0];
+    }
 
     if (!subdomain && host) {
         if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
             const parts = host.split('.');
-            if (parts.length > 2) {
+            // Gérer les domaines complexes ou les accès via render.com
+            if (parts.length >= 2) {
+                // Si c'est du style subdomain.domain.com, on prend parts[0]
+                // Si c'est legliz-pro-1.onrender.com, on prend parts[0]
                 subdomain = parts[0];
             }
         }
