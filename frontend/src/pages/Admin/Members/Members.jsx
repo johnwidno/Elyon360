@@ -278,20 +278,20 @@ export default function Members() {
                     <div className="flex items-center gap-6">
                         <button
                             onClick={() => navigate('/admin/contacts')}
-                            className="bg-white dark:bg-[#1A1A1A] p-4 rounded-xl border border-gray-100 dark:border-white/5 shadow-stripe hover:bg-rose-50 hover:text-rose-500 transition-all active:scale-95 group"
+                            className="bg-white dark:bg-[#1A1A1A] p-4 rounded-xl border border-gray-100 dark:border-white/5 shadow-stripe hover:bg-brand-primary/5 hover:text-brand-primary transition-all active:scale-95 group"
                         >
-                            <svg className="w-5 h-5 text-gray-400 group-hover:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
+                            <svg className="w-5 h-5 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                         </button>
                         <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-[10px] font-black text-stripe-blue tracking-[0.1em]">
-                                <span className="w-8 h-[2px] bg-stripe-blue"></span>
+                            <div className="flex items-center space-x-2 text-[10px] font-black text-brand-primary tracking-[0.1em]">
+                                <span className="w-8 h-[2px] bg-brand-primary"></span>
                                 <span>{t('contacts', 'Contacts')}</span>
                             </div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
-                                {t('Members management', 'Gestion des Membres')}
+                                {t('members_management', 'Gestion des Membres')}
                             </h1>
                             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
-                                {t('Members desc', 'Consultez, ajoutez et gérez tous les membres de votre communauté.')}
+                                {t('members_management_subtitle', 'Consultez, ajoutez et gérez tous les membres de votre communauté.')}
                             </p>
                         </div>
                     </div>
@@ -301,7 +301,7 @@ export default function Members() {
                         <div className="flex items-center gap-4 w-full sm:w-auto">
                             <button
                                 onClick={() => setMessageModal({ isOpen: true, recipients: filteredMembers, mode: 'bulk' })}
-                                className="px-6 py-3.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-black text-[11px] rounded-2xl border border-indigo-100 dark:border-indigo-800/20 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 tracking-widest disabled:opacity-50"
+                                className="px-6 py-3.5 bg-brand-primary/5 dark:bg-white/5 text-brand-primary dark:text-brand-orange font-black text-[11px] rounded-2xl border border-brand-primary/10 dark:border-white/5 hover:bg-brand-primary hover:text-white transition-all flex items-center gap-2 active:scale-95 tracking-widest disabled:opacity-50"
                                 disabled={filteredMembers.length === 0}
                             >
                                 <MessageIcon />
@@ -310,7 +310,7 @@ export default function Members() {
 
                             <button
                                 onClick={handleCreate}
-                                className="px-8 py-3.5 bg-stripe-blue text-white font-black text-[11px] rounded-2xl shadow-premium hover:bg-indigo-700 transition-all flex items-center gap-2 active:scale-95 tracking-widest whitespace-nowrap"
+                                className="px-8 py-3.5 bg-brand-primary text-white font-black text-[11px] rounded-2xl shadow-premium hover:bg-brand-deep transition-all flex items-center gap-2 active:scale-95 tracking-widest whitespace-nowrap"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
@@ -323,32 +323,33 @@ export default function Members() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-                    <StatCard label={t('total_members')} value={statsData.total} icon="👥" color="indigo" subtitle={t('all_time', 'Total inscrits')} />
+                    <StatCard label={t('total_members')} value={statsData.total} icon="👥" color="brand" subtitle={t('all_time', 'Total inscrits')} />
                     <StatCard label={t('active')} value={statsData.active} icon="✅" color="emerald" subtitle={t('engaged', 'Membres actifs')} />
                     <StatCard label={t('traveling')} value={statsData.traveling} icon="✈️" color="orange" subtitle={t('away', 'En déplacement')} />
-                    <StatCard label={t('deceased')} value={statsData.deceased} icon="🕊️" color="purple" subtitle={t('in_memoriam', 'En mémoire')} />
+                    <StatCard label={t('deceased')} value={statsData.deceased} icon="🕊️" color="brand" subtitle={t('in_memoriam', 'En mémoire')} />
                 </div>
 
                 {/* Filters & Table Container */}
                 <div className="bg-white dark:bg-[#1e293b] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors">
                     {/* Toolbar */}
+                    {/* Toolbar */}
                     <div className="p-6 border-b border-gray-50 dark:border-gray-800/50 flex flex-wrap items-center justify-between gap-6 transition-colors bg-white/50 dark:bg-gray-800/10 backdrop-blur-sm">
                         <div className="flex flex-wrap items-center gap-4">
                             <div className="relative group">
-                                <svg className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 <input
                                     type="text"
                                     placeholder={`${t('search')}...`}
-                                    className="pl-12 pr-6 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-xs font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 w-full sm:w-48 transition-all dark:text-white placeholder-gray-400/60 outline-none"
+                                    className="pl-12 pr-6 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-xs font-bold focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary w-full sm:w-48 transition-all dark:text-white placeholder-gray-400/60 outline-none"
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                 />
                             </div>
 
                             <select
-                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px]"
+                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px] focus:border-brand-primary/30 focus:ring-4 focus:ring-brand-primary/5"
                                 value={filters.status}
                                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                             >
@@ -359,7 +360,7 @@ export default function Members() {
                             </select>
 
                             <select
-                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px]"
+                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px] focus:border-brand-primary/30 focus:ring-4 focus:ring-brand-primary/5"
                                 value={filters.category}
                                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                             >
@@ -370,14 +371,14 @@ export default function Members() {
                             <div className="flex p-1.5 bg-gray-50 dark:bg-[#0f172a] rounded-2xl border border-gray-100 dark:border-gray-800">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-800 text-brand-primary dark:text-brand-orange shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" /></svg>
                                     <span className="hidden xl:inline">{t('list_view', 'Liste')}</span>
                                 </button>
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-800 text-brand-primary dark:text-brand-orange shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                                     <span className="hidden xl:inline">{t('grid_view', 'Grille')}</span>
@@ -392,7 +393,7 @@ export default function Members() {
                                         setShowAllMembers(!showAllMembers);
                                         if (!showAllMembers) setPage(1);
                                     }}
-                                    className="px-4 py-2 border border-stripe-blue/20 bg-blue-50/50 dark:bg-blue-900/10 text-stripe-blue rounded-xl text-[11px] font-bold hover:underline transition-all"
+                                    className="px-4 py-2 border border-brand-primary/20 bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-orange rounded-xl text-[11px] font-bold hover:underline transition-all"
                                 >
                                     {showAllMembers ? t('show_less', 'Voir moins') : t('view_all_records', 'Voir tout les records')}
                                 </button>
@@ -408,7 +409,7 @@ export default function Members() {
 
                             <button
                                 onClick={handleExportPDF}
-                                className="w-11 h-11 flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl border border-red-100 dark:border-red-800/20 hover:bg-red-600 hover:text-white transition-all active:scale-95 shadow-sm"
+                                className="w-11 h-11 flex items-center justify-center bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange rounded-2xl border border-brand-orange/20 hover:bg-brand-orange hover:text-white transition-all active:scale-95 shadow-sm"
                                 title={t('export_pdf')}
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
@@ -417,10 +418,10 @@ export default function Members() {
                             {selectedMemberIds.length > 0 && (
                                 <button
                                     onClick={() => setShowBatchModal(true)}
-                                    className="px-6 h-11 flex items-center gap-2 bg-indigo-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-200 dark:shadow-none animate-bounce-subtle"
+                                    className="px-6 h-11 flex items-center gap-2 bg-brand-primary text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/10 dark:shadow-none animate-bounce-subtle"
                                 >
                                     <span>🎴</span>
-                                    <span>Générer {selectedMemberIds.length} Cartes</span>
+                                    <span>{t('generate_cards', 'Générer')} {selectedMemberIds.length} {t('cards', 'Cartes')}</span>
                                 </button>
                             )}
                         </div>
@@ -431,8 +432,8 @@ export default function Members() {
                         {loading ? (
                             <div className="px-10 py-32 text-center">
                                 <div className="flex flex-col items-center justify-center space-y-4 opacity-40">
-                                    <div className="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-                                    <p className="text-[10px] font-black tracking-widest">{t('loading')}</p>
+                                    <div className="w-8 h-8 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin"></div>
+                                    <p className="text-[10px] font-black tracking-widest text-brand-primary">{t('loading')}</p>
                                 </div>
                             </div>
                         ) : displayedMembers.length === 0 ? (
@@ -451,21 +452,21 @@ export default function Members() {
                                                     if (selectedMemberIds.length === filteredMembers.length) setSelectedMemberIds([]);
                                                     else setSelectedMemberIds(filteredMembers.map(m => m.id));
                                                 }}
-                                                className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                                className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
                                             />
                                         </th>
-                                        <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('member')}</th>
+                                        <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('member', 'Membre')}</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden xl:table-cell">{t('member_code', 'Code')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('gender')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('age')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('category')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('role_status')}</th>
-                                        <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 text-right">{t('actions')}</th>
+                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('gender', 'Genre')}</th>
+                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('age', 'Âge')}</th>
+                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('category', 'Catégorie')}</th>
+                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('status', 'Statut')}</th>
+                                        <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 text-right">{t('actions', 'Actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800 transition-colors">
                                     {displayedMembers.map((member, index) => (
-                                        <tr key={member.id} className={`hover:bg-gray-50 dark:hover:bg-indigo-900/10 transition-all group animate-slide-up cursor-pointer ${selectedMemberIds.includes(member.id) ? 'bg-indigo-50/50 dark:bg-indigo-900/20' : ''}`} style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'forwards' }}>
+                                        <tr key={member.id} className={`hover:bg-gray-50 dark:hover:bg-brand-primary/5 transition-all group animate-slide-up cursor-pointer ${selectedMemberIds.includes(member.id) ? 'bg-brand-primary/5 dark:bg-brand-primary/10' : ''}`} style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'forwards' }}>
                                             <td className="px-6 py-6" onClick={(e) => e.stopPropagation()}>
                                                 <input
                                                     type="checkbox"
@@ -473,16 +474,16 @@ export default function Members() {
                                                     onChange={() => {
                                                         setSelectedMemberIds(prev => prev.includes(member.id) ? prev.filter(id => id !== member.id) : [...prev, member.id]);
                                                     }}
-                                                    className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                                    className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
                                                 />
                                             </td>
                                             <td className="px-10 py-6" onClick={() => navigate(`/admin/members/${member.id}`)}>
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-extrabold text-sm border border-gray-100 dark:border-gray-800 overflow-hidden group-hover:scale-110 transition-all shadow-sm">
+                                                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-brand-primary dark:text-brand-orange font-extrabold text-sm border border-gray-100 dark:border-gray-800 overflow-hidden group-hover:scale-110 transition-all shadow-sm">
                                                         {member.photo ? <img src={member.photo} className="w-full h-full object-cover" alt="" /> : `${member.firstName?.[0]}${member.lastName?.[0]}`}
                                                     </div>
                                                     <div>
-                                                        <div className="font-black text-gray-900 dark:text-white transition-colors text-[14px] leading-tight group-hover:text-stripe-blue tracking-tight">
+                                                        <div className="font-black text-gray-900 dark:text-white transition-colors text-[14px] leading-tight group-hover:text-brand-primary tracking-tight">
                                                             {member.firstName} {member.lastName}
                                                         </div>
                                                         <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest mt-1 opacity-60">{member.country || t('no_country')}</div>
@@ -490,7 +491,7 @@ export default function Members() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6 hidden xl:table-cell">
-                                                <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-800/20">
+                                                <span className="text-[11px] font-black text-brand-primary dark:text-brand-orange bg-brand-primary/5 dark:bg-brand-primary/20 px-3 py-1.5 rounded-xl border border-brand-primary/10 dark:border-white/10">
                                                     #{member.memberCode || '-'}
                                                 </span>
                                             </td>
@@ -500,7 +501,7 @@ export default function Members() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-6 hidden md:table-cell">
-                                                <div className="text-[13px] font-black text-gray-700 dark:text-gray-300 transition-colors tracking-tight">{calculateAge(member.birthDate)} <span className="text-[10px] text-gray-400 font-bold ml-1">ans</span></div>
+                                                <div className="text-[13px] font-black text-gray-700 dark:text-gray-300 transition-colors tracking-tight">{calculateAge(member.birthDate)} <span className="text-[10px] text-gray-400 font-bold ml-1">{t('years_old', 'ans')}</span></div>
                                             </td>
                                             <td className="px-6 py-6 hidden lg:table-cell">
                                                 <span className="text-[11px] font-black text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-800 px-4 py-2 rounded-xl flex items-center gap-2 w-fit tracking-tighter">
@@ -512,7 +513,7 @@ export default function Members() {
                                                     <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[9px] font-black tracking-widest border border-blue-100 dark:border-blue-800/20 w-fit">
                                                         {Array.isArray(member.role) ? member.role[0] : member.role}
                                                     </span>
-                                                    <span className={`text-[9px] font-black tracking-widest px-3 py-1 w-fit rounded-lg ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600'}`}>
+                                                    <span className={`text-[9px] font-black tracking-widest px-3 py-1 w-fit rounded-lg ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'}`}>
                                                         {t(member.status?.toLowerCase()) || member.status || t('active')}
                                                     </span>
                                                 </div>
@@ -521,7 +522,7 @@ export default function Members() {
                                                 <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
                                                     <button
                                                         onClick={() => setMessageModal({ isOpen: true, recipient: member, mode: 'individual' })}
-                                                        className="p-3 text-gray-400 hover:text-indigo-600 transition-all bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/20 rounded-xl hover:scale-110 active:scale-95 shadow-sm"
+                                                        className="p-3 text-gray-400 hover:text-brand-primary dark:hover:text-brand-orange transition-all bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10 rounded-xl hover:scale-110 active:scale-95 shadow-sm"
                                                         title={t('send_message')}
                                                     >
                                                         <MessageIcon />
@@ -559,17 +560,17 @@ export default function Members() {
                         {/* Pagination Area */}
                         {!showAllMembers && totalPages > 1 && (
                             <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-t border-gray-50 dark:border-gray-800/50 gap-4 mt-auto">
-                                <div className="text-[11px] font-bold text-gray-500">
-                                    Affichage {startRecord}-{endRecord} sur {totalMembers} records
-                                </div>
-                                <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                                    <button
-                                        disabled={page === 1}
-                                        onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                                        className="px-2.5 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 rounded-md disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                                    >
-                                        Prec.
-                                    </button>
+                                    <div className="text-[11px] font-bold text-gray-500">
+                                        {t('pagination_showing', 'Affichage')} {startRecord}-{endRecord} {t('pagination_of', 'sur')} {totalMembers} {t('pagination_records', 'records')}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                                        <button
+                                            disabled={page === 1}
+                                            onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                                            className="px-2.5 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 rounded-md disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                        >
+                                            {t('prev_pagination', 'Préc.')}
+                                        </button>
 
                                     {[...Array(totalPages)].map((_, i) => {
                                         const pageNum = i + 1;
@@ -582,7 +583,7 @@ export default function Members() {
                                                 <button
                                                     key={pageNum}
                                                     onClick={() => setPage(pageNum)}
-                                                    className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${page === pageNum ? 'bg-stripe-blue text-white shadow-sm' : 'bg-gray-50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10'}`}
+                                                    className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${page === pageNum ? 'bg-brand-primary text-white shadow-sm' : 'bg-gray-50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10'}`}
                                                 >
                                                     {pageNum}
                                                 </button>
@@ -601,7 +602,7 @@ export default function Members() {
                                         onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
                                         className="px-2.5 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 rounded-md disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                     >
-                                        Suiv.
+                                        {t('next', 'Suiv.')}
                                     </button>
                                 </div>
                             </div>
@@ -659,15 +660,15 @@ export default function Members() {
 // Unified StatCard for consistency
 const StatCard = ({ label, value, icon, color, subtitle }) => {
     const colorVariants = {
-        indigo: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600',
+        brand: 'bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange',
         emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600',
-        purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600',
-        orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600',
-        blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600'
+        purple: 'bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange',
+        orange: 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange',
+        blue: 'bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange'
     };
 
     return (
-        <div className="bg-white dark:bg-[#1e293b] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-2xl hover:shadow-indigo-500/5 hover:-translate-y-1 duration-300 group">
+        <div className="bg-white dark:bg-[#1e293b] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-2xl hover:shadow-brand-primary/5 hover:-translate-y-1 duration-300 group">
             <div className="flex items-start justify-between">
                 <div className="space-y-4">
                     <div className="space-y-1">
@@ -693,12 +694,12 @@ const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, ca
         onClick={() => navigate(`/admin/members/${member.id}`)}
         className="bg-white dark:bg-[#1e293b] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group flex flex-col items-center text-center relative overflow-hidden"
     >
-        <div className={`absolute top-6 right-6 px-4 py-1.5 rounded-xl text-[9px] font-black tracking-widest ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600'}`}>
+        <div className={`absolute top-6 right-6 px-4 py-1.5 rounded-xl text-[9px] font-black tracking-widest ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' : 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'}`}>
             {t(member.status?.toLowerCase()) || member.status || t('active')}
         </div>
 
         <div className="relative mb-8">
-            <div className="w-24 h-24 rounded-[2rem] bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center text-3xl font-black text-indigo-600 dark:text-indigo-400 border-4 border-white dark:border-[#1e293b] shadow-xl overflow-hidden group-hover:scale-105 transition-all duration-500">
+            <div className="w-24 h-24 rounded-[2rem] bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center text-3xl font-black text-brand-primary dark:text-brand-orange border-4 border-white dark:border-[#1e293b] shadow-xl overflow-hidden group-hover:scale-105 transition-all duration-500">
                 {member.photo ? <img src={member.photo} className="w-full h-full object-cover" alt="" /> : `${member.firstName?.[0]}${member.lastName?.[0]}`}
             </div>
             <div className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-800 p-2.5 rounded-2xl shadow-lg border border-gray-50 dark:border-gray-800">
@@ -706,16 +707,16 @@ const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, ca
             </div>
         </div>
 
-        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 group-hover:text-stripe-blue transition-colors tracking-tight">{member.firstName} {member.lastName}</h3>
+        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 group-hover:text-brand-primary transition-colors tracking-tight">{member.firstName} {member.lastName}</h3>
         <p className="text-[11px] font-black text-gray-400 dark:text-gray-500 tracking-widest mb-6">{subtypeName || '-'}</p>
 
         <div className="grid grid-cols-2 gap-4 w-full mb-8">
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30">
-                <p className="text-[9px] text-gray-400 font-black tracking-widest mb-2">{t('age')}</p>
-                <p className="text-sm font-black text-gray-900 dark:text-white">{calculateAge(member.birthDate)} <span className="text-[10px] opacity-40">ANS</span></p>
+            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl transition-all border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10">
+                <p className="text-[9px] text-gray-400 font-black tracking-widest mb-2">{t('age', 'Âge')}</p>
+                <p className="text-sm font-black text-gray-900 dark:text-white">{calculateAge(member.birthDate)} <span className="text-[10px] opacity-40">{t('years_uppercase', 'ANS')}</span></p>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30">
-                <p className="text-[9px] text-gray-400 font-black tracking-widest mb-2">{t('role')}</p>
+            <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl transition-all border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10">
+                <p className="text-[9px] text-gray-400 font-black tracking-widest mb-2">{t('role', 'Rôle')}</p>
                 <p className="text-sm font-black text-gray-900 dark:text-white truncate">{Array.isArray(member.role) ? member.role[0] : member.role}</p>
             </div>
         </div>
@@ -732,7 +733,7 @@ const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, ca
         </div>
 
         <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-            <button onClick={getMessageModal} className="w-12 h-12 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-2xl hover:bg-indigo-600 hover:text-white transition-all transform active:scale-95 shadow-sm border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/20"><MessageIcon /></button>
+            <button onClick={getMessageModal} className="w-12 h-12 flex items-center justify-center bg-brand-primary/5 dark:bg-white/5 text-brand-primary dark:text-brand-orange rounded-2xl hover:bg-brand-primary hover:text-white transition-all transform active:scale-95 shadow-sm border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10"><MessageIcon /></button>
             <button onClick={onEdit} className="w-12 h-12 flex items-center justify-center bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-2xl hover:bg-amber-600 hover:text-white transition-all transform active:scale-95 shadow-sm border border-transparent hover:border-amber-100 dark:hover:border-amber-900/20"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
             <button onClick={onDelete} className="w-12 h-12 flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all transform active:scale-95 shadow-sm border border-transparent hover:border-red-100 dark:hover:border-red-900/20"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
         </div>

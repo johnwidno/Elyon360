@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import axios from 'axios';
 import api from '../api/axios';
-import { Search, User, LogOut, Setting, Bell, Activity } from 'lucide-react';
+import { Search, User, LogOut, Setting, Bell, Activity, BookOpen } from 'lucide-react';
 import DarkModeToggle from '../components/DarkModeToggle';
 import { useLanguage } from '../context/LanguageContext';
 import MustChangePasswordModal from '../components/Admin/MustChangePasswordModal';
@@ -119,6 +119,12 @@ const AdminLayout = ({ children }) => {
                 { name: t('monitors', 'Moniteurs'), href: '/admin/sunday-school/monitors' },
             ]
         },
+        {
+            name: t('worship_management', 'Gestion des Cultes'),
+            href: '/admin/worship',
+            icon: <BookOpen className="w-5 h-5" />,
+            permission: 'worship'
+        },
 
         {
             name: t('ceremonies'),
@@ -213,19 +219,19 @@ const AdminLayout = ({ children }) => {
                                     className="w-12 h-12 object-contain rounded-xl"
                                 />
                             ) : (
-                                <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-500/20">
+                                <div className="w-12 h-12 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-brand-primary/20">
                                     {(user?.churchAcronym || user?.churchName || 'E')[0].toUpperCase()}
                                 </div>
                             )}
                             <div className="overflow-hidden">
-                                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wider mb-0.5">{t('elyonsys_360', 'ELYONSYS 360')}</p>
+                                <p className="text-[10px] font-bold text-brand-primary dark:text-brand-orange tracking-wider mb-0.5">{t('elyonsys_360', 'ELYONSYS 360')}</p>
                                 <h1 className="font-bold text-lg tracking-tight text-gray-900 dark:text-white truncate">
                                     {user?.churchAcronym || 'EDM'}
                                 </h1>
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 transition-colors hidden lg:block">
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-primary dark:hover:text-brand-orange transition-colors hidden lg:block">
                         <svg className={`w-4 h-4 transition-transform duration-300 ${sidebarOpen ? '' : 'rotate-180'}`} fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
@@ -249,18 +255,18 @@ const AdminLayout = ({ children }) => {
                                         <button
                                             onClick={() => toggleMenu(item.name)}
                                             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                                                ? 'bg-blue-50 dark:bg-white/5 text-blue-600 dark:text-white font-semibold'
+                                                ? 'bg-brand-primary/10 dark:bg-white/5 text-brand-primary dark:text-white font-semibold'
                                                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 font-medium'
                                                 }`}
                                         >
                                             <div className="flex items-center">
-                                                <div className={`${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-600 group-hover:text-indigo-600'} transition-colors`}>
+                                                <div className={`${isActive ? 'text-brand-primary dark:text-brand-orange' : 'text-gray-400 dark:text-gray-600 group-hover:text-brand-primary'} transition-colors`}>
                                                     {item.icon}
                                                 </div>
                                                 <span className={`${!sidebarOpen && 'lg:hidden'} ml-3.5 text-sm`}>{item.name}</span>
                                             </div>
                                             {(sidebarOpen || (window.innerWidth < 1024)) && (
-                                                <svg className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-indigo-400' : 'text-gray-300 dark:text-gray-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                <svg className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-orange' : 'text-gray-300 dark:text-gray-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                                 </svg>
                                             )}
@@ -276,8 +282,8 @@ const AdminLayout = ({ children }) => {
                                                                 to={child.href}
                                                                 onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
                                                                 className={`flex items-center px-6 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ${isChildActive
-                                                                    ? 'text-blue-600 dark:text-white bg-blue-50/50 dark:bg-white/10 border border-blue-100/50 dark:border-white/5 shadow-sm'
-                                                                    : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+                                                                    ? 'text-brand-primary dark:text-white bg-brand-primary/5 dark:bg-white/10 border border-brand-primary/10 dark:border-white/5 shadow-sm'
+                                                                    : 'text-gray-500 dark:text-gray-400 hover:text-brand-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                                                                     }`}
                                                             >
                                                                 <span>{child.name}</span>
@@ -297,11 +303,11 @@ const AdminLayout = ({ children }) => {
                                         to={item.href}
                                         onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
                                         className={`flex items-center px-5 py-3.5 rounded-2xl transition-all duration-300 group ${isActive
-                                            ? 'bg-indigo-600 text-white shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)] font-semibold'
+                                            ? 'bg-brand-primary text-white shadow-[0_10px_20px_-5px_rgba(26,31,77,0.3)] font-semibold'
                                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 font-medium'
                                             }`}
                                     >
-                                        <div className={`${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-600 group-hover:text-indigo-600'} transition-colors`}>
+                                        <div className={`${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-600 group-hover:text-brand-primary'} transition-colors`}>
                                             {item.icon}
                                         </div>
                                         <span className={`${!sidebarOpen && 'lg:hidden'} ml-4 text-[14px] tracking-tight`}>{item.name}</span>
@@ -330,7 +336,7 @@ const AdminLayout = ({ children }) => {
                 <header className="bg-white/80 dark:bg-[#111C44]/80 backdrop-blur-xl z-[90] transition-all duration-500 py-4 lg:py-6 px-4 lg:px-12 border-b border-gray-100 dark:border-white/5 shrink-0">
                     <div className="flex justify-between items-center w-full">
                         <div className="flex items-center gap-4 lg:gap-6">
-                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2.5 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-white rounded-xl lg:rounded-2xl transition-all active:scale-95 shadow-sm">
+                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2.5 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 text-gray-400 dark:text-gray-500 hover:text-brand-primary dark:hover:text-white rounded-xl lg:rounded-2xl transition-all active:scale-95 shadow-sm">
                                 <svg className={`w-5 h-5 transition-transform duration-500 ${sidebarOpen ? '' : 'rotate-180'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
                                 </svg>
@@ -353,7 +359,7 @@ const AdminLayout = ({ children }) => {
                                     placeholder={t('search_member', 'Rechercher...')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 pr-4 py-2.5 w-40 lg:w-72 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 rounded-xl lg:rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-indigo-500/10 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
+                                    className="pl-10 pr-4 py-2.5 w-40 lg:w-72 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 rounded-xl lg:rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-brand-primary/10 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
                                 />
 
                                 {/* Search Results Dropdown */}
@@ -369,11 +375,11 @@ const AdminLayout = ({ children }) => {
                                                 {searchResults.map(m => (
                                                     <div key={m.id} className="p-3 hover:bg-indigo-50 dark:hover:bg-white/5 rounded-xl transition-all cursor-pointer flex items-center gap-4 group/item"
                                                         onClick={() => { navigate(`/admin/members/${m.id}`); setSearchQuery(''); }}>
-                                                        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xs font-black">
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-brand-primary/10 dark:bg-brand-primary/20 flex items-center justify-center text-brand-primary dark:text-brand-orange text-xs font-black">
                                                             {m.photo ? <img src={m.photo.startsWith('http') ? m.photo : `${process.env.REACT_APP_API_URL || ''}/uploads/${m.photo}`} className="w-full h-full object-cover" /> : (m.firstName?.[0] || 'M')}
                                                         </div>
                                                         <div className="min-w-0 flex-1 text-left">
-                                                            <p className="text-[13px] font-bold text-gray-900 dark:text-white group-hover/item:text-indigo-600 dark:group-hover/item:text-indigo-400 transition-colors truncate">
+                                                            <p className="text-[13px] font-bold text-gray-900 dark:text-white group-hover/item:text-brand-primary dark:group-hover/item:text-brand-orange transition-colors truncate">
                                                                 {m.firstName} {m.lastName}
                                                             </p>
                                                             <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium truncate capitalize">{m.status || (m.type?.name) || 'Membre'}</p>
@@ -388,18 +394,18 @@ const AdminLayout = ({ children }) => {
 
                             {/* Language Toggle */}
                             <div className="flex items-center p-1 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 rounded-xl lg:rounded-2xl">
-                                <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-[10px] font-black transition-all ${lang === 'FR' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
-                                <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-[10px] font-black transition-all ${lang === 'EN' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
+                                <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-[10px] font-black transition-all ${lang === 'FR' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
+                                <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-[10px] font-black transition-all ${lang === 'EN' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
                             </div>
 
                             <DarkModeToggle />
 
                             <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/admin/settings')}>
                                 <div className="text-right hidden sm:block">
-                                    <div className="text-[13px] font-black text-gray-900 dark:text-white tracking-tight leading-none group-hover:text-indigo-600 transition-colors mb-1">{user?.firstName || 'Admin'}</div>
+                                    <div className="text-[13px] font-black text-gray-900 dark:text-white tracking-tight leading-none group-hover:text-brand-primary transition-colors mb-1">{user?.firstName || 'Admin'}</div>
                                     <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{user?.role?.[0] || 'ADMIN'}</div>
                                 </div>
-                                <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 border-2 border-transparent dark:border-white/5 group-hover:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg shadow-sm transition-all group-hover:scale-105">
+                                <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl bg-brand-primary/10 dark:bg-brand-primary/20 border-2 border-transparent dark:border-white/5 group-hover:border-brand-orange/30 flex items-center justify-center text-brand-primary dark:text-brand-orange font-black text-lg shadow-sm transition-all group-hover:scale-105">
                                     {user?.firstName ? user.firstName[0] : 'A'}
                                 </div>
                             </div>
@@ -419,7 +425,7 @@ const AdminLayout = ({ children }) => {
                                 </p>
                                 <Link
                                     to="/admin/settings"
-                                    className="block w-full bg-indigo-600 text-white font-black text-[12px] lg:text-[14px] tracking-widest uppercase py-5 lg:py-6 rounded-2xl lg:rounded-3xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
+                                    className="block w-full bg-brand-primary text-white font-black text-[12px] lg:text-[14px] tracking-widest uppercase py-5 lg:py-6 rounded-2xl lg:rounded-3xl hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/20 active:scale-95"
                                 >
                                     {t('setup_btn', 'Commencer la configuration')}
                                 </Link>

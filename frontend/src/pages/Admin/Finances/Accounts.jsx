@@ -153,13 +153,13 @@ export default function Accounts() {
                 <div className="flex gap-3">
                     <button
                         onClick={() => setShowDepositModal(true)}
-                        className="bg-green-600 dark:bg-[#1A1A1A] text-white px-6 py-4 rounded-xl font-semibold text-[13px] hover:bg-green-700 transition-all shadow-sm active:scale-95 border border-transparent dark:border-white/5"
+                        className="bg-brand-primary text-white px-6 py-4 rounded-xl font-bold text-[13px] hover:bg-brand-deep transition-all shadow-lg active:scale-95 border border-transparent"
                     >
                         {t('make_deposit', 'Faire un Dépôt')}
                     </button>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="bg-indigo-600 dark:bg-indigo-700 text-white px-6 py-4 rounded-xl font-semibold text-[13px] hover:bg-indigo-700 transition-all shadow-sm active:scale-95"
+                        className="bg-brand-orange text-white px-6 py-4 rounded-xl font-bold text-[13px] hover:bg-brand-orange/90 transition-all shadow-lg active:scale-95"
                     >
                         {t('new_account', 'Nouveau Compte')}
                     </button>
@@ -186,9 +186,9 @@ export default function Accounts() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-8 transition-colors">
                 {accounts.map(acc => (
                     <div key={acc.id} className="bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 p-8 transition-all group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-50 transition-colors"></div>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 dark:bg-brand-primary/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-50 transition-colors"></div>
                         <div className="flex justify-between items-start mb-6 relative z-10">
-                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl transition-colors">
+                            <div className="p-3 bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-orange rounded-2xl transition-colors">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                             </div>
                             <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors">{acc.bankName}</span>
@@ -198,7 +198,7 @@ export default function Accounts() {
 
                         <div className="pt-6 border-t border-gray-50 dark:border-white/5 relative z-10 transition-colors">
                             <span className="block text-[11px] font-semibold text-gray-400 dark:text-gray-500 mb-1 transition-colors">{t('current_balance', 'Solde actuel')}</span>
-                            <span className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 tracking-tight transition-colors">
+                            <span className="text-3xl font-bold text-brand-primary dark:text-brand-orange tracking-tight transition-colors">
                                 {parseFloat(acc.balance).toLocaleString()} {acc.currency}
                             </span>
                         </div>
@@ -271,13 +271,13 @@ export default function Accounts() {
                     <div className="flex items-center gap-6 border-b border-gray-100 dark:border-white/5 transition-colors">
                         <button
                             onClick={() => setActiveTab('pending')}
-                            className={`pb-4 text-sm font-semibold transition-all ${activeTab === 'pending' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
+                            className={`pb-4 text-sm font-bold transition-all uppercase tracking-widest ${activeTab === 'pending' ? 'text-brand-primary dark:text-brand-orange border-b-2 border-brand-primary dark:border-brand-orange' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
                         >
                             {t('cash_on_hand_pending_tab', `Espèces en Attente (${donations.length})`)}
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`pb-4 text-sm font-semibold transition-all ${activeTab === 'history' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
+                            className={`pb-4 text-sm font-bold transition-all uppercase tracking-widest ${activeTab === 'history' ? 'text-brand-primary dark:text-brand-orange border-b-2 border-brand-primary dark:border-brand-orange' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'}`}
                         >
                             {t('deposit_history', 'Historique des Dépôts')}
                         </button>
@@ -312,12 +312,12 @@ export default function Accounts() {
                                         <tr><td colSpan="7" className="px-6 py-12 text-center text-gray-400 dark:text-gray-600 italic font-medium">{t('no_pending_cash', 'Aucune espèce en attente trouvée.')}</td></tr>
                                     ) : (
                                         filteredList.map(d => (
-                                            <tr key={d.id} className="hover:bg-indigo-50/30 dark:hover:bg-white/5 transition-all group">
+                                            <tr key={d.id} className="hover:bg-brand-primary/5 dark:hover:bg-white/5 transition-all group">
                                                 <td className="px-6 py-5 text-sm font-semibold text-gray-500 dark:text-gray-400 transition-colors">{new Date(d.date).toLocaleDateString()}</td>
                                                 <td className="px-6 py-5 text-sm font-semibold text-gray-900 dark:text-gray-100 transition-colors">{d.member ? `${d.member.firstName} ${d.member.lastName}` : t('anonymous', 'Anonyme')}</td>
-                                                <td className="px-6 py-5"><span className="px-3 py-1 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg text-[10px] font-semibold text-gray-600 dark:text-gray-400 transition-colors">{d.type}</span></td>
+                                                <td className="px-6 py-5"><span className="px-3 py-1 bg-brand-primary/5 dark:bg-white/5 border border-brand-primary/10 dark:border-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange transition-colors">{d.type}</span></td>
                                                 <td className="px-6 py-5 text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase transition-colors">{d.createdBy ? `${d.createdBy.firstName} ${d.createdBy.lastName}` : '-'}</td>
-                                                <td className="px-6 py-5 text-right font-bold text-indigo-600 dark:text-indigo-400 transition-colors">{parseFloat(d.amount).toLocaleString()} {d.currency}</td>
+                                                <td className="px-6 py-5 text-right font-bold text-brand-primary dark:text-brand-orange transition-colors">{parseFloat(d.amount).toLocaleString()} {d.currency}</td>
                                                 <td className="px-6 py-5 text-right">
                                                     <span className="text-[10px] font-semibold text-amber-500 dark:text-amber-600 uppercase transition-colors flex items-center justify-end gap-1">
                                                         <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse"></span>
@@ -424,7 +424,7 @@ export default function Accounts() {
 
                             {error && <p className="text-red-500 dark:text-red-400 text-xs font-semibold transition-colors">{error}</p>}
 
-                            <button type="submit" className="w-full bg-indigo-600 dark:bg-indigo-700 text-white font-bold text-[13px] py-4 rounded-2xl mt-4 hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-all shadow-xl shadow-indigo-100 dark:shadow-none active:scale-95">
+                            <button type="submit" className="w-full bg-brand-primary text-white font-black text-[11px] uppercase tracking-widest py-5 rounded-2xl mt-4 hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/20 active:scale-95">
                                 {t('create_account_btn', 'Créer le Compte')}
                             </button>
                         </form>

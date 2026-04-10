@@ -25,9 +25,8 @@ if (process.env.DATABASE_URL) {
     }
   });
 }
-/*
-// Ancienne configuration avec variables individuelles
 else {
+  // Local configuration using individual DB_ variables
   sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
@@ -46,7 +45,6 @@ else {
     }
   );
 }
-*/
 
 const db = {};
 
@@ -80,6 +78,11 @@ db.MemberRequest = require("./MemberRequest.js")(sequelize, Sequelize);
 db.MemberCard = require("./MemberCard.js")(sequelize, Sequelize);
 db.CardTemplate = require("./CardTemplate.js")(sequelize, Sequelize);
 db.CommunityPost = require("./CommunityPost.js")(sequelize, Sequelize);
+db.WorshipService = require("./WorshipService.js")(sequelize, Sequelize);
+db.ServiceBlock = require("./ServiceBlock.js")(sequelize, Sequelize);
+db.SermonMessage = require("./SermonMessage.js")(sequelize, Sequelize);
+db.MessageComment = require("./MessageComment.js")(sequelize, Sequelize);
+db.Song = require("./Song.js")(sequelize, Sequelize);
 
 db.Expense = require("./Expense.js")(sequelize, Sequelize);
 db.BankAccount = require("./BankAccount.js")(sequelize, Sequelize);
@@ -452,5 +455,29 @@ db.User.hasMany(db.CommunityPost, { foreignKey: "authorId", as: "communityPosts"
 db.CommunityPost.belongsTo(db.User, { foreignKey: "authorId", as: "author" });
 db.ContactSubtype.hasMany(db.CommunityPost, { foreignKey: 'targetSubtypeId', as: 'communityPosts' });
 db.CommunityPost.belongsTo(db.ContactSubtype, { foreignKey: 'targetSubtypeId', as: 'targetSubtype' });
+
+// Worship Service Associations
+db.Church.hasMany(db.WorshipService, { foreignKey: "churchId", as: "worshipServices" });
+db.WorshipService.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
+db.User.hasMany(db.WorshipService, { foreignKey: "leaderId", as: "ledWorshipServices" });
+db.WorshipService.belongsTo(db.User, { foreignKey: "leaderId", as: "leader" });
+
+db.WorshipService.hasMany(db.ServiceBlock, { foreignKey: "worshipServiceId", as: "blocks" });
+db.ServiceBlock.belongsTo(db.WorshipService, { foreignKey: "worshipServiceId", as: "service" });
+
+db.WorshipService.hasOne(db.SermonMessage, { foreignKey: "worshipServiceId", as: "sermon" });
+db.SermonMessage.belongsTo(db.WorshipService, { foreignKey: "worshipServiceId", as: "service" });
+db.User.hasMany(db.SermonMessage, { foreignKey: "preacherId", as: "sermons" });
+db.SermonMessage.belongsTo(db.User, { foreignKey: "preacherId", as: "preacher" });
+
+db.SermonMessage.hasMany(db.MessageComment, { foreignKey: "sermonMessageId", as: "comments" });
+db.MessageComment.belongsTo(db.SermonMessage, { foreignKey: "sermonMessageId", as: "message" });
+db.User.hasMany(db.MessageComment, { foreignKey: "authorId", as: "sermonComments" });
+db.MessageComment.belongsTo(db.User, { foreignKey: "authorId", as: "author" });
+db.MessageComment.hasMany(db.MessageComment, { foreignKey: "parentId", as: "replies" });
+db.MessageComment.belongsTo(db.MessageComment, { foreignKey: "parentId", as: "parent" });
+
+db.Church.hasMany(db.Song, { foreignKey: "churchId", as: "songs" });
+db.Song.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 
 module.exports = db;

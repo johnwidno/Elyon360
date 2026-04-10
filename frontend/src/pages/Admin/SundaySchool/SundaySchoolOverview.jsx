@@ -102,8 +102,8 @@ export default function SundaySchoolOverview() {
                             <div>
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">{t('program_health', 'Santé du Programme')}</p>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-lg font-black text-gray-900 dark:text-white">{(kpis?.attendanceRate > 80 ? 'Excellente' : kpis?.attendanceRate > 60 ? 'Bonne' : 'À suivre')}</span>
-                                    <div className={`w-2 h-2 rounded-full ${kpis?.attendanceRate > 80 ? 'bg-emerald-500' : kpis?.attendanceRate > 60 ? 'bg-amber-500' : 'bg-rose-500'} animate-pulse`}></div>
+                                    <span className="text-lg font-black text-gray-900 dark:text-white">{(kpis?.attendanceRate >= 85 ? 'Excellente' : kpis?.attendanceRate > 60 ? 'Bonne' : 'À suivre')}</span>
+                                    <div className={`w-2 h-2 rounded-full ${kpis?.attendanceRate >= 85 ? 'bg-emerald-500' : kpis?.attendanceRate > 60 ? 'bg-amber-500' : 'bg-rose-500'} animate-pulse`}></div>
                                 </div>
                             </div>
                         </div>
@@ -128,10 +128,10 @@ export default function SundaySchoolOverview() {
                     />
                     <EnhancedKPICard
                         title={t('attendance_rate', 'Assiduité')}
-                        value={`${kpis?.attendanceRate}%`}
+                        value={kpis?.attendanceRate !== undefined ? `${kpis.attendanceRate}%` : '0%'}
                         icon={<CheckCircle size={20} />}
                         color="blue"
-                        trend={kpis?.attendanceRate > 75 ? "Optimal" : "Target 85%"}
+                        trend={kpis?.attendanceRate >= 85 ? "Optimal" : "Target 85%"}
                     />
                     <EnhancedKPICard
                         title={t('offering', 'Offrandes')}

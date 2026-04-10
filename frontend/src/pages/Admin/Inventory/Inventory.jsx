@@ -96,8 +96,8 @@ export default function Inventory() {
         <AdminLayout>
             <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-12 bg-white dark:bg-[#1A1A1A] p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm animate-fade-in gap-8 transition-colors">
                 <div className="flex items-center gap-6">
-                    <div className="bg-indigo-50 dark:bg-black p-5 rounded-2xl transition-colors border border-indigo-100 dark:border-white/5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-brand-primary/5 dark:bg-black p-5 rounded-2xl transition-colors border border-brand-primary/10 dark:border-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-primary dark:text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
                     </div>
@@ -108,7 +108,7 @@ export default function Inventory() {
                 </div>
                 <button
                     onClick={() => { setEditId(null); setFormData({ name: '', description: '', quantity: 0, category: '', location: '', status: 'bon_etat' }); setShowModal(true); }}
-                    className="bg-blue-600 text-white px-8 py-3.5 rounded-xl font-semibold text-[13px] hover:bg-blue-700 transition-all shadow-lg active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                    className="bg-brand-primary text-white px-8 py-3.5 rounded-xl font-bold text-[13px] hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                     {t('add_item')}
@@ -148,7 +148,7 @@ export default function Inventory() {
                                     </td>
                                     <td className="px-10 py-6 whitespace-nowrap text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => handleEdit(item)} className="p-2.5 text-gray-400 hover:text-blue-600 transition-all bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-xl hover:scale-105 active:scale-95" title={t('edit')}>
+                                            <button onClick={() => handleEdit(item)} className="p-2.5 text-gray-400 hover:text-brand-primary dark:hover:text-brand-orange transition-all bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-xl hover:scale-105 active:scale-95" title={t('edit')}>
                                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                             </button>
                                             <button onClick={() => confirmDelete(item.id)} className="p-2.5 text-gray-400 hover:text-red-500 transition-all bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-xl hover:scale-105 active:scale-95" title={t('delete')}>
@@ -211,10 +211,10 @@ export default function Inventory() {
                                     </div>
                                 </div>
                                 <div className="mt-10 flex justify-end gap-3">
-                                    <button type="button" onClick={() => setShowModal(false)} className="px-8 py-3 bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl text-[12px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-95">
+                                    <button type="button" onClick={() => setShowModal(false)} className="px-8 py-3 bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl text-[12px] font-bold text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-95">
                                         {t('cancel')}
                                     </button>
-                                    <button type="submit" className="px-10 py-3 bg-blue-600 text-white rounded-xl text-[12px] font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+                                    <button type="submit" className="px-10 py-3 bg-brand-primary text-white rounded-xl text-[12px] font-black uppercase tracking-widest hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/20 active:scale-95">
                                         {editId ? t('save') : t('add')}
                                     </button>
                                 </div>

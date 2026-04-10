@@ -157,12 +157,12 @@ export default function Visitors() {
             <div className="space-y-8 pb-10">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-[#1A1A1A] p-8 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-premium animate-fade-in transition-all">
                     <div className="flex items-center gap-6">
-                        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-5 rounded-2xl transition-all border border-indigo-100/50 dark:border-white/5 group-hover:scale-105">
-                            <svg className="h-8 w-8 text-stripe-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <div className="bg-brand-primary/5 dark:bg-brand-primary/20 p-5 rounded-2xl transition-all border border-brand-primary/10 dark:border-white/5 group-hover:scale-105">
+                            <svg className="h-8 w-8 text-brand-primary dark:text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                         </div>
                         <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-[10px] font-black text-stripe-blue tracking-[0.1em]">
-                                <span className="w-8 h-[2px] bg-stripe-blue"></span>
+                            <div className="flex items-center space-x-2 text-[10px] font-black text-brand-primary tracking-[0.1em]">
+                                <span className="w-8 h-[2px] bg-brand-primary"></span>
                                 <span>{t('contacts', 'Contacts')}</span>
                             </div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight transition-colors leading-none">
@@ -202,15 +202,14 @@ export default function Visitors() {
                                 </svg>
                             </div>
                         </div>
-                    </div>
-                    <div className="w-[200px] space-y-2">
+                                       <div className="w-[200px] space-y-2">
                         <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest ml-1">{t('from_date', 'Du')}</label>
-                        <input type="date" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-700 dark:text-white [color-scheme:light] dark:[color-scheme:dark] outline-none focus:border-stripe-blue transition-all shadow-stripe" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        <input type="date" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-700 dark:text-white [color-scheme:light] dark:[color-scheme:dark] outline-none focus:border-brand-primary transition-all shadow-stripe" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                     </div>
                     <div className="w-[200px] space-y-2">
                         <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest ml-1">{t('to_date', 'Au')}</label>
-                        <input type="date" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-700 dark:text-white [color-scheme:light] dark:[color-scheme:dark] outline-none focus:border-stripe-blue transition-all shadow-stripe" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                    </div>
+                        <input type="date" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-700 dark:text-white [color-scheme:light] dark:[color-scheme:dark] outline-none focus:border-brand-primary transition-all shadow-stripe" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    </div>    </div>
                 </div>
 
                 {/* Tab Selection & Actions */}
@@ -219,8 +218,8 @@ export default function Visitors() {
                         <button
                             onClick={() => setActiveTab('new')}
                             className={`px-10 py-3 rounded-[1.25rem] text-[11px] font-black tracking-widest transition-all flex items-center gap-3 ${activeTab === 'new'
-                                ? 'bg-stripe-blue text-white shadow-premium'
-                                : 'text-gray-400 dark:text-gray-500 hover:text-stripe-blue dark:hover:text-stripe-purple'
+                                ? 'bg-brand-primary text-white shadow-premium'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-brand-primary'
                                 }`}
                         >
                             <span className={`w-2 h-2 rounded-full ${activeTab === 'new' ? 'bg-white animate-pulse' : 'bg-gray-400'}`}></span>
@@ -230,8 +229,8 @@ export default function Visitors() {
                         <button
                             onClick={() => setActiveTab('former')}
                             className={`px-10 py-3 rounded-[1.25rem] text-[11px] font-black tracking-widest transition-all flex items-center gap-3 ${activeTab === 'former'
-                                ? 'bg-stripe-blue text-white shadow-premium'
-                                : 'text-gray-400 dark:text-gray-500 hover:text-stripe-blue dark:hover:text-stripe-purple'
+                                ? 'bg-brand-primary text-white shadow-premium'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-brand-primary'
                                 }`}
                         >
                             <span className={`w-2 h-2 rounded-full ${activeTab === 'former' ? 'bg-white animate-pulse' : 'bg-gray-400'}`}></span>
@@ -271,10 +270,10 @@ export default function Visitors() {
                                 ) : (activeTab === 'new' ? newVisitors : formerVisitors).length === 0 ? (
                                     <tr><td colSpan="6" className="px-10 py-32 text-center text-gray-300 font-black tracking-widest text-[10px] italic">{t('no_visitors', 'Aucun visiteur trouvé')}</td></tr>
                                 ) : (activeTab === 'new' ? newVisitors : formerVisitors).map((v, index) => (
-                                    <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-indigo-900/10 transition-all group animate-slide-up" style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'forwards' }}>
+                                    <tr key={v.id} className="hover:bg-brand-primary/5 dark:hover:bg-brand-primary/10 transition-all group animate-slide-up" style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'forwards' }}>
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 flex items-center justify-center text-stripe-blue dark:text-stripe-purple font-black text-[11px] group-hover:scale-110 group-hover:bg-indigo-50 transition-all shadow-stripe">
+                                                <div className="w-10 h-10 rounded-xl bg-brand-primary/10 dark:bg-brand-primary/30 border border-brand-primary/20 dark:border-white/5 flex items-center justify-center text-brand-primary dark:text-brand-orange font-black text-[11px] group-hover:scale-110 transition-all shadow-stripe">
                                                     {v.firstName?.[0]}{v.lastName?.[0]}
                                                 </div>
                                                 <div className="font-black text-gray-900 dark:text-white tracking-tight text-[14px]">{v.firstName} {v.lastName}</div>
@@ -285,12 +284,12 @@ export default function Visitors() {
                                             <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 opacity-60">{v.phone || '-'}</p>
                                         </td>
                                         <td className="px-10 py-6 text-center">
-                                            <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black tracking-widest border border-transparent ${v.wantsMembership ? 'bg-indigo-50 dark:bg-indigo-900/30 text-stripe-blue' : 'bg-gray-50 dark:bg-white/5 text-gray-400'}`}>
+                                            <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black tracking-widest border border-transparent ${v.wantsMembership ? 'bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange' : 'bg-gray-50 dark:bg-white/5 text-gray-400'}`}>
                                                 {v.wantsMembership ? t('yes') : t('no')}
                                             </span>
                                         </td>
                                         <td className="px-10 py-6 text-center">
-                                            <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black tracking-widest border border-transparent ${v.viewStatus === 'viewed' ? 'bg-purple-50 dark:bg-purple-900/30 text-stripe-purple' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600'}`}>
+                                            <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black tracking-widest border border-transparent ${v.viewStatus === 'viewed' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600'}`}>
                                                 {t(v.viewStatus || 'not_viewed')}
                                             </span>
                                         </td>
@@ -299,7 +298,7 @@ export default function Visitors() {
                                         </td>
                                         <td className="px-10 py-6 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <button onClick={() => handleMarkAsViewed(v)} className="p-3 bg-gray-50 dark:bg-black border border-transparent hover:border-indigo-100 dark:hover:border-white/5 text-gray-400 hover:text-stripe-purple rounded-xl transition-all transform active:scale-95 shadow-stripe" title={t('review_visitor')}><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></button>
+                                                <button onClick={() => handleMarkAsViewed(v)} className="p-3 bg-gray-50 dark:bg-black border border-transparent hover:border-brand-primary/20 dark:hover:border-white/5 text-gray-400 hover:text-brand-primary rounded-xl transition-all transform active:scale-95 shadow-stripe" title={t('review_visitor')}><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></button>
                                                 {!v.convertedToMemberId && v.status !== 'integrated' && (
                                                     <button onClick={() => handleConvertToMember(v)} className="px-5 py-3 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 rounded-xl text-[10px] font-black tracking-widest hover:bg-emerald-600 hover:text-white transition-all transform active:scale-95 border border-transparent dark:border-emerald-800/20 shadow-stripe">{t('become_member', 'Convertir')}</button>
                                                 )}
@@ -319,8 +318,8 @@ export default function Visitors() {
                     <div className="bg-white dark:bg-[#1A1A1A] rounded-[2.5rem] shadow-premium-hover w-full max-w-lg overflow-hidden border border-gray-100 dark:border-white/5 animate-scale-in">
                         <div className="p-10 border-b border-gray-50 dark:border-white/5 flex justify-between items-center shrink-0">
                             <div>
-                                <div className="flex items-center space-x-2 text-[9px] font-black text-stripe-blue tracking-[0.1em] mb-1">
-                                    <span className="w-6 h-[2.5px] bg-stripe-blue"></span>
+                                <div className="flex items-center space-x-2 text-[9px] font-black text-brand-primary tracking-[0.1em] mb-1">
+                                    <span className="w-6 h-[2.5px] bg-brand-primary"></span>
                                     <span>{t('entry', 'Fiche d\'inscription')}</span>
                                 </div>
                                 <h2 className="text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tight">{t('new_visitor')}</h2>
@@ -332,35 +331,35 @@ export default function Visitors() {
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest">{t('first_name')} <span className="text-rose-500">*</span></label>
-                                    <input type="text" required className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue transition-all shadow-stripe" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
+                                    <input type="text" required className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all shadow-stripe" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest">{t('last_name')} <span className="text-rose-500">*</span></label>
-                                    <input type="text" required className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue transition-all shadow-stripe" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+                                    <input type="text" required className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all shadow-stripe" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest">{t('email')}</label>
-                                    <input type="email" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none transition-all shadow-stripe focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                                    <input type="email" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none transition-all shadow-stripe focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest">{t('phone')}</label>
-                                    <input type="text" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none transition-all shadow-stripe focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                                    <input type="text" className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none transition-all shadow-stripe focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                 </div>
                             </div>
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest">{t('description')}</label>
-                                <textarea className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none h-24 resize-none noscrollbar shadow-stripe focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue transition-all" placeholder="..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                                <textarea className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-gray-900 dark:text-white outline-none h-24 resize-none noscrollbar shadow-stripe focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all" placeholder="..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                             </div>
                             <div className="flex items-center gap-4 bg-gray-50 dark:bg-black p-5 rounded-2xl shadow-stripe border border-gray-100 dark:border-white/5 cursor-pointer group" onClick={() => setFormData({ ...formData, wantsMembership: !formData.wantsMembership })}>
-                                <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.wantsMembership ? 'bg-stripe-blue border-stripe-blue shadow-premium' : 'border-gray-200 dark:border-gray-800 dark:bg-white/5'}`}>
+                                <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.wantsMembership ? 'bg-brand-primary border-brand-primary shadow-premium' : 'border-gray-200 dark:border-gray-800 dark:bg-white/5'}`}>
                                     {formData.wantsMembership && <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>}
                                 </div>
                                 <span className="text-[12px] font-black text-gray-600 dark:text-gray-500 select-none tracking-tight">{t('wants_membership', 'Interessé par le membership')}</span>
                             </div>
                             <div className="space-y-3 py-4 border-t border-gray-50 dark:border-white/5">
-                                <button className="w-full bg-stripe-blue text-white font-black text-[11px] tracking-widest py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-premium active:scale-95">{t('save', 'Enregistrer')}</button>
+                                <button className="w-full bg-brand-primary text-white font-black text-[11px] tracking-widest py-5 rounded-2xl hover:bg-brand-deep transition-all shadow-premium active:scale-95">{t('save', 'Enregistrer')}</button>
                             </div>
                         </form>
                     </div>
@@ -372,12 +371,12 @@ export default function Visitors() {
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-gray-900/60 dark:bg-black/90 backdrop-blur-md transition-all">
                     <div className="bg-white dark:bg-[#1A1A1A] rounded-[2.5rem] shadow-premium-hover w-full max-w-lg overflow-hidden border border-gray-100 dark:border-white/5 animate-scale-in">
                         <div className="p-10 border-b border-gray-50 dark:border-white/5 shrink-0">
-                            <div className="flex items-center space-x-2 text-[9px] font-black text-stripe-purple tracking-[0.1em] mb-1">
-                                <span className="w-6 h-[2.5px] bg-stripe-purple"></span>
+                            <div className="flex items-center space-x-2 text-[9px] font-black text-brand-orange tracking-[0.1em] mb-1">
+                                <span className="w-6 h-[2.5px] bg-brand-orange"></span>
                                 <span>{t('review', 'Suivi')}</span>
                             </div>
                             <h2 className="text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tight">{t('review_visitor', 'Revue de visite')}</h2>
-                            <p className="text-sm font-black text-stripe-blue mt-2 tracking-wide opacity-80">{selectedVisitor.firstName} {selectedVisitor.lastName}</p>
+                            <p className="text-sm font-black text-brand-primary mt-2 tracking-wide opacity-80">{selectedVisitor.firstName} {selectedVisitor.lastName}</p>
                         </div>
                         <div className="p-10 space-y-8 max-h-[70vh] overflow-y-auto noscrollbar bg-white dark:bg-[#1A1A1A]">
                             <div className="grid grid-cols-2 gap-6">
@@ -392,17 +391,17 @@ export default function Visitors() {
                             </div>
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-gray-400 tracking-widest">{t('notes', 'Notes de suivi')}</label>
-                                <textarea className="w-full bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl px-6 py-4 text-sm font-bold text-gray-700 dark:text-white outline-none h-32 resize-none noscrollbar focus:ring-4 focus:ring-indigo-500/5 transition-all" value={reviewForm.notes} onChange={e => setReviewForm({ ...reviewForm, notes: e.target.value })} />
+                                <textarea className="w-full bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl px-6 py-4 text-sm font-bold text-gray-700 dark:text-white outline-none h-32 resize-none noscrollbar focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all" value={reviewForm.notes} onChange={e => setReviewForm({ ...reviewForm, notes: e.target.value })} />
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 space-y-5">
                                 <p className="text-[10px] font-black text-gray-400 tracking-widest text-center">{t('interest_question', 'Intérêt pour le membership?')}</p>
                                 <div className="flex gap-4">
-                                    <button onClick={() => setReviewForm({ ...reviewForm, wantsMembership: true })} className={`flex-1 py-4 px-6 rounded-2xl font-black text-[11px] tracking-widest transition-all ${reviewForm.wantsMembership ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-400 border border-gray-100 dark:border-gray-700'}`}>{t('yes')}</button>
+                                    <button onClick={() => setReviewForm({ ...reviewForm, wantsMembership: true })} className={`flex-1 py-4 px-6 rounded-2xl font-black text-[11px] tracking-widest transition-all ${reviewForm.wantsMembership ? 'bg-brand-primary text-white shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-400 border border-gray-100 dark:border-gray-700'}`}>{t('yes')}</button>
                                     <button onClick={() => setReviewForm({ ...reviewForm, wantsMembership: false })} className={`flex-1 py-4 px-6 rounded-2xl font-black text-[11px] tracking-widest transition-all ${!reviewForm.wantsMembership ? 'bg-gray-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-400 border border-gray-100 dark:border-gray-700'}`}>{t('no')}</button>
                                 </div>
                             </div>
                             <div className="flex gap-4 pt-4 border-t border-gray-50 dark:border-gray-800/50">
-                                <button onClick={handleReviewSubmit} className="flex-1 bg-indigo-600 text-white font-black text-[11px] tracking-widest py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/10 active:scale-95">{t('save_and_mark_viewed', 'Marquer comme Vu')}</button>
+                                <button onClick={handleReviewSubmit} className="flex-1 bg-brand-primary text-white font-black text-[11px] tracking-widest py-5 rounded-2xl hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/10 active:scale-95">{t('save_and_mark_viewed', 'Marquer comme Vu')}</button>
                                 <button onClick={() => setShowReviewModal(false)} className="px-8 bg-white dark:bg-gray-800 text-gray-400 font-black text-[11px] tracking-widest py-5 rounded-2xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 transition-all active:scale-95">{t('cancel')}</button>
                             </div>
                         </div>

@@ -117,8 +117,8 @@ export default function AdminHome() {
                 {/* Header & Search */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="space-y-1">
-                        <div className="flex items-center space-x-2 text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">
-                            <span className="w-8 h-[2px] bg-indigo-500"></span>
+                        <div className="flex items-center space-x-2 text-[10px] font-black text-brand-primary tracking-[0.2em]">
+                            <span className="w-8 h-[2px] bg-brand-primary"></span>
                             <span>{t('dashboard', 'Tableau de bord')}</span>
                         </div>
                         <h1 className="text-3xl font-black dark:text-white tracking-tight leading-none">
@@ -131,13 +131,13 @@ export default function AdminHome() {
 
                     <div className="flex items-center gap-3">
                         <div className="relative group">
-                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-primary transition-colors" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={t('search_members', 'Rechercher un membre...')}
-                                className="pl-12 pr-4 py-3 bg-white dark:bg-[#1e293b] border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 w-full md:w-80 transition-all shadow-sm"
+                                placeholder={t('search_members_placeholder', 'Rechercher un membre...')}
+                                className="pl-12 pr-4 py-3 bg-white dark:bg-[#1e293b] border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary w-full md:w-80 transition-all shadow-sm"
                             />
                             {showSearchResults && searchResults.length > 0 && (
                                 <div className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-[#1e293b] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-50 max-h-[400px] overflow-y-auto p-2 backdrop-blur-xl">
@@ -145,9 +145,9 @@ export default function AdminHome() {
                                         <div
                                             key={member.id}
                                             onClick={() => handleSearchResultClick(member.id)}
-                                            className="flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl cursor-pointer transition-all group"
+                                            className="flex items-center gap-3 p-3 hover:bg-brand-primary/5 dark:hover:bg-brand-primary/20 rounded-xl cursor-pointer transition-all group"
                                         >
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs group-hover:scale-110 transition-transform">
+                                            <div className="w-10 h-10 rounded-xl bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange flex items-center justify-center font-black text-xs group-hover:scale-110 transition-transform">
                                                 {member.firstName?.charAt(0)}{member.lastName?.charAt(0)}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -161,9 +161,9 @@ export default function AdminHome() {
                                 </div>
                             )}
                         </div>
-                        <button className="p-3 bg-white dark:bg-[#1e293b] text-gray-400 hover:text-indigo-500 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all relative">
+                        <button className="p-3 bg-white dark:bg-[#1e293b] text-gray-400 hover:text-brand-primary rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all relative">
                             <NotificationIcon />
-                            <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1e293b]"></span>
+                            <span className="absolute top-3 right-3 w-2 h-2 bg-brand-orange rounded-full border-2 border-white dark:border-[#1e293b]"></span>
                         </button>
                     </div>
                 </div>
@@ -177,7 +177,7 @@ export default function AdminHome() {
                         trendUp={true}
                         subtitle={t('since_its_existence', 'Total cumulé')}
                         icon="👥"
-                        color="indigo"
+                        color="brand"
                     />
                     <StatCard
                         title={t('active', 'Actifs')}
@@ -217,11 +217,11 @@ export default function AdminHome() {
                                     <h3 className="text-lg font-black dark:text-white tracking-tight">
                                         {t('member_growth', 'Croissance de la Communauté')}
                                     </h3>
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Évolution sur les 30 derniers jours</p>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{t('last_30_days_growth', 'Évolution sur les 30 derniers jours')}</p>
                                 </div>
                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
                                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none">Live</span>
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse"></div>
                                 </div>
                             </div>
                             <div className="h-[350px] w-full">
@@ -229,8 +229,8 @@ export default function AdminHome() {
                                     <AreaChart data={graphData.memberGrowth}>
                                         <defs>
                                             <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
-                                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#1a1f4d" stopOpacity={0.1} />
+                                                <stop offset="95%" stopColor="#1a1f4d" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -255,7 +255,7 @@ export default function AdminHome() {
                                                 boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'
                                             }}
                                         />
-                                        <Area type="monotone" dataKey="members" name={t('members', 'Membres')} stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" />
+                                        <Area type="monotone" dataKey="members" name={t('members', 'Membres')} stroke="#1a1f4d" strokeWidth={3} fillOpacity={1} fill="url(#colorMembers)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -269,7 +269,7 @@ export default function AdminHome() {
                                         <h3 className="text-lg font-black dark:text-white tracking-tight">
                                             {t('finances_overview', 'Santé Financière')}
                                         </h3>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Comparaison des flux par devise</p>
+                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{t('finance_comparison_desc', 'Comparaison des flux par devise')}</p>
                                     </div>
                                     <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-xl">
                                         <span className="text-xl">💰</span>
@@ -288,7 +288,7 @@ export default function AdminHome() {
                                                     key={currency}
                                                     dataKey={currency}
                                                     name={currency}
-                                                    fill={index % 2 === 0 ? "#10b981" : "#6366f1"}
+                                                    fill={index % 2 === 0 ? "#ea762a" : "#1a1f4d"}
                                                     radius={[6, 6, 0, 0]}
                                                     barSize={30}
                                                 />
@@ -311,8 +311,8 @@ export default function AdminHome() {
                             <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1">
                                 {stats?.upcomingCeremonies?.length > 0 ? (
                                     stats.upcomingCeremonies.slice(0, 5).map((event, idx) => (
-                                        <div key={idx} className="flex items-center p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-800 group cursor-pointer" onClick={() => navigate('/admin/ceremonies')}>
-                                            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex flex-col items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-110 transition-transform">
+                                        <div key={idx} className="flex items-center p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10 group cursor-pointer" onClick={() => navigate('/admin/ceremonies')}>
+                                            <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 dark:bg-brand-primary/20 flex flex-col items-center justify-center text-brand-primary dark:text-brand-orange font-black shadow-sm group-hover:scale-110 transition-transform">
                                                 <span className="text-[14px] leading-none">{new Date(event.date).getDate()}</span>
                                                 <span className="text-[8px] uppercase tracking-tighter">{new Date(event.date).toLocaleDateString('fr-FR', { month: 'short' })}</span>
                                             </div>
@@ -334,7 +334,7 @@ export default function AdminHome() {
                                     </div>
                                 )}
                             </div>
-                            <Link to="/admin/ceremonies" className="mt-6 text-[10px] font-black text-indigo-500 hover:text-indigo-600 transition-colors text-center py-3 border-t border-gray-50 dark:border-gray-800 uppercase tracking-[0.2em]">
+                            <Link to="/admin/ceremonies" className="mt-6 text-[10px] font-black text-brand-primary hover:text-brand-deep transition-colors text-center py-3 border-t border-gray-50 dark:border-gray-800 uppercase tracking-[0.2em]">
                                 {t('view_more', 'Tout l\'agenda')} →
                             </Link>
                         </div>
@@ -367,11 +367,11 @@ export default function AdminHome() {
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-full text-gray-400 opacity-50">
                                         <span className="text-3xl mb-2">🎂</span>
-                                        <p className="text-xs font-bold uppercase tracking-widest">Aucune fête ici</p>
+                                        <p className="text-xs font-bold uppercase tracking-widest">{t('no_birthdays_today', 'Aucune fête ici')}</p>
                                     </div>
                                 )}
                             </div>
-                            <Link to="/admin/members" className="mt-6 text-[10px] font-black text-gray-400 hover:text-indigo-500 transition-colors text-center py-3 border-t border-gray-50 dark:border-gray-800 uppercase tracking-[0.2em]">
+                            <Link to="/admin/members" className="mt-6 text-[10px] font-black text-gray-400 hover:text-brand-primary transition-colors text-center py-3 border-t border-gray-50 dark:border-gray-800 uppercase tracking-[0.2em]">
                                 {t('view_more', 'Voir membres')} →
                             </Link>
                         </div>
@@ -384,9 +384,9 @@ export default function AdminHome() {
                     <div className="bg-white dark:bg-[#1e293b] rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-lg font-black dark:text-white tracking-tight">
-                                {t('recent_activity', 'Activité Financière')}
+                                {t('recent_financial_activity', 'Activité Financière')}
                             </h3>
-                            <Link to="/admin/finances" className="text-[10px] font-black text-indigo-500 uppercase tracking-widest underline underline-offset-4">Voir historique</Link>
+                            <Link to="/admin/finances" className="text-[10px] font-black text-brand-primary uppercase tracking-widest underline underline-offset-4">{t('view_history', 'Voir historique')}</Link>
                         </div>
                         <div className="space-y-4">
                             {stats?.recentDonations?.slice(0, 4).map((item, idx) => (
@@ -419,13 +419,13 @@ export default function AdminHome() {
                             <h3 className="text-lg font-black dark:text-white tracking-tight">
                                 {t('recent_members_added', 'Nouveaux Inscrits')}
                             </h3>
-                            <Link to="/admin/members" className="text-[10px] font-black text-indigo-500 uppercase tracking-widest underline underline-offset-4">Plus de membres</Link>
+                            <Link to="/admin/members" className="text-[10px] font-black text-brand-primary uppercase tracking-widest underline underline-offset-4">{t('more_members', 'Plus de membres')}</Link>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {stats?.recentMembers?.length > 0 ? (
                                 stats.recentMembers.slice(0, 4).map((member, idx) => (
-                                    <div key={idx} onClick={() => navigate(`/admin/members/${member.id}`)} className="flex items-center p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all cursor-pointer group">
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center font-black text-[10px] group-hover:scale-110 transition-transform flex-shrink-0">
+                                    <div key={idx} onClick={() => navigate(`/admin/members/${member.id}`)} className="flex items-center p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10 transition-all cursor-pointer group">
+                                        <div className="w-10 h-10 rounded-xl bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange flex items-center justify-center font-black text-[10px] group-hover:scale-110 transition-transform flex-shrink-0">
                                             {member.firstName?.charAt(0)}{member.lastName?.charAt(0)}
                                         </div>
                                         <div className="ml-3 min-w-0">
@@ -441,7 +441,7 @@ export default function AdminHome() {
                             ) : (
                                 <div className="col-span-2 flex flex-col items-center justify-center p-10 text-gray-400 opacity-50">
                                     <span className="text-3xl mb-2">👥</span>
-                                    <p className="text-[10px] font-black uppercase tracking-widest">En attente d'inscriptions</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest">{t('no_recent_members_found', 'En attente d\'inscriptions')}</p>
                                 </div>
                             )}
                         </div>
@@ -455,15 +455,15 @@ export default function AdminHome() {
 // Updated StatCard with professional styling
 const StatCard = ({ title, value, trend, trendUp, subtitle, icon, color = "indigo" }) => {
     const colorVariants = {
-        indigo: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600',
+        brand: 'bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange',
         emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600',
         blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600',
         purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600',
-        amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600'
+        orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600'
     };
 
     return (
-        <div className="bg-white dark:bg-[#1e293b] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 duration-300 group">
+        <div className="bg-white dark:bg-[#1e293b] rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-2xl hover:shadow-brand-primary/10 hover:-translate-y-1 duration-300 group">
             <div className="flex items-start justify-between">
                 <div className="space-y-4">
                     <div className="space-y-1">

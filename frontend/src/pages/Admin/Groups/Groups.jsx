@@ -296,7 +296,7 @@ export default function Groups() {
                     <div className="flex items-center gap-6">
                         <button
                             onClick={() => navigate('/admin')}
-                            className="p-4 text-gray-400 hover:text-indigo-600 bg-white dark:bg-[#151515] hover:bg-gray-50 dark:hover:bg-black border border-gray-100 dark:border-white/5 rounded-2xl transition-all shadow-sm active:scale-95"
+                            className="p-4 text-brand-primary hover:text-white bg-brand-primary/5 dark:bg-[#151515] hover:bg-brand-primary border border-brand-primary/10 dark:border-white/5 rounded-2xl transition-all shadow-sm active:scale-95"
                             title={t('back_to_dashboard')}
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
@@ -308,7 +308,7 @@ export default function Groups() {
                     </div>
                     <button
                         onClick={handleCreate}
-                        className="px-6 py-3 bg-indigo-600 text-white font-semibold text-[13px] rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none transition-all flex items-center gap-2 active:scale-95"
+                        className="px-6 py-3 bg-brand-primary text-white font-semibold text-[13px] rounded-xl hover:bg-brand-deep shadow-lg shadow-brand-primary/20 dark:shadow-none transition-all flex items-center gap-2 active:scale-95"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                         {t('new_group')}
@@ -317,10 +317,10 @@ export default function Groups() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard label={t('total_groups')} value={stats.total} icon="📊" color="text-indigo-600" bg="bg-indigo-50" />
-                    <StatCard label={t('ministries')} value={stats.ministry} icon="🙏" color="text-purple-600" bg="bg-purple-50" />
-                    <StatCard label={t('cells')} value={stats.cell} icon="🏠" color="text-green-600" bg="bg-green-50" />
-                    <StatCard label={t('departments')} value={stats.department} icon="🏢" color="text-blue-600" bg="bg-blue-50" />
+                    <StatCard label={t('total_groups')} value={stats.total} icon="📊" color="text-brand-primary" bg="bg-brand-primary/5" />
+                    <StatCard label={t('ministries')} value={stats.ministry} icon="🙏" color="text-brand-orange" bg="bg-brand-orange/10" />
+                    <StatCard label={t('cells')} value={stats.cell} icon="🏠" color="text-emerald-500" bg="bg-emerald-50" />
+                    <StatCard label={t('departments')} value={stats.department} icon="🏢" color="text-brand-primary" bg="bg-brand-primary/5" />
                 </div>
 
                 {/* Content Area */}
@@ -356,14 +356,14 @@ export default function Groups() {
                         <div className="flex p-1 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
                             <button
                                 onClick={() => setViewMode('list')}
-                                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-brand-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
                                 {t('list_view', 'Liste')}
                             </button>
                             <button
                                 onClick={() => setViewMode('grid')}
-                                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                                 {t('grid_view', 'Grille')}
@@ -410,17 +410,17 @@ export default function Groups() {
                                         <tr key={group.id} onClick={() => navigate(`/admin/groups/${group.id}`)} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+                                                    <div className="w-10 h-10 rounded-lg bg-brand-primary/5 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange flex items-center justify-center font-black text-sm">
                                                         {group.name[0]}
                                                     </div>
                                                     <div>
-                                                        <div className="font-semibold text-gray-900 dark:text-white text-[13px]">{group.name}</div>
-                                                        <div className="text-[11px] text-gray-500">{group.description}</div>
+                                                        <div className="font-bold text-gray-900 dark:text-white text-[13px]">{group.name}</div>
+                                                        <div className="text-[11px] text-gray-400 line-clamp-1">{group.description}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="px-3 py-1 rounded-lg text-[10px] font-bold border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 uppercase">
+                                                <span className="px-3 py-1 rounded-lg text-[10px] font-black border border-brand-primary/10 dark:border-white/10 bg-brand-primary/5 text-brand-primary uppercase tracking-widest leading-none">
                                                     {t(`group_type_${group.type}`) || group.type}
                                                 </span>
                                             </td>
@@ -431,7 +431,7 @@ export default function Groups() {
                                                 {group.meetingDay} {group.meetingTime && `${t('at', 'à')} ${group.meetingTime}`}
                                             </td>
                                             <td className="px-6 py-4 text-[13px] font-medium text-gray-700 dark:text-gray-300">
-                                                <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-bold text-[11px]">
+                                                <span className="px-3 py-1 rounded-full bg-brand-primary/5 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange font-black text-[11px]">
                                                     {group.memberCount || 0}
                                                 </span>
                                             </td>
@@ -440,7 +440,7 @@ export default function Groups() {
                                                     <button onClick={() => handleEdit(group)} className="p-2 text-gray-400 hover:text-blue-600 transition-all" title={t('edit')}>
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                                     </button>
-                                                    <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/groups/${group.id}`); }} className="p-2 text-gray-400 hover:text-indigo-600 transition-all" title={t('view_members')}>
+                                                    <button onClick={(e) => { e.stopPropagation(); navigate(`/admin/groups/${group.id}`); }} className="p-2 text-gray-400 hover:text-brand-primary transition-all" title={t('view_members')}>
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                                     </button>
                                                     <button onClick={(e) => { e.stopPropagation(); handleOpenAddMember(group.id); }} className="p-2 text-gray-400 hover:text-green-600 transition-all" title={t('add_member')}>
@@ -496,7 +496,7 @@ export default function Groups() {
                                     <div className="space-y-8">
                                         <div>
                                             <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('group_name')}</label>
-                                            <input type="text" name="name" placeholder={t('group_name_placeholder')} required onChange={handleChange} value={formData.name} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all shadow-sm" />
+                                            <input type="text" name="name" placeholder={t('group_name_placeholder')} required onChange={handleChange} value={formData.name} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all shadow-sm" />
                                         </div>
 
                                         <div className="space-y-4">
@@ -517,7 +517,7 @@ export default function Groups() {
 
                                         <div>
                                             <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('type')}</label>
-                                            <select name="type" onChange={handleChange} value={formData.type} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none shadow-sm">
+                                            <select name="type" onChange={handleChange} value={formData.type} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all cursor-pointer appearance-none shadow-sm">
                                                 <option value="ministry">{t('group_type_ministry')}</option>
                                                 <option value="cell">{t('group_type_cell')}</option>
                                                 <option value="department">{t('group_type_department')}</option>
@@ -552,7 +552,7 @@ export default function Groups() {
                                     <div className="space-y-8">
                                         <div>
                                             <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('description')}</label>
-                                            <textarea name="description" placeholder={t('group_description_placeholder')} rows="2" onChange={handleChange} value={formData.description} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all resize-none shadow-sm"></textarea>
+                                            <textarea name="description" placeholder={t('group_description_placeholder')} rows="2" onChange={handleChange} value={formData.description} className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all resize-none shadow-sm"></textarea>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-6">
@@ -562,7 +562,7 @@ export default function Groups() {
                                                     name="roomId"
                                                     onChange={handleChange}
                                                     value={formData.roomId}
-                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none shadow-sm"
+                                                    className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-[15px] font-semibold text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all cursor-pointer appearance-none shadow-sm"
                                                 >
                                                     <option value="">Aucune salle</option>
                                                     {rooms.map(room => (
@@ -624,7 +624,7 @@ export default function Groups() {
 
                                 <div className="mt-14 flex justify-end gap-6 pt-10 border-t border-gray-50 dark:border-white/10 transition-colors">
                                     <button type="button" onClick={() => setShowModal(false)} className="px-10 py-5 bg-gray-50 dark:bg-black border border-gray-100 dark:border-transparent text-[11px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest rounded-2xl hover:bg-gray-100 dark:hover:bg-white/5 transition-all active:scale-95 outline-none shadow-sm">{t('cancel')}</button>
-                                    <button type="submit" className="px-14 py-5 bg-indigo-600 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl active:scale-95 outline-none">{editId ? t('save') : t('create')}</button>
+                                    <button type="submit" className="px-14 py-5 bg-brand-primary text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/20 active:scale-95 outline-none">{editId ? t('save') : t('create')}</button>
                                 </div>
                             </form>
                         </div>
@@ -648,7 +648,7 @@ export default function Groups() {
                                             <input
                                                 type="text"
                                                 placeholder={t('search_member', 'Rechercher un membre...')}
-                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-2.5 text-xs text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all"
+                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-2.5 text-xs text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all"
                                                 value={memberSearch}
                                                 onChange={(e) => setMemberSearch(e.target.value)}
                                             />
@@ -656,7 +656,7 @@ export default function Groups() {
                                                 value={selectedMember}
                                                 onChange={(e) => setSelectedMember(e.target.value)}
                                                 required
-                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none"
+                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all cursor-pointer appearance-none"
                                             >
                                                 <option value="">{t('choose_member', 'Choisir un membre...')}</option>
                                                 {allMembers
@@ -683,7 +683,7 @@ export default function Groups() {
                                             <select
                                                 value={selectedRole}
                                                 onChange={(e) => setSelectedRole(e.target.value)}
-                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all cursor-pointer appearance-none"
+                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all cursor-pointer appearance-none"
                                             >
                                                 <option value="membre">{t('member', 'Membre')}</option>
                                                 <option value="responsable">{t('leader', 'Responsable')}</option>
@@ -694,7 +694,7 @@ export default function Groups() {
                                             <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">{t('adhesion_date', "Date d'adhésion")}</label>
                                             <input
                                                 type="date"
-                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-white outline-none focus:border-indigo-500/30 transition-all [color-scheme:light]"
+                                                className="w-full bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-white outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all [color-scheme:light]"
                                                 value={joinedAt}
                                                 onChange={(e) => setJoinedAt(e.target.value)}
                                                 required
@@ -705,7 +705,7 @@ export default function Groups() {
 
                                 <div className="mt-8 flex justify-end gap-3">
                                     <button type="button" onClick={() => setShowAddMemberModal(false)} className="px-6 py-2.5 bg-gray-50 dark:bg-white/5 rounded-xl text-xs font-bold text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transaction-all">{t('cancel')}</button>
-                                    <button type="submit" disabled={!selectedMember} className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all">{t('add')}</button>
+                                    <button type="submit" disabled={!selectedMember} className="px-6 py-2.5 bg-brand-primary text-white rounded-xl text-xs font-bold hover:bg-brand-deep shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all">{t('add')}</button>
                                 </div>
                             </form>
                         </div>
@@ -747,7 +747,7 @@ const StatCard = ({ label, value, icon, color, bg }) => (
 );
 
 const GroupCard = ({ group, t, onEdit, onDelete, onClick }) => (
-    <div onClick={onClick} className="bg-gray-50 dark:bg-black/20 rounded-2xl p-6 border border-gray-100 dark:border-white/5 hover:border-indigo-500/30 transition-all group relative cursor-pointer">
+    <div onClick={onClick} className="bg-gray-50 dark:bg-black/20 rounded-2xl p-6 border border-gray-100 dark:border-white/5 hover:border-brand-primary/30 transition-all group relative cursor-pointer">
         <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-xl bg-white dark:bg-black border border-gray-100 dark:border-white/5 flex items-center justify-center text-2xl shadow-sm">
                 {group.type === 'ministry' ? '🙏' : group.type === 'cell' ? '🏠' : group.type === 'department' ? '🏢' : '👥'}
@@ -770,7 +770,7 @@ const GroupCard = ({ group, t, onEdit, onDelete, onClick }) => (
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                 <span>👥</span>
-                <span className="font-bold text-indigo-600 dark:text-indigo-400">{group.memberCount || 0} {t('member_count', 'Membres')}</span>
+                <span className="font-black text-brand-primary dark:text-brand-orange">{group.memberCount || 0} {t('member_count', 'Membres')}</span>
             </div>
         </div>
 

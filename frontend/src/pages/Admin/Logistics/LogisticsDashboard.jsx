@@ -19,7 +19,7 @@ export default function LogisticsDashboard() {
             const res = await api.get('/logistics/dashboard/stats');
             setStats(res.data.overview);
         } catch (error) {
-            console.error("Erreur stats logistique:", error);
+            console.error(t('logistics_stats_error', 'Erreur stats logistique:'), error);
         } finally {
             setLoading(false);
         }
@@ -29,12 +29,12 @@ export default function LogisticsDashboard() {
         fetchStats();
     }, []);
 
-    const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+    const COLORS = ['#1a1f4d', '#ea762a', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
     if (loading) return (
         <AdminLayout>
             <div className="flex items-center justify-center h-[60vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
             </div>
         </AdminLayout>
     );
@@ -48,9 +48,9 @@ export default function LogisticsDashboard() {
 
     // Mock data if backend returns empty arrays for visualization purposes
     const pieData = spaceDistribution?.length > 0 ? spaceDistribution : [
-        { name: 'Principal', value: 4 },
-        { name: 'Annexe', value: 3 },
-        { name: 'Jeunesse', value: 2 }
+        { name: t('main_building', 'Principal'), value: 4 },
+        { name: t('annex_building', 'Annexe'), value: 3 },
+        { name: t('youth_building', 'Jeunesse'), value: 2 }
     ];
 
     const areaData = reservationHistory?.length > 0 ? reservationHistory : [
@@ -68,7 +68,7 @@ export default function LogisticsDashboard() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 animate-fade-in-up">
                 <div>
                     <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        {t('logistics', 'Logistique')} <span className="text-indigo-600 dark:text-indigo-400">{t('overview', 'Vue d\'ensemble')}</span>
+                        {t('logistics', 'Logistique')} <span className="text-brand-primary dark:text-brand-orange">{t('overview', 'Vue d\'ensemble')}</span>
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
                         {t('logistics_welcome_desc', 'Gérez vos espaces, ressources et réservations en un coup d\'œil.')}
@@ -98,19 +98,19 @@ export default function LogisticsDashboard() {
                                 <AreaChart data={areaData}>
                                     <defs>
                                         <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#1a1f4d" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#1a1f4d" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" opacity={0.3} />
                                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '12px', color: '#fff' }}
+                                        contentStyle={{ backgroundColor: '#1a1f4d', border: 'none', borderRadius: '12px', color: '#fff' }}
                                         itemStyle={{ color: '#fff' }}
-                                        cursor={{ stroke: '#6366F1', strokeWidth: 2 }}
+                                        cursor={{ stroke: '#ea762a', strokeWidth: 2 }}
                                     />
-                                    <Area type="monotone" dataKey="bookings" stroke="#6366F1" strokeWidth={4} fillOpacity={1} fill="url(#colorBookings)" />
+                                    <Area type="monotone" dataKey="bookings" stroke="#1a1f4d" strokeWidth={4} fillOpacity={1} fill="url(#colorBookings)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -121,31 +121,31 @@ export default function LogisticsDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Conflicts Alert */}
                             <AlertCard
-                                title="Conflits de Réservation"
+                                title={t('booking_conflicts', 'Conflits de Réservation')}
                                 count={alerts.conflicts}
                                 type="critical"
-                                desc="Réservations qui se chevauchent."
+                                desc={t('conflicts_desc', 'Réservations qui se chevauchent.')}
                             />
                             {/* Capacity Alert */}
                             <AlertCard
-                                title="Surcharge de Capacité"
+                                title={t('capacity_overload', 'Surcharge de Capacité')}
                                 count={alerts.capacityOverflow}
                                 type="warning"
-                                desc="Participants > Capacité de la salle."
+                                desc={t('capacity_overload_desc', 'Participants > Capacité de la salle.')}
                             />
                             {/* No Responsible Alert */}
                             <AlertCard
-                                title="Sans Responsable"
+                                title={t('no_responsible', 'Sans Responsable')}
                                 count={alerts.noResponsible}
                                 type="warning"
-                                desc="Activités sans organisateur assigné."
+                                desc={t('no_responsible_desc', 'Activités sans organisateur assigné.')}
                             />
                             {/* Blocking Maintenance */}
                             <AlertCard
-                                title="Maintenance Bloquante"
+                                title={t('blocking_maintenance', 'Maintenance Bloquante')}
                                 count={alerts.maintenanceBlocking}
                                 type="critical"
-                                desc="Activités prévues dans des salles en maintenance."
+                                desc={t('blocking_maintenance_desc', 'Activités prévues dans des salles en maintenance.')}
                             />
                         </div>
                     )}
@@ -199,9 +199,9 @@ export default function LogisticsDashboard() {
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight mb-4">{t('equipment_status', 'État du Matériel')}</h3>
 
                         <div className="space-y-4">
-                            <ProgressBar label="Bon État" value={equipmentAvailable} total={totalResources} color="bg-emerald-500" />
-                            <ProgressBar label="À Réparer" value={equipmentRepair} total={totalResources} color="bg-amber-500" />
-                            <ProgressBar label="Hors Service" value={equipmentBroken} total={totalResources} color="bg-rose-500" />
+                            <ProgressBar label={t('good_condition', 'Bon État')} value={equipmentAvailable} total={totalResources} color="bg-emerald-500" />
+                            <ProgressBar label={t('to_repair', 'À Réparer')} value={equipmentRepair} total={totalResources} color="bg-amber-500" />
+                            <ProgressBar label={t('out_of_service', 'Hors Service')} value={equipmentBroken} total={totalResources} color="bg-rose-500" />
                         </div>
                     </div>
                 </div>
@@ -222,7 +222,7 @@ function KPICard({ title, value, icon, color }) {
     };
 
     const bgColors = {
-        indigo: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+        indigo: 'bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange',
         emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
         violet: 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400',
         blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
@@ -248,13 +248,14 @@ function KPICard({ title, value, icon, color }) {
 }
 
 function AlertCard({ title, count, type, desc }) {
+    const { t } = useLanguage();
     if (count === 0) return (
         <div className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-dashed border-gray-200 dark:border-white/10 opacity-60">
             <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 rounded-full bg-gray-300"></div>
                 <h4 className="font-bold text-gray-500">{title}</h4>
             </div>
-            <p className="text-xs text-gray-400">Aucune alerte détectée.</p>
+            <p className="text-xs text-gray-400">{t('no_alerts_detected', 'Aucune alerte détectée.')}</p>
         </div>
     );
 

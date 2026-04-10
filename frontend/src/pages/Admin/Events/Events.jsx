@@ -261,8 +261,8 @@ export default function Events() {
                 {/* Header Section */}
                 <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-12 bg-white dark:bg-[#1A1A1A] p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm animate-fade-in gap-8 transition-colors">
                     <div className="flex items-center gap-6">
-                        <div className="bg-indigo-50 dark:bg-black p-5 rounded-2xl transition-colors border border-indigo-100 dark:border-white/5">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="bg-brand-primary/5 dark:bg-brand-primary/10 p-5 rounded-2xl transition-colors border border-brand-primary/10 dark:border-white/5">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
@@ -273,7 +273,7 @@ export default function Events() {
                     </div>
                     <button
                         onClick={handleCreate}
-                        className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-semibold text-[13px] hover:bg-indigo-700 transition-all shadow-lg active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                        className="bg-brand-primary text-white px-8 py-3.5 rounded-xl font-semibold text-[13px] hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                         {t('new_event')}
@@ -282,10 +282,10 @@ export default function Events() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard label={t('total_events', 'Total Événements')} value={stats.total} icon="📅" color="text-indigo-600" bg="bg-indigo-50" />
-                    <StatCard label={t('upcoming_events', 'À venir')} value={stats.upcoming} icon="⏳" color="text-green-600" bg="bg-green-50" />
-                    <StatCard label={t('past_events', 'Écoulés')} value={stats.past} icon="✅" color="text-gray-600" bg="bg-gray-100" />
-                    <StatCard label={t('total_participants', 'Participants')} value={stats.participants} icon="👥" color="text-blue-600" bg="bg-blue-50" />
+                    <StatCard label={t('total_events', 'Total Événements')} value={stats.total} icon="📅" color="text-brand-primary" bg="bg-brand-primary/5" />
+                    <StatCard label={t('upcoming_events', 'À venir')} value={stats.upcoming} icon="⏳" color="text-emerald-500" bg="bg-emerald-50" />
+                    <StatCard label={t('past_events', 'Écoulés')} value={stats.past} icon="✅" color="text-gray-400" bg="bg-gray-50" />
+                    <StatCard label={t('total_participants', 'Participants')} value={stats.participants} icon="👥" color="text-brand-orange" bg="bg-brand-orange/10" />
                 </div>
 
                 {/* Filters & Content Container */}
@@ -328,13 +328,13 @@ export default function Events() {
                         <div className="flex p-1 bg-gray-50 dark:bg-black/40 rounded-xl border border-gray-100 dark:border-white/5 ml-auto">
                             <button
                                 onClick={() => setActiveCategory('upcoming')}
-                                className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${activeCategory === 'upcoming' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${activeCategory === 'upcoming' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 {t('upcoming', 'À venir')}
                             </button>
                             <button
                                 onClick={() => setActiveCategory('past')}
-                                className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${activeCategory === 'past' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`px-4 py-2 rounded-xl text-[11px] font-bold transition-all ${activeCategory === 'past' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 {t('past', 'Écoulés')}
                             </button>
@@ -347,14 +347,14 @@ export default function Events() {
                             <div className="flex p-1 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-brand-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
                                     {t('list_view', 'Liste')}
                                 </button>
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-800 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-brand-primary text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                                     {t('grid_view', 'Grille')}
@@ -364,7 +364,7 @@ export default function Events() {
                             {!showAllEvents && filteredEvents.length > 8 && (
                                 <button
                                     onClick={() => setShowAllEvents(true)}
-                                    className="px-4 py-2 bg-gray-50 dark:bg-white/5 hover:bg-blue-600 hover:text-white text-gray-500 dark:text-gray-400 text-[11px] font-bold rounded-xl transition-all shadow-sm active:scale-95 whitespace-nowrap"
+                                    className="px-4 py-2 bg-brand-primary/5 dark:bg-white/5 hover:bg-brand-primary hover:text-white text-brand-primary dark:text-gray-400 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all shadow-sm active:scale-95 whitespace-nowrap"
                                 >
                                     {t('view_all', 'Voir tous')} ({filteredEvents.length})
                                 </button>
@@ -419,12 +419,12 @@ export default function Events() {
                                         <tr key={event.id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-black flex items-center justify-center text-xl">
+                                                    <div className="w-10 h-10 rounded-xl bg-brand-primary/5 dark:bg-brand-primary/20 flex items-center justify-center text-xl">
                                                         {getEventIcon(event.type)}
                                                     </div>
                                                     <div>
                                                         <div className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{event.title}</div>
-                                                        <div className="text-[10px] text-indigo-500 font-bold uppercase tracking-wider mt-1">
+                                                        <div className="text-[10px] text-brand-orange font-black uppercase tracking-widest mt-1">
                                                             {t(`event_type_${event.type}`) || event.type}
                                                         </div>
                                                     </div>
@@ -446,7 +446,7 @@ export default function Events() {
                                             <td className="px-6 py-4">
                                                 <button
                                                     onClick={() => onViewParticipants(event)}
-                                                    className="px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-black/40 text-[10px] font-bold text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-transparent hover:border-indigo-100 flex items-center gap-2"
+                                                    className="px-3 py-1.5 rounded-lg bg-brand-primary/5 dark:bg-black/40 text-[10px] font-black uppercase tracking-widest text-brand-primary hover:bg-brand-primary hover:text-white transition-all border border-brand-primary/10 flex items-center gap-2"
                                                 >
                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                                     {event.eventParticipants?.length || 0}
@@ -487,11 +487,11 @@ export default function Events() {
 
                                     <div className="space-y-3 mb-6">
                                         <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                                            <div className="w-7 h-7 rounded-lg bg-gray-50 dark:bg-black flex items-center justify-center text-xs text-indigo-500">📅</div>
+                                            <div className="w-7 h-7 rounded-lg bg-brand-primary/5 dark:bg-black flex items-center justify-center text-xs text-brand-primary">📅</div>
                                             <span className="text-[11px] font-bold">{new Date(event.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} • {new Date(event.startDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                                            <div className="w-7 h-7 rounded-lg bg-gray-50 dark:bg-black flex items-center justify-center text-xs text-indigo-500">📍</div>
+                                            <div className="w-7 h-7 rounded-lg bg-brand-primary/5 dark:bg-black flex items-center justify-center text-xs text-brand-primary">📍</div>
                                             <span className="text-[11px] font-bold truncate">{event.location || '-'}</span>
                                         </div>
                                     </div>
@@ -499,11 +499,11 @@ export default function Events() {
                                     <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
                                         <button
                                             onClick={() => onViewParticipants(event)}
-                                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700"
+                                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-primary hover:text-brand-orange"
                                         >
                                             <span className="flex -space-x-2">
                                                 {[1, 2, 3].map(i => (
-                                                    <div key={i} className="w-5 h-5 rounded-full bg-indigo-100 border-2 border-white dark:border-[#1A1A1A] flex items-center justify-center text-[7px] font-bold text-indigo-600">
+                                                    <div key={i} className="w-5 h-5 rounded-full bg-brand-primary/10 border-2 border-white dark:border-[#1A1A1A] flex items-center justify-center text-[7px] font-black text-brand-primary">
                                                         {i === 3 ? '+' : ''}
                                                     </div>
                                                 ))}

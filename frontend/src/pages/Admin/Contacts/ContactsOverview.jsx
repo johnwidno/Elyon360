@@ -127,14 +127,14 @@ const ContactsOverview = () => {
     return (
         <AdminLayout>
             <div className="space-y-8 pb-10">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 animate-fade-in">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 animate-fade-in group">
                     <div className="flex items-center gap-6">
-                        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-5 rounded-2xl transition-all border border-indigo-100/50 dark:border-white/5 group-hover:scale-105 shadow-stripe">
-                            <svg className="h-8 w-8 text-stripe-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <div className="bg-brand-primary/5 dark:bg-brand-primary/20 p-5 rounded-2xl transition-all border border-brand-primary/10 dark:border-white/5 group-hover:scale-105 shadow-stripe">
+                            <svg className="h-8 w-8 text-brand-primary dark:text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                         </div>
                         <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-[10px] font-black text-stripe-blue tracking-[0.1em]">
-                                <span className="w-8 h-[2px] bg-stripe-blue"></span>
+                            <div className="flex items-center space-x-2 text-[10px] font-black text-brand-primary tracking-[0.1em]">
+                                <span className="w-8 h-[2px] bg-brand-primary"></span>
                                 <span>{t('contacts_dashboard', 'Contacts')}</span>
                             </div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
@@ -150,7 +150,7 @@ const ContactsOverview = () => {
                         <CurrentTime />
                         <div className="flex items-center gap-4 w-full sm:w-auto">
                             <div className="relative group flex-1 sm:flex-none">
-                                <svg className="w-4 h-4 text-gray-400 absolute left-5 top-1/2 -translate-y-1/2 group-focus-within:text-stripe-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-gray-400 absolute left-5 top-1/2 -translate-y-1/2 group-focus-within:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 <input
@@ -159,12 +159,12 @@ const ContactsOverview = () => {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     onKeyDown={handleSearch}
-                                    className="pl-12 pr-6 py-3.5 bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-indigo-500/5 focus:border-stripe-blue w-full sm:w-64 transition-all dark:text-white placeholder-gray-400/60 shadow-stripe outline-none"
+                                    className="pl-12 pr-6 py-3.5 bg-white dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary w-full sm:w-64 transition-all dark:text-white placeholder-gray-400/60 shadow-stripe outline-none"
                                 />
                             </div>
                             <button
                                 onClick={() => setShowModal(true)}
-                                className="bg-stripe-blue text-white px-8 py-3.5 rounded-2xl font-black text-[11px] tracking-widest shadow-premium hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                                className="bg-brand-primary text-white px-8 py-3.5 rounded-2xl font-black text-[11px] tracking-widest shadow-premium hover:bg-brand-deep transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
@@ -184,7 +184,7 @@ const ContactsOverview = () => {
                         trendUp={true}
                         subtitle={t('all_time_members', 'Base totale')}
                         icon="👥"
-                        color="indigo"
+                        color="brand"
                         onClick={() => navigate('/admin/members')}
                     />
                     <StatCard
@@ -219,6 +219,7 @@ const ContactsOverview = () => {
                     />
                 </div>
 
+
                 {/* Charts & Table Row */}
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                     {/* Left: Growth Chart & Distributions */}
@@ -242,18 +243,18 @@ const ContactsOverview = () => {
                                     <AreaChart data={growthData}>
                                         <defs>
                                             <linearGradient id="colorMembres" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#635bff" stopOpacity={0.15} />
-                                                <stop offset="95%" stopColor="#635bff" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#1a1f4d" stopOpacity={0.15} />
+                                                <stop offset="95%" stopColor="#1a1f4d" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.3} />
                                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={15} />
                                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} />
                                         <Tooltip
-                                            contentStyle={{ backgroundColor: '#0a2540', borderRadius: '16px', border: 'none', color: '#fff', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3)' }}
-                                            itemStyle={{ color: '#00d4ff', fontWeight: '900', fontSize: '10px' }}
+                                            contentStyle={{ backgroundColor: '#1a1f4d', borderRadius: '16px', border: 'none', color: '#fff', shadow: '0 20px 25px -5px rgb(0 0 0 / 0.3)' }}
+                                            itemStyle={{ color: '#ea762a', fontWeight: '900', fontSize: '10px' }}
                                         />
-                                        <Area type="monotone" dataKey="membres" name={t('members', 'Membres')} stroke="#635bff" strokeWidth={3} fillOpacity={1} fill="url(#colorMembres)" />
+                                        <Area type="monotone" dataKey="membres" name={t('members', 'Membres')} stroke="#1a1f4d" strokeWidth={3} fillOpacity={1} fill="url(#colorMembres)" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -270,11 +271,11 @@ const ContactsOverview = () => {
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-[10px] font-black tracking-widest">
                                             <span className="text-gray-400">{t('men', 'Hommes')}</span>
-                                            <span className="text-indigo-600">{stats.gender.male}</span>
+                                            <span className="text-brand-primary">{stats.gender.male}</span>
                                         </div>
                                         <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
                                             <div
-                                                className="bg-indigo-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+                                                className="bg-brand-primary h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(26,31,77,0.3)]"
                                                 style={{ width: `${(stats.gender.male / (stats.totalMembers || 1)) * 100}%` }}
                                             ></div>
                                         </div>
@@ -321,8 +322,8 @@ const ContactsOverview = () => {
 
                                         return (
                                             <div key={status} className="group">
-                                                <div className="flex justify-between text-[10px] font-black tracking-widest mb-2 transition-colors group-hover:text-indigo-500">
-                                                    <span className="text-gray-400 group-hover:text-indigo-500">{label}</span>
+                                                <div className="flex justify-between text-[10px] font-black tracking-widest mb-2 transition-colors group-hover:text-brand-primary">
+                                                    <span className="text-gray-400 group-hover:text-brand-primary">{label}</span>
                                                     <span className="text-gray-900 dark:text-white">{count}</span>
                                                 </div>
                                                 <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
@@ -345,7 +346,7 @@ const ContactsOverview = () => {
                             <h3 className="text-md font-black text-gray-900 dark:text-white tracking-tight">
                                 {t('recent_additions', 'Derniers Inscrits')}
                             </h3>
-                            <button onClick={() => navigate('/admin/members')} className="text-[10px] font-black text-stripe-blue tracking-widest underline underline-offset-4">
+                            <button onClick={() => navigate('/admin/members')} className="text-[10px] font-black text-brand-primary tracking-widest underline underline-offset-4">
                                 {t('view_all', 'Tout voir')}
                             </button>
                         </div>
@@ -353,7 +354,7 @@ const ContactsOverview = () => {
                         <div className="space-y-2">
                             {loading ? (
                                 <div className="py-20 flex flex-col items-center justify-center text-gray-300 opacity-50 space-y-4">
-                                    <div className="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+                                    <div className="w-8 h-8 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin"></div>
                                     <p className="text-[10px] font-black tracking-widest">{t('loading')}</p>
                                 </div>
                             ) : recentMembers.length === 0 ? (
@@ -368,7 +369,7 @@ const ContactsOverview = () => {
                                         className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/30 border border-transparent hover:border-gray-100 dark:hover:border-gray-700 transition-all cursor-pointer group"
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-100 dark:border-indigo-800/20 overflow-hidden group-hover:scale-110 transition-transform">
+                                            <div className="w-12 h-12 rounded-xl bg-brand-primary/10 dark:bg-brand-primary/30 flex items-center justify-center text-brand-primary dark:text-brand-orange font-extrabold border border-brand-primary/20 dark:border-white/5 overflow-hidden group-hover:scale-110 transition-transform shadow-stripe">
                                                 {member.photo ? (
                                                     <img src={member.photo} alt="" className="w-full h-full object-cover" />
                                                 ) : (
@@ -392,7 +393,7 @@ const ContactsOverview = () => {
 
                         <button
                             onClick={() => navigate('/admin/members')}
-                            className="w-full mt-8 py-4 bg-gray-50 dark:bg-gray-800/50 text-gray-400 hover:text-indigo-500 font-black text-[10px] rounded-2xl border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/20 transition-all tracking-[0.2em] shadow-sm"
+                            className="w-full mt-8 py-4 bg-gray-50 dark:bg-gray-800/50 text-gray-400 hover:text-brand-primary font-black text-[10px] rounded-2xl border border-transparent hover:border-brand-primary/10 dark:hover:border-brand-primary/20 transition-all tracking-[0.2em] shadow-sm"
                         >
                             {t('view_all_members', 'Liste Complète')} →
                         </button>
@@ -413,10 +414,10 @@ const ContactsOverview = () => {
 // Unified StatCard for consistency
 const StatCard = ({ title, value, trend, trendUp, subtitle, icon, color, onClick }) => {
     const colorVariants = {
-        indigo: 'bg-indigo-50 dark:bg-indigo-900/10 text-stripe-blue border-indigo-100/50',
+        brand: 'bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange border-brand-primary/20',
         emerald: 'bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 border-emerald-100/50',
-        purple: 'bg-purple-50 dark:bg-purple-900/10 text-stripe-purple border-purple-100/50',
-        orange: 'bg-orange-50 dark:bg-orange-900/10 text-orange-600 border-orange-100/50',
+        purple: 'bg-purple-50 dark:bg-purple-900/10 text-brand-primary border-purple-100/50',
+        orange: 'bg-orange-50 dark:bg-orange-900/10 text-brand-orange border-orange-100/50',
         blue: 'bg-blue-50 dark:bg-blue-900/10 text-blue-600 border-blue-100/50'
     };
 

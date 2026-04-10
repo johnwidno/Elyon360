@@ -82,11 +82,11 @@ export default function Assignments() {
                             return (
                                 <tr key={room.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                     <td className="p-6 font-bold text-gray-900 dark:text-white">{room.name}</td>
-                                    <td className="p-6 text-sm text-gray-500">{room.capacity} pers.</td>
+                                    <td className="p-6 text-sm text-gray-500">{room.capacity} {t('pers', 'pers.')}</td>
                                     <td className="p-6">
                                         {manager ? (
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                                                <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-black text-[10px] uppercase tracking-widest">
                                                     {manager.firstName[0]}
                                                 </div>
                                                 <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -94,13 +94,13 @@ export default function Assignments() {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400 text-sm italic">Non assigné</span>
+                                            <span className="text-gray-400 text-sm italic">{t('unassigned', 'Non assigné')}</span>
                                         )}
                                     </td>
                                     <td className="p-6 text-right">
                                         <button
                                             onClick={() => handleAssign(room)}
-                                            className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-600 dark:text-gray-300 transition-colors"
+                                            className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-brand-primary/10 hover:text-brand-primary text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 transition-colors"
                                         >
                                             {t('change', 'Changer')}
                                         </button>
@@ -117,26 +117,26 @@ export default function Assignments() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
                     <div className="bg-white dark:bg-[#1A1A1A] rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Assigner un Responsable</h3>
-                            <p className="text-xs text-gray-500 mt-1">Pour la salle <span className="font-bold">{selectedRoom?.name}</span></p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('assign_manager', 'Assigner un Responsable')}</h3>
+                            <p className="text-xs text-gray-500 mt-1">{t('for_room', 'Pour la salle')} <span className="font-bold">{selectedRoom?.name}</span></p>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Responsable</label>
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('manager', 'Responsable')}</label>
                                 <select
                                     value={assignmentData.managerId}
                                     onChange={(e) => setAssignmentData({ managerId: e.target.value })}
-                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none"
                                 >
-                                    <option value="">-- Aucun Responsable --</option>
+                                    <option value="">-- {t('no_manager_option', 'Aucun Responsable')} --</option>
                                     {users.map(u => (
                                         <option key={u.id} value={u.id}>{u.firstName} {u.lastName}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-sm font-bold">Annuler</button>
-                                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold shadow-lg shadow-indigo-200 dark:shadow-none">Enregistrer</button>
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-[11px] font-black uppercase tracking-widest transition-colors">{t('cancel', 'Annuler')}</button>
+                                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-[11px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">{t('save', 'Enregistrer')}</button>
                             </div>
                         </form>
                     </div>

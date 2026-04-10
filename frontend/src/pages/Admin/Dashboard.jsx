@@ -57,51 +57,51 @@ const AdminDashboard = () => {
     // ─── DUMMY DATA FOR CHARTS EXACTLY AS PICTURE ──────────────────────────
 
     const croissanceData = [
-        { period: 'Jan', Membres: 1200, Visiteurs: 150 },
-        { period: 'Fév', Membres: 1210, Visiteurs: 160 },
-        { period: 'Mar', Membres: 1225, Visiteurs: 180 },
-        { period: 'Avr', Membres: 1235, Visiteurs: 185 },
-        { period: 'Mai', Membres: 1248, Visiteurs: 190 },
-        { period: 'Juin', Membres: 1255, Visiteurs: 200 },
-        { period: 'Juil', Membres: 1260, Visiteurs: 210 },
-        { period: 'Août', Membres: 1275, Visiteurs: 205 },
-        { period: 'Sep', Membres: 1280, Visiteurs: 215 },
-        { period: 'Oct', Membres: 1290, Visiteurs: 220 },
-        { period: 'Nov', Membres: 1300, Visiteurs: 230 },
-        { period: 'Déc', Membres: 1315, Visiteurs: 250 },
+        { period: t('month_jan_short', 'Jan'), Membres: 1200, Visiteurs: 150 },
+        { period: t('month_feb_short', 'Fév'), Membres: 1210, Visiteurs: 160 },
+        { period: t('month_mar_short', 'Mar'), Membres: 1225, Visiteurs: 180 },
+        { period: t('month_apr_short', 'Avr'), Membres: 1235, Visiteurs: 185 },
+        { period: t('month_may_short', 'Mai'), Membres: 1248, Visiteurs: 190 },
+        { period: t('month_jun_short', 'Juin'), Membres: 1255, Visiteurs: 200 },
+        { period: t('month_jul_short', 'Juil'), Membres: 1260, Visiteurs: 210 },
+        { period: t('month_aug_short', 'Août'), Membres: 1275, Visiteurs: 205 },
+        { period: t('month_sep_short', 'Sep'), Membres: 1280, Visiteurs: 215 },
+        { period: t('month_oct_short', 'Oct'), Membres: 1290, Visiteurs: 220 },
+        { period: t('month_nov_short', 'Nov'), Membres: 1300, Visiteurs: 230 },
+        { period: t('month_dec_short', 'Déc'), Membres: 1315, Visiteurs: 250 },
     ];
 
     const revenusData = [
-        { name: 'Jan', Dîmes: 42000, Offrandes: 12000, Dons: 10000 },
-        { name: 'Fév', Dîmes: 40000, Offrandes: 15000, Dons: 8000 },
-        { name: 'Mar', Dîmes: 45000, Offrandes: 18000, Dons: 9000 },
-        { name: 'Avr', Dîmes: 50000, Offrandes: 15000, Dons: 12000 },
-        { name: 'Mai', Dîmes: 48000, Offrandes: 14000, Dons: 11000 },
-        { name: 'Juin', Dîmes: 52000, Offrandes: 20000, Dons: 15000 },
-        { name: 'Juil', Dîmes: 55000, Offrandes: 22000, Dons: 14000 },
-        { name: 'Août', Dîmes: 54000, Offrandes: 21000, Dons: 13000 },
-        { name: 'Sep', Dîmes: 58000, Offrandes: 23000, Dons: 16000 },
-        { name: 'Oct', Dîmes: 57000, Offrandes: 22000, Dons: 15000 },
-        { name: 'Nov', Dîmes: 60000, Offrandes: 25000, Dons: 18000 },
-        { name: 'Déc', Dîmes: 62000, Offrandes: 28000, Dons: 20000 },
+        { name: t('month_jan_short', 'Jan'), Dîmes: 42000, Offrandes: 12000, Dons: 10000 },
+        { name: t('month_feb_short', 'Fév'), Dîmes: 40000, Offrandes: 15000, Dons: 8000 },
+        { name: t('month_mar_short', 'Mar'), Dîmes: 45000, Offrandes: 18000, Dons: 9000 },
+        { name: t('month_apr_short', 'Avr'), Dîmes: 50000, Offrandes: 15000, Dons: 12000 },
+        { name: t('month_may_short', 'Mai'), Dîmes: 48000, Offrandes: 14000, Dons: 11000 },
+        { name: t('month_jun_short', 'Juin'), Dîmes: 52000, Offrandes: 20000, Dons: 15000 },
+        { name: t('month_jul_short', 'Juil'), Dîmes: 55000, Offrandes: 22000, Dons: 14000 },
+        { name: t('month_aug_short', 'Août'), Dîmes: 54000, Offrandes: 21000, Dons: 13000 },
+        { name: t('month_sep_short', 'Sep'), Dîmes: 58000, Offrandes: 23000, Dons: 16000 },
+        { name: t('month_oct_short', 'Oct'), Dîmes: 57000, Offrandes: 22000, Dons: 15000 },
+        { name: t('month_nov_short', 'Nov'), Dîmes: 60000, Offrandes: 25000, Dons: 18000 },
+        { name: t('month_dec_short', 'Déc'), Dîmes: 62000, Offrandes: 28000, Dons: 20000 },
     ];
 
     const repartitionData = [
-        { name: 'Jeunesse', value: 45, color: '#10B981' }, // emerald
-        { name: 'Dames', value: 32, color: '#A855F7' }, // purple
-        { name: 'Hommes', value: 24, color: '#3B82F6' }, // blue
-        { name: 'Enfants', value: 18, color: '#F59E0B' }, // amber
+        { name: t('youth', 'Jeunesse'), value: 45, color: '#10B981' }, // emerald
+        { name: t('ladies', 'Dames'), value: 32, color: '#A855F7' }, // purple
+        { name: t('men', 'Hommes'), value: 24, color: '#3B82F6' }, // blue
+        { name: t('children', 'Enfants'), value: 18, color: '#F59E0B' }, // amber
     ];
 
     const presencesData = [
-        { week: 'Sem 1', Culte: 420, Ecole: 150, Priere: 120 },
-        { week: 'Sem 2', Culte: 430, Ecole: 160, Priere: 125 },
-        { week: 'Sem 3', Culte: 410, Ecole: 145, Priere: 110 },
-        { week: 'Sem 4', Culte: 440, Ecole: 165, Priere: 130 },
-        { week: 'Sem 5', Culte: 450, Ecole: 170, Priere: 140 },
-        { week: 'Sem 6', Culte: 460, Ecole: 175, Priere: 145 },
-        { week: 'Sem 7', Culte: 455, Ecole: 168, Priere: 135 },
-        { week: 'Sem 8', Culte: 470, Ecole: 180, Priere: 150 },
+        { week: `${t('week_short', 'Sem')} 1`, Culte: 420, Ecole: 150, Priere: 120 },
+        { week: `${t('week_short', 'Sem')} 2`, Culte: 430, Ecole: 160, Priere: 125 },
+        { week: `${t('week_short', 'Sem')} 3`, Culte: 410, Ecole: 145, Priere: 110 },
+        { week: `${t('week_short', 'Sem')} 4`, Culte: 440, Ecole: 165, Priere: 130 },
+        { week: `${t('week_short', 'Sem')} 5`, Culte: 450, Ecole: 170, Priere: 140 },
+        { week: `${t('week_short', 'Sem')} 6`, Culte: 460, Ecole: 175, Priere: 145 },
+        { week: `${t('week_short', 'Sem')} 7`, Culte: 455, Ecole: 168, Priere: 135 },
+        { week: `${t('week_short', 'Sem')} 8`, Culte: 470, Ecole: 180, Priere: 150 },
     ];
 
     const eventsData = [
@@ -112,12 +112,12 @@ const AdminDashboard = () => {
     ];
 
     const activiteData = [
-        { icon: <DollarSign size={14} className="text-emerald-500" />, title: 'Don Reçu', desc: 'Anita Stocy | Pénitentiale', amount: '+200.00 HTG', date: '04/03/2026', bg: 'bg-emerald-900/30' },
-        { icon: <DollarSign size={14} className="text-emerald-500" />, title: 'Dîme Reçue', desc: 'John Whites | D1A22', amount: '+2,500.00 HTG', date: '02/03/2026', bg: 'bg-emerald-900/30' },
-        { icon: <UserPlus size={14} className="text-blue-500" />, title: 'Nouveau Membre', desc: 'Maxise Célestin', amount: '', date: '02/03/2026', bg: 'bg-blue-900/30' },
-        { icon: <DollarSign size={14} className="text-emerald-500" />, title: 'Don Reçu', desc: 'Anita Stocy | Pénitentiale', amount: '+3,300.00 HTG', date: '01/03/2026', bg: 'bg-emerald-900/30' },
-        { icon: <Calendar size={14} className="text-amber-500" />, title: 'Événement créé', desc: 'Convention annuelle', amount: '', date: '28/02/2026', bg: 'bg-amber-900/30' },
-        { icon: <CheckCircle size={14} className="text-purple-500" />, title: 'Baptême', desc: '5 nouveaux baptisés', amount: '', date: '27/02/2026', bg: 'bg-purple-900/30' },
+        { icon: <DollarSign size={14} className="text-emerald-500" />, title: t('donation_received', 'Don Reçu'), desc: 'Anita Stocy | Pénitentiale', amount: '+200.00 HTG', date: '04/03/2026', bg: 'bg-emerald-900/30' },
+        { icon: <DollarSign size={14} className="text-emerald-500" />, title: t('tithe_received', 'Dîme Reçue'), desc: 'John Whites | D1A22', amount: '+2,500.00 HTG', date: '02/03/2026', bg: 'bg-emerald-900/30' },
+        { icon: <UserPlus size={14} className="text-blue-500" />, title: t('new_member', 'Nouveau Membre'), desc: 'Maxise Célestin', amount: '', date: '02/03/2026', bg: 'bg-blue-900/30' },
+        { icon: <DollarSign size={14} className="text-emerald-500" />, title: t('donation_received', 'Don Reçu'), desc: 'Anita Stocy | Pénitentiale', amount: '+3,300.00 HTG', date: '01/03/2026', bg: 'bg-emerald-900/30' },
+        { icon: <Calendar size={14} className="text-amber-500" />, title: t('event_created', 'Événement créé'), desc: 'Convention annuelle', amount: '', date: '28/02/2026', bg: 'bg-amber-900/30' },
+        { icon: <CheckCircle size={14} className="text-purple-500" />, title: t('baptism_activity', 'Baptême'), desc: t('new_baptized_count', '5 nouveaux baptisés'), amount: '', date: '27/02/2026', bg: 'bg-purple-900/30' },
     ];
 
     const CustomTooltip = ({ active, payload, label }) => {
@@ -142,7 +142,7 @@ const AdminDashboard = () => {
         return (
             <AdminLayout>
                 <div className="p-8 flex items-center justify-center min-h-[400px]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
                 </div>
             </AdminLayout>
         );
@@ -181,38 +181,38 @@ const AdminDashboard = () => {
                 {/* 1. KPIs Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <KpiCard
-                        title="TOTAL MEMBRES"
+                        title={t('total_members_kpi', 'TOTAL MEMBRES')}
                         value={stats.members.toLocaleString()}
-                        trend="+12.5%" trendLabel="Mois en cours"
+                        trend="+12.5%" trendLabel={t('current_month', 'Mois en cours')}
                         icon={<Users size={18} />}
-                        iconColor="text-indigo-400" iconBg="bg-indigo-900/30"
+                        iconColor="text-brand-primary dark:text-brand-orange" iconBg="bg-brand-primary/10 dark:bg-white/5"
                         trendColor="text-emerald-400"
                         variants={itemVariants}
                     />
                     <KpiCard
-                        title="MEMBRES ACTIFS"
+                        title={t('active_members_kpi', 'MEMBRES ACTIFS')}
                         value={stats.activeMembers.toLocaleString()}
-                        trend="+4.2%" trendLabel="Membres en Règle"
+                        trend="+4.2%" trendLabel={t('members_in_good_standing', 'Membres en Règle')}
                         icon={<UserCheck size={18} />}
                         iconColor="text-emerald-400" iconBg="bg-emerald-900/30"
                         trendColor="text-emerald-400"
                         variants={itemVariants}
                     />
                     <KpiCard
-                        title="NOUVEAUX INSCRITS"
+                        title={t('new_registrations_kpi', 'NOUVEAUX INSCRITS')}
                         value="47"
-                        trend="+16%" trendLabel="Ce mois"
+                        trend="+16%" trendLabel={t('this_month', 'Ce mois')}
                         icon={<UserPlus size={18} />}
                         iconColor="text-amber-400" iconBg="bg-amber-900/30"
                         trendColor="text-emerald-400"
                         variants={itemVariants}
                     />
                     <KpiCard
-                        title="EN ATTENTE"
+                        title={t('pending_kpi', 'EN ATTENTE')}
                         value="12"
-                        trend="-2" trendLabel="Nouveaux arrivés"
+                        trend="-2" trendLabel={t('newly_arrived', 'Nouveaux arrivés')}
                         icon={<Clock size={18} />}
-                        iconColor="text-rose-400" iconBg="bg-rose-900/30"
+                        iconColor="text-brand-orange" iconBg="bg-brand-orange/10 dark:bg-brand-orange/20"
                         trendColor="text-emerald-400"
                         variants={itemVariants}
                     />
@@ -228,8 +228,8 @@ const AdminDashboard = () => {
                                 <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('last_12_months', 'Évolution sur les 12 derniers mois')}</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> {t('members')}</span>
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('visitors')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('members', 'Membres')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('visitors', 'Visiteurs')}</span>
                             </div>
                         </div>
                         <div className="h-[300px] w-full">
@@ -237,8 +237,8 @@ const AdminDashboard = () => {
                                 <AreaChart data={croissanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorMembres" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#1a1f4d" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#1a1f4d" stopOpacity={0} />
                                         </linearGradient>
                                         <linearGradient id="colorVisiteurs" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
@@ -249,7 +249,7 @@ const AdminDashboard = () => {
                                     <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} />
                                     <RechartsTooltip content={<CustomTooltip />} />
-                                    <Area type="monotone" dataKey="Membres" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#colorMembres)" />
+                                    <Area type="monotone" dataKey="Membres" stroke="#1a1f4d" strokeWidth={3} fillOpacity={1} fill="url(#colorMembres)" />
                                     <Area type="monotone" dataKey="Visiteurs" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorVisiteurs)" />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -260,7 +260,7 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('upcoming_events', 'Événements à Venir')}</h3>
-                            <button className="text-[10px] font-black text-indigo-500 hover:text-indigo-400 uppercase tracking-widest">{t('view_all', 'Voir Plus')} →</button>
+                            <button className="text-[10px] font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_all', 'Voir Plus')} →</button>
                         </div>
                         <div className="flex-1 space-y-6">
                             {eventsData.map((evt, idx) => (
@@ -269,14 +269,14 @@ const AdminDashboard = () => {
                                     key={idx}
                                     className="flex items-start gap-5 group cursor-pointer"
                                 >
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex flex-col items-center justify-center shrink-0 border border-indigo-100/50 dark:border-white/5 transition-colors group-hover:bg-indigo-600 group-hover:text-white shadow-sm">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter leading-none transition-colors group-hover:text-indigo-100">{evt.date.split(' ')[1]}</span>
+                                    <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 dark:bg-white/5 flex flex-col items-center justify-center shrink-0 border border-brand-primary/10 dark:border-white/5 transition-colors group-hover:bg-brand-primary group-hover:text-white shadow-sm">
+                                        <span className="text-[10px] font-black uppercase tracking-tighter leading-none transition-colors group-hover:text-brand-light">{evt.date.split(' ')[1]}</span>
                                         <span className="text-[18px] font-black leading-none mt-1 transition-colors">{evt.date.split(' ')[0]}</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-[14px] font-black text-gray-900 dark:text-gray-100 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">{evt.title}</h4>
+                                        <h4 className="text-[14px] font-black text-gray-900 dark:text-gray-100 group-hover:text-brand-primary dark:group-hover:text-brand-orange transition-colors">{evt.title}</h4>
                                         <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1.5 flex items-center gap-2">
-                                            <Clock size={12} className="text-indigo-500/50" /> {evt.time} &nbsp;&bull;&nbsp; {evt.loc}
+                                            <Clock size={12} className="text-brand-orange/50" /> {evt.time} &nbsp;&bull;&nbsp; {evt.loc}
                                         </p>
                                     </div>
                                 </motion.div>
@@ -295,9 +295,9 @@ const AdminDashboard = () => {
                                 <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('income_desc', 'Dîmes, offrandes et dons par mois')}</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> {t('tithes')}</span>
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('offerings')}</span>
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> {t('donations')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('tithes', 'Dîmes')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('offerings', 'Offrandes')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('donations', 'Dons')}</span>
                             </div>
                         </div>
                         <div className="h-[280px] w-full">
@@ -306,10 +306,10 @@ const AdminDashboard = () => {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} tickFormatter={(val) => `${val / 1000}k`} />
-                                    <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }} />
-                                    <Bar dataKey="Dîmes" fill="#6366F1" radius={[6, 6, 0, 0]} maxBarSize={15} />
+                                    <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(26, 31, 77, 0.05)' }} />
+                                    <Bar dataKey="Dîmes" fill="#1a1f4d" radius={[6, 6, 0, 0]} maxBarSize={15} />
                                     <Bar dataKey="Offrandes" fill="#10B981" radius={[6, 6, 0, 0]} maxBarSize={15} />
-                                    <Bar dataKey="Dons" fill="#F59E0B" radius={[6, 6, 0, 0]} maxBarSize={15} />
+                                    <Bar dataKey="Dons" fill="#ea762a" radius={[6, 6, 0, 0]} maxBarSize={15} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -357,9 +357,9 @@ const AdminDashboard = () => {
                                 <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('weekly_desc', 'Culte, école du dimanche et prière')}</p>
                             </div>
                             <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> {t('service', 'Culte')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('service', 'Culte')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('school', 'École')}</span>
-                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> {t('prayer', 'Prière')}</span>
+                                <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('prayer', 'Prière')}</span>
                             </div>
                         </div>
                         <div className="h-[280px] w-full">
@@ -369,9 +369,9 @@ const AdminDashboard = () => {
                                     <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} />
                                     <RechartsTooltip content={<CustomTooltip />} />
-                                    <Line type="monotone" dataKey="Culte" stroke="#6366F1" strokeWidth={4} dot={{ r: 4, fill: '#6366F1', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                                    <Line type="monotone" dataKey="Culte" stroke="#1a1f4d" strokeWidth={4} dot={{ r: 4, fill: '#1a1f4d', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                                     <Line type="monotone" dataKey="Ecole" stroke="#10B981" strokeWidth={4} dot={{ r: 4, fill: '#10B981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
-                                    <Line type="monotone" dataKey="Priere" stroke="#F59E0B" strokeWidth={4} dot={{ r: 4, fill: '#F59E0B', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                                    <Line type="monotone" dataKey="Priere" stroke="#ea762a" strokeWidth={4} dot={{ r: 4, fill: '#ea762a', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -381,7 +381,7 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('recent_activity', 'Activité Récente')}</h3>
-                            <button className="text-[10px] font-black text-indigo-500 hover:text-indigo-400 uppercase tracking-widest">{t('view_history', 'Voir Historique')}</button>
+                            <button className="text-[10px] font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_history', 'Voir Historique')}</button>
                         </div>
                         <div className="flex-1 space-y-5">
                             {activiteData.map((act, idx) => (
@@ -395,7 +395,7 @@ const AdminDashboard = () => {
                                             {act.icon}
                                         </div>
                                         <div>
-                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-gray-100 group-hover:text-indigo-500 transition-colors">{act.title}</h4>
+                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-gray-100 group-hover:text-brand-primary dark:group-hover:text-brand-orange transition-colors">{act.title}</h4>
                                             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-tight">{act.desc}</p>
                                         </div>
                                     </div>
@@ -417,20 +417,20 @@ const AdminDashboard = () => {
                 <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2.5rem] shadow-premium overflow-hidden">
                     <div className="p-8 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-black/10">
                         <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('last_members_added', 'Derniers Membres Ajoutés')}</h3>
-                        <button onClick={() => navigate('/admin/members')} className="text-[10px] font-black text-indigo-500 hover:text-indigo-400 uppercase tracking-widest">{t('more_members', 'Plus de Membres')} →</button>
+                        <button onClick={() => navigate('/admin/members')} className="text-[10px] font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('more_members', 'Plus de Membres')} →</button>
                     </div>
                     <div className="overflow-x-auto noscrollbar">
                         <table className="w-full">
                             <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                                 {recentMembers.map((member) => (
-                                    <tr key={member.id} className="hover:bg-indigo-50/30 dark:hover:bg-white/5 cursor-pointer transition-all group" onClick={() => navigate(`/admin/members/${member.id}`)}>
+                                    <tr key={member.id} className="hover:bg-brand-primary/5 dark:hover:bg-white/5 cursor-pointer transition-all group" onClick={() => navigate(`/admin/members/${member.id}`)}>
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-11 h-11 rounded-[14px] bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-[14px] shadow-sm group-hover:scale-105 transition-transform">
+                                                <div className="w-11 h-11 rounded-[14px] bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange flex items-center justify-center font-black text-[14px] shadow-sm group-hover:scale-105 transition-transform">
                                                     {member.firstName?.[0]}{member.lastName?.[0]}
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-gray-900 dark:text-white text-[14px] group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{member.firstName} {member.lastName}</div>
+                                                    <div className="font-black text-gray-900 dark:text-white text-[14px] group-hover:text-brand-primary transition-colors uppercase tracking-tight">{member.firstName} {member.lastName}</div>
                                                     <div className="text-[11px] text-gray-400 dark:text-gray-500 font-bold mt-1 tracking-tight">{member.email || member.phone || 'Sans Contact'}</div>
                                                 </div>
                                             </div>
@@ -447,7 +447,7 @@ const AdminDashboard = () => {
                                 ))}
                                 {recentMembers.length === 0 && (
                                     <tr>
-                                        <td colSpan="3" className="px-8 py-12 text-center text-xs text-gray-400 uppercase font-black tracking-widest opacity-50 italic">Aucun membre récent.</td>
+                                        <td colSpan="3" className="px-8 py-12 text-center text-xs text-gray-400 uppercase font-black tracking-widest opacity-50 italic">{t('no_recent_members', 'Aucun membre récent.')}</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -481,7 +481,7 @@ const KpiCard = ({ title, value, trend, trendLabel, icon, iconColor, iconBg, tre
             </div>
         </div>
         {/* Subtle background decoration */}
-        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-colors"></div>
+        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-brand-primary/5 rounded-full blur-3xl group-hover:bg-brand-primary/10 transition-colors"></div>
     </motion.div>
 );
 

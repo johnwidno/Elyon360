@@ -212,7 +212,7 @@ const Spaces = () => {
                 <div>
                     {/* ... Title ... */}
                     <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        {t('spaces', 'Espaces')} <span className="text-indigo-600 dark:text-indigo-400">& {t('rooms', 'Salles')}</span>
+                        {t('spaces', 'Espaces')} <span className="text-brand-primary dark:text-brand-orange">& {t('rooms', 'Salles')}</span>
                     </h1>
                     {/* ... subtitle ... */}
                 </div>
@@ -220,22 +220,22 @@ const Spaces = () => {
                     <div className="bg-white dark:bg-white/5 p-1 rounded-xl flex border border-gray-200 dark:border-white/10">
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Vue Grille"
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-brand-primary/5 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange' : 'text-gray-400 hover:text-gray-600'}`}
+                            title={t('grid_view', 'Vue Grille')}
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Vue Liste"
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-brand-primary/5 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange' : 'text-gray-400 hover:text-gray-600'}`}
+                            title={t('list_view', 'Vue Liste')}
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
                         </button>
                         <button
                             onClick={() => setViewMode('dashboard')}
-                            className={`p-2 rounded-lg transition-all ${viewMode === 'dashboard' ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Tableau de Bord"
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'dashboard' ? 'bg-brand-primary/5 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange' : 'text-gray-400 hover:text-gray-600'}`}
+                            title={t('dashboard_view', 'Tableau de Bord')}
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                         </button>
@@ -243,7 +243,7 @@ const Spaces = () => {
 
                     <button
                         onClick={() => { resetBuildingForm(); setShowBuildingModal(true); }}
-                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95 flex items-center gap-2 justify-center"
+                        className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg active:scale-95 flex items-center gap-2 justify-center"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                         {t('add_building', 'Ajouter Bâtiment')}
@@ -265,7 +265,7 @@ const Spaces = () => {
                     {buildings.map(b => (
                         <div key={b.id} className="bg-white dark:bg-[#1A1A1A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all group relative">
                             <div className="absolute top-8 right-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => handleEditBuilding(b)} className="p-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-full hover:bg-indigo-100 hover:text-indigo-600 transition-colors">
+                                <button onClick={() => handleEditBuilding(b)} className="p-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-full hover:bg-brand-primary/10 hover:text-brand-primary transition-colors">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                 </button>
                                 <button onClick={() => handleDeleteBuilding(b.id)} className="p-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors">
@@ -277,10 +277,10 @@ const Spaces = () => {
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                                         {b.name}
-                                        <span className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/10 text-gray-500 uppercase tracking-widest">{b.code || 'N/A'}</span>
+                                        <span className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/10 text-gray-500 uppercase tracking-widest">{b.code || t('na', 'N/A')}</span>
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        <svg className="w-4 h-4 text-brand-primary dark:text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                         {b.address}, {b.city}
                                     </p>
                                 </div>
@@ -292,24 +292,24 @@ const Spaces = () => {
                             <div className="grid grid-cols-3 gap-4 mb-8 bg-gray-50 dark:bg-black/20 p-4 rounded-2xl border border-gray-100 dark:border-white/5">
                                 <div className="text-center">
                                     <span className="block text-2xl font-bold text-gray-900 dark:text-white">{b.totalRooms || 0}</span>
-                                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Salles</span>
+                                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider font-title">{t('rooms', 'Salles')}</span>
                                 </div>
                                 <div className="text-center border-l border-gray-200 dark:border-white/10">
                                     <span className="block text-2xl font-bold text-gray-900 dark:text-white">{b.capacity || 0}</span>
-                                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Capacité</span>
+                                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider font-title">{t('capacity', 'Capacité')}</span>
                                 </div>
                                 <div className="text-center border-l border-gray-200 dark:border-white/10">
                                     <span className="block text-2xl font-bold text-gray-900 dark:text-white">{b.surfaceArea || '-'} m²</span>
-                                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Surface</span>
+                                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider font-title">{t('surface', 'Surface')}</span>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">Salles disponbiles</h4>
+                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1 font-title">{t('available_rooms', 'Salles disponibles')}</h4>
                                 {rooms.filter(r => r.buildingId === b.id).length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {rooms.filter(r => r.buildingId === b.id).map(room => (
-                                            <div key={room.id} className="flex items-center justify-between p-4 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-indigo-500/30 transition-all cursor-pointer">
+                                            <div key={room.id} className="flex items-center justify-between p-4 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-brand-primary/30 transition-all cursor-pointer">
                                                 <div className="flex flex-col">
                                                     <span className="font-semibold text-gray-700 dark:text-gray-300 text-sm truncate">{room.name}</span>
                                                     <span className="text-[10px] text-gray-400">{room.type}</span>
@@ -320,7 +320,7 @@ const Spaces = () => {
                                     </div>
                                 ) : (
                                     <div className="text-center py-6 bg-gray-50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
-                                        <p className="text-sm text-gray-400 italic">Aucune salle configurée.</p>
+                                        <p className="text-sm text-gray-400 italic">{t('no_rooms_configured', 'Aucune salle configurée.')}</p>
                                     </div>
                                 )}
                             </div>
@@ -333,12 +333,12 @@ const Spaces = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 text-left">
-                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Nom / Code</th>
-                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Localisation</th>
-                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Capacité</th>
-                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Statut</th>
-                                    <th className="py-4 px-6 text-end text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('name_code', 'Nom / Code')}</th>
+                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('type', 'Type')}</th>
+                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('location', 'Localisation')}</th>
+                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('capacity', 'Capacité')}</th>
+                                    <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('status', 'Statut')}</th>
+                                    <th className="py-4 px-6 text-end text-xs font-bold text-gray-500 uppercase tracking-wider">{t('actions', 'Actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -450,8 +450,8 @@ const Spaces = () => {
                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
                                                 <XAxis dataKey="name" fontSize={10} angle={-15} textAnchor="end" height={60} tick={{ fill: '#9CA3AF' }} />
                                                 <YAxis tick={{ fill: '#9CA3AF' }} />
-                                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px', border: 'none', backgroundColor: '#1F2937', color: 'white' }} />
-                                                <Bar dataKey="capacity" fill="#6366F1" radius={[10, 10, 0, 0]} barSize={40} />
+                                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px', border: 'none', backgroundColor: '#1a1f4d', color: 'white' }} />
+                                                <Bar dataKey="capacity" fill="#1a1f4d" radius={[10, 10, 0, 0]} barSize={40} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>
@@ -464,10 +464,10 @@ const Spaces = () => {
                     {showRoomList && (
                         <div className="bg-white dark:bg-[#1A1A1A] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden animate-fade-in-up">
                             <div className="p-8 border-b border-gray-100 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Liste des Salles</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('rooms_list', 'Liste des Salles')}</h3>
                                 <div className="flex gap-2">
-                                    <span className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
-                                        {rooms.length} salles
+                                    <span className="px-3 py-1 rounded-lg bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange text-xs font-black uppercase tracking-widest">
+                                        {rooms.length} {t('rooms', 'salles')}
                                     </span>
                                 </div>
                             </div>
@@ -475,12 +475,12 @@ const Spaces = () => {
                                 <table className="w-full">
                                     <thead className="sticky top-0 bg-gray-50 dark:bg-[#1A1A1A] z-10">
                                         <tr className="border-b border-gray-100 dark:border-white/10 text-left">
-                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Salle</th>
-                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Bâtiment</th>
-                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Type</th>
-                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Capacité</th>
-                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Statut</th>
-                                            <th className="py-4 px-6 text-end text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('room', 'Salle')}</th>
+                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('building', 'Bâtiment')}</th>
+                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('type', 'Type')}</th>
+                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('capacity', 'Capacité')}</th>
+                                            <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('status', 'Statut')}</th>
+                                            <th className="py-4 px-6 text-end text-xs font-bold text-gray-500 uppercase tracking-wider">{t('actions', 'Actions')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -491,14 +491,14 @@ const Spaces = () => {
                                                     <td className="py-4 px-6">
                                                         <button
                                                             onClick={() => navigate(`/admin/logistics/rooms/${room.id}`)}
-                                                            className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline text-left title-font"
+                                                            className="font-bold text-brand-primary dark:text-brand-orange hover:underline text-left title-font"
                                                         >
                                                             {room.name}
                                                         </button>
                                                         <div className="text-xs text-gray-400">{room.code}</div>
                                                     </td>
                                                     <td className="py-4 px-6">
-                                                        <div className="text-sm text-gray-700 dark:text-gray-300">{building?.name || 'N/A'}</div>
+                                                        <div className="text-sm text-gray-700 dark:text-gray-300">{building?.name || t('na', 'N/A')}</div>
                                                     </td>
                                                     <td className="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">{room.type}</td>
                                                     <td className="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">{room.capacity} pers.</td>
@@ -517,8 +517,8 @@ const Spaces = () => {
                                                         <div className="flex justify-end gap-2">
                                                             <button
                                                                 onClick={() => navigate(`/admin/logistics/rooms/${room.id}`)}
-                                                                className="p-1.5 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
-                                                                title="Voir/Modifier"
+                                                                className="p-1.5 text-gray-500 hover:text-brand-primary dark:text-gray-400 dark:hover:text-brand-orange transition-colors"
+                                                                title={t('view_edit', 'Voir/Modifier')}
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                                             </button>
@@ -539,15 +539,15 @@ const Spaces = () => {
                                                                     setEditingRoomId(room.id);
                                                                     setShowRoomModal(true);
                                                                 }}
-                                                                className="p-1.5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
-                                                                title="Gérer"
+                                                                className="p-1.5 text-gray-500 hover:text-brand-primary dark:text-gray-400 dark:hover:text-brand-orange transition-colors"
+                                                                title={t('manage', 'Gérer')}
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 00 2 2h11a2 2 0 00 2-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteRoom(room.id)}
                                                                 className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
-                                                                title="Supprimer"
+                                                                title={t('delete', 'Supprimer')}
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                             </button>
@@ -571,10 +571,10 @@ const Spaces = () => {
                         <div className="p-8 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
                             <div>
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    {editingBuildingId ? 'Modifier Bâtiment' : 'Nouveau Bâtiment'}
+                                    {editingBuildingId ? t('edit_building', 'Modifier Bâtiment') : t('new_building', 'Nouveau Bâtiment')}
                                 </h2>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {editingBuildingId ? 'Mettre à jour les informations du lieu.' : 'Enregistrez un nouveau lieu pour votre église.'}
+                                    {editingBuildingId ? t('update_building_info', 'Mettre à jour les informations du lieu.') : t('register_new_building', 'Enregistrez un nouveau lieu pour votre église.')}
                                 </p>
                             </div>
                             <button onClick={resetBuildingForm} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-2 rounded-full hover:bg-white dark:hover:bg-white/10">
@@ -590,10 +590,10 @@ const Spaces = () => {
                                         if (validateCurrentTab()) {
                                             setActiveTab(tab);
                                         } else {
-                                            toast.error('Veuillez remplir tous les champs requis avant de continuer.');
+                                            toast.error(t('fill_required_fields', 'Veuillez remplir tous les champs requis avant de continuer.'));
                                         }
                                     }}
-                                    className={`px-6 py-4 text-sm font-bold border-b-2 transition-all ${activeTab === tab ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'}`}
+                                    className={`px-6 py-4 text-[11px] uppercase tracking-widest font-black border-b-2 transition-all ${activeTab === tab ? 'border-brand-primary text-brand-primary dark:border-brand-orange dark:text-brand-orange' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'}`}
                                 >
                                     {t(tab, tab.charAt(0).toUpperCase() + tab.slice(1))}
                                 </button>
@@ -606,17 +606,17 @@ const Spaces = () => {
                                     <>
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom du Bâtiment <span className="text-red-500">*</span></label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.name} onChange={e => setBuildingForm({ ...buildingForm, name: e.target.value })} required />
                                         </div>
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Code / Référence <span className="text-red-500">*</span></label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.code} onChange={e => setBuildingForm({ ...buildingForm, code: e.target.value })} required />
                                         </div>
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Type de Bâtiment <span className="text-red-500">*</span></label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.type} onChange={e => setBuildingForm({ ...buildingForm, type: e.target.value })} required>
                                                 <option value="">-- Sélectionner --</option>
                                                 <option value="Temple">Temple</option>
@@ -638,7 +638,7 @@ const Spaces = () => {
                                         </div>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
-                                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none"
+                                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none h-24 resize-none"
                                                 value={buildingForm.description} onChange={e => setBuildingForm({ ...buildingForm, description: e.target.value })} />
                                         </div>
                                     </>
@@ -648,33 +648,33 @@ const Spaces = () => {
                                     <>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Adresse Complète <span className="text-red-500">*</span></label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.address} onChange={e => setBuildingForm({ ...buildingForm, address: e.target.value })} required />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ville <span className="text-red-500">*</span></label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.city} onChange={e => setBuildingForm({ ...buildingForm, city: e.target.value })} required />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Quartier / Zone</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.district} onChange={e => setBuildingForm({ ...buildingForm, district: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pays</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.country} onChange={e => setBuildingForm({ ...buildingForm, country: e.target.value })} />
                                         </div>
                                         <div className="col-span-2 grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Latitude</label>
-                                                <input type="number" step="any" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                <input type="number" step="any" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                     value={buildingForm.latitude} onChange={e => setBuildingForm({ ...buildingForm, latitude: e.target.value })} />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Longitude</label>
-                                                <input type="number" step="any" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                <input type="number" step="any" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                     value={buildingForm.longitude} onChange={e => setBuildingForm({ ...buildingForm, longitude: e.target.value })} />
                                             </div>
                                         </div>
@@ -685,32 +685,32 @@ const Spaces = () => {
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Superficie (m²)</label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.surfaceArea} onChange={e => setBuildingForm({ ...buildingForm, surfaceArea: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nb. Étages</label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.floors} onChange={e => setBuildingForm({ ...buildingForm, floors: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nb. Salles</label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.totalRooms} onChange={e => setBuildingForm({ ...buildingForm, totalRooms: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Capacité Totale</label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.capacity} onChange={e => setBuildingForm({ ...buildingForm, capacity: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Année Construction</label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.constructionYear} onChange={e => setBuildingForm({ ...buildingForm, constructionYear: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">État Général</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.condition} onChange={e => setBuildingForm({ ...buildingForm, condition: e.target.value })}>
                                                 <option value="Bon">Bon</option>
                                                 <option value="Moyen">Moyen</option>
@@ -725,7 +725,7 @@ const Spaces = () => {
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Statut</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.status} onChange={e => setBuildingForm({ ...buildingForm, status: e.target.value })}>
                                                 <option value="Actif">Actif</option>
                                                 <option value="Inactif">Inactif</option>
@@ -735,7 +735,7 @@ const Spaces = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Usage Principal</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.usage} onChange={e => setBuildingForm({ ...buildingForm, usage: e.target.value })} placeholder="Ex: Culte, Mixte" />
                                         </div>
                                     </>
@@ -745,7 +745,7 @@ const Spaces = () => {
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Type Responsable</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.managerType} onChange={e => setBuildingForm({ ...buildingForm, managerType: e.target.value })}>
                                                 <option value="Membre">Membre</option>
                                                 <option value="Staff">Staff</option>
@@ -753,17 +753,17 @@ const Spaces = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom Complet</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.managerName} onChange={e => setBuildingForm({ ...buildingForm, managerName: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Téléphone</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.managerPhone} onChange={e => setBuildingForm({ ...buildingForm, managerPhone: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email</label>
-                                            <input type="email" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="email" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={buildingForm.managerEmail} onChange={e => setBuildingForm({ ...buildingForm, managerEmail: e.target.value })} />
                                         </div>
                                     </>
@@ -875,17 +875,17 @@ const Spaces = () => {
                                     <>
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom de la Salle <span className="text-red-500">*</span></label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.name} onChange={e => setRoomForm({ ...roomForm, name: e.target.value })} required />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Code / Référence</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.code} onChange={e => setRoomForm({ ...roomForm, code: e.target.value })} />
                                         </div>
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bâtiment Associé <span className="text-red-500">*</span></label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.buildingId} onChange={e => setRoomForm({ ...roomForm, buildingId: e.target.value })} required>
                                                 <option value="">-- Sélectionner --</option>
                                                 {buildings.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -893,12 +893,12 @@ const Spaces = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Étage / Niveau</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.floor} onChange={e => setRoomForm({ ...roomForm, floor: e.target.value })} placeholder="Ex: RDC, 1er étage" />
                                         </div>
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Type de Salle <span className="text-red-500">*</span></label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.type} onChange={e => setRoomForm({ ...roomForm, type: e.target.value })} required>
                                                 <option value="">-- Sélectionner --</option>
                                                 <option value="Culte">Culte</option>
@@ -919,17 +919,17 @@ const Spaces = () => {
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Superficie (m²)</label>
-                                            <input type="number" step="0.01" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" step="0.01" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.area} onChange={e => setRoomForm({ ...roomForm, area: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Capacité Maximale <span className="text-red-500">*</span></label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.capacity} onChange={e => setRoomForm({ ...roomForm, capacity: e.target.value })} required />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Disposition</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.layout} onChange={e => setRoomForm({ ...roomForm, layout: e.target.value })}>
                                                 <option value="">-- Sélectionner --</option>
                                                 <option value="Théâtre">Théâtre</option>
@@ -941,7 +941,7 @@ const Spaces = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">État Général</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.condition} onChange={e => setRoomForm({ ...roomForm, condition: e.target.value })}>
                                                 <option value="Bon">Bon</option>
                                                 <option value="Moyen">Moyen</option>
@@ -957,7 +957,7 @@ const Spaces = () => {
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Statut</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.status} onChange={e => setRoomForm({ ...roomForm, status: e.target.value })}>
                                                 <option value="Libre">Libre</option>
                                                 <option value="Occupée">Occupée</option>
@@ -967,21 +967,21 @@ const Spaces = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Usage Autorisé</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.authorizedUse} onChange={e => setRoomForm({ ...roomForm, authorizedUse: e.target.value })} placeholder="formation, répétition, culte" />
                                         </div>
                                         <div className="flex items-center">
-                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                                                 checked={roomForm.isBookable} onChange={e => setRoomForm({ ...roomForm, isBookable: e.target.checked })} />
                                             <label className="ml-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Réservable</label>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Durée Max Réservation (heures)</label>
-                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="number" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.maxBookingDuration} onChange={e => setRoomForm({ ...roomForm, maxBookingDuration: e.target.value })} />
                                         </div>
                                         <div className="flex items-center col-span-2">
-                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                                                 checked={roomForm.requiresApproval} onChange={e => setRoomForm({ ...roomForm, requiresApproval: e.target.checked })} />
                                             <label className="ml-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Requiert une approbation pour réservation</label>
                                         </div>
@@ -1020,7 +1020,7 @@ const Spaces = () => {
                                                             <div>
                                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Jour</label>
                                                                 <select
-                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                                     value={schedule.day}
                                                                     onChange={e => {
                                                                         const updated = [...roomForm.recurringSchedule];
@@ -1041,7 +1041,7 @@ const Spaces = () => {
                                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Début</label>
                                                                 <input
                                                                     type="time"
-                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                                     value={schedule.startTime}
                                                                     onChange={e => {
                                                                         const updated = [...roomForm.recurringSchedule];
@@ -1054,7 +1054,7 @@ const Spaces = () => {
                                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Fin</label>
                                                                 <input
                                                                     type="time"
-                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                                     value={schedule.endTime}
                                                                     onChange={e => {
                                                                         const updated = [...roomForm.recurringSchedule];
@@ -1083,7 +1083,7 @@ const Spaces = () => {
                                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Description (optionnel)</label>
                                                             <input
                                                                 type="text"
-                                                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                                className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                                 value={schedule.description || ''}
                                                                 onChange={e => {
                                                                     const updated = [...roomForm.recurringSchedule];
@@ -1139,7 +1139,7 @@ const Spaces = () => {
                                                             <div>
                                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Nom de l'équipement</label>
                                                                 <select
-                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                                     value={equipment.name}
                                                                     onChange={e => {
                                                                         const updated = [...roomForm.facilities];
@@ -1167,7 +1167,7 @@ const Spaces = () => {
                                                                 <input
                                                                     type="number"
                                                                     min="1"
-                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                                     value={equipment.quantity}
                                                                     onChange={e => {
                                                                         const updated = [...roomForm.facilities];
@@ -1180,7 +1180,7 @@ const Spaces = () => {
                                                                 <div className="flex items-center flex-1">
                                                                     <input
                                                                         type="checkbox"
-                                                                        className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                                        className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                                                                         checked={equipment.shared}
                                                                         onChange={e => {
                                                                             const updated = [...roomForm.facilities];
@@ -1225,7 +1225,7 @@ const Spaces = () => {
                                     <>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Type Responsable</label>
-                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.managerType} onChange={e => setRoomForm({ ...roomForm, managerType: e.target.value })}>
                                                 <option value="Membre">Membre</option>
                                                 <option value="Staff">Staff</option>
@@ -1233,7 +1233,7 @@ const Spaces = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Contact</label>
-                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.managerContact} onChange={e => setRoomForm({ ...roomForm, managerContact: e.target.value })} placeholder="Téléphone ou email" />
                                         </div>
                                     </>
@@ -1243,38 +1243,38 @@ const Spaces = () => {
                                 {activeRoomTab === 'security' && (
                                     <>
                                         <div className="flex items-center">
-                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                                                 checked={roomForm.pmrAccess} onChange={e => setRoomForm({ ...roomForm, pmrAccess: e.target.checked })} />
                                             <label className="ml-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Accès PMR (Personnes à Mobilité Réduite)</label>
                                         </div>
                                         <div className="flex items-center">
-                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                                                 checked={roomForm.emergencyExits} onChange={e => setRoomForm({ ...roomForm, emergencyExits: e.target.checked })} />
                                             <label className="ml-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Issues de secours</label>
                                         </div>
                                         <div className="flex items-center">
-                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                                                 checked={roomForm.electricalSystem} onChange={e => setRoomForm({ ...roomForm, electricalSystem: e.target.checked })} />
                                             <label className="ml-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Système électrique fonctionnel</label>
                                         </div>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Règles Particulières</label>
-                                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none"
+                                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none h-24 resize-none"
                                                 value={roomForm.specialRules} onChange={e => setRoomForm({ ...roomForm, specialRules: e.target.value })} placeholder="Interdictions, limitations sonores, etc." />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dernière Inspection</label>
-                                            <input type="date" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="date" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.lastInspection} onChange={e => setRoomForm({ ...roomForm, lastInspection: e.target.value })} />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Prochaine Maintenance</label>
-                                            <input type="date" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            <input type="date" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none"
                                                 value={roomForm.nextMaintenance} onChange={e => setRoomForm({ ...roomForm, nextMaintenance: e.target.value })} />
                                         </div>
                                         <div className="col-span-2">
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Observations</label>
-                                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none"
+                                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-brand-primary outline-none h-24 resize-none"
                                                 value={roomForm.observations} onChange={e => setRoomForm({ ...roomForm, observations: e.target.value })} />
                                         </div>
                                     </>

@@ -201,7 +201,7 @@ const RoomProfile = () => {
     if (loading) return (
         <AdminLayout>
             <div className="flex items-center justify-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
             </div>
         </AdminLayout>
     );
@@ -250,13 +250,13 @@ const RoomProfile = () => {
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={`px-6 py-2 rounded-[1.5rem] text-sm font-bold transition-all ${activeTab === tab
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none'
+                                        ? 'bg-brand-primary text-white shadow-lg active:scale-95'
                                         : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
                                         }`}
                                 >
-                                    {tab === 'overview' ? "Vue d'ensemble" :
-                                        tab === 'equipment' ? "Équipements" :
-                                            "Planning"}
+                                    {tab === 'overview' ? t('overview', "Vue d'ensemble") :
+                                        tab === 'equipment' ? t('equipment', "Équipements") :
+                                            t('planning', "Planning")}
                                 </button>
                             ))}
                         </div>
@@ -266,42 +266,42 @@ const RoomProfile = () => {
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div>
-                                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Informations Générales</h3>
+                                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('general_info', 'Informations Générales')}</h3>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Code Salle</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.code || 'N/A'}</div>
+                                                    <div className="text-sm text-gray-500">{t('room_code', 'Code Salle')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{room.code || t('na', 'N/A')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Bâtiment</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.building?.name || 'N/A'}</div>
+                                                    <div className="text-sm text-gray-500">{t('building', 'Bâtiment')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{room.building?.name || t('na', 'N/A')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Étage</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.floor || 'N/A'}</div>
+                                                    <div className="text-sm text-gray-500">{t('floor', 'Étage')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{room.floor || t('na', 'N/A')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Surface</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.area ? `${room.area} m²` : 'N/A'}</div>
+                                                    <div className="text-sm text-gray-500">{t('surface', 'Surface')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{room.area ? `${room.area} m²` : t('na', 'N/A')}</div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Gestion & Accès</h3>
+                                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('management_access', 'Gestion & Accès')}</h3>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Responsable</div>
+                                                    <div className="text-sm text-gray-500">{t('manager', 'Responsable')}</div>
                                                     <div className="font-bold text-gray-900 dark:text-white">
-                                                        {room.manager ? `${room.manager.firstName} ${room.manager.lastName}` : 'Aucun'}
+                                                        {room.manager ? `${room.manager.firstName} ${room.manager.lastName}` : t('none', 'Aucun')}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Type de gestion</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.managerType || 'Standard'}</div>
+                                                    <div className="text-sm text-gray-500">{t('management_type', 'Type de gestion')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{room.managerType || t('standard', 'Standard')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">Accès PMR</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.pmrAccess ? 'Oui' : 'Non'}</div>
+                                                    <div className="text-sm text-gray-500">{t('pmr_access', 'Accès PMR')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{room.pmrAccess ? t('yes', 'Oui') : t('no', 'Non')}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -312,12 +312,12 @@ const RoomProfile = () => {
                             {activeTab === 'equipment' && (
                                 <div className="space-y-6 animate-fade-in">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Inventaire & Équipements</h3>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('inventory_equipment', 'Inventaire & Équipements')}</h3>
                                         <button
                                             onClick={() => setShowEquipmentModal(true)}
-                                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors"
+                                            className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg active:scale-95"
                                         >
-                                            + Ajouter
+                                            + {t('add', 'Ajouter')}
                                         </button>
                                     </div>
 
@@ -325,9 +325,9 @@ const RoomProfile = () => {
                                         <table className="w-full">
                                             <thead>
                                                 <tr className="border-b border-gray-100 dark:border-white/5 text-left">
-                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Nom</th>
-                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Quantité</th>
-                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Partagé</th>
+                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('name', 'Nom')}</th>
+                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('quantity', 'Quantité')}</th>
+                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('shared', 'Partagé')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -348,7 +348,7 @@ const RoomProfile = () => {
                                                         return (
                                                             <tr>
                                                                 <td colSpan="3" className="py-8 text-center text-gray-500 italic">
-                                                                    Aucun équipement répertorié.
+                                                                    {t('no_equipment', 'Aucun équipement répertorié.')}
                                                                 </td>
                                                             </tr>
                                                         );
@@ -365,8 +365,8 @@ const RoomProfile = () => {
                                                                 <td className="py-3 px-4 text-gray-500">{quantity}</td>
                                                                 <td className="py-3 px-4">
                                                                     {shared !== null ? (
-                                                                        <span className={`px-2 py-1 rounded text-xs font-bold ${shared ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>
-                                                                            {shared ? 'Oui' : 'Non'}
+                                                                        <span className={`px-2 py-1 rounded text-xs font-bold ${shared ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-100 text-gray-600'}`}>
+                                                                            {shared ? t('yes', 'Oui') : t('no', 'Non')}
                                                                         </span>
                                                                     ) : (
                                                                         <span className="text-gray-400">-</span>
@@ -385,7 +385,7 @@ const RoomProfile = () => {
                             {activeTab === 'schedule' && (
                                 <div className="space-y-8 animate-fade-in">
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Horaires Récurrents de la Salle</h3>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('room_recurring_schedule', 'Horaires Récurrents de la Salle')}</h3>
                                         {(() => {
                                             let schedules = [];
                                             try {
@@ -397,7 +397,7 @@ const RoomProfile = () => {
                                             }
 
                                             if (schedules.length === 0) {
-                                                return <p className="text-gray-500 italic mb-8">Aucun horaire récurrent défini pour cette salle.</p>;
+                                                return <p className="text-gray-500 italic mb-8">{t('no_recurring_schedule', 'Aucun horaire récurrent défini pour cette salle.')}</p>;
                                             }
 
                                             return (
@@ -406,9 +406,9 @@ const RoomProfile = () => {
                                                         <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                                                             <div>
                                                                 <div className="font-bold text-gray-900 dark:text-white">{s.day}</div>
-                                                                <div className="text-sm text-gray-500">{s.description || 'Disponibilité fixe'}</div>
+                                                                <div className="text-sm text-gray-500">{s.description || t('fixed_availability', 'Disponibilité fixe')}</div>
                                                             </div>
-                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-xs font-bold text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-200 dark:border-white/10">
+                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-[10px] font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange shadow-sm border border-brand-primary/20 dark:border-white/10">
                                                                 {s.startTime} - {s.endTime}
                                                             </span>
                                                         </div>
@@ -417,7 +417,7 @@ const RoomProfile = () => {
                                             );
                                         })()}
 
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Groupes & Classes Résidents</h3>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('resident_groups_classes', 'Groupes & Classes Résidents')}</h3>
                                         {((room.groups || []).length > 0 || (room.sundaySchoolClasses || []).length > 0) ? (
                                             <div className="space-y-4">
                                                 {/* Groups Mapping */}
@@ -435,14 +435,14 @@ const RoomProfile = () => {
                                                         } catch (e) { }
                                                     }
                                                     return (
-                                                        <div key={`group-${group.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-indigo-50/50 dark:bg-white/5 border border-indigo-100 dark:border-white/5">
+                                                        <div key={`group-${group.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-brand-primary/5 dark:bg-white/5 border border-brand-primary/10 dark:border-white/5">
                                                             <div>
                                                                 <div className="font-bold text-gray-900 dark:text-white">{group.name}</div>
                                                                 <div className="text-sm text-gray-500">
-                                                                    {group.type ? (t(`group_type_${group.type}`) || group.type) : 'Groupe'} • {group.leaderName || 'Sans responsable'}
+                                                                    {group.type ? (t(`group_type_${group.type}`) || group.type) : t('group', 'Groupe')} • {group.leaderName || t('no_manager', 'Sans responsable')}
                                                                 </div>
                                                             </div>
-                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-xs font-bold text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-200 dark:border-white/10">
+                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-[10px] font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange shadow-sm border border-brand-primary/20 dark:border-white/10">
                                                                 {scheduleDisplay}
                                                             </span>
                                                         </div>
@@ -466,7 +466,7 @@ const RoomProfile = () => {
                                                         <div key={`ssc-${ssc.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50/50 dark:bg-white/5 border border-emerald-100 dark:border-white/5">
                                                             <div>
                                                                 <div className="font-bold text-gray-900 dark:text-white">{ssc.name}</div>
-                                                                <div className="text-sm text-gray-500">Classe d'École du Dimanche</div>
+                                                                <div className="text-sm text-gray-500">{t('sunday_school_class_desc', "Classe d'École du Dimanche")}</div>
                                                             </div>
                                                             <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-sm border border-emerald-200 dark:border-white/10">
                                                                 {scheduleDisplay}
@@ -476,12 +476,12 @@ const RoomProfile = () => {
                                                 })}
                                             </div>
                                         ) : (
-                                            <p className="text-gray-500 italic">Aucun groupe ou classe assigné à cette salle.</p>
+                                            <p className="text-gray-500 italic">{t('no_classes_assigned', 'Aucun groupe ou classe assigné à cette salle.')}</p>
                                         )}
                                     </div>
 
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Réservations & Événements</h3>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('reservations_events', 'Réservations & Événements')}</h3>
                                         {((room.reservations || []).length > 0 || (room.events || []).length > 0) ? (
                                             <div className="space-y-4">
                                                 {/* Reservations Mapping */}
@@ -492,7 +492,7 @@ const RoomProfile = () => {
                                                             <div className="text-sm text-gray-500">{new Date(res.startTime).toLocaleDateString()}</div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-sm font-bold text-gray-900 dark:text-white uppercase">Réservation</div>
+                                                            <div className="text-sm font-bold text-gray-900 dark:text-white uppercase">{t('reservation', 'Réservation')}</div>
                                                             <div className="text-xs text-gray-500">
                                                                 {new Date(res.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(res.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                             </div>
@@ -507,7 +507,7 @@ const RoomProfile = () => {
                                                             <div className="text-sm text-gray-500">{new Date(event.startDate).toLocaleDateString()}</div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase">Événement</div>
+                                                            <div className="text-[10px] font-black text-brand-primary dark:text-brand-orange uppercase tracking-widest mb-1">{t('event', 'Événement')}</div>
                                                             <div className="text-xs text-gray-500">
                                                                 {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                                 {event.endDate ? ` - ${new Date(event.endDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
@@ -517,7 +517,7 @@ const RoomProfile = () => {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="text-gray-500 italic">Aucune réservation ou événement ponctuel.</p>
+                                            <p className="text-gray-500 italic">{t('no_ponctual_events', 'Aucune réservation ou événement ponctuel.')}</p>
                                         )}
                                     </div>
                                 </div>
@@ -527,23 +527,23 @@ const RoomProfile = () => {
 
                     {/* Right Column - Stats or Additional Info */}
                     <div className="space-y-6">
-                        <div className="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-200 dark:shadow-none">
-                            <h3 className="text-lg font-bold mb-2 opacity-90">Capacité</h3>
+                        <div className="bg-gradient-to-br from-brand-primary to-brand-deep rounded-[2.5rem] p-8 text-white shadow-xl shadow-brand-primary/20 dark:shadow-none">
+                            <h3 className="text-lg font-bold mb-2 opacity-90">{t('capacity', 'Capacité')}</h3>
                             <div className="text-5xl font-black mb-2">{room.capacity || 0}</div>
-                            <div className="text-sm opacity-75">personnes maximum</div>
+                            <div className="text-sm opacity-75 uppercase tracking-widest font-black text-[10px]">{t('people_max', 'personnes maximum')}</div>
                         </div>
 
                         <div className="bg-white dark:bg-[#1A1A1A] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm p-8">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Configuration</h3>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t('configuration', 'Configuration')}</h3>
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="p-3 rounded-xl bg-indigo-50 dark:bg-white/5 text-indigo-600 dark:text-indigo-400">
+                                <div className="p-3 rounded-xl bg-brand-primary/10 text-brand-primary dark:text-brand-orange">
                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-gray-500 uppercase tracking-wider font-bold">Disposition</div>
-                                    <div className="font-bold text-gray-900 dark:text-white">{room.layout || 'Standard'}</div>
+                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{t('layout', 'Disposition')}</div>
+                                    <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">{room.layout || t('standard', 'Standard')}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
@@ -553,8 +553,8 @@ const RoomProfile = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-gray-500 uppercase tracking-wider font-bold">État</div>
-                                    <div className="font-bold text-gray-900 dark:text-white">{room.condition || 'Bon'}</div>
+                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{t('condition', 'État')}</div>
+                                    <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">{room.condition || t('good', 'Bon')}</div>
                                 </div>
                             </div>
                         </div>
@@ -567,9 +567,9 @@ const RoomProfile = () => {
 
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest mr-1">
-                                        {t('download_label', 'télécharche :')}
+                                        {t('download_label', 'télécharge :')}
                                     </span>
-                                    {[
+                                     {[
                                         { id: 'day', label: 'today_sentence' },
                                         { id: 'week', label: 'this_week_sentence' },
                                         { id: 'month', label: 'this_month_sentence' },
@@ -579,7 +579,7 @@ const RoomProfile = () => {
                                         <button
                                             key={range.id}
                                             onClick={() => handleExport(range.id)}
-                                            className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-transparent hover:border-indigo-500/30 rounded-xl text-[11px] font-bold text-gray-500 hover:text-indigo-600 transition-all active:scale-95"
+                                            className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-transparent hover:border-brand-primary/30 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-primary transition-all active:scale-95 uppercase tracking-widest"
                                         >
                                             {t(range.label)}
                                         </button>
@@ -589,7 +589,11 @@ const RoomProfile = () => {
 
                             <div className="space-y-4">
                                 {(() => {
-                                    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                                    const days = [
+                                        t('sunday', 'Dimanche'), t('monday', 'Lundi'), t('tuesday', 'Mardi'),
+                                        t('wednesday', 'Mercredi'), t('thursday', 'Jeudi'), t('friday', 'Vendredi'),
+                                        t('saturday', 'Samedi')
+                                    ];
                                     const frToEnDays = {
                                         'dimanche': 'sunday', 'lundi': 'monday', 'mardi': 'tuesday',
                                         'mercredi': 'wednesday', 'jeudi': 'thursday', 'vendredi': 'friday',
@@ -676,12 +680,12 @@ const RoomProfile = () => {
                                         const isOccupied = dayActivities.length > 0;
 
                                         return (
-                                            <div key={date.toISOString()} className={`p-4 rounded-2xl border transition-all ${isToday ? 'bg-indigo-50/30 border-indigo-100 dark:bg-indigo-900/10 dark:border-indigo-500/20' : 'border-gray-50 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}>
+                                         <div key={date.toISOString()} className={`p-4 rounded-2xl border transition-all ${isToday ? 'bg-brand-primary/5 border-brand-primary/20 dark:bg-brand-primary/10 dark:border-brand-primary/20 shadow-sm' : 'border-gray-50 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}>
                                                 <div className="flex items-center justify-between mb-3">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[13px] font-bold text-gray-900 dark:text-white">{dayNameFr}</span>
-                                                        <span className="text-[11px] text-gray-400 font-medium">{date.toLocaleDateString([], { day: 'numeric', month: 'short' })}</span>
-                                                        {isToday && <span className="px-2 py-0.5 rounded-full bg-indigo-600 text-[9px] font-black text-white uppercase tracking-tighter">Aujourd'hui</span>}
+                                                         <span className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">{dayNameFr}</span>
+                                                        <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">{date.toLocaleDateString([], { day: 'numeric', month: 'short' })}</span>
+                                                        {isToday && <span className="px-2 py-0.5 rounded-full bg-brand-primary text-[9px] font-black text-white uppercase tracking-widest">{t('today', "Aujourd'hui")}</span>}
                                                     </div>
                                                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${isOccupied ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                                         {isOccupied ? t('room_occupied', 'Occupée') : t('room_free', 'Libre')}
@@ -710,7 +714,7 @@ const RoomProfile = () => {
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <div className="text-[10px] text-gray-400 italic">Disponibilité totale toute la journée</div>
+                                                    <div className="text-[10px] text-gray-400 italic">{t('full_day_availability', 'Disponibilité totale toute la journée')}</div>
                                                 )}
                                             </div>
                                         );
@@ -725,54 +729,54 @@ const RoomProfile = () => {
                 {showEquipmentModal && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
                         <div className="bg-white dark:bg-[#1A1A1A] w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-scale-in">
-                            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6">Ajouter un équipement</h3>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6">{t('add_equipment', 'Ajouter un équipement')}</h3>
                             <form onSubmit={handleAddEquipment} className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Nom de l'article</label>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('item_name', "Nom de l'article")}</label>
                                     <input
                                         type="text"
                                         required
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:border-indigo-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                         value={equipmentForm.name}
                                         onChange={e => setEquipmentForm({ ...equipmentForm, name: e.target.value })}
                                     />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Quantité</label>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('quantity', 'Quantité')}</label>
                                         <input
                                             type="number"
                                             min="1"
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:border-indigo-500 outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                             value={equipmentForm.quantity}
                                             onChange={e => setEquipmentForm({ ...equipmentForm, quantity: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Partagé</label>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('shared', 'Partagé')}</label>
                                         <select
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:border-indigo-500 outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                             value={equipmentForm.isShared}
                                             onChange={e => setEquipmentForm({ ...equipmentForm, isShared: e.target.value === 'true' })}
                                         >
-                                            <option value="false">Non</option>
-                                            <option value="true">Oui</option>
+                                            <option value="false">{t('no', 'Non')}</option>
+                                            <option value="true">{t('yes', 'Oui')}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         type="submit"
-                                        className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+                                        className="flex-1 py-4 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg active:scale-95"
                                     >
-                                        Ajouter
+                                        {t('add', 'Ajouter')}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowEquipmentModal(false)}
-                                        className="px-6 py-4 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all font-title"
+                                        className="px-6 py-4 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-black uppercase tracking-widest text-[11px] rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all font-title"
                                     >
-                                        Annuler
+                                        {t('cancel', 'Annuler')}
                                     </button>
                                 </div>
                             </form>

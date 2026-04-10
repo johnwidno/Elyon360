@@ -108,7 +108,7 @@ export default function Expenses() {
                         {filterBudgetId && (
                             <button
                                 onClick={() => window.location.href = '/admin/finances/expenses'}
-                                className="text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold mt-2 hover:underline transition-colors active:scale-95"
+                                className="text-brand-primary hover:text-brand-orange text-[11px] font-black uppercase tracking-widest mt-2 transition-colors active:scale-95"
                             >
                                 ← {t('view_all_expenses', 'Voir toutes les dépenses')}
                             </button>
@@ -143,7 +143,7 @@ export default function Expenses() {
                                 expenses
                                     .filter(e => !filterBudgetId || e.budgetId === parseInt(filterBudgetId))
                                     .map(e => (
-                                        <tr key={e.id} className="hover:bg-indigo-50/30 dark:hover:bg-white/5 transition-all group">
+                                        <tr key={e.id} className="hover:bg-brand-primary/5 dark:hover:bg-white/5 transition-all group">
                                             <td className="px-10 py-6">
                                                 <p className="font-semibold text-gray-900 dark:text-gray-100 transition-colors tracking-tight">{e.description}</p>
                                                 <p className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold mt-1 transition-colors">{e.category || t('no_category', 'Sans catégorie')}</p>

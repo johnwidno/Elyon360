@@ -53,7 +53,7 @@ export default function Maintenance() {
             ]);
 
             // Combine for selection: "Room: Main Hall", "Item: Projector"
-            const roomOpts = roomsRes.data.map(r => ({ type: 'room', id: r.id, name: `Salle: ${r.name}` }));
+            const roomOpts = roomsRes.data.map(r => ({ type: 'room', id: r.id, name: `${t('room', 'Salle')}: ${r.name}` }));
             // Assuming simplified inventory fetch for now, might need check if route exists
             // const invOpts = inventoryRes.data.map(i => ({ type: 'inventory_item', id: i.id, name: `Matériel: ${i.name}` }));
 
@@ -159,7 +159,7 @@ export default function Maintenance() {
                 </div>
                 <button
                     onClick={handleCreate}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-all active:scale-95 flex items-center gap-2"
+                    className="bg-brand-primary hover:bg-brand-deep text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg transition-all active:scale-95 flex items-center gap-2"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                     {t('new_request', 'Nouvelle Demande')}
@@ -185,7 +185,7 @@ export default function Maintenance() {
                                 <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                                     <td className="p-6">
                                         <div className="font-bold text-gray-900 dark:text-white">
-                                            {log.entityType === 'room' ? 'Salle' : 'Matériel'} #{log.entityId}
+                                            {log.entityType === 'room' ? t('room', 'Salle') : t('material', 'Matériel')} #{log.entityId}
                                         </div>
                                     </td>
                                     <td className="p-6 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate" title={log.description}>
@@ -197,13 +197,13 @@ export default function Maintenance() {
                                     <td className="p-6 text-sm">
                                         {log.assignee ? (
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600">
+                                                <div className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-[10px] font-black text-brand-primary">
                                                     {log.assignee.firstName[0]}
                                                 </div>
                                                 <span className="text-gray-900 dark:text-white font-medium">{log.assignee.firstName}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400 italic text-xs">Non assigné</span>
+                                            <span className="text-gray-400 italic text-xs">{t('unassigned', 'Non assigné')}</span>
                                         )}
                                     </td>
                                     <td className="p-6">
@@ -211,7 +211,7 @@ export default function Maintenance() {
                                     </td>
                                     <td className="p-6 text-right">
                                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => handleEdit(log)} className="p-2 text-gray-400 hover:text-indigo-600 transition-colors">
+                                            <button onClick={() => handleEdit(log)} className="p-2 text-gray-400 hover:text-brand-primary dark:hover:text-brand-orange transition-colors">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                             </button>
                                             <button onClick={() => handleDelete(log.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
@@ -257,10 +257,10 @@ export default function Maintenance() {
                                     <select
                                         value={formData.entityType}
                                         onChange={(e) => setFormData({ ...formData, entityType: e.target.value })}
-                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                     >
-                                        <option value="room">Salle</option>
-                                        <option value="inventory_item">Matériel</option>
+                                        <option value="room">{t('room', 'Salle')}</option>
+                                        <option value="inventory_item">{t('item', 'Matériel')}</option>
                                     </select>
                                 </div>
                                 <div>
@@ -268,10 +268,10 @@ export default function Maintenance() {
                                     <select
                                         value={formData.entityId}
                                         onChange={(e) => setFormData({ ...formData, entityId: e.target.value })}
-                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                         required
                                     >
-                                        <option value="">Sélectionner...</option>
+                                        <option value="">{t('select_dot', 'Sélectionner...')}</option>
                                         {items
                                             .filter(i => i.type === formData.entityType)
                                             .map(item => (
@@ -288,8 +288,8 @@ export default function Maintenance() {
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all h-32 resize-none"
-                                    placeholder="Décrivez le problème..."
+                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all h-32 resize-none"
+                                    placeholder={t('describe_problem', 'Décrivez le problème...')}
                                     required
                                 />
                             </div>
@@ -300,7 +300,7 @@ export default function Maintenance() {
                                 <select
                                     value={formData.assignedTo}
                                     onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                 >
                                     <option value="">Non assigné</option>
                                     {users.map(u => (
@@ -310,10 +310,10 @@ export default function Maintenance() {
                             </div>
 
                             <div className="flex gap-4 pt-4">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-bold hover:bg-gray-200 transition-colors">
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest text-[11px] hover:bg-gray-200 transition-colors">
                                     {t('cancel', 'Annuler')}
                                 </button>
-                                <button type="submit" className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none transition-all transform hover:scale-[1.02]">
+                                <button type="submit" className="flex-1 px-6 py-3 rounded-xl bg-brand-primary text-white font-black uppercase tracking-widest text-[11px] hover:bg-brand-deep shadow-lg active:scale-95 transition-all">
                                     {t('save', 'Enregistrer')}
                                 </button>
                             </div>

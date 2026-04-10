@@ -134,7 +134,7 @@ export default function OrganizationProfile() {
                     <div className="max-w-[1700px] mx-auto">
                         <button
                             onClick={() => navigate(-1)}
-                            className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 transition-all text-[11px] font-black tracking-[0.2em] mb-8 group uppercase"
+                            className="flex items-center gap-2 text-gray-400 hover:text-brand-primary transition-all text-[11px] font-black tracking-[0.2em] mb-8 group uppercase"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -146,12 +146,12 @@ export default function OrganizationProfile() {
                             {/* Left Side: Logo & Name */}
                             <div className="flex flex-col md:flex-row items-center md:items-start gap-10 flex-1 relative z-10 text-center md:text-left">
                                 <div className="relative group/avatar">
-                                    <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-[2.5rem] blur opacity-25 group-hover/avatar:opacity-50 transition duration-1000"></div>
+                                    <div className="absolute -inset-1 bg-gradient-to-tr from-brand-primary to-brand-orange rounded-[2.5rem] blur opacity-20 group-hover/avatar:opacity-40 transition duration-1000"></div>
                                     <div className="relative w-36 h-36 rounded-[2.2rem] border-4 border-white dark:border-[#1A1A1A] overflow-hidden shadow-2xl bg-gray-50 dark:bg-black flex items-center justify-center p-6 transition-all group-hover/avatar:scale-[1.02]">
                                         {org.logo ? (
                                             <img src={org.logo} className="w-full h-full object-contain" alt="Logo" />
                                         ) : (
-                                            <BuildingIcon className="w-16 h-16 text-indigo-500/20" />
+                                            <BuildingIcon className="w-16 h-16 text-brand-primary/20" />
                                         )}
                                     </div>
                                     <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white dark:bg-[#1A1A1A] rounded-2xl shadow-xl flex items-center justify-center border border-gray-100 dark:border-white/10">
@@ -165,7 +165,7 @@ export default function OrganizationProfile() {
                                             {org.name}
                                         </h2>
                                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                            <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 tracking-widest uppercase py-1 px-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                                            <span className="text-[11px] font-black text-brand-primary dark:text-brand-orange tracking-widest uppercase py-1 px-3 bg-brand-primary/5 dark:bg-brand-primary/20 rounded-lg border border-brand-primary/10 dark:border-white/5">
                                                 {org.subtype?.name || org.type || 'Organisation'}
                                             </span>
                                             {org.isSystem && (
@@ -184,14 +184,14 @@ export default function OrganizationProfile() {
                                                     value={noteContent}
                                                     onChange={(e) => setNoteContent(e.target.value)}
                                                     placeholder={t('note_placeholder_summary', 'Entrez une note de synthèse...')}
-                                                    className="w-full h-32 p-5 bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-[13px] font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all resize-none shadow-stripe"
+                                                    className="w-full h-32 p-5 bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-[13px] font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all resize-none shadow-stripe"
                                                 />
                                                 <div className="flex gap-3 justify-end mt-4">
                                                     <button onClick={() => { setIsNoteOpen(false); setNoteContent(org.description || ''); }} className="px-6 py-2.5 text-[11px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors">{t('cancel')}</button>
                                                     <button
                                                         onClick={handleSaveSummaryNote}
                                                         disabled={savingNote}
-                                                        className="px-8 py-2.5 bg-indigo-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+                                                        className="px-8 py-2.5 bg-brand-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-brand-primary/20 hover:bg-brand-deep transition-all active:scale-95 disabled:opacity-50"
                                                     >
                                                         {savingNote ? t('saving') : t('save')}
                                                     </button>
@@ -199,14 +199,14 @@ export default function OrganizationProfile() {
                                             </div>
                                         ) : (
                                             <div className="group/note relative">
-                                                <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed italic border-l-4 border-indigo-500/20 pl-4 py-1">
+                                                <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed italic border-l-4 border-brand-primary/20 dark:border-brand-orange/20 pl-4 py-1">
                                                     {org.description || t('no_description_provided', 'Aucune description fournie.')}
                                                 </p>
                                                 <button
                                                     onClick={() => setIsNoteOpen(true)}
-                                                    className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 text-[11px] font-black tracking-widest uppercase transition-all mt-3 opacity-0 group-hover/note:opacity-100"
+                                                    className="flex items-center gap-2 text-brand-primary dark:text-brand-orange hover:opacity-80 text-[11px] font-black tracking-widest uppercase transition-all mt-3 opacity-0 group-hover/note:opacity-100"
                                                 >
-                                                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black">+</span>
+                                                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange text-[10px] font-black">+</span>
                                                     {t('add_summary_note', 'Modifier le résumé')}
                                                 </button>
                                             </div>
@@ -240,7 +240,7 @@ export default function OrganizationProfile() {
                                 onClick={() => navigate(`/admin/organizations?edit=${org.id}`)}
                                 className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             >
-                                <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <svg className="w-4 h-4 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
                                 {t('edit')}
@@ -341,7 +341,7 @@ export default function OrganizationProfile() {
                                                             {new Date(d.date).toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR')}
                                                         </td>
                                                         <td className="px-4 py-4">
-                                                            <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-500/10">
+                                                            <span className="px-2 py-0.5 bg-brand-primary/5 dark:bg-brand-primary/20 text-brand-primary dark:text-brand-orange rounded text-[10px] font-black uppercase tracking-widest border border-brand-primary/10 dark:border-white/5">
                                                                 {t(d.type?.toLowerCase()) || d.type}
                                                             </span>
                                                         </td>
@@ -366,12 +366,12 @@ export default function OrganizationProfile() {
                                         <p className="col-span-2 py-8 text-center text-xs text-gray-400 italic">{t('no_groups_found')}</p>
                                     ) : (
                                         org.partnerGroups.map(g => (
-                                            <div key={g.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 flex items-center justify-between group transition-all hover:border-indigo-500/30">
+                                            <div key={g.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 flex items-center justify-between group transition-all hover:border-brand-primary/30">
                                                 <div>
                                                     <p className="text-[13px] font-bold text-gray-800 dark:text-white tracking-tight">{g.name}</p>
-                                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-0.5">{g.type}</p>
+                                                    <p className="text-[10px] font-black text-brand-primary dark:text-brand-orange uppercase tracking-widest mt-0.5">{g.type}</p>
                                                 </div>
-                                                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1A1A] flex items-center justify-center text-indigo-500 shadow-sm border border-gray-100 dark:border-white/10 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                                                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1A1A] flex items-center justify-center text-brand-primary shadow-sm border border-gray-100 dark:border-white/10 group-hover:bg-brand-primary group-hover:text-white transition-all">
                                                     <GroupsIcon className="h-4 w-4" />
                                                 </div>
                                             </div>
@@ -400,8 +400,8 @@ export default function OrganizationProfile() {
                                         <p className="py-8 text-center text-xs text-gray-400 italic">{t('no_participation_recorded')}</p>
                                     ) : (
                                         org.attendedEvents.map(e => (
-                                            <div key={e.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 flex items-center gap-4 group transition-all hover:border-indigo-500/30">
-                                                <div className="w-12 h-12 bg-white dark:bg-[#1A1A1A] rounded-xl flex items-center justify-center text-indigo-600 shadow-sm font-black text-[16px] italic shrink-0">
+                                            <div key={e.id} className="p-4 bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 flex items-center gap-4 group transition-all hover:border-brand-primary/30">
+                                                <div className="w-12 h-12 bg-white dark:bg-[#1A1A1A] rounded-xl flex items-center justify-center text-brand-primary shadow-sm font-black text-[16px] italic shrink-0 group-hover:bg-brand-primary group-hover:text-white">
                                                     {new Date(e.startDate).getDate()}
                                                 </div>
                                                 <div>
@@ -443,14 +443,14 @@ export default function OrganizationProfile() {
                         <div className="absolute inset-0 bg-gray-900/60 dark:bg-black/95 backdrop-blur-xl animate-fade-in" onClick={() => setShowStatusModal(false)}></div>
                         <div className="relative bg-white dark:bg-[#0D0D0D] rounded-[3.5rem] p-12 shadow-2xl w-full max-w-md border border-gray-100 dark:border-white/5 animate-scale-in">
                             <div className="mb-10 text-center">
-                                <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <div className="w-20 h-20 bg-brand-primary/5 dark:bg-brand-primary/20 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-stripe">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-brand-primary dark:text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                     </svg>
                                 </div>
                                 <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-4">{t('change_status')}</h3>
                                 <p className="text-[14px] font-bold text-gray-500 dark:text-gray-400">
-                                    {t('pass_status_to')}: <span className="text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest text-[12px] ml-1">{t(pendingStatus.toLowerCase()) || pendingStatus}</span>
+                                    {t('pass_status_to')}: <span className="text-brand-primary dark:text-brand-orange font-black uppercase tracking-widest text-[12px] ml-1">{t(pendingStatus.toLowerCase()) || pendingStatus}</span>
                                 </p>
                             </div>
 
@@ -461,7 +461,7 @@ export default function OrganizationProfile() {
                                         type="date"
                                         value={statusDate}
                                         onChange={(e) => setStatusDate(e.target.value)}
-                                        className="w-full px-8 py-5 bg-gray-50 dark:bg-black border-2 border-transparent dark:border-white/5 focus:border-indigo-500/30 rounded-2xl outline-none text-[15px] font-black text-gray-900 dark:text-white transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                        className="w-full px-8 py-5 bg-gray-50 dark:bg-black border-2 border-transparent dark:border-white/5 focus:border-brand-primary/30 rounded-2xl outline-none text-[15px] font-black text-gray-900 dark:text-white transition-all [color-scheme:light] dark:[color-scheme:dark] shadow-stripe"
                                     />
                                 </div>
 
@@ -474,7 +474,7 @@ export default function OrganizationProfile() {
                                     </button>
                                     <button
                                         onClick={handleStatusUpdate}
-                                        className="flex-1 py-5 bg-indigo-600 text-white rounded-2xl font-black text-[11px] tracking-widest uppercase shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95"
+                                        className="flex-1 py-5 bg-brand-primary text-white rounded-2xl font-black text-[11px] tracking-widest uppercase shadow-xl shadow-brand-primary/20 hover:bg-brand-deep transition-all active:scale-95"
                                     >
                                         {t('confirm')}
                                     </button>
@@ -589,15 +589,15 @@ function DetailItem({ label, value, icon, isEmail, isLink }) {
     const { t } = useLanguage();
     return (
         <div className="flex items-start gap-4 group transition-all">
-            <div className="w-12 h-12 bg-gray-50 dark:bg-black rounded-xl flex items-center justify-center text-gray-400 dark:text-indigo-600/30 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-stripe border border-gray-100 dark:border-white/5">
+            <div className="w-12 h-12 bg-gray-50 dark:bg-black rounded-xl flex items-center justify-center text-gray-400 dark:text-brand-primary/30 shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-all shadow-stripe border border-gray-100 dark:border-white/5">
                 {icon}
             </div>
             <div className="overflow-hidden py-1">
                 <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 mb-1 transition-colors tracking-widest uppercase">{label}</p>
                 {isEmail ? (
-                    <a href={`mailto:${value}`} className="text-[14px] font-black text-indigo-600 hover:text-indigo-700 break-all transition-all underline decoration-indigo-500/20 underline-offset-4">{value}</a>
+                    <a href={`mailto:${value}`} className="text-[14px] font-black text-brand-primary hover:text-brand-orange break-all transition-all underline decoration-brand-primary/20 underline-offset-4">{value}</a>
                 ) : isLink && value && value !== t('not_specified') ? (
-                    <a href={value.startsWith('http') ? value : `https://${value}`} target="_blank" rel="noopener noreferrer" className="text-[14px] font-black text-indigo-600 hover:text-indigo-700 transition-all underline decoration-indigo-500/20 underline-offset-4">{value}</a>
+                    <a href={value.startsWith('http') ? value : `https://${value}`} target="_blank" rel="noopener noreferrer" className="text-[14px] font-black text-brand-primary hover:text-brand-orange transition-all underline decoration-brand-primary/20 underline-offset-4">{value}</a>
                 ) : (
                     <p className="text-[14px] font-black text-gray-900 dark:text-white transition-colors">{value}</p>
                 )}

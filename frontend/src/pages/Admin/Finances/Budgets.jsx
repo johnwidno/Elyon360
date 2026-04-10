@@ -339,7 +339,7 @@ export default function Budgets() {
                     <button
                         type="button"
                         onClick={() => setShowModal(true)}
-                        className="bg-indigo-600 dark:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-semibold text-[13px] hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-all shadow-lg active:scale-95"
+                        className="bg-brand-primary text-white px-8 py-4 rounded-2xl font-bold text-[13px] hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/20 active:scale-95"
                     >
                         + {t('new_budget', 'Nouveau Budget')}
                     </button>
@@ -365,7 +365,7 @@ export default function Budgets() {
                                 const percentage = b.amount > 0 ? (spent / b.amount) * 100 : 0;
                                 return (
                                     <div key={b.id} className="bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-sm border border-gray-100 dark:border-white/5 p-8 transition-all group relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-50 transition-colors"></div>
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 dark:bg-brand-primary/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-50 transition-colors"></div>
 
                                         <div className="flex justify-between items-start mb-6 relative z-10">
                                             <div>
@@ -377,7 +377,7 @@ export default function Budgets() {
                                             <button
                                                 type="button"
                                                 onClick={() => handleOpenReport(b)}
-                                                className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors active:scale-95"
+                                                className="p-2 bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary dark:text-brand-orange rounded-xl hover:bg-brand-primary/10 dark:hover:bg-brand-primary/20 transition-colors active:scale-95"
                                                 title={t('view_report', 'Voir le rapport')}
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -429,12 +429,12 @@ export default function Budgets() {
                             <input
                                 type="text"
                                 placeholder={t('search_budget', '🔍 Rechercher un budget...')}
-                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-all"
+                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-brand-primary text-gray-900 dark:text-white transition-all shadow-sm"
                                 value={filters.search}
                                 onChange={e => setFilters({ ...filters, search: e.target.value })}
                             />
                             <select
-                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-all"
+                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-brand-primary text-gray-900 dark:text-white transition-all shadow-sm"
                                 value={filters.status}
                                 onChange={e => setFilters({ ...filters, status: e.target.value })}
                             >
@@ -445,13 +445,13 @@ export default function Budgets() {
                             </select>
                             <input
                                 type="date"
-                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 text-gray-500 dark:text-gray-400 transition-all [color-scheme:dark]"
+                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-brand-primary text-gray-500 dark:text-gray-400 transition-all [color-scheme:dark] shadow-sm"
                                 value={filters.startDate}
                                 onChange={e => setFilters({ ...filters, startDate: e.target.value })}
                             />
                             <input
                                 type="date"
-                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 text-gray-500 dark:text-gray-400 transition-all [color-scheme:dark]"
+                                className="bg-white dark:bg-black/20 border-none rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-brand-primary text-gray-500 dark:text-gray-400 transition-all [color-scheme:dark] shadow-sm"
                                 value={filters.endDate}
                                 onChange={e => setFilters({ ...filters, endDate: e.target.value })}
                             />
@@ -478,7 +478,7 @@ export default function Budgets() {
                                         const account = bankAccounts.find(a => a.id === b.bankAccountId);
                                         const spent = b.spent || 0;
                                         return (
-                                            <tr key={b.id} className="hover:bg-indigo-50/30 dark:hover:bg-white/5 transition-all cursor-pointer group" onClick={() => handleOpenReport(b)}>
+                                            <tr key={b.id} className="hover:bg-brand-primary/5 dark:hover:bg-white/5 transition-all cursor-pointer group" onClick={() => handleOpenReport(b)}>
                                                 <td className="px-8 py-5">
                                                     <div className="font-semibold text-gray-900 dark:text-gray-100 transition-colors">{b.name}</div>
                                                     {account && <div className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold transition-colors">{account.name}</div>}
@@ -503,7 +503,7 @@ export default function Budgets() {
                                                 <td className="px-8 py-5 text-right">
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); handleOpenReport(b); }}
-                                                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-[10px] font-black uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-lg transition-colors active:scale-95"
+                                                        className="text-brand-primary dark:text-brand-orange hover:text-brand-deep dark:hover:text-white text-[10px] font-black uppercase tracking-widest bg-brand-primary/5 dark:bg-brand-primary/10 px-3 py-1 rounded-lg transition-colors active:scale-95"
                                                     >
                                                         {t('report', 'Rapport')}
                                                     </button>
@@ -540,18 +540,18 @@ export default function Budgets() {
                                         </div>
                                     )}
 
-                                    <div className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl p-6 border border-indigo-50 dark:border-indigo-900/20 space-y-3 transition-colors">
+                                    <div className="bg-brand-primary/5 dark:bg-brand-primary/10 rounded-2xl p-6 border border-brand-primary/10 dark:border-brand-primary/20 space-y-3 transition-colors">
                                         <div className="flex justify-between items-center transition-colors">
                                             <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-tight transition-colors">{t('source_account', 'Compte Source')}</span>
                                             {selectedBankAccount && (
-                                                <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 transition-colors">
+                                                <span className="text-[11px] font-bold text-brand-primary dark:text-brand-orange transition-colors">
                                                     {t('balance', 'Solde')}: {parseFloat(selectedBankAccount.balance).toLocaleString()} {selectedBankAccount.currency}
                                                 </span>
                                             )}
                                         </div>
                                         <div className="flex justify-between items-center transition-colors">
                                             <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-tight transition-colors">{t('available_for_this_budget', 'Disponible pour ce budget')}</span>
-                                            <span className={`text-[11px] font-bold transition-colors ${availableToAllocate < 0 ? 'text-red-600' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                                            <span className={`text-[11px] font-bold transition-colors ${availableToAllocate < 0 ? 'text-red-600' : 'text-brand-primary dark:text-brand-orange'}`}>
                                                 {availableToAllocate.toLocaleString()} {formData.currency}
                                             </span>
                                         </div>
@@ -644,7 +644,7 @@ export default function Budgets() {
                                         <div>
                                             <label className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-tight mb-2.5 block transition-colors">{t('status', 'Statut')}</label>
                                             <select
-                                                className="w-full bg-gray-50 dark:bg-white/5 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-indigo-500 transition-all font-semibold text-xs text-gray-900 dark:text-white"
+                                                className="w-full bg-gray-50 dark:bg-white/5 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-brand-primary transition-all font-semibold text-xs text-gray-900 dark:text-white"
                                                 value={formData.status}
                                                 onChange={e => setFormData({ ...formData, status: e.target.value })}
                                             >
@@ -669,9 +669,9 @@ export default function Budgets() {
                                     <button
                                         type="submit"
                                         disabled={parseFloat(formData.amount) > availableToAllocate || availableToAllocate <= 0}
-                                        className={`w-full font-semibold text-[13px] uppercase tracking-wide py-5 rounded-2xl transition-all shadow-xl active:scale-[0.98] ${parseFloat(formData.amount) > availableToAllocate || availableToAllocate <= 0
-                                            ? 'bg-gray-300 dark:bg-white/5 text-gray-500 dark:text-gray-600 cursor-not-allowed shadow-none'
-                                            : 'bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-800 shadow-indigo-100 dark:shadow-none'
+                                        className={`w-full font-bold text-[13px] uppercase tracking-wide py-5 rounded-3xl transition-all shadow-xl active:scale-[0.98] ${parseFloat(formData.amount) > availableToAllocate || availableToAllocate <= 0
+                                            ? 'bg-gray-200 dark:bg-white/5 text-gray-400 dark:text-gray-600 cursor-not-allowed shadow-none'
+                                            : 'bg-brand-primary text-white hover:bg-brand-deep shadow-brand-primary/20'
                                             }`}
                                     >
                                         {t('create_budget_btn', 'Créer le budget')}
@@ -692,7 +692,7 @@ export default function Budgets() {
                             <div className="px-10 py-8 sm:px-14 border-b border-gray-100 dark:border-white/5 flex justify-between items-center shrink-0 no-print transition-colors">
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors">{t('detailed_report', 'Rapport Détaillé')}</h2>
                                 <div className="flex gap-2">
-                                    <button onClick={handlePrintReport} className="bg-indigo-600 dark:bg-indigo-700 text-white px-4 py-2 rounded-xl text-[11px] font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors active:scale-95">
+                                    <button onClick={handlePrintReport} className="bg-brand-primary text-white px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-widest hover:bg-brand-deep transition-all shadow-sm active:scale-95">
                                         🖨️ {t('print_pdf', 'Imprimer / PDF')}
                                     </button>
                                     <button onClick={exportReportToExcel} className="bg-green-600 dark:bg-green-700 text-white px-4 py-2 rounded-xl text-[11px] font-semibold hover:bg-green-700 dark:hover:bg-green-800 transition-colors active:scale-95">

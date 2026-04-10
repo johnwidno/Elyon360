@@ -13,8 +13,9 @@ import { exportToExcel } from '../../../utils/exportUtils';
 // Simple Searchable Select Component
 const SearchableSelect = ({ options, value, onChange, placeholder = "Select..." }) => {
     const { t } = useLanguage();
-    if (placeholder === "Select...") placeholder = t('select_member_placeholder');
-    if (placeholder === "Sélectionner...") placeholder = t('select_member_placeholder');
+    if (placeholder === "Select..." || placeholder === "Sélectionner...") {
+        placeholder = t('select_member_placeholder', 'Sélectionner un membre');
+    }
     const [searchTerm, setSearchTerm] = useState('');
     const [isOpen, setIsOpen] = useState(false);
 
@@ -43,7 +44,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Select..." 
                     <div className="p-2 border-b border-gray-50 dark:border-white/5 sticky top-0 bg-white dark:bg-[#1A1A1A] z-10 transition-colors">
                         <input
                             type="text"
-                            className="w-full border-gray-100 dark:border-white/5 rounded-lg p-2 text-[13px] focus:ring-1 focus:ring-indigo-500 outline-none bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-all font-medium"
+                            className="w-full border-gray-100 dark:border-white/5 rounded-lg p-2 text-[13px] focus:ring-1 focus:ring-brand-primary outline-none bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-all font-medium"
                             placeholder={`${t('search')}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -54,7 +55,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Select..." 
                         filteredOptions.map(opt => (
                             <div
                                 key={opt.value}
-                                className={`p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 cursor-pointer text-[13px] transition-colors ${opt.value === value ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 font-bold' : 'text-gray-600 dark:text-gray-400'}`}
+                                className={`p-3 hover:bg-brand-primary/5 dark:hover:bg-brand-primary/10 cursor-pointer text-[13px] transition-colors ${opt.value === value ? 'bg-brand-primary/10 dark:bg-brand-primary/20 text-brand-primary font-bold' : 'text-gray-600 dark:text-gray-400'}`}
                                 onClick={() => {
                                     onChange(opt.value);
                                     setIsOpen(false);
@@ -74,7 +75,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder = "Select..." 
     );
 };
 
-const COLORS = ['#3F3FD1', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F43F5E', '#14B8A6'];
+const COLORS = ['#1a1f4d', '#ea762a', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F43F5E'];
 
 export default function Finances() {
     const { t } = useLanguage();
@@ -271,7 +272,7 @@ export default function Finances() {
             Devise: d.currency,
             Type: d.type,
             'Mode de paiement': d.paymentMethod,
-            Statut: 'Confirmé'
+            Statut: t('confirmed_status', 'Confirmé')
         }));
         exportToExcel('Transactions_Financieres', exportData);
     };
@@ -316,7 +317,7 @@ export default function Finances() {
                         </button>
                         <button
                             onClick={() => setShowModal(true)}
-                            className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-semibold text-[13px] hover:bg-indigo-700 transition-all shadow-lg active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                            className="bg-brand-primary text-white px-8 py-3.5 rounded-xl font-semibold text-[13px] hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/20 active:scale-95 flex items-center gap-2 whitespace-nowrap"
                         >
                             <span>+</span> {t('new_donation')}
                         </button>
@@ -333,7 +334,7 @@ export default function Finances() {
                     {Object.entries(stats).map(([curr, s], idx) => (
                         <div key={curr} className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all animate-slide-up" style={{ animationDelay: `${idx * 0.1}s` }}>
                             <div className="flex justify-between items-start mb-3">
-                                <div className={`p-2.5 rounded-xl transition-colors ${curr === 'HTG' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
+                                <div className={`p-2.5 rounded-xl transition-colors ${curr === 'HTG' ? 'bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary' : 'bg-brand-orange/5 dark:bg-brand-orange/10 text-brand-orange'}`}>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
@@ -362,7 +363,7 @@ export default function Finances() {
                             </div>
                         </div>
                     ))}
-                    <div className={`${analysisInsight.isPositive ? 'bg-indigo-600' : 'bg-red-600'} dark:bg-[#1A1A1A] p-6 rounded-2xl shadow-sm text-white relative overflow-hidden group animate-slide-up transition-colors duration-500 border border-transparent dark:border-white/5`} style={{ animationDelay: '0.2s' }}>
+                    <div className={`${analysisInsight.isPositive ? 'bg-brand-primary' : 'bg-red-600'} dark:bg-[#1A1A1A] p-6 rounded-2xl shadow-sm text-white relative overflow-hidden group hover:shadow-lg hover:-translate-y-1 animate-slide-up transition-all duration-500 border border-transparent dark:border-white/5`} style={{ animationDelay: '0.2s' }}>
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-2.5 bg-white/10 rounded-xl">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -475,10 +476,10 @@ export default function Finances() {
                             </div>
                             <div className="flex gap-2">
                                 <span className="flex items-center gap-1.5 text-[12px] font-bold text-gray-600 dark:text-gray-400">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-[#3F3FD1]"></span> {t('income')}
+                                    <span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('income')}
                                 </span>
                                 <span className="flex items-center gap-1.5 text-[12px] font-bold text-gray-600 dark:text-gray-400">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-blue-100 dark:bg-indigo-900/40"></span> {t('expenses')}
+                                    <span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('expenses')}
                                 </span>
                             </div>
                         </div>
@@ -487,8 +488,8 @@ export default function Finances() {
                                 <AreaChart data={chartData}>
                                     <defs>
                                         <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3F3FD1" stopOpacity={0.1} />
-                                            <stop offset="95%" stopColor="#3F3FD1" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#1a1f4d" stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor="#1a1f4d" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-gray-100 dark:text-white/5" />
@@ -496,11 +497,11 @@ export default function Finances() {
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', backgroundColor: 'var(--tw-bg-opacity)' }}
-                                        itemStyle={{ color: '#3F3FD1' }}
-                                        cursor={{ stroke: '#3F3FD1', strokeWidth: 1 }}
+                                        itemStyle={{ color: '#1a1f4d' }}
+                                        cursor={{ stroke: '#1a1f4d', strokeWidth: 1 }}
                                     />
-                                    <Area type="monotone" dataKey="income" stroke="#3F3FD1" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
-                                    <Area type="monotone" dataKey="expenses" stroke="#BFDBFE" strokeWidth={2} fillOpacity={0} />
+                                    <Area type="monotone" dataKey="income" stroke="#1a1f4d" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
+                                    <Area type="monotone" dataKey="expenses" stroke="#ea762a" strokeWidth={2} fillOpacity={0} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -571,7 +572,7 @@ export default function Finances() {
                                 <input
                                     type="text"
                                     placeholder={`${t('member')}...`}
-                                    className="pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl text-[13px] outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 focus:bg-white dark:focus:bg-black/40 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-all font-medium"
+                                    className="pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl text-[13px] outline-none focus:ring-1 focus:ring-brand-primary dark:focus:ring-brand-primary/50 focus:bg-white dark:focus:bg-black/40 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-all font-medium"
                                     value={filterMember}
                                     onChange={e => setFilterMember(e.target.value)}
                                 />
@@ -600,19 +601,19 @@ export default function Finances() {
 
                             <div className="flex items-center gap-2 border-l border-gray-100 dark:border-white/5 pl-4 ml-1 transition-colors">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors leading-none">Du</span>
+                                    <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors leading-none">{t('from', 'Du')}</span>
                                     <input
                                         type="date"
-                                        className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg text-[12px] font-semibold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-all [color-scheme:dark]"
+                                        className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg text-[12px] font-semibold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-brand-primary transition-all [color-scheme:dark]"
                                         value={dateRange.start}
                                         onChange={e => setDateRange({ ...dateRange, start: e.target.value })}
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors leading-none">Au</span>
+                                    <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors leading-none">{t('to', 'Au')}</span>
                                     <input
                                         type="date"
-                                        className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg text-[12px] font-semibold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-all [color-scheme:dark]"
+                                        className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg text-[12px] font-semibold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-brand-primary transition-all [color-scheme:dark]"
                                         value={dateRange.end}
                                         onChange={e => setDateRange({ ...dateRange, end: e.target.value })}
                                     />
@@ -638,14 +639,14 @@ export default function Finances() {
                                 ) : filteredDonations.length === 0 ? (
                                     <tr><td colSpan="6" className="px-8 py-12 text-center text-gray-400 dark:text-gray-600 font-medium italic">{t('no_data')}</td></tr>
                                 ) : (
-                                    filteredDonations.map((donation, idx) => (
-                                        <tr key={donation.id} className="hover:bg-indigo-50/40 dark:hover:bg-white/5 transition-all group">
+                                    filteredDonations.map((donation) => (
+                                        <tr key={donation.id} className="hover:bg-brand-primary/5 dark:hover:bg-white/5 transition-all group">
                                             <td className="px-8 py-5 text-[14px] font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap tracking-tight transition-colors">
                                                 {new Date(donation.date).toLocaleDateString()}
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 rounded-full bg-indigo-50 dark:bg-white/5 flex items-center justify-center text-[12px] font-black text-indigo-600 dark:text-indigo-400 transition-colors">
+                                                    <div className="h-8 w-8 rounded-full bg-brand-primary/5 dark:bg-white/5 flex items-center justify-center text-[12px] font-black text-brand-primary transition-colors">
                                                         {donation.member ? donation.member.firstName[0] : 'A'}
                                                     </div>
                                                     <div>
@@ -662,9 +663,9 @@ export default function Finances() {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5">
-                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-semibold transition-colors ${donation.type === 'dime' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' :
-                                                    donation.type === 'offrande' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' :
-                                                        'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors ${donation.type === 'dime' ? 'bg-brand-orange/5 dark:bg-brand-orange/10 text-brand-orange' :
+                                                    donation.type === 'offrande' ? 'bg-brand-primary/5 dark:bg-brand-primary/10 text-brand-primary' :
+                                                        'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'
                                                     }`}>
                                                     {donation.type}
                                                 </span>
@@ -710,7 +711,7 @@ export default function Finances() {
                                     <div className="space-y-1.5">
                                         <label className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors uppercase leading-none">{t('amount')} <span className="text-red-500">*</span></label>
                                         <input type="number" name="amount" step="0.01" required onChange={handleChange} value={formData.amount}
-                                            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-50 dark:border-white/5 rounded-xl text-[14px] font-medium text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 transition-all" placeholder="0.00" />
+                                            className="w-full px-4 py-3 bg-gray-100/50 dark:bg-white/5 border border-gray-100/50 dark:border-white/5 rounded-xl text-[14px] font-medium text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-brand-primary dark:focus:ring-brand-primary/50 transition-all" placeholder="0.00" />
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors uppercase leading-none">{t('currency')}</label>
@@ -752,7 +753,7 @@ export default function Finances() {
                                             name="isDeposited"
                                             checked={formData.isDeposited}
                                             onChange={handleChange}
-                                            className="w-5 h-5 rounded-lg border-gray-300 dark:border-white/10 text-indigo-600 focus:ring-indigo-500 dark:bg-gray-900 transition-all cursor-pointer"
+                                            className="w-5 h-5 rounded-lg border-gray-300 dark:border-white/10 text-brand-primary focus:ring-brand-primary dark:bg-gray-900 transition-all cursor-pointer"
                                         />
                                         <span className="text-[14px] font-medium text-gray-700 dark:text-gray-300 transition-colors">{t('deposited_on_account')}</span>
                                     </label>

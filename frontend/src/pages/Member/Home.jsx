@@ -10,12 +10,13 @@ import {
     Settings, BookOpen, Users, Building2, Activity,
     Mail, Phone, Edit3, Check, X, Menu, ChevronRight,
     MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown,
-    Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter
+    Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter, Music
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import MemberRequests from './MemberRequests';
 import MemberCardGeneratorModal from '../../components/Admin/Members/MemberCardGeneratorModal';
 import SundaySchoolReportDetails from '../Admin/SundaySchool/SundaySchoolReportDetails';
+import MemberWorship from './MemberWorship';
 
 // ─── SHARED STYLES ────────────────────────────────────────────────────────────
 const SIDEBAR_BG = '#0f172a';
@@ -697,6 +698,7 @@ export default function MemberHome() {
         { id: 'donations', label: t('donation_history', 'Historique des dons'), icon: <Heart size={15} /> },
         { id: 'communion', label: t('holy_communion', 'Sainte Cène'), icon: <Droplets size={15} /> },
         { id: 'sunday_school', label: t('sunday_school', 'École du dimanche'), icon: <BookOpen size={15} /> },
+        { id: 'worship', label: t('worship', 'Cultes & Événements'), icon: <Music size={15} /> },
         { id: 'groups', label: t('groups', 'Groupes'), icon: <Users size={15} /> },
         { id: 'ministries', label: t('ministries', 'Ministères'), icon: <Building2 size={15} /> },
         { id: 'my_card', label: t('my_member_card', 'Ma carte membre'), icon: <CreditCard size={15} /> }
@@ -1476,6 +1478,15 @@ export default function MemberHome() {
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    )}
+
+                    {/* ══════════════════════════════════════════════════════ */}
+                    {/* Cultes & Événements (Phase 6)                        */}
+                    {/* ══════════════════════════════════════════════════════ */}
+                    {activeTab === 'worship' && (
+                        <div className="animate-in fade-in duration-300 w-full">
+                            <MemberWorship />
                         </div>
                     )}
 

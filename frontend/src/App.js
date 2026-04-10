@@ -60,6 +60,9 @@ import Maintenance from "./pages/Admin/Logistics/Maintenance";
 import Assignments from "./pages/Admin/Logistics/Assignments";
 import Suspended from "./pages/Public/Suspended";
 import FirstPasswordChangeModal from "./components/FirstPasswordChangeModal";
+import WorshipDashboard from "./pages/Admin/Worship/WorshipDashboard";
+import WorshipBuilder from "./pages/Admin/Worship/WorshipBuilder";
+import PublicProjection from "./pages/Public/Worship/PublicProjection";
 
 
 
@@ -115,6 +118,7 @@ function App() {
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="/public/register/:token" element={<PublicActivityRegistration />} />
             <Route path="/public/event/register/:token" element={<PublicEventRegistration />} />
+            <Route path="/public/worship/:id" element={<PublicProjection />} />
             <Route path="/suspended" element={<Suspended />} />
 
 
@@ -293,6 +297,22 @@ function App() {
               element={
                 <ProtectedRoute permission="finances">
                   <Accounts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/worship"
+              element={
+                <ProtectedRoute permission="worship">
+                  <WorshipDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/worship/builder/:id"
+              element={
+                <ProtectedRoute permission="worship">
+                  <WorshipBuilder />
                 </ProtectedRoute>
               }
             />

@@ -11,8 +11,20 @@ module.exports = {
         jakarta: ['Plus Jakarta Sans', 'sans-serif'],
       },
       colors: {
+        // ─── BRAND DESIGN SYSTEM (référence: public homepage) ───────────────
+        brand: {
+          primary: '#1a1f4d',   // Navy principal — texte, sidebar, boutons
+          dark:    '#0f133d',   // Dark mode fond principal
+          deep:    '#12162b',   // Fond très sombre
+          purple:  '#2b2060',   // Gradient secondaire
+          accent:  '#191e57',   // Accent sombre
+          orange:  '#ea762a',   // Orange — CTA, highlights, actif
+          light:   '#f9f9fb',   // Fond clair
+          card:    '#111C44',   // Dark mode cards/sidebar
+        },
+        // ─── Legacy aliases (ne pas supprimer pour rétrocompatibilité) ───────
         stripe: {
-          blue: '#635bff',
+          blue: '#1a1f4d',      // Réaligné sur brand-primary
           dark: '#0a2540',
           slate: '#425466',
           light: '#697386',

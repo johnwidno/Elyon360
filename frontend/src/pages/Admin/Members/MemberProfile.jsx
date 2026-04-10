@@ -560,9 +560,9 @@ export default function MemberProfile() {
 
     return (
         <AdminLayout>
-            <div className="bg-gradient-to-br from-white via-indigo-50/50 to-white dark:from-indigo-950 dark:via-[#0b1437] dark:to-slate-950 border-b border-gray-100 dark:border-white/5 px-8 pt-8 pb-10 transition-colors">
+            <div className="bg-gradient-to-br from-brand-primary via-brand-deep to-brand-primary border-b border-white/5 px-8 pt-8 pb-10 transition-colors">
                 <div className="max-w-[1700px] mx-auto">
-                    <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 dark:text-indigo-300/60 hover:text-indigo-600 dark:hover:text-white transition-all text-[11px] font-black tracking-widest mb-8 group">
+                    <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-white/40 hover:text-white transition-all text-[11px] font-black tracking-widest mb-8 group">
                         <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                         {t('back')}
                     </button>
@@ -576,11 +576,11 @@ export default function MemberProfile() {
                                 transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
                                 className="relative group/avatar shrink-0"
                             >
-                                <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-[2.5rem] border-[5px] border-indigo-100 dark:border-indigo-500/20 shadow-2xl shadow-indigo-500/10 overflow-hidden bg-gray-50 dark:bg-slate-800 flex items-center justify-center relative transition-all duration-500 group-hover/avatar:rounded-[2rem] group-hover/avatar:scale-105">
+                                <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-[2.5rem] border-[5px] border-white/10 dark:border-white/5 shadow-2xl shadow-black/20 overflow-hidden bg-brand-primary flex items-center justify-center relative transition-all duration-500 group-hover/avatar:rounded-[2rem] group-hover/avatar:scale-105">
                                     {member?.photo ? (
                                         <img src={getImageUrl(member.photo)} className="w-full h-full object-cover" alt="Profile" />
                                     ) : (
-                                        <div className="text-4xl lg:text-6xl font-black text-indigo-400">
+                                        <div className="text-4xl lg:text-6xl font-black text-brand-orange">
                                             {member?.firstName?.[0]}{member?.lastName?.[0]}
                                         </div>
                                     )}
@@ -594,7 +594,7 @@ export default function MemberProfile() {
                                             title={t('change_photo', 'Changer la photo')}
                                         >
                                             <input type="file" className="hidden" onChange={handlePhotoUpload} accept="image/*" />
-                                            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                                            <svg className="w-5 h-5 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
                                         </label>
                                     </div>
                                 </div>
@@ -606,20 +606,20 @@ export default function MemberProfile() {
                                 transition={{ delay: 0.4 }}
                                 className="space-y-2 flex-1 pb-4 lg:pb-0 text-center sm:text-left"
                             >
-                                <h3 className="text-[32px] lg:text-[44px] font-black text-gray-900 dark:text-white leading-none tracking-tight">{member?.firstName} {member?.lastName}</h3>
+                                <h3 className="text-[32px] lg:text-[44px] font-black text-white leading-none tracking-tight">{member?.firstName} {member?.lastName}</h3>
                                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                                     {member?.nickname && (
-                                        <span className="px-3 py-1.5 bg-indigo-50 dark:bg-white/10 backdrop-blur-md rounded-full text-[11px] font-black text-indigo-600 dark:text-white/80 uppercase tracking-widest border border-indigo-100 dark:border-white/10">
+                                        <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-black text-white/80 uppercase tracking-widest border border-white/10">
                                             {member.nickname}
                                         </span>
                                     )}
                                     {member?.gender && (
-                                        <span className="px-3 py-1.5 bg-indigo-50 dark:bg-white/10 backdrop-blur-md rounded-full text-[11px] font-black text-indigo-600 dark:text-white/80 uppercase tracking-widest border border-indigo-100 dark:border-white/10">
+                                        <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-black text-white/80 uppercase tracking-widest border border-white/10">
                                             {t(member.gender.toLowerCase())}
                                         </span>
                                     )}
                                     {member?.memberCode && (
-                                        <span className="px-3 py-1.5 bg-indigo-100 dark:bg-indigo-500/15 backdrop-blur-md rounded-full text-[11px] font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-widest border border-indigo-200 dark:border-indigo-500/20">
+                                        <span className="px-3 py-1.5 bg-brand-orange text-white backdrop-blur-md rounded-full text-[11px] font-black uppercase tracking-widest border border-white/20 shadow-lg shadow-brand-orange/20">
                                             {member.memberCode}
                                         </span>
                                     )}
@@ -637,19 +637,19 @@ export default function MemberProfile() {
                                                 value={noteContent}
                                                 onChange={(e) => setNoteContent(e.target.value)}
                                                 placeholder={t('note_placeholder_summary', 'Entrez une note de synthèse...')}
-                                                className="w-full h-24 p-5 bg-white dark:bg-white/10 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-2xl text-[13px] font-bold text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 outline-none focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20 transition-all resize-none shadow-xl"
+                                                className="w-full h-24 p-5 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl text-[13px] font-bold text-white placeholder:text-white/30 outline-none focus:ring-4 focus:ring-brand-orange/20 transition-all resize-none shadow-xl"
                                             />
                                             <div className="flex gap-3 justify-end mt-4">
                                                 <button
                                                     onClick={() => { setIsNoteOpen(false); setNoteContent(member.notes || ''); }}
-                                                    className="px-6 py-2.5 text-[10px] font-black text-gray-400 dark:text-white/40 hover:text-rose-500 dark:hover:text-rose-400 tracking-widest transition-colors uppercase"
+                                                    className="px-6 py-2.5 text-[10px] font-black text-white/40 hover:text-brand-orange tracking-widest transition-colors uppercase"
                                                 >
                                                     {t('cancel')}
                                                 </button>
                                                 <button
                                                     onClick={handleSaveSummaryNote}
                                                     disabled={savingNote}
-                                                    className="px-8 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 disabled:opacity-50 transition-all active:scale-95 uppercase"
+                                                    className="px-8 py-2.5 bg-brand-orange text-white rounded-xl text-[10px] font-black tracking-widest hover:bg-brand-orange/90 shadow-lg shadow-brand-orange/20 disabled:opacity-50 transition-all active:scale-95 uppercase"
                                                 >
                                                     {savingNote ? '...' : t('save')}
                                                 </button>
@@ -661,12 +661,12 @@ export default function MemberProfile() {
                                             animate={{ opacity: 1 }}
                                             className="group flex items-start gap-3"
                                         >
-                                            <p className="text-[14px] font-medium text-gray-600 dark:text-white/70 leading-relaxed border-l-4 border-indigo-200 dark:border-indigo-500/30 pl-4 py-1">
+                                            <p className="text-[14px] font-medium text-white/70 leading-relaxed border-l-4 border-brand-orange pl-4 py-1">
                                                 {member.notes}
                                             </p>
                                             <button
                                                 onClick={() => setIsNoteOpen(true)}
-                                                className="w-6 h-6 flex items-center justify-center text-gray-300 dark:text-white/30 hover:text-indigo-600 dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                                                className="w-6 h-6 flex items-center justify-center text-white/30 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                             </button>
@@ -674,9 +674,9 @@ export default function MemberProfile() {
                                     ) : (
                                         <button
                                             onClick={() => setIsNoteOpen(true)}
-                                            className="flex items-center gap-2 text-gray-400 dark:text-white/40 hover:text-indigo-600 dark:hover:text-white text-[11px] font-black uppercase tracking-widest transition-all pt-1 bg-gray-50 dark:bg-white/5 hover:bg-indigo-50 dark:hover:bg-white/10 px-4 py-2.5 rounded-full border border-gray-200 dark:border-white/10"
+                                            className="flex items-center gap-2 text-white/40 hover:text-white text-[11px] font-black uppercase tracking-widest transition-all pt-1 bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-full border border-white/10"
                                         >
-                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-500 text-white text-[10px] font-black">+</span>
+                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-orange text-white text-[10px] font-black">+</span>
                                             {t('add_summary_note', 'Ajouter un résumé')}
                                         </button>
                                     )}
@@ -710,7 +710,7 @@ export default function MemberProfile() {
                                 <p className="text-[13px] font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
                                     <span className="text-gray-400 dark:text-white/40 text-[10px] font-black uppercase tracking-widest">{t('category', 'Catégorie')}</span>
                                     <span className="flex items-center gap-2">
-                                        <span className="text-indigo-600 dark:text-indigo-400 font-extrabold underline decoration-indigo-400/20 underline-offset-4">
+                                        <span className="text-brand-orange font-extrabold underline decoration-brand-orange/20 underline-offset-4">
                                             {member.category?.name || member.contactSubtype?.name || t(member.baptismalStatus?.toLowerCase()) || member.baptismalStatus || t('not_baptized')}
                                         </span>
                                         <span className="w-1 h-1 bg-gray-200 dark:bg-white/20 rounded-full"></span>
@@ -742,7 +742,7 @@ export default function MemberProfile() {
                             onClick={() => navigate(`/admin/members?edit=${member.id}`)}
                             className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                         >
-                            <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <svg className="w-4 h-4 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                             {t('edit')}
@@ -787,7 +787,7 @@ export default function MemberProfile() {
                                 onClick={() => { setTypeDropdownOpen(!typeDropdownOpen); setStatusDropdownOpen(false); setBaptismalDropdownOpen(false); }}
                                 className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             >
-                                <svg className="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <svg className="w-4 h-4 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                                 </svg>
                                 {t('change_type', 'Changer de type/catégorie')}
@@ -829,7 +829,7 @@ export default function MemberProfile() {
                             className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             onClick={() => console.log('Voir la carte du membre clicked')}
                         >
-                            <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <svg className="w-4 h-4 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h2m-2 4h2" />
                             </svg>
                             {t('view_member_card', 'Voir la Carte du membre')}
@@ -838,7 +838,7 @@ export default function MemberProfile() {
                         <div className="ml-auto flex items-center gap-2">
                             <button
                                 onClick={() => setMessageModal({ isOpen: true, recipient: member, mode: 'individual' })}
-                                className="w-9 h-9 flex items-center justify-center bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-indigo-600 rounded-lg transition-all border border-gray-100 dark:border-white/10"
+                                className="w-9 h-9 flex items-center justify-center bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-brand-primary rounded-lg transition-all border border-gray-100 dark:border-white/10"
                             >
                                 <MessageIcon />
                             </button>
@@ -873,7 +873,7 @@ export default function MemberProfile() {
                                         <SummaryItem label={t('blood_group', 'Groupe Sanguin')} value={member.bloodGroup || '-'} />
                                         <SummaryItem label={t('join_date', "Date d'adhésion")} value={member.joinDate ? new Date(member.joinDate).toLocaleDateString() : null} />
                                     </div>
-                                    <button onClick={() => setShowPropertiesModal(true)} className="text-[12px] font-bold text-stripe-blue mt-6 hover:underline">{t('view_member_properties', 'Voir propriétés du membre')}</button>
+                                    <button onClick={() => setShowPropertiesModal(true)} className="text-[12px] font-bold text-brand-primary mt-6 hover:underline">{t('view_member_properties', 'Voir propriétés du membre')}</button>
                                 </div>
                                 <div>
                                     <h4 className="text-[12px] font-bold text-gray-400 mb-4">{t('name_formats', 'Name formats')}</h4>
@@ -891,7 +891,7 @@ export default function MemberProfile() {
                             <div className="space-y-3">
                                 <div className="flex justify-end">
                                     <button onClick={() => { setNoteForm({ title: '', date: new Date().toISOString().split('T')[0], description: '' }); setEditingNoteId(null); setShowNoteModal(true); }}
-                                        className="text-[11px] font-bold text-stripe-blue hover:underline flex items-center gap-1">
+                                        className="text-[11px] font-bold text-brand-primary hover:underline flex items-center gap-1">
                                         + {t('add_note', 'Ajouter une note')}
                                     </button>
                                 </div>
@@ -1141,7 +1141,7 @@ export default function MemberProfile() {
                                                 setShowAllDonations(!showAllDonations);
                                                 if (!showAllDonations) setDonationsPage(1);
                                             }}
-                                                className="text-[11px] font-bold text-stripe-blue hover:underline border border-stripe-blue/20 px-3 py-1.5 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 transition-colors">
+                                                className="text-[11px] font-bold text-brand-primary hover:underline border border-brand-primary/20 px-3 py-1.5 rounded-lg bg-brand-primary/5 transition-colors">
                                                 {showAllDonations ? t('show_less', 'Voir moins') : t('view_all_records', 'Voir tous les records')}
                                             </button>
                                         )}
@@ -1162,7 +1162,7 @@ export default function MemberProfile() {
                                             setEditingDonationId(null);
                                             setShowDonationModal(true);
                                         }}
-                                            className="text-[11px] font-bold text-stripe-blue hover:underline flex items-center gap-1">
+                                            className="text-[11px] font-bold text-brand-primary hover:underline flex items-center gap-1">
                                             + {t('add_donation', 'Ajouter un don')}
                                         </button>
                                     </div>
@@ -1232,7 +1232,7 @@ export default function MemberProfile() {
                                                     <button
                                                         key={pageNum}
                                                         onClick={() => setDonationsPage(pageNum)}
-                                                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${donationsPage === pageNum ? 'bg-stripe-blue text-white shadow-sm' : 'bg-gray-50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10'}`}
+                                                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${donationsPage === pageNum ? 'bg-brand-primary text-white shadow-sm' : 'bg-gray-50 dark:bg-white/5 text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10'}`}
                                                     >
                                                         {pageNum}
                                                     </button>
@@ -1264,7 +1264,7 @@ export default function MemberProfile() {
                                 <div className="flex justify-between items-center mb-4">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setAttachmentModalOpen(true); }}
-                                        className="text-[11px] font-bold text-stripe-blue hover:underline"
+                                        className="text-[11px] font-bold text-brand-primary hover:underline"
                                     >
                                         + {t('add_attachment', 'Add attachment')}
                                     </button>
@@ -2120,7 +2120,7 @@ export default function MemberProfile() {
 
                                 <button
                                     onClick={() => handlePasswordResetWithRequest()}
-                                    className="w-full mt-6 py-5 bg-indigo-600 text-white rounded-3xl text-[12px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none flex items-center justify-center gap-3 active:scale-95"
+                                    className="w-full mt-6 py-5 bg-brand-primary text-white rounded-3xl text-[12px] font-black uppercase tracking-widest hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-center gap-3 active:scale-95"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
