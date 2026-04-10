@@ -270,3 +270,39 @@ exports.uploadMedia = async (req, res) => {
         res.status(500).json({ message: "Erreur lors du téléchargement.", error: err.message });
     }
 };
+
+const axios = require('axios');
+exports.getBiblePassage = async (req, res) => {
+    try {
+        const { passage, version } = req.query;
+        if (!passage) return res.status(400).json({ message: "Passage manquant." });
+
+        // Parse reference (e.g., "Jean 3:16" or "Jean 3")
+        // We need the Book Code (e.g. JHN), Chapter, and Verse
+        // For now, let's keep it simple: if the user passes a book like "Jean", we map it to "JHN"
+        const bibleTools = require('../utils/bibleTools'); // I will create this
+        const { bookCode, chapter, verses } = bibleTools.parseReference(passage);
+
+        if (!bookCode) return res.status(400).json({ message: "Livre non reconnu." });
+
+        const url = `https://api.getbible.net/v2/${version || 'ls1910'}/${bookCode}/${chapter}.json`;
+        console.log("Fetching Bible from:", url);
+        
+        const response = await axios.get(url);
+        const data = response.data;
+
+        // If verses were specified (e.g. 16, or 10-23), filter the results
+        let finalVerses = data.verses || [];
+        if (verses && verses.length > 0) {
+            finalVerses = finalVerses.filter(v => verses.includes(parseInt(v.verse)));
+        }
+
+        res.json({
+            reference: `${data.book_name} ${data.chapter}`,
+            verses: finalVerses.map(v => ({ verse: v.verse, text: v.text }))
+        });
+    } catch (err) {
+        console.error("Bible Proxy Error:", err.message);
+        res.status(500).json({ message: "Erreur lors de la récupération du passage." });
+    }
+};

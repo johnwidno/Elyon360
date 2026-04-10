@@ -7,7 +7,7 @@ import worshipService from '../../../api/worshipService';
 import SermonEditor from './SermonEditor';
 import { Rnd } from 'react-rnd';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, GripVertical, Plus, Minus, Music, Book, Heart, Users, Speaker, Save, Mic, Trash2, X, Search as SearchIcon, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Layers, PenTool, LayoutTemplate, PlusCircle, Type, UserCheck, Users as UsersIcon, MessageSquare, Send, Clock, MapPin, Monitor, Maximize, Play, Pause, Image as ImageIcon, ZoomIn, ZoomOut, Video } from 'lucide-react';
+import { ArrowLeft, GripVertical, Plus, Minus, Music, Book, BookOpen, Heart, Users, Speaker, Save, Mic, Trash2, X, Search as SearchIcon, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Layers, PenTool, LayoutTemplate, PlusCircle, Type, UserCheck, Users as UsersIcon, MessageSquare, Send, Clock, MapPin, Monitor, Maximize, Play, Pause, Image as ImageIcon, ZoomIn, ZoomOut, Video } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -136,6 +136,93 @@ const WorshipBuilder = () => {
     const [localBackgrounds, setLocalBackgrounds] = useState([]);
     const [projectionIndex, setProjectionIndex] = useState(0);
     const [isFetchingBible, setIsFetchingBible] = useState(false);
+    const [bibleSearchQuery, setBibleSearchQuery] = useState('');
+    const [biblePreview, setBiblePreview] = useState(null);
+    const [bibleVersion, setBibleVersion] = useState('ls1910'); // 'ls1910' (FR), 'hcv' (Creole), 'kjv' (EN)
+    const [bibleSelectMode, setBibleSelectMode] = useState('smart'); // 'smart' or 'visual'
+    const [selectedVisual, setSelectedVisual] = useState({ book: null, chapter: null, verses: [], maxVerses: 0 });
+
+    const BIBLE_VERSIONS = [
+        { id: 'ls1910', label: 'Français (LSG)' },
+        { id: 'hcv', label: 'Kreyòl Ayisyen' },
+        { id: 'kjv', label: 'English (KJV)' }
+    ];
+
+    const getBibleBooks = () => {
+        const books = {
+            ls1910: [
+                { id: '1', fr: 'Genèse', chapters: 50 }, { id: '2', fr: 'Exode', chapters: 40 }, { id: '3', fr: 'Lévitique', chapters: 27 }, { id: '4', fr: 'Nombres', chapters: 36 }, { id: '5', fr: 'Deutéronome', chapters: 34 },
+                { id: '6', fr: 'Josué', chapters: 24 }, { id: '7', fr: 'Juges', chapters: 21 }, { id: '8', fr: 'Ruth', chapters: 4 }, { id: '9', fr: '1 Samuel', chapters: 31 }, { id: '10', fr: '2 Samuel', chapters: 24 },
+                { id: '11', fr: '1 Rois', chapters: 22 }, { id: '12', fr: '2 Rois', chapters: 25 }, { id: '13', fr: '1 Chroniques', chapters: 29 }, { id: '14', fr: '2 Chroniques', chapters: 36 }, { id: '15', fr: 'Esdras', chapters: 10 },
+                { id: '16', fr: 'Néhémie', chapters: 13 }, { id: '17', fr: 'Esther', chapters: 10 }, { id: '18', fr: 'Job', chapters: 42 }, { id: '19', fr: 'Psaumes', chapters: 150 }, { id: '20', fr: 'Proverbes', chapters: 31 },
+                { id: '21', fr: 'Ecclésiaste', chapters: 12 }, { id: '22', fr: 'Cantique', chapters: 8 }, { id: '23', fr: 'Ésaïe', chapters: 66 }, { id: '24', fr: 'Jérémie', chapters: 52 }, { id: '25', fr: 'Lamentations', chapters: 5 },
+                { id: '26', fr: 'Ézéchiel', chapters: 48 }, { id: '27', fr: 'Daniel', chapters: 12 }, { id: '28', fr: 'Osée', chapters: 14 }, { id: '29', fr: 'Joël', chapters: 3 }, { id: '30', fr: 'Amos', chapters: 9 },
+                { id: '31', fr: 'Abdias', chapters: 1 }, { id: '32', fr: 'Jonas', chapters: 4 }, { id: '33', fr: 'Michée', chapters: 7 }, { id: '34', fr: 'Nahum', chapters: 3 }, { id: '35', fr: 'Habacuc', chapters: 3 },
+                { id: '36', fr: 'Sophonie', chapters: 3 }, { id: '37', fr: 'Aggée', chapters: 2 }, { id: '38', fr: 'Zacharie', chapters: 14 }, { id: '39', fr: 'Malachie', chapters: 4 },
+                { id: '40', fr: 'Matthieu', chapters: 28 }, { id: '41', fr: 'Marc', chapters: 16 }, { id: '42', fr: 'Luc', chapters: 24 }, { id: '43', fr: 'Jean', chapters: 21 }, { id: '44', fr: 'Actes', chapters: 28 },
+                { id: '45', fr: 'Romains', chapters: 16 }, { id: '46', fr: '1 Corinthiens', chapters: 16 }, { id: '47', fr: '2 Corinthiens', chapters: 13 }, { id: '48', fr: 'Galates', chapters: 6 }, { id: '49', fr: 'Éphésiens', chapters: 6 },
+                { id: '50', fr: 'Philippiens', chapters: 4 }, { id: '51', fr: 'Colossiens', chapters: 4 }, { id: '52', fr: '1 Thessaloniciens', chapters: 5 }, { id: '53', fr: '2 Thessaloniciens', chapters: 3 }, { id: '54', fr: '1 Timothée', chapters: 6 },
+                { id: '55', fr: '2 Timothée', chapters: 4 }, { id: '56', fr: 'Tite', chapters: 3 }, { id: '57', fr: 'Philémon', chapters: 1 }, { id: '58', fr: 'Hébreux', chapters: 13 }, { id: '59', fr: 'Jacques', chapters: 5 },
+                { id: '60', fr: '1 Pierre', chapters: 5 }, { id: '61', fr: '2 Pierre', chapters: 3 }, { id: '62', fr: '1 Jean', chapters: 5 }, { id: '63', fr: '2 Jean', chapters: 1 }, { id: '64', fr: '3 Jean', chapters: 1 },
+                { id: '65', fr: 'Jude', chapters: 1 }, { id: '66', fr: 'Apocalypse', chapters: 22 }
+            ],
+            hcv: [
+                { id: '1', fr: 'Jeneze', chapters: 50 }, { id: '2', fr: 'Egzòd', chapters: 40 }, { id: '3', fr: 'Levitik', chapters: 27 }, { id: '4', fr: 'Nonb', chapters: 36 }, { id: '5', fr: 'Deteronòm', chapters: 34 },
+                { id: '6', fr: 'Jozye', chapters: 24 }, { id: '7', fr: 'Jij', chapters: 21 }, { id: '8', fr: 'Rit', chapters: 4 }, { id: '9', fr: '1 Samyèl', chapters: 31 }, { id: '10', fr: '2 Samyèl', chapters: 24 },
+                { id: '11', fr: '1 Wa', chapters: 22 }, { id: '12', fr: '2 Wa', chapters: 25 }, { id: '13', fr: '1 Kwonik', chapters: 29 }, { id: '14', fr: '2 Kwonik', chapters: 36 }, { id: '15', fr: 'Esdras', chapters: 10 },
+                { id: '16', fr: 'Neyemi', chapters: 13 }, { id: '17', fr: 'Estè', chapters: 10 }, { id: '18', fr: 'Jòb', chapters: 42 }, { id: '19', fr: 'Sòm', chapters: 150 }, { id: '20', fr: 'Pwovèb', chapters: 31 },
+                { id: '21', fr: 'Eklezyas', chapters: 12 }, { id: '22', fr: 'Chant', chapters: 8 }, { id: '23', fr: 'Ezayi', chapters: 66 }, { id: '24', fr: 'Jeremi', chapters: 52 }, { id: '25', fr: 'Lamantasyon', chapters: 5 },
+                { id: '26', fr: 'Ezekyèl', chapters: 48 }, { id: '27', fr: 'Danyèl', chapters: 12 }, { id: '28', fr: 'Oze', chapters: 14 }, { id: '29', fr: 'Joèl', chapters: 3 }, { id: '30', fr: 'Amòs', chapters: 9 },
+                { id: '31', fr: 'Abdias', chapters: 1 }, { id: '32', fr: 'Jonas', chapters: 4 }, { id: '33', fr: 'Miche', chapters: 7 }, { id: '34', fr: 'Nawoum', chapters: 3 }, { id: '35', fr: 'Abakou', chapters: 3 },
+                { id: '36', fr: 'Sofoni', chapters: 3 }, { id: '37', fr: 'Aje', chapters: 2 }, { id: '38', fr: 'Zakari', chapters: 14 }, { id: '39', fr: 'Malachi', chapters: 4 },
+                { id: '40', fr: 'Matye', chapters: 28 }, { id: '41', fr: 'Mak', chapters: 16 }, { id: '42', fr: 'Lik', chapters: 24 }, { id: '43', fr: 'Jan', chapters: 21 }, { id: '44', fr: 'Travay', chapters: 28 },
+                { id: '45', fr: 'Women', chapters: 16 }, { id: '46', fr: '1 Korent', chapters: 16 }, { id: '47', fr: '2 Korent', chapters: 13 }, { id: '48', fr: 'Galat', chapters: 6 }, { id: '49', fr: 'Efez', chapters: 6 },
+                { id: '50', fr: 'Filipyen', chapters: 4 }, { id: '51', fr: 'Kolosyen', chapters: 4 }, { id: '52', fr: '1 Tesalonik', chapters: 5 }, { id: '53', fr: '2 Tesalonik', chapters: 3 }, { id: '54', fr: '1 Timote', chapters: 6 },
+                { id: '55', fr: '2 Timote', chapters: 4 }, { id: '56', fr: 'Tit', chapters: 3 }, { id: '57', fr: 'Filemon', chapters: 1 }, { id: '58', fr: 'Ebre', chapters: 13 }, { id: '59', fr: 'Jak', chapters: 5 },
+                { id: '60', fr: '1 Pyè', chapters: 5 }, { id: '61', fr: '2 Pyè', chapters: 3 }, { id: '62', fr: '1 Jan', chapters: 5 }, { id: '63', fr: '2 Jan', chapters: 1 }, { id: '64', fr: '3 Jan', chapters: 1 },
+                { id: '65', fr: 'Jid', chapters: 1 }, { id: '66', fr: 'Revelasyon', chapters: 22 }
+            ],
+            kjv: [
+                { id: '1', fr: 'Genesis', chapters: 50 }, { id: '2', fr: 'Exodus', chapters: 40 }, { id: '3', fr: 'Leviticus', chapters: 27 }, { id: '4', fr: 'Numbers', chapters: 36 }, { id: '5', fr: 'Deuteronomy', chapters: 34 },
+                { id: '6', fr: 'Joshua', chapters: 24 }, { id: '7', fr: 'Judges', chapters: 21 }, { id: '8', fr: 'Ruth', chapters: 4 }, { id: '9', fr: '1 Samuel', chapters: 31 }, { id: '10', fr: '2 Samuel', chapters: 24 },
+                { id: '11', fr: '1 Kings', chapters: 22 }, { id: '12', fr: '2 Kings', chapters: 25 }, { id: '13', fr: '1 Chronicles', chapters: 29 }, { id: '14', fr: '2 Chronicles', chapters: 36 }, { id: '15', fr: 'Ezra', chapters: 10 },
+                { id: '16', fr: 'Nehemiah', chapters: 13 }, { id: '17', fr: 'Esther', chapters: 10 }, { id: '18', fr: 'Job', chapters: 42 }, { id: '19', fr: 'Psalms', chapters: 150 }, { id: '20', fr: 'Proverbs', chapters: 31 },
+                { id: '21', fr: 'Ecclesiastes', chapters: 12 }, { id: '22', fr: 'Song of Solomon', chapters: 8 }, { id: '23', fr: 'Isaiah', chapters: 66 }, { id: '24', fr: 'Jeremiah', chapters: 52 }, { id: '25', fr: 'Lamentations', chapters: 5 },
+                { id: '26', fr: 'Ezekiel', chapters: 48 }, { id: '27', fr: 'Daniel', chapters: 12 }, { id: '28', fr: 'Hosea', chapters: 14 }, { id: '29', fr: 'Joel', chapters: 3 }, { id: '30', fr: 'Amos', chapters: 9 },
+                { id: '31', fr: 'Obadiah', chapters: 1 }, { id: '32', fr: 'Jonah', chapters: 4 }, { id: '33', fr: 'Micah', chapters: 7 }, { id: '34', fr: 'Nahum', chapters: 3 }, { id: '35', fr: 'Habakkuk', chapters: 3 },
+                { id: '36', fr: 'Zephaniah', chapters: 3 }, { id: '37', fr: 'Haggai', chapters: 2 }, { id: '38', fr: 'Zechariah', chapters: 14 }, { id: '39', fr: 'Malachi', chapters: 4 },
+                { id: '40', fr: 'Matthew', chapters: 28 }, { id: '41', fr: 'Mark', chapters: 16 }, { id: '42', fr: 'Luke', chapters: 24 }, { id: '43', fr: 'John', chapters: 21 }, { id: '44', fr: 'Acts', chapters: 28 },
+                { id: '45', fr: 'Romans', chapters: 16 }, { id: '46', fr: '1 Corinthians', chapters: 16 }, { id: '47', fr: '2 Corinthians', chapters: 13 }, { id: '48', fr: 'Galatians', chapters: 6 }, { id: '49', fr: 'Ephesians', chapters: 6 },
+                { id: '50', fr: 'Philippians', chapters: 4 }, { id: '51', fr: 'Colossians', chapters: 4 }, { id: '52', fr: '1 Thessalonians', chapters: 5 }, { id: '53', fr: '2 Thessalonians', chapters: 3 }, { id: '54', fr: '1 Timothy', chapters: 6 },
+                { id: '55', fr: '2 Timothy', chapters: 4 }, { id: '56', fr: 'Titus', chapters: 3 }, { id: '57', fr: 'Philemon', chapters: 1 }, { id: '58', fr: 'Hebrews', chapters: 13 }, { id: '59', fr: 'James', chapters: 5 },
+                { id: '60', fr: '1 Peter', chapters: 5 }, { id: '61', fr: '2 Peter', chapters: 3 }, { id: '62', fr: '1 John', chapters: 5 }, { id: '63', fr: '2 John', chapters: 1 }, { id: '64', fr: '3 John', chapters: 1 },
+                { id: '65', fr: 'Jude', chapters: 1 }, { id: '66', fr: 'Revelation', chapters: 22 }
+            ]
+        };
+        const list = books[bibleVersion] || books['ls1910'];
+        // Ensure it's at least 66 items by falling back to lsg for missing ones in Creole/English
+        if (list.length < 66 && bibleVersion !== 'ls1910') {
+             return books['ls1910'].map(b => {
+                 const localized = list.find(l => l.id === b.id);
+                 return localized || b;
+             });
+        }
+        return list;
+    };
+
+    const BIBLE_BOOKS = getBibleBooks();
+
+
+    // Mock catalog for Chants d'Espérance (can be moved to backend/db later)
+    const CHE_CATALOG = [
+        { id: 'che-1', number: 1, collection: 'Fr CHE', title: 'Grand Dieu, nous te bénissons', lyrics: 'Grand Dieu, nous te bénissons,\nNous célébrons tes louanges,\nÉternel, nous t’exaltons,\nComme le font tous les anges.', category: 'Louange' },
+        { id: 'che-2', number: 123, collection: 'Fr CHE', title: 'Je louerai l’Éternel', lyrics: 'Je louerai l’Éternel de tout mon cœur,\nJe raconterai toutes tes merveilles,\nJe ferai de toi le sujet de ma joie,\nAlléluia !', category: 'Louange' },
+        { id: 'che-3', number: 56, collection: 'Fr CHE', title: 'À toi la gloire', lyrics: 'À toi la gloire,\nO Ressuscité !\nÀ toi la victoire\nPour l’éternité !', category: 'Adoration' }
+    ];
+
+    const [songSource, setSongSource] = useState('library'); // 'library' or 'che'
+    const [songSearchTerm, setSongSearchTerm] = useState('');
+    const [expandedLyrics, setExpandedLyrics] = useState(null); // tracking expanded lyrics in building mode
     const [songs, setSongs] = useState([]);
     const [members, setMembers] = useState([]);
     const [groups, setGroups] = useState([]);
@@ -457,46 +544,95 @@ const WorshipBuilder = () => {
         if (block) handleUpdateBlockMetadata(blockId, { passages: block.metadata?.passages });
     };
 
-    const validateBiblePassage = async () => {
+    const handleBibleSmartSearch = async (manualRef) => {
+        const queryText = manualRef || bibleSearchQuery;
+        if (!queryText.trim()) return;
         setIsFetchingBible(true);
         try {
-            const engBook = bookMap[bibleRef.book] || bibleRef.book;
-            const query = `${engBook} ${bibleRef.chapter}:${bibleRef.verses}`;
-            const response = await fetch(`https://bible-api.com/${encodeURIComponent(query)}?translation=lsg`);
-            const data = await response.json();
+            let query = queryText.trim();
+            // Map French names to English (helper map)
+            Object.keys(bookMap).forEach(frBook => {
+                if (query.toLowerCase().startsWith(frBook.toLowerCase())) {
+                    query = query.toLowerCase().replace(frBook.toLowerCase(), bookMap[frBook]);
+                }
+            });
 
-            if (data.text) {
-                const reference = `${bibleRef.book} ${bibleRef.chapter}:${bibleRef.verses}`;
-                const block = blocks.find(b => b.id === activeBlockId);
-                const currentPassages = block.metadata?.passages || (
-                    block.metadata?.passage ? [{ id: 'legacy', reference: block.metadata.passage, text: block.metadata.passageText || '', responsable: '', notes: '' }] : []
-                );
+            const response = await api.get(`/worship/bible/proxy`, {
+                params: { passage: query, version: bibleVersion }
+            });
+            const data = response.data;
 
-                const newPassage = {
-                    id: Date.now().toString(),
-                    reference,
-                    text: data.text,
-                    responsable: '',
-                    notes: ''
-                };
-
-                handleUpdateBlockMetadata(activeBlockId, {
-                    passages: [...currentPassages, newPassage],
-                    // Keep legacy for safety but point to first
-                    passage: reference,
-                    passageText: data.text
+            if (data.verses && data.verses.length > 0) {
+                setBiblePreview({
+                    reference: data.reference,
+                    text: data.verses.map(v => `${v.verse}. ${v.text}`).join('\n')
                 });
-
-                setShowBibleModal(false);
-                setExpandedBlockId(activeBlockId);
+                
+                // If in visual mode and chapter selected, update maxVerses if needed
+                if (bibleSelectMode === 'visual' && !queryText.includes(':')) {
+                    setSelectedVisual(prev => ({ ...prev, maxVerses: data.verses.length }));
+                }
             } else {
-                toast.error('Passage non trouvé');
+                toast.error('Passage non trouvé.');
+                setBiblePreview(null);
             }
         } catch (error) {
-            toast.error('Erreur lors de la récupération du passage biblique');
+            console.error("Bible Proxy Error:", error);
+            toast.error('Erreur lors de la récupération du passage.');
         } finally {
             setIsFetchingBible(false);
         }
+    };
+
+    const handleVisualSelect = (type, val) => {
+        if (type === 'book') {
+            setSelectedVisual({ book: val, chapter: null, verses: [], maxVerses: 0 });
+        } else if (type === 'chapter') {
+            setSelectedVisual(prev => ({ ...prev, chapter: val, verses: [], maxVerses: 0 }));
+            // Preview the whole chapter immediately
+            handleBibleSmartSearch(`${selectedVisual.book.fr} ${val}`);
+        } else if (type === 'verse') {
+            let newVerses = [...selectedVisual.verses];
+            if (newVerses.includes(val)) {
+                newVerses = newVerses.filter(v => v !== val);
+            } else {
+                newVerses.push(val);
+                newVerses.sort((a,b) => a - b);
+            }
+            setSelectedVisual(prev => ({ ...prev, verses: newVerses }));
+            
+            // Preview selected verses
+            if (newVerses.length > 0) {
+                const ref = `${selectedVisual.book.fr} ${selectedVisual.chapter}:${newVerses.join(',')}`;
+                handleBibleSmartSearch(ref);
+            }
+        }
+    };
+
+    const validateBiblePassage = () => {
+        if (!biblePreview) return;
+        
+        const block = blocks.find(b => b.id === activeBlockId);
+        const currentPassages = block.metadata?.passages || [];
+
+        const newPassage = {
+            id: Date.now().toString(),
+            reference: biblePreview.reference,
+            text: biblePreview.text,
+            responsable: '',
+            notes: ''
+        };
+
+        handleUpdateBlockMetadata(activeBlockId, {
+            passages: [...currentPassages, newPassage],
+            passage: biblePreview.reference,
+            passageText: biblePreview.text
+        });
+
+        setShowBibleModal(false);
+        setBiblePreview(null);
+        setBibleSearchQuery('');
+        setExpandedBlockId(activeBlockId);
     };
 
     const toggleExpand = async (id) => {
@@ -1775,16 +1911,41 @@ const WorshipBuilder = () => {
                                                                                                                                     />
                                                                                                                                 </div>
 
-                                                                                                                                {/* Lyrics expandable */}
-                                                                                                                                {songItem.lyrics && (
-                                                                                                                                    <details className="rounded-xl border border-gray-100 dark:border-white/5 overflow-hidden">
-                                                                                                                                        <summary className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-gray-400 cursor-pointer hover:text-brand-primary hover:bg-brand-primary/5 select-none flex items-center gap-1.5 transition-colors">
-                                                                                                                                            <Music size={9} /> Paroles
-                                                                                                                                        </summary>
-                                                                                                                                        <div className="px-3 pb-3 pt-1 text-[11px] italic text-gray-500 dark:text-gray-400 whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto noscrollbar bg-gray-50 dark:bg-white/3">
-                                                                                                                                            {songItem.lyrics}
+                                                                                                                                {/* Lyrics & Chords Accordion */}
+                                                                                                                                {(songItem.lyrics || songItem.chords) && (
+                                                                                                                                    <div className="rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden bg-gray-50/50 dark:bg-white/2">
+                                                                                                                                        <button 
+                                                                                                                                            onClick={() => setExpandedLyrics(prev => prev === `${block.id}-${songItem.id}` ? null : `${block.id}-${songItem.id}`)}
+                                                                                                                                            className="w-full px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5 transition-all flex items-center justify-between group"
+                                                                                                                                        >
+                                                                                                                                            <div className="flex items-center gap-2">
+                                                                                                                                                <Music size={11} className="group-hover:scale-110 transition-transform" /> 
+                                                                                                                                                Paroles & Accords
+                                                                                                                                            </div>
+                                                                                                                                            <ChevronDown size={14} className={`transition-transform duration-300 ${expandedLyrics === `${block.id}-${songItem.id}` ? 'rotate-180' : ''}`} />
+                                                                                                                                        </button>
+                                                                                                                                        
+                                                                                                                                        <div className={`transition-all duration-300 overflow-hidden ${expandedLyrics === `${block.id}-${songItem.id}` ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                                                                                                                            <div className="p-4 pt-0 space-y-4">
+                                                                                                                                                {songItem.lyrics && (
+                                                                                                                                                    <div className="space-y-1.5">
+                                                                                                                                                        <span className="text-[9px] font-black text-gray-300 uppercase tracking-tighter">Paroles</span>
+                                                                                                                                                        <div className="text-[11px] italic text-gray-600 dark:text-gray-400 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto noscrollbar bg-white/50 dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5">
+                                                                                                                                                            {songItem.lyrics}
+                                                                                                                                                        </div>
+                                                                                                                                                    </div>
+                                                                                                                                                )}
+                                                                                                                                                {songItem.chords && (
+                                                                                                                                                    <div className="space-y-1.5">
+                                                                                                                                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-tighter">Accords (Chords)</span>
+                                                                                                                                                        <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 whitespace-pre-wrap bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10">
+                                                                                                                                                            {songItem.chords}
+                                                                                                                                                        </div>
+                                                                                                                                                    </div>
+                                                                                                                                                )}
+                                                                                                                                            </div>
                                                                                                                                         </div>
-                                                                                                                                    </details>
+                                                                                                                                    </div>
                                                                                                                                 )}
                                                                                                                             </div>
                                                                                                                         </div>
@@ -2255,32 +2416,81 @@ const WorshipBuilder = () => {
                         </button>
                         <div className="p-8">
                             <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6">{t('song_library', 'Bibliothèque de Chants')}</h2>
+                            
+                            {/* Source Toggle */}
+                            <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-2xl mb-6">
+                                <button 
+                                    onClick={() => setSongSource('library')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${songSource === 'library' ? 'bg-white dark:bg-brand-primary text-brand-primary dark:text-white shadow-sm' : 'text-gray-500'}`}
+                                >
+                                    Bibliothèque Interne
+                                </button>
+                                <button 
+                                    onClick={() => setSongSource('che')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${songSource === 'che' ? 'bg-white dark:bg-brand-primary text-brand-primary dark:text-white shadow-sm' : 'text-gray-500'}`}
+                                >
+                                    Chants d'Espérance
+                                </button>
+                            </div>
+
                             <div className="relative mb-6">
                                 <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                                 <input
-                                    type="text" placeholder={t('search_song', "Rechercher un chant...")}
+                                    type="text" 
+                                    placeholder={songSource === 'che' ? "N° ou Titre (ex: 123)..." : t('search_song', "Rechercher un chant...")}
+                                    value={songSearchTerm}
+                                    onChange={(e) => setSongSearchTerm(e.target.value)}
                                     className="w-full bg-gray-50 dark:bg-white/5 pl-10 pr-4 py-3 rounded-xl text-sm border-transparent focus:border-brand-primary outline-none transition-all dark:text-white"
                                 />
                             </div>
-                            <div className="space-y-3 max-h-[40vh] overflow-y-auto noscrollbar">
-                                {songs.length === 0 ? (
-                                    <p className="text-center text-gray-500 text-sm py-4">{t('no_song_in_library', "Aucun chant dans la bibliothèque.")}</p>
-                                ) : (
-                                    songs.map(song => (
+                            
+                            <div className="space-y-3 max-h-[40vh] overflow-y-auto noscrollbar pr-1">
+                                {(() => {
+                                    const filtered = (songSource === 'che' ? CHE_CATALOG : songs).filter(s => 
+                                        s.title.toLowerCase().includes(songSearchTerm.toLowerCase()) || 
+                                        (s.number && s.number.toString() === songSearchTerm)
+                                    );
+
+                                    if (filtered.length === 0) return <p className="text-center text-gray-500 text-sm py-8">Aucun résultat trouvé.</p>;
+
+                                    return filtered.map(song => (
                                         <div
                                             key={song.id}
                                             onClick={() => {
-                                                handleUpdateBlockMetadata(activeBlockId, { songId: song.id, songTitle: song.title, songLyrics: song.lyrics || t('lyrics_unavailable', 'Paroles non disponibles') });
+                                                const displayTitle = song.number ? `${song.number} ${song.collection}, ${song.title}` : song.title;
+                                                const currentMetadata = blocks.find(b => b.id === activeBlockId)?.metadata || {};
+                                                const currentSongs = currentMetadata.songs || [];
+                                                
+                                                const newSongItem = {
+                                                    id: Date.now().toString(),
+                                                    songId: song.id,
+                                                    title: displayTitle,
+                                                    lyrics: song.lyrics || 'Paroles non disponibles',
+                                                    responsable: '',
+                                                    notes: ''
+                                                };
+
+                                                handleUpdateBlockMetadata(activeBlockId, { 
+                                                    songs: [...currentSongs, newSongItem],
+                                                    songTitle: displayTitle // Legacy
+                                                });
                                                 setShowSongModal(false);
-                                                setExpandedBlockId(activeBlockId); // Auto expand
+                                                setSongSearchTerm('');
+                                                setExpandedBlockId(activeBlockId);
                                             }}
-                                            className="p-4 rounded-xl border border-gray-100 dark:border-white/5 cursor-pointer hover:border-brand-primary hover:shadow-md transition-all group"
+                                            className="p-4 rounded-2xl border border-gray-100 dark:border-white/5 cursor-pointer hover:border-brand-primary hover:bg-brand-primary/5 transition-all group flex items-center justify-between"
                                         >
-                                            <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-brand-primary">{song.title}</h4>
-                                            <p className="text-xs text-gray-500">{song.author || t('unknown_author', 'Auteur inconnu')} • {song.category || t('general', 'Général')}</p>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    {song.number && <span className="px-2 py-0.5 bg-brand-primary/10 text-brand-primary text-[10px] font-black rounded-lg">{song.number} {song.collection}</span>}
+                                                    <h4 className="font-bold text-gray-900 dark:text-white group-hover:text-brand-primary truncate">{song.title}</h4>
+                                                </div>
+                                                <p className="text-[11px] text-gray-500 truncate">{song.lyrics?.substring(0, 60)}...</p>
+                                            </div>
+                                            <Plus size={16} className="text-gray-300 group-hover:text-brand-primary ml-4" />
                                         </div>
-                                    ))
-                                )}
+                                    ));
+                                })()}
                             </div>
                         </div>
                     </div>
@@ -2295,56 +2505,113 @@ const WorshipBuilder = () => {
                             <X size={20} />
                         </button>
                         <div className="p-8">
-                            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6">{t('bible_selector', 'Sélecteur Biblique')}</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold text-gray-400 uppercase">{t('book', 'Livre')}</label>
-                                    <select
-                                        value={bibleRef.book}
-                                        onChange={(e) => setBibleRef({ ...bibleRef, book: e.target.value })}
-                                        className="w-full mt-1 bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-brand-primary dark:text-white outline-none"
-                                    >
-                                        <option value="Genèse">Genèse</option>
-                                        <option value="Exode">Exode</option>
-                                        <option value="Psaumes">Psaumes</option>
-                                        <option value="Proverbes">Proverbes</option>
-                                        <option value="Esaïe">Esaïe</option>
-                                        <option value="Matthieu">Matthieu</option>
-                                        <option value="Marc">Marc</option>
-                                        <option value="Luc">Luc</option>
-                                        <option value="Jean">Jean</option>
-                                        <option value="Actes">Actes des Apôtres</option>
-                                        <option value="Romains">Romains</option>
-                                        <option value="Apocalypse">Apocalypse</option>
-                                    </select>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase">{t('chapter', 'Chapitre')}</label>
-                                        <input
-                                            type="text"
-                                            value={bibleRef.chapter}
-                                            onChange={(e) => setBibleRef({ ...bibleRef, chapter: e.target.value })}
-                                            className="w-full mt-1 bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-brand-primary dark:text-white outline-none"
-                                        />
+                            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6">Lecteur de Passage</h2>
+                            <div className="space-y-6">
+                                {/* Mode & Version Selectors */}
+                                <div className="flex flex-col gap-4">
+                                    <div className="grid grid-cols-2 gap-2 bg-gray-100 dark:bg-white/5 p-1 rounded-2xl">
+                                        <button onClick={() => setBibleSelectMode('smart')} className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${bibleSelectMode === 'smart' ? 'bg-white dark:bg-brand-primary text-brand-primary dark:text-white shadow-sm' : 'text-gray-500'}`}>Recherche Libre</button>
+                                        <button onClick={() => setBibleSelectMode('visual')} className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${bibleSelectMode === 'visual' ? 'bg-white dark:bg-brand-primary text-brand-primary dark:text-white shadow-sm' : 'text-gray-500'}`}>Sélecteur Guidé</button>
                                     </div>
-                                    <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase">{t('verses', 'Versets')}</label>
-                                        <input
-                                            type="text"
-                                            value={bibleRef.verses}
-                                            onChange={(e) => setBibleRef({ ...bibleRef, verses: e.target.value })}
-                                            className="w-full mt-1 bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-brand-primary dark:text-white outline-none"
-                                        />
+
+                                    <div className="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-white/5 p-1 rounded-2xl">
+                                        {BIBLE_VERSIONS.map(v => (
+                                            <button
+                                                key={v.id}
+                                                onClick={() => setBibleVersion(v.id)}
+                                                className={`py-2 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all ${bibleVersion === v.id ? 'bg-white dark:bg-brand-primary text-brand-primary dark:text-white shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                {v.label.split(' ')[0]}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
-                                <button
-                                    onClick={validateBiblePassage}
-                                    disabled={isFetchingBible}
-                                    className="w-full mt-6 py-3 bg-brand-primary text-white rounded-xl font-bold shadow-lg shadow-brand-primary/30 disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {isFetchingBible ? <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span> : t('validate_passage', 'Valider le passage')}
-                                </button>
+
+                                {bibleSelectMode === 'smart' ? (
+                                    <div className="relative">
+                                        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                        <input
+                                            type="text"
+                                            placeholder="Jean 3:16, Psaume 23:1-5, Luc 15..."
+                                            value={bibleSearchQuery}
+                                            onChange={(e) => setBibleSearchQuery(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleBibleSmartSearch()}
+                                            className="w-full bg-gray-50 dark:bg-white/5 pl-12 pr-4 py-4 rounded-2xl border-2 border-transparent focus:border-brand-primary outline-none text-sm transition-all shadow-inner"
+                                        />
+                                        <button 
+                                            onClick={() => handleBibleSmartSearch()}
+                                            disabled={isFetchingBible || !bibleSearchQuery}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-brand-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 transition-all disabled:opacity-50"
+                                        >
+                                            {isFetchingBible ? '...' : 'Chercher'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {/* Stepper Book -> Chapter -> Verse */}
+                                        <div className="flex gap-2 text-[10px] font-black uppercase overflow-x-auto noscrollbar pb-2">
+                                            <button onClick={() => setSelectedVisual({book:null, chapter:null, verses:[]})} className={`px-4 py-2 rounded-xl shrink-0 transition-all ${!selectedVisual.book ? 'bg-brand-primary text-white' : 'bg-brand-primary/10 text-brand-primary'}`}>1. Livre</button>
+                                            <button disabled={!selectedVisual.book} onClick={() => setSelectedVisual(prev => ({...prev, chapter:null, verses:[]}))} className={`px-4 py-2 rounded-xl shrink-0 transition-all ${selectedVisual.book && !selectedVisual.chapter ? 'bg-brand-primary text-white' : 'bg-brand-primary/10 text-brand-primary disabled:opacity-40'}`}>2. Chapitre</button>
+                                            <button disabled={!selectedVisual.chapter} className={`px-4 py-2 rounded-xl shrink-0 transition-all ${selectedVisual.chapter ? 'bg-brand-primary text-white' : 'bg-brand-primary/10 text-brand-primary disabled:opacity-40'}`}>3. Versets</button>
+                                        </div>
+
+                                        <div className="max-h-[30vh] overflow-y-auto noscrollbar grid grid-cols-3 gap-2">
+                                            {!selectedVisual.book ? (
+                                                BIBLE_BOOKS.map(b => (
+                                                    <button key={b.id} onClick={() => handleVisualSelect('book', b)} className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl text-[11px] font-bold hover:bg-brand-primary/10 hover:text-brand-primary transition-all">{b.fr}</button>
+                                                ))
+                                            ) : !selectedVisual.chapter ? (
+                                                Array.from({ length: selectedVisual.book.chapters }).map((_, i) => (
+                                                    <button key={i} onClick={() => handleVisualSelect('chapter', i+1)} className="p-3 bg-gray-50 dark:bg-white/5 rounded-xl text-[11px] font-bold hover:bg-brand-primary/10 hover:text-brand-primary transition-all">Chapitre {i+1}</button>
+                                                ))
+                                            ) : (
+                                                <div className="col-span-3 grid grid-cols-6 gap-2">
+                                                    {isFetchingBible && selectedVisual.maxVerses === 0 ? (
+                                                        <p className="col-span-6 py-8 text-center text-xs animate-pulse">Chargement des versets...</p>
+                                                    ) : (
+                                                        Array.from({ length: selectedVisual.maxVerses || 50 }).map((_, i) => (
+                                                            <button 
+                                                                key={i} 
+                                                                onClick={() => handleVisualSelect('verse', i+1)} 
+                                                                className={`p-2 rounded-lg text-[10px] font-bold border transition-all ${selectedVisual.verses.includes(i+1) ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white dark:bg-white/2 border-gray-100 dark:border-white/5 text-gray-400'}`}
+                                                            >
+                                                                {i+1}
+                                                            </button>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {biblePreview && (
+                                    <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-6 border border-brand-primary/20 animate-in fade-in zoom-in-95 mt-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="font-black text-brand-primary uppercase tracking-widest text-xs truncate max-w-[60%]">{biblePreview.reference}</h3>
+                                            <div className="flex items-center gap-2">
+                                                <span className="px-2 py-1 bg-brand-primary/10 text-brand-primary text-[10px] rounded-lg font-bold">{bibleVersion.toUpperCase()}</span>
+                                                <div className="px-2 py-1 bg-brand-primary/10 text-brand-primary text-[10px] rounded-lg font-bold">Aperçu</div>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm italic leading-relaxed text-gray-600 dark:text-gray-300 max-h-40 overflow-y-auto noscrollbar">
+                                            {biblePreview.text}
+                                        </p>
+                                        <button
+                                            onClick={validateBiblePassage}
+                                            className="w-full mt-6 py-3 bg-brand-primary text-white rounded-xl font-bold shadow-lg shadow-brand-primary/30 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                        >
+                                            <Plus size={18} /> Ajouter ce passage
+                                        </button>
+                                    </div>
+                                )}
+
+                                {!biblePreview && !isFetchingBible && (
+                                    <div className="py-10 text-center space-y-3 opacity-40">
+                                        <BookOpen className="mx-auto" size={32} />
+                                        <p className="text-xs font-medium italic">Saisissez une référence ou utilisez le sélecteur guidé</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -114,12 +114,23 @@ app.get('/', (req, res) => {
 
 // Sync Database & Start Server
 const PORT = process.env.PORT || 5000;
+const seedDB = require('./seed_db');
 
-// Use { alter: false } to avoid ALTER TABLE errors on populated tables.
-// Run migrations/fix_member_requests.js once to update schema safely.
 db.sequelize.sync({ alter: false })
-    .then(() => {
+    .then(async () => {
         console.log('Base de données synchronisée.');
+        
+        // Auto-seed if database is empty
+        try {
+            const userCount = await db.User.count();
+            if (userCount === 0) {
+                console.log('⚠️ Base de données vide détectée. Lancement du seeding automatique...');
+                await seedDB();
+            }
+        } catch (seedErr) {
+            console.error('Erreur lors du seeding automatique:', seedErr);
+        }
+
         const server = app.listen(PORT, () => {
             console.log(`Serveur démarré sur le port ${PORT}`);
         });
@@ -127,7 +138,7 @@ db.sequelize.sync({ alter: false })
         // Keep process alive explicitly
         setInterval(() => {
             console.log('Heartbeat...');
-        }, 10000);
+        }, 30000);
     })
     .catch((err) => {
         console.error('Erreur de connexion à la DB:', err);

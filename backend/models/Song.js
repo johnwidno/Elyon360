@@ -8,7 +8,18 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false
         },
+        number: {
+            type: Sequelize.INTEGER,
+            allowNull: true
+        },
+        collection: {
+            type: Sequelize.STRING, // CHE, Echo, Melody, Crimson, etc.
+            defaultValue: 'CHE'
+        },
         lyrics: {
+            type: Sequelize.TEXT
+        },
+        chords: {
             type: Sequelize.TEXT
         },
         author: {

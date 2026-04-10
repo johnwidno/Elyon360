@@ -64,4 +64,7 @@ router.post('/songs', worshipController.addSong);
 router.post('/comments', worshipController.addComment);
 router.get('/comments/:messageId', worshipController.getComments);
 
+// --- Bible Proxy ---
+router.get('/bible/proxy', worshipController.getBiblePassage);
+
 module.exports = router;
