@@ -97,6 +97,16 @@ const parseSermonToSlides = (html) => {
     return slides;
 };
 
+const parseVersesToSlides = (text) => {
+    if (!text) return [];
+    return text.split('\n').filter(l => l.trim()).map((t, i) => ({ id: `v-${i}`, text: t.trim() }));
+};
+
+const parseLyricsToSlides = (lyrics) => {
+    if (!lyrics) return [];
+    return lyrics.split(/\n\n+/).filter(s => s.trim()).map((s, i) => ({ id: `s-${i}`, text: s.trim() }));
+};
+
 const WorshipBuilder = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -134,9 +144,14 @@ const WorshipBuilder = () => {
     const [zoomedElementId, setZoomedElementId] = useState(null);
     const [sermonSlideIndex, setSermonSlideIndex] = useState(0);
     const [localBackgrounds, setLocalBackgrounds] = useState([]);
+    const [mediaSlideIndex, setMediaSlideIndex] = useState(0);
     const [projectionIndex, setProjectionIndex] = useState(0);
     const [isFetchingBible, setIsFetchingBible] = useState(false);
     const [bibleSearchQuery, setBibleSearchQuery] = useState('');
+    const [contentZoom, setContentZoom] = useState(1);
+    const [isReadingFullWidth, setIsReadingFullWidth] = useState(false);
+    const [isSongFullWidth, setIsSongFullWidth] = useState(false);
+    const [songTransitionPending, setSongTransitionPending] = useState(null);
     const [biblePreview, setBiblePreview] = useState(null);
     const [bibleVersion, setBibleVersion] = useState('ls1910'); // 'ls1910' (FR), 'hcv' (Creole), 'kjv' (EN)
     const [bibleSelectMode, setBibleSelectMode] = useState('smart'); // 'smart' or 'visual'
@@ -144,6 +159,7 @@ const WorshipBuilder = () => {
 
     const BIBLE_VERSIONS = [
         { id: 'ls1910', label: 'Français (LSG)' },
+        { id: 'neg1979', label: 'Français (NEG)' },
         { id: 'hcv', label: 'Kreyòl Ayisyen' },
         { id: 'kjv', label: 'English (KJV)' }
     ];
@@ -549,13 +565,7 @@ const WorshipBuilder = () => {
         if (!queryText.trim()) return;
         setIsFetchingBible(true);
         try {
-            let query = queryText.trim();
-            // Map French names to English (helper map)
-            Object.keys(bookMap).forEach(frBook => {
-                if (query.toLowerCase().startsWith(frBook.toLowerCase())) {
-                    query = query.toLowerCase().replace(frBook.toLowerCase(), bookMap[frBook]);
-                }
-            });
+            const query = queryText.trim();
 
             const response = await api.get(`/worship/bible/proxy`, {
                 params: { passage: query, version: bibleVersion }
@@ -583,6 +593,24 @@ const WorshipBuilder = () => {
             setIsFetchingBible(false);
         }
     };
+
+    useEffect(() => {
+        if (!showBibleModal) return;
+
+        if (bibleSelectMode === 'smart') {
+            if (bibleSearchQuery.trim()) handleBibleSmartSearch();
+        } else {
+            if (selectedVisual.book && selectedVisual.chapter) {
+                // Re-fetch using the current selection but new version
+                const bookName = selectedVisual.book.fr;
+                let ref = `${bookName} ${selectedVisual.chapter}`;
+                if (selectedVisual.verses.length > 0) {
+                    ref += `:${selectedVisual.verses.join(',')}`;
+                }
+                handleBibleSmartSearch(ref);
+            }
+        }
+    }, [bibleVersion]);
 
     const handleVisualSelect = (type, val) => {
         if (type === 'book') {
@@ -764,17 +792,54 @@ const WorshipBuilder = () => {
 
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
-                setProjectionMode(false);
-                if (document.fullscreenElement) document.exitFullscreen();
+                if (focusedContent) {
+                    setFocusedContent(null);
+                    setZoomedElementId(null);
+                    setLineSpotlight(null);
+                } else {
+                    setProjectionMode(false);
+                    if (document.fullscreenElement) document.exitFullscreen();
+                }
             }
-            if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
+
+            // Forward Navigation
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') {
                 e.preventDefault();
-                setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1));
+                if (focusedContent) {
+                    if (focusedContent.type === 'sermon') {
+                        const sermonSlides = parseSermonToSlides(service?.sermon?.content);
+                        setSermonSlideIndex(prev => Math.min(sermonSlides.length - 1, prev + 1));
+                        setZoomedElementId(null);
+                    } else if (focusedContent.type === 'reading') {
+                        const slides = (focusedContent.metadata?.passages || []).flatMap(p => parseVersesToSlides(p.text));
+                        setMediaSlideIndex(prev => Math.min(slides.length - 1, prev + 1));
+                        setZoomedElementId(null);
+                    } else if (focusedContent.type === 'song') {
+                        const slides = (focusedContent.metadata?.songs || []).flatMap(s => parseLyricsToSlides(s.lyrics));
+                        setMediaSlideIndex(prev => Math.min(slides.length - 1, prev + 1));
+                        setZoomedElementId(null);
+                    }
+                } else {
+                    setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1));
+                }
             }
-            if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+
+            // Backward Navigation
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
                 e.preventDefault();
-                setCurrentSlideIndex(prev => Math.max(prev - 1, -1));
+                if (focusedContent) {
+                    if (focusedContent.type === 'sermon') {
+                        setSermonSlideIndex(prev => Math.max(-1, prev - 1));
+                        setZoomedElementId(null);
+                    } else if (focusedContent.type === 'reading' || focusedContent.type === 'song') {
+                        setMediaSlideIndex(prev => Math.max(0, prev - 1));
+                        setZoomedElementId(null);
+                    }
+                } else {
+                    setCurrentSlideIndex(prev => Math.max(prev - 1, -1));
+                }
             }
+
             if (e.key === '+' || e.key === '=') {
                 setGlobalZoom(prev => Math.min(prev + 0.1, 2.5));
             }
@@ -791,7 +856,7 @@ const WorshipBuilder = () => {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [projectionMode, blocks.length]);
+    }, [projectionMode, blocks.length, focusedContent, mediaSlideIndex, sermonSlideIndex, service?.sermon?.content]);
 
 
     // Cinematic Engine is now single-slide-at-a-time, so we don't need scrollIntoView.
@@ -833,27 +898,30 @@ const WorshipBuilder = () => {
                         onDragStop={(e, d) => handleUpdateLayout('clock', { position: { x: d.x, y: d.y } })}
                         disableDragging={!projectionMode}
                         enableResizing={false}
-                        className="z-[6000] opacity-40 hover:opacity-100 transition-opacity flex flex-col items-start cursor-move"
+                        className="z-[6000] opacity-40 hover:opacity-100 transition-opacity flex items-center gap-4 cursor-move group/clock"
                         style={{ transform: `scale(${clockScale})`, transformOrigin: 'top left' }}
-                        onWheel={(e) => {
-                            e.stopPropagation();
-                            if (e.deltaY < 0) setClockScale(p => Math.min(4, p + 0.1));
-                            else setClockScale(p => Math.max(0.3, p - 0.1));
-                        }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setClockScale(p => p >= 3 ? 1 : p + 0.5);
-                        }}
-                        onContextMenu={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setClockScale(p => Math.max(0.5, p - 0.5));
-                        }}
                     >
-                        <span className="text-4xl font-black text-white tracking-widest leading-none font-sans whitespace-nowrap">
-                            {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                        </span>
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mt-1 whitespace-nowrap">Direct Live</span>
+                        <div className="flex flex-col items-start">
+                            <span className="text-4xl font-black text-white tracking-widest leading-none font-sans whitespace-nowrap">
+                                {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                        </div>
+                        
+                        {/* Clock Size Controls */}
+                        <div className="flex flex-col gap-1 opacity-0 group-hover/clock:opacity-100 transition-opacity">
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setClockScale(p => Math.min(6, p + 0.2)); }}
+                                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/30 flex items-center justify-center text-white text-xl font-bold"
+                            >
+                                +
+                            </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setClockScale(p => Math.max(0.3, p - 0.2)); }}
+                                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/30 flex items-center justify-center text-white text-xl font-bold"
+                            >
+                                -
+                            </button>
+                        </div>
                     </Rnd>
                 )}
                 {/* Background Layer */}
@@ -875,7 +943,7 @@ const WorshipBuilder = () => {
                 <div className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300" style={{ opacity: isBlackout ? 1 : bgOverlayOpacity }} />
 
                 {/* Content Layer with Frame Motion & Rnd */}
-                <div className="relative min-h-[100vh] flex flex-col items-center justify-start p-6 sm:p-20 pt-32 pb-48" style={{ transform: `scale(${globalZoom})`, transformOrigin: 'top center' }}>
+                <div className={`relative min-h-[100vh] flex flex-col items-center justify-start ${focusedContent ? 'w-full px-0' : 'p-6 sm:p-20 pt-32 pb-48'}`} style={{ transform: `scale(${globalZoom})`, transformOrigin: 'top center' }}>
                     <AnimatePresence mode="wait">
                         {focusedContent ? (
                             <motion.div
@@ -884,7 +952,7 @@ const WorshipBuilder = () => {
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 1.1, y: -30 }}
                                 transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                className="w-full max-w-7xl mx-auto flex flex-col items-center justify-start mt-12 space-y-12"
+                                className="w-full flex flex-col items-center justify-start"
                             >
                                 <button
                                     onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); setLineSpotlight(null); }}
@@ -893,7 +961,7 @@ const WorshipBuilder = () => {
                                     <ArrowLeft size={28} /> {t('back', 'Retour')}
                                 </button>
 
-                                <div className="text-center w-full max-w-7xl pt-6 pb-16">
+                                <div className="text-center w-full pt-6 pb-16">
                                     {focusedContent.type !== 'sermon' && (
                                         <div className="inline-flex items-center gap-3 px-5 py-2 bg-white/5 border border-white/10 rounded-full mb-10 backdrop-blur-xl">
                                             <div className="w-2 h-2 rounded-full bg-[#D4AF37]" />
@@ -906,15 +974,340 @@ const WorshipBuilder = () => {
                                     <div className="w-full flex-1 flex flex-col items-center justify-start space-y-20 py-4 px-6">
                                         {focusedContent.type !== 'sermon' && (
                                             <>
+                                        {focusedContent.type === 'reading' && (() => {
+                                            const allSlides = (focusedContent.metadata?.passages || []).flatMap(p => parseVersesToSlides(p.text));
+                                            const slide = allSlides[mediaSlideIndex];
+                                            const reference = focusedContent.metadata?.passages?.[0]?.reference || focusedContent.metadata?.passage || 'Lecture';
+                                            const isZoomed = zoomedElementId === `v-slide-${slide?.id}`;
+
+                                            return (
+                                                <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
+                                                    {/* 1. Ultra-Compact Top Bar - CENTERED */}
+                                                    <div className="h-[6vh] min-h-[60px] w-full flex items-center justify-center bg-zinc-950/90 border-b border-white/5 z-50 px-8 backdrop-blur-3xl relative">
+                                                        <div className="absolute left-8 flex items-center gap-3">
+                                                            <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">LECTURE</span>
+                                                        </div>
+                                                        
+                                                        <h3 className="text-xl sm:text-3xl font-bold text-emerald-400 drop-shadow-lg text-center">
+                                                            {reference}
+                                                        </h3>
+
+                                                        <div className="absolute right-8 text-[10px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Projection Directe</div>
+                                                    </div>
+                                                    
+                                                    {/* 2. Scrollable Middle Area - Verses Content */}
+                                                    <div 
+                                                        className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-12"
+                                                        onWheel={(e) => {
+                                                            if (Math.abs(e.deltaY) > 80) { // Significant scroll threshold
+                                                                if (e.deltaY > 0) {
+                                                                    setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1));
+                                                                } else {
+                                                                    setMediaSlideIndex(p => Math.max(0, p - 1));
+                                                                }
+                                                            }
+                                                        }}
+                                                    >
+                                                        <AnimatePresence mode="wait">
+                                                            {slide ? (
+                                                                <motion.div 
+                                                                    key={`v-slide-${slide.id}`}
+                                                                    initial={{ opacity: 0 }}
+                                                                    animate={{ 
+                                                                        opacity: 1, 
+                                                                        scale: (isReadingFullWidth ? 1.15 : 1) * contentZoom,
+                                                                        zIndex: 10
+                                                                    }}
+                                                                    exit={{ opacity: 0 }}
+                                                                    transition={{ duration: 0.4 }}
+                                                                    className={`flex flex-col items-center justify-center cursor-zoom-in transition-all duration-500 ${isReadingFullWidth ? 'w-full max-w-none px-16' : 'w-full max-w-5xl mx-auto px-12'}`}
+                                                                    onClick={() => setIsReadingFullWidth(!isReadingFullWidth)}
+                                                                >
+                                                                    <p className="text-gray-100 font-medium leading-[1.6] text-center" 
+                                                                       style={{ 
+                                                                           fontFamily: "'Inter', sans-serif",
+                                                                           fontSize: isReadingFullWidth ? 'clamp(2.5rem, 7vw, 9rem)' : 'clamp(1.5rem, 4.5vw, 5rem)',
+                                                                           textShadow: '0 4px 30px rgba(0,0,0,0.8)'
+                                                                       }}
+                                                                    >
+                                                                        {slide.text.replace(/\(|\)/g, '').trim()}
+                                                                    </p>
+                                                                </motion.div>
+                                                            ) : (
+                                                                <div className="text-center pt-20">
+                                                                    <p className="text-2xl text-white/5 font-black uppercase tracking-widest">Fin de la lecture</p>
+                                                                </div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+
+                                                    {/* 3. Ultra-Slim Bottom Taskbar */}
+                                                    <div className="h-[6vh] min-h-[60px] w-full bg-zinc-950 border-t border-white/5 z-50 flex items-center justify-between px-8">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.max(0, p - 1)); }}
+                                                            disabled={mediaSlideIndex === 0}
+                                                            className="flex items-center gap-3 text-white/40 hover:text-white disabled:opacity-0 transition-all text-xs font-black uppercase tracking-widest group"
+                                                        >
+                                                            <ChevronLeft size={20} /> <span className="hidden sm:inline">Précédent</span>
+                                                        </button>
+                                                        
+                                                        <div className="flex items-center gap-6">
+                                                            {/* Zoom Controls - Target ONLY contentZoom */}
+                                                            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setContentZoom(p => Math.max(0.5, p - 0.1)); }}
+                                                                    className="w-6 h-6 flex items-center justify-center bg-white/5 hover:bg-white/20 rounded-full text-white font-bold transition-all"
+                                                                    title="Dézoomer le texte"
+                                                                >
+                                                                    -
+                                                                </button>
+                                                                <SearchIcon size={14} className="text-white/20" />
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setContentZoom(p => Math.min(3, p + 0.1)); }}
+                                                                    className="w-6 h-6 flex items-center justify-center bg-white/5 hover:bg-white/20 rounded-full text-white font-bold transition-all"
+                                                                    title="Zoomer le texte"
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
+
+                                                            <div className="text-xl sm:text-2xl font-black text-[#D4AF37]/60 tabular-nums">
+                                                                {mediaSlideIndex + 1} / {allSlides.length}
+                                                            </div>
+                                                            <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden hidden lg:block">
+                                                                <motion.div 
+                                                                    animate={{ width: `${((mediaSlideIndex + 1) / allSlides.length) * 100}%` }}
+                                                                    className="h-full bg-emerald-500/40"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1)); }}
+                                                            disabled={mediaSlideIndex === allSlides.length - 1}
+                                                            className="flex items-center gap-3 text-emerald-400/80 hover:text-emerald-300 transition-all text-xs font-black uppercase tracking-widest group"
+                                                        >
+                                                            <span className="hidden sm:inline">Suivant</span> <ChevronRight size={20} />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Floating Return Arrow */}
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); }}
+                                                        className="absolute top-2 left-2 z-[10000] p-2 text-white/10 hover:text-white/60 transition-all"
+                                                    >
+                                                        <ArrowLeft size={16} />
+                                                    </button>
+                                                </div>
+                                            );
+                                        })()}
+
+                                        {focusedContent.type === 'song' && (() => {
+                                            const songList = focusedContent.metadata?.songs || [];
+                                            const allSlides = songList.flatMap((s, sIdx) => 
+                                                parseLyricsToSlides(s.lyrics).map(slide => ({ 
+                                                    ...slide, 
+                                                    songIndex: sIdx, 
+                                                    songTitle: s.title,
+                                                    songNumber: s.number 
+                                                }))
+                                            );
+                                            const slide = allSlides[mediaSlideIndex];
+                                            const nextSlide = allSlides[mediaSlideIndex + 1];
+                                            const prevSlide = allSlides[mediaSlideIndex - 1];
+
+                                            const isNextDifferentSong = nextSlide && nextSlide.songIndex !== slide?.songIndex;
+                                            const isPrevDifferentSong = prevSlide && prevSlide.songIndex !== slide?.songIndex;
+
+                                            const nextLabel = isNextDifferentSong ? `Chant : ${nextSlide.songTitle}` : 'Couplet Suivant';
+                                            const prevLabel = isPrevDifferentSong ? `Chant : ${prevSlide.songTitle}` : 'Couplet Précédent';
+
+                                            const handleNext = () => {
+                                                if (isNextDifferentSong) {
+                                                    setSongTransitionPending({ targetIndex: mediaSlideIndex + 1, title: nextSlide.songTitle, direction: 'next' });
+                                                } else {
+                                                    setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1));
+                                                }
+                                            };
+
+                                            const handlePrev = () => {
+                                                if (isPrevDifferentSong) {
+                                                    setSongTransitionPending({ targetIndex: mediaSlideIndex - 1, title: prevSlide.songTitle, direction: 'prev' });
+                                                } else {
+                                                    setMediaSlideIndex(p => Math.max(0, p - 1));
+                                                }
+                                            };
+
+                                            return (
+                                                <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
+                                                    {/* 1. Ultra-Compact Top Bar - CENTERED */}
+                                                    <div className="h-[6vh] min-h-[60px] w-full flex items-center justify-center bg-zinc-950/90 border-b border-white/5 z-50 px-8 backdrop-blur-3xl relative">
+                                                        <div className="absolute left-8 flex items-center gap-3">
+                                                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.5em]">CHANT {slide?.songNumber || ''}</span>
+                                                        </div>
+                                                        
+                                                        <h3 className="text-xl sm:text-3xl font-bold text-white drop-shadow-lg text-center font-serif italic">
+                                                            « {slide?.songTitle || 'Chant'} »
+                                                        </h3>
+
+                                                        <div className="absolute right-8 text-[10px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Projection Directe</div>
+                                                    </div>
+                                                    
+                                                    {/* 2. Scrollable Middle Area - Lyrics Content */}
+                                                    <div 
+                                                        className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-12"
+                                                        onWheel={(e) => {
+                                                            if (Math.abs(e.deltaY) > 80) {
+                                                                if (e.deltaY > 0) {
+                                                                    setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1));
+                                                                } else {
+                                                                    setMediaSlideIndex(p => Math.max(0, p - 1));
+                                                                }
+                                                            }
+                                                        }}
+                                                    >
+                                                        <AnimatePresence mode="wait">
+                                                            {slide ? (
+                                                                <motion.div 
+                                                                    key={`s-slide-${slide.id}`}
+                                                                    initial={{ opacity: 0 }}
+                                                                    animate={{ 
+                                                                        opacity: 1, 
+                                                                        scale: (isSongFullWidth ? 1.15 : 1) * contentZoom,
+                                                                        zIndex: 10
+                                                                    }}
+                                                                    exit={{ opacity: 0 }}
+                                                                    transition={{ duration: 0.4 }}
+                                                                    className={`flex flex-col items-center justify-center cursor-zoom-in transition-all duration-500 ${isSongFullWidth ? 'w-full max-w-none px-16' : 'w-full max-w-5xl mx-auto px-12'}`}
+                                                                    onClick={() => setIsSongFullWidth(!isSongFullWidth)}
+                                                                >
+                                                                    <p className="text-gray-100 font-medium leading-[1.4] text-center whitespace-pre-wrap" 
+                                                                       style={{ 
+                                                                           fontFamily: "'Inter', sans-serif",
+                                                                           fontSize: isSongFullWidth ? 'clamp(2.5rem, 6.5vw, 8rem)' : 'clamp(1.8rem, 4.5vw, 5rem)',
+                                                                           textShadow: '0 4px 30px rgba(0,0,0,0.8)'
+                                                                       }}
+                                                                    >
+                                                                        {slide.text}
+                                                                    </p>
+                                                                </motion.div>
+                                                            ) : (
+                                                                <div className="text-center pt-20">
+                                                                    <p className="text-2xl text-white/5 font-black uppercase tracking-widest">Fin du chant</p>
+                                                                </div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+
+                                                    {/* 3. Ultra-Slim Bottom Taskbar */}
+                                                    <div className="h-[6vh] min-h-[60px] w-full bg-zinc-950 border-t border-white/5 z-50 flex items-center justify-between px-8">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                                                            disabled={mediaSlideIndex === 0}
+                                                            className="flex items-center gap-3 text-white/40 hover:text-white disabled:opacity-0 transition-all text-xs font-black uppercase tracking-widest group"
+                                                        >
+                                                            <ChevronLeft size={20} /> <span className="hidden sm:inline">{prevLabel}</span>
+                                                        </button>
+                                                        
+                                                        <div className="flex items-center gap-6">
+                                                            {/* Zoom Controls */}
+                                                            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setContentZoom(p => Math.max(0.5, p - 0.1)); }}
+                                                                    className="w-6 h-6 flex items-center justify-center bg-white/5 hover:bg-white/20 rounded-full text-white font-bold transition-all"
+                                                                    title="Dézoomer le texte"
+                                                                >
+                                                                    -
+                                                                </button>
+                                                                <SearchIcon size={14} className="text-white/20" />
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setContentZoom(p => Math.min(3, p + 0.1)); }}
+                                                                    className="w-6 h-6 flex items-center justify-center bg-white/5 hover:bg-white/20 rounded-full text-white font-bold transition-all"
+                                                                    title="Zoomer le texte"
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
+
+                                                            <div className="text-xl sm:text-2xl font-black text-blue-400/60 tabular-nums">
+                                                                {mediaSlideIndex + 1} / {allSlides.length}
+                                                            </div>
+                                                            <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden hidden lg:block">
+                                                                <motion.div 
+                                                                    animate={{ width: `${((mediaSlideIndex + 1) / allSlides.length) * 100}%` }}
+                                                                    className="h-full bg-blue-500/40"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                                                            disabled={mediaSlideIndex === allSlides.length - 1}
+                                                            className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-all text-xs font-black uppercase tracking-widest group"
+                                                        >
+                                                            <span className="hidden sm:inline">{nextLabel}</span> <ChevronRight size={20} />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Song Transition Popup (Small & Contextual) */}
+                                                    <AnimatePresence>
+                                                        {songTransitionPending && (
+                                                            <motion.div 
+                                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                                className={`fixed bottom-[8vh] z-[9000] px-3 pointer-events-none ${songTransitionPending.direction === 'next' ? 'right-8' : 'left-8'}`}
+                                                            >
+                                                                <div 
+                                                                    className="bg-zinc-900 border border-white/10 p-5 rounded-3xl w-72 text-center space-y-4 shadow-2xl backdrop-blur-3xl pointer-events-auto"
+                                                                    onClick={e => e.stopPropagation()}
+                                                                >
+                                                                    <div className="space-y-1">
+                                                                        <p className="text-blue-400 font-black uppercase tracking-widest text-[10px]">Chant Suivant</p>
+                                                                        <h4 className="text-sm font-bold text-white italic line-clamp-1 truncate">« {songTransitionPending.title} »</h4>
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <button 
+                                                                            onClick={() => { setMediaSlideIndex(songTransitionPending.targetIndex); setSongTransitionPending(null); }}
+                                                                            className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg"
+                                                                        >
+                                                                            OK
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => setSongTransitionPending(null)}
+                                                                            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 rounded-xl text-xs transition-all"
+                                                                        >
+                                                                            Non
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+
+                                                    {/* Floating Return Arrow */}
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); setLineSpotlight(null); }}
+                                                        className="fixed top-8 left-8 flex items-center gap-3 px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all text-xl font-black z-[100] backdrop-blur-3xl border border-white/10 text-white shadow-2xl"
+                                                    >
+                                                        <ArrowLeft size={28} /> {t('back', 'Retour')}
+                                                    </button>
+                                                </div>
+                                            );
+                                        })()}
+
+                                        {/* Default Content (Accueil, Prière, Media direct etc.) */}
+                                        {focusedContent.type !== 'reading' && focusedContent.type !== 'song' && focusedContent.type !== 'sermon' && (
+                                            <>
                                                 {(focusedContent.metadata?.songs || []).map((song, si) => {
                                                     const id = `song-${si}`;
                                                     const isZoomed = zoomedElementId === id;
                                                     return (
-                                                        <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full text-center space-y-10 transition-all duration-700 ${isZoomed ? 'scale-[1.1] sm:scale-[1.3] z-50 origin-top' : 'scale-100 z-10 opacity-60 hover:opacity-100'}`}>
-                                                            <h3 className="text-7xl sm:text-[8rem] font-black text-blue-400 drop-shadow-[0_20px_80px_rgba(0,0,0,0.8)] italic tracking-tight">« {song.title} »</h3>
+                                                        <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full text-center space-y-10 transition-all duration-700 ${isZoomed ? 'scale-110 sm:scale-125 z-50 origin-center px-4' : 'scale-100 z-10 opacity-70 hover:opacity-100'}`}>
+                                                            <h3 className="text-5xl sm:text-[7rem] font-black text-blue-400 drop-shadow-[0_20px_80px_rgba(0,0,0,0.8)] italic tracking-tight">« {song.title} »</h3>
                                                             {song.lyrics && (
-                                                                <div className="bg-black/60 p-16 sm:p-24 rounded-[4rem] border border-white/10 shadow-4xl backdrop-blur-3xl">
-                                                                    <p className="text-5xl sm:text-[6.5rem] font-black text-white leading-tight whitespace-pre-wrap tracking-tight drop-shadow-lg">{song.lyrics}</p>
+                                                                <div className="bg-black/40 p-12 sm:p-20 rounded-[4rem] border border-white/5 shadow-4xl backdrop-blur-2xl">
+                                                                    <p className="text-4xl sm:text-[5.5rem] font-medium text-white leading-tight whitespace-pre-wrap tracking-tight drop-shadow-xl">{song.lyrics}</p>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -925,21 +1318,21 @@ const WorshipBuilder = () => {
                                                     const id = `content-${ci}`;
                                                     const isZoomed = zoomedElementId === id;
                                                     return (
-                                                        <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full text-center bg-black/60 p-16 sm:p-24 rounded-[5rem] border border-white/5 shadow-3xl backdrop-blur-xl transition-all duration-700 ${isZoomed ? 'scale-[1.1] sm:scale-[1.3] z-50 origin-top' : 'scale-100 z-10 opacity-60 hover:opacity-100'}`}>
+                                                        <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full text-center bg-black/40 p-12 sm:p-20 rounded-[5rem] border border-white/5 shadow-3xl backdrop-blur-xl transition-all duration-700 ${isZoomed ? 'scale-110 sm:scale-125 z-50 origin-center px-4' : 'scale-100 z-10 opacity-70 hover:opacity-100'}`}>
                                                             {(item.type === 'image' || item.type === 'video') && item.url ? (
                                                                 item.type === 'image' ? (
-                                                                    <img src={getMediaUrl(item.url)} alt="" className="w-full h-auto max-h-[60vh] object-contain rounded-3xl mx-auto" />
+                                                                    <img src={getMediaUrl(item.url)} alt="" className="w-full h-auto max-h-[75vh] object-contain rounded-3xl mx-auto" />
                                                                 ) : (
-                                                                    <video src={getMediaUrl(item.url)} controls autoPlay className="w-full h-auto max-h-[60vh] object-contain rounded-3xl mx-auto" />
+                                                                    <video src={getMediaUrl(item.url)} controls autoPlay className="w-full h-auto max-h-[75vh] object-contain rounded-3xl mx-auto" />
                                                                 )
                                                             ) : item.content ? (
-                                                                <p className="text-6xl sm:text-[7.5rem] font-black text-gray-50 leading-tight drop-shadow-xl">{item.content}</p>
+                                                                <p className="text-5xl sm:text-[6.5rem] font-medium text-gray-50 leading-tight drop-shadow-xl">{item.content}</p>
                                                             ) : null}
                                                             {item.responsable && (
-                                                                <div className="mt-16 flex items-center justify-center gap-6">
-                                                                    <div className="h-0.5 w-16 bg-[#D4AF37]/40" />
-                                                                    <p className="text-3xl sm:text-4xl text-[#D4AF37] font-black uppercase tracking-[0.3em]">{item.responsable}</p>
-                                                                    <div className="h-0.5 w-16 bg-[#D4AF37]/40" />
+                                                                <div className="mt-12 flex items-center justify-center gap-6">
+                                                                    <div className="h-0.5 w-24 bg-[#D4AF37]/40" />
+                                                                    <p className="text-2xl sm:text-5xl text-[#D4AF37] font-black uppercase tracking-[0.4em]">{item.responsable}</p>
+                                                                    <div className="h-0.5 w-24 bg-[#D4AF37]/40" />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -950,16 +1343,18 @@ const WorshipBuilder = () => {
                                                     const id = `bible-${pi}`;
                                                     const isZoomed = zoomedElementId === id;
                                                     return (
-                                                        <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full space-y-12 transition-all duration-700 ${isZoomed ? 'scale-[1.1] sm:scale-[1.3] z-50 origin-top' : 'scale-100 z-10 opacity-60 hover:opacity-100'}`}>
-                                                            <h3 className="text-7xl sm:text-9xl font-black text-emerald-400 text-center drop-shadow-2xl">{pass.reference}</h3>
+                                                        <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full space-y-12 transition-all duration-700 ${isZoomed ? 'scale-110 sm:scale-120 z-50 origin-center px-4' : 'scale-100 z-10 opacity-70 hover:opacity-100'}`}>
+                                                            <h3 className="text-6xl sm:text-[7rem] font-black text-emerald-400 text-center drop-shadow-2xl">{pass.reference}</h3>
                                                             {pass.text && (
-                                                                <div className="bg-black/80 p-16 sm:p-24 rounded-[5rem] border-l-[24px] border-emerald-500 shadow-4xl backdrop-blur-2xl">
-                                                                    <p className="text-5xl sm:text-7xl font-serif italic text-gray-100 leading-relaxed text-justify drop-shadow-lg font-medium">{pass.text}</p>
+                                                                <div className="bg-black/60 p-12 sm:p-20 rounded-[5rem] border-l-[32px] border-emerald-500 shadow-4xl backdrop-blur-2xl">
+                                                                    <p className="text-4xl sm:text-[5.5rem] font-medium text-gray-100 leading-relaxed text-center drop-shadow-lg">{pass.text}</p>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     );
                                                 })}
+                                            </>
+                                        )}
                                             </>
                                         )}
 
@@ -977,10 +1372,10 @@ const WorshipBuilder = () => {
                                                     <img src={slide.src} alt={slide.alt} className={`rounded-[3rem] shadow-2xl transition-all duration-500 max-h-[80vh] object-contain ${isZoomed ? 'scale-110' : 'scale-90'}`} />
                                                 );
                                                 if (slide.type === 'h1') return (
-                                                    <h1 className={`font-black text-[#D4AF37] drop-shadow-[0_20px_80px_rgba(212,175,55,0.5)] uppercase tracking-tighter leading-none text-center transition-all duration-500 ${isZoomed ? 'text-[9rem]' : 'text-7xl sm:text-8xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                    <h1 className={`font-black text-[#D4AF37] drop-shadow-[0_20px_80px_rgba(212,175,55,0.5)] uppercase tracking-tighter leading-none text-center transition-all duration-500 w-full px-4 ${isZoomed ? 'text-[9rem]' : 'text-7xl sm:text-8xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                 );
                                                 if (slide.type === 'h2') return (
-                                                    <h2 className={`font-black text-white drop-shadow-2xl tracking-tight leading-tight text-center transition-all duration-500 ${isZoomed ? 'text-[8rem]' : 'text-6xl sm:text-7xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                    <h2 className={`font-black text-white drop-shadow-2xl tracking-tight leading-tight text-center transition-all duration-500 w-full px-4 ${isZoomed ? 'text-[8rem]' : 'text-6xl sm:text-7xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                 );
                                                 if (slide.type === 'h3') return (
                                                     <div className="flex flex-col items-center gap-6">
@@ -990,22 +1385,22 @@ const WorshipBuilder = () => {
                                                     </div>
                                                 );
                                                 if (slide.type === 'paragraph') return (
-                                                    <p className={`text-gray-100 font-medium leading-relaxed max-w-[85vw] text-center transition-all duration-500 ${isZoomed ? 'text-7xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                    <p className={`text-gray-100 font-medium leading-relaxed w-full px-4 text-center transition-all duration-500 ${isZoomed ? 'text-7xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                 );
                                                 if (slide.type === 'bullet') return (
-                                                    <div className="flex items-start gap-10 text-left max-w-[85vw]">
+                                                    <div className="flex items-start gap-10 text-left w-full px-8">
                                                         <div className={`rounded-full bg-[#D4AF37] flex-shrink-0 shadow-[0_0_15px_rgba(212,175,55,0.6)] transition-all duration-500 ${isZoomed ? 'w-8 h-8 mt-6' : 'w-5 h-5 mt-4'}`} />
                                                         <p className={`text-gray-100 font-medium leading-relaxed transition-all duration-500 ${isZoomed ? 'text-7xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                     </div>
                                                 );
                                                 if (slide.type === 'numbered') return (
-                                                    <div className="flex items-start gap-10 text-left max-w-[85vw]">
+                                                    <div className="flex items-start gap-10 text-left w-full px-8">
                                                         <span className={`font-black text-[#D4AF37] flex-shrink-0 leading-tight transition-all duration-500 ${isZoomed ? 'text-8xl w-32' : 'text-5xl sm:text-6xl w-24'}`}>{slide.number}.</span>
                                                         <p className={`text-gray-100 font-medium leading-relaxed transition-all duration-500 ${isZoomed ? 'text-7xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                     </div>
                                                 );
                                                 if (slide.type === 'blockquote') return (
-                                                    <div className={`border-l-8 border-emerald-500/50 pl-16 text-left max-w-[85vw] py-10 pr-10 transition-all duration-500`}>
+                                                    <div className={`border-l-8 border-emerald-500/50 pl-16 text-left w-full px-8 py-10 transition-all duration-500`}>
                                                         <p className={`font-serif italic text-white leading-relaxed transition-all duration-500 ${isZoomed ? 'text-7xl sm:text-8xl' : 'text-4xl sm:text-5xl'}`} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                         <div className="mt-8 w-32 h-1 bg-emerald-500/30 rounded-full" />
                                                     </div>
@@ -1016,7 +1411,7 @@ const WorshipBuilder = () => {
                                             // Render as FULL SCREEN ABSOLUTE OVERLAY
                                             return (
                                                 <div
-                                                    className="absolute inset-0 z-[7000] flex flex-col overflow-hidden"
+                                                    className="absolute inset-0 z-[7000] flex flex-col overflow-hidden bg-transparent"
                                                     onClick={e => e.stopPropagation()}
                                                 >
                                                     {totalContentSlides > 0 ? (
@@ -1290,49 +1685,94 @@ const WorshipBuilder = () => {
                                                 disableDragging={!projectionMode}
                                                 enableResizing={projectionMode}
                                             >
-                                                <div className="w-full flex-1 flex flex-col items-center justify-center space-y-16 py-20 px-12 group cursor-zoom-in hover:bg-white/5 transition-colors rounded-[4rem]" onClick={(e) => { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setZoomedElementId(null); }}>
-                                                    {(block.metadata?.songs || []).map((song, si) => (
-                                                        <div key={`song-${si}`} className="w-full text-center space-y-10 animate-in slide-in-from-bottom-12 duration-1000">
-                                                            <h3 className="text-7xl sm:text-[8rem] font-black text-blue-400 drop-shadow-[0_20px_80px_rgba(0,0,0,0.8)] italic tracking-tight group-hover:scale-105 transition-transform">« {song.title} »</h3>
-                                                            {song.lyrics && (
-                                                                <div className="bg-black/40 p-16 sm:p-24 rounded-[4rem] border border-white/10 shadow-4xl backdrop-blur-3xl transform group-hover:scale-[1.02] transition-transform">
-                                                                    <p className="text-5xl sm:text-[6.5rem] font-black text-white leading-tight whitespace-pre-wrap tracking-tight drop-shadow-lg">{song.lyrics.length > 80 ? song.lyrics.substring(0, 80) + '...' : song.lyrics}</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-
-                                                    {(block.metadata?.contents || []).map((item, ci) => (
-                                                        <div key={`content-${ci}`} className="w-full text-center bg-black/50 p-16 sm:p-24 rounded-[5rem] border border-white/5 shadow-3xl backdrop-blur-xl animate-in fade-in zoom-in duration-700">
-                                                            {(item.type === 'image' || item.type === 'video') && item.url ? (
-                                                                item.type === 'image' ? (
-                                                                    <img src={getMediaUrl(item.url)} alt="" className="w-full h-auto max-h-[40vh] object-contain rounded-3xl mx-auto" />
-                                                                ) : (
-                                                                    <video src={getMediaUrl(item.url)} muted autoPlay loop className="w-full h-auto max-h-[40vh] object-contain rounded-3xl mx-auto" />
-                                                                )
-                                                            ) : item.content ? (
-                                                                <p className="text-6xl sm:text-[7.5rem] font-black text-gray-50 leading-tight drop-shadow-xl">{item.content.length > 60 ? item.content.substring(0, 60) + '...' : item.content}</p>
-                                                            ) : null}
-                                                            {item.responsable && (
+                                                <div className={`w-full flex-1 flex flex-col ${block.type === 'song' ? 'items-start space-y-4 py-10' : 'items-center justify-center space-y-16 py-20'} px-12 group cursor-zoom-in transition-colors`} onClick={(e) => { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setMediaSlideIndex(0); setZoomedElementId(null); }}>
+                                                    {/* Reading (Lecture) - Intro Style */}
+                                                    {block.type === 'reading' && (block.metadata?.passages || []).map((pass, pi) => (
+                                                        <div key={`reading-intro-${pi}`} className="w-full space-y-12 animate-in fade-in zoom-in duration-1000">
+                                                            <h3 className="text-7xl sm:text-[10rem] font-black text-emerald-400 text-center drop-shadow-2xl group-hover:scale-105 transition-transform">{pass.reference}</h3>
+                                                            {pass.responsable && (
                                                                 <div className="mt-16 flex items-center justify-center gap-6">
                                                                     <div className="h-0.5 w-16 bg-[#D4AF37]/40" />
-                                                                    <p className="text-3xl sm:text-4xl text-[#D4AF37] font-black uppercase tracking-[0.3em]">{item.responsable}</p>
+                                                                    <p className="text-3xl sm:text-5xl text-[#D4AF37] font-black uppercase tracking-[0.3em]">{pass.responsable}</p>
                                                                     <div className="h-0.5 w-16 bg-[#D4AF37]/40" />
                                                                 </div>
                                                             )}
                                                         </div>
                                                     ))}
 
-                                                    {(block.metadata?.passages || []).map((pass, pi) => (
-                                                        <div key={`bible-${pi}`} className="w-full space-y-12 animate-in slide-in-from-right-12 duration-1000">
-                                                            <h3 className="text-7xl sm:text-9xl font-black text-emerald-400 text-center drop-shadow-2xl group-hover:scale-105 transition-transform">{pass.reference}</h3>
-                                                            {pass.text && (
-                                                                <div className="bg-black/60 p-16 sm:p-24 rounded-[5rem] border-l-[24px] border-emerald-500 shadow-4xl backdrop-blur-2xl group-hover:bg-black/80 transition-colors">
-                                                                    <p className="text-5xl sm:text-7xl font-serif italic text-gray-100 leading-relaxed text-justify drop-shadow-lg font-medium">{pass.text.length > 120 ? pass.text.substring(0, 120) + '...' : pass.text}</p>
+                                                    {/* Song (Chant) - Intro Style (Compact List) */}
+                                                    {block.type === 'song' && (block.metadata?.songs || []).map((song, si) => {
+                                                        const isLast = si === (block.metadata.songs.length - 1);
+                                                        return (
+                                                            <div key={`song-intro-${si}`} className="w-full">
+                                                                <button 
+                                                                    className="w-full text-left py-4 hover:bg-white/5 transition-colors group/song"
+                                                                    onClick={(e) => { 
+                                                                        e.stopPropagation(); 
+                                                                        const songStartIndex = (block.metadata.songs || [])
+                                                                            .slice(0, si)
+                                                                            .reduce((acc, s) => acc + parseLyricsToSlides(s.lyrics).length, 0);
+                                                                        setFocusedContent(block); 
+                                                                        setMediaSlideIndex(songStartIndex);
+                                                                        setZoomedElementId(null);
+                                                                    }}
+                                                                >
+                                                                    <p className="text-3xl sm:text-5xl font-medium text-white group-hover/song:text-white/70 transition-colors tracking-tight">
+                                                                        - {song.number} {song.reference || ''} , {song.title}
+                                                                    </p>
+                                                                </button>
+                                                                {!isLast && <div className="w-[60%] h-px bg-white/10 ml-0 my-2" />}
+                                                            </div>
+                                                        );
+                                                    })}
+
+                                                    {/* Default Content (Accueil, Prière, etc.) */}
+                                                    {block.type !== 'reading' && block.type !== 'song' && block.type !== 'sermon' && (
+                                                        <>
+                                                            {(block.metadata?.songs || []).map((song, si) => (
+                                                                <div key={`song-${si}`} className="w-full text-center space-y-10 animate-in slide-in-from-bottom-12 duration-1000">
+                                                                    <h3 className="text-7xl sm:text-[8rem] font-black text-blue-400 drop-shadow-[0_20px_80px_rgba(0,0,0,0.8)] italic tracking-tight group-hover:scale-105 transition-transform">« {song.title} »</h3>
+                                                                    {song.lyrics && (
+                                                                        <div className="bg-black/40 p-16 sm:p-24 rounded-[4rem] border border-white/10 shadow-4xl backdrop-blur-3xl transform group-hover:scale-[1.02] transition-transform">
+                                                                            <p className="text-5xl sm:text-[6.5rem] font-black text-white leading-tight whitespace-pre-wrap tracking-tight drop-shadow-lg">{song.lyrics.length > 80 ? song.lyrics.substring(0, 80) + '...' : song.lyrics}</p>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
+                                                            ))}
+
+                                                            {(block.metadata?.contents || []).map((item, ci) => (
+                                                                <div key={`content-${ci}`} className="w-full text-center bg-black/50 p-16 sm:p-24 rounded-[5rem] border border-white/5 shadow-3xl backdrop-blur-xl animate-in fade-in zoom-in duration-700">
+                                                                    {(item.type === 'image' || item.type === 'video') && item.url ? (
+                                                                        item.type === 'image' ? (
+                                                                            <img src={getMediaUrl(item.url)} alt="" className="w-full h-auto max-h-[40vh] object-contain rounded-3xl mx-auto" />
+                                                                        ) : (
+                                                                            <video src={getMediaUrl(item.url)} muted autoPlay loop className="w-full h-auto max-h-[40vh] object-contain rounded-3xl mx-auto" />
+                                                                        )
+                                                                    ) : item.content ? (
+                                                                        <p className="text-6xl sm:text-[7.5rem] font-black text-gray-50 leading-tight drop-shadow-xl">{item.content.length > 60 ? item.content.substring(0, 60) + '...' : item.content}</p>
+                                                                    ) : null}
+                                                                    {item.responsable && (
+                                                                        <div className="mt-16 flex items-center justify-center gap-6">
+                                                                            <div className="h-0.5 w-16 bg-[#D4AF37]/40" />
+                                                                            <p className="text-3xl sm:text-4xl text-[#D4AF37] font-black uppercase tracking-[0.3em]">{item.responsable}</p>
+                                                                            <div className="h-0.5 w-16 bg-[#D4AF37]/40" />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+
+                                                            {(block.metadata?.passages || []).map((pass, pi) => (
+                                                                <div key={`bible-${pi}`} className="w-full space-y-12 animate-in slide-in-from-right-12 duration-1000">
+                                                                    <h3 className="text-7xl sm:text-9xl font-black text-emerald-400 text-center drop-shadow-2xl group-hover:scale-105 transition-transform">{pass.reference}</h3>
+                                                                    {pass.text && (
+                                                                        <div className="bg-black/60 p-16 sm:p-24 rounded-[5rem] border-l-[24px] border-emerald-500 shadow-4xl backdrop-blur-2xl group-hover:bg-black/80 transition-colors">
+                                                                            <p className="text-5xl sm:text-7xl font-serif italic text-gray-100 leading-relaxed text-justify drop-shadow-lg font-medium">{pass.text.length > 120 ? pass.text.substring(0, 120) + '...' : pass.text}</p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </>
+                                                    )}
 
                                                     {block.type === 'sermon' && (
                                                         <div className="w-full text-center space-y-12">
@@ -1465,47 +1905,49 @@ const WorshipBuilder = () => {
                         )}
                     </AnimatePresence>
 
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="pointer-events-auto relative flex items-center gap-6 p-4 bg-black/70 backdrop-blur-3xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 opacity-0 hover:opacity-100 translate-y-8 hover:translate-y-0"
-                    >
-                        {/* Invisible padding to catch hover before hitting the toolbar */ }
-                        <div className="absolute -inset-x-12 -inset-y-12 bg-transparent -z-10" />
-                        
-                        <div className="flex items-center gap-2 px-6 border-r border-white/10">
-                            {['fade', 'slide', 'zoom', 'none'].map(t => (
-                                <button key={t} onClick={() => setActiveTransitionType(t)} className={`px-6 py-3 rounded-full text-xs font-black uppercase transition-all ${activeTransitionType === t ? 'bg-[#D4AF37] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>{t}</button>
-                            ))}
-                        </div>
-                        
-                        <div className="flex items-center gap-4 border-r border-white/10 px-6">
-                            <button onClick={() => setCurrentSlideIndex(prev => Math.max(prev - 1, -1))} className="p-4 bg-white/5 hover:bg-white/20 rounded-2xl text-white"><ChevronLeft size={28}/></button>
-                            <div className="flex flex-col items-center min-w-[4rem]">
-                                <span className="text-[#D4AF37] font-black text-2xl leading-none">{currentSlideIndex === -1 ? '00' : (currentSlideIndex + 1).toString().padStart(2, '0')}</span>
-                                <span className="text-[9px] text-gray-500 font-black uppercase mt-1">Séquence</span>
+                    {!focusedContent && (
+                        <div 
+                            onClick={(e) => e.stopPropagation()}
+                            className="pointer-events-auto relative flex items-center gap-6 p-4 bg-black/70 backdrop-blur-3xl border border-white/10 rounded-full shadow-2xl transition-all duration-500 opacity-0 hover:opacity-100 translate-y-8 hover:translate-y-0"
+                        >
+                            {/* Invisible padding to catch hover before hitting the toolbar */ }
+                            <div className="absolute -inset-x-12 -inset-y-12 bg-transparent -z-10" />
+                            
+                            <div className="flex items-center gap-2 px-6 border-r border-white/10">
+                                {['fade', 'slide', 'zoom', 'none'].map(t => (
+                                    <button key={t} onClick={() => setActiveTransitionType(t)} className={`px-6 py-3 rounded-full text-xs font-black uppercase transition-all ${activeTransitionType === t ? 'bg-[#D4AF37] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>{t}</button>
+                                ))}
                             </div>
-                            <button onClick={() => setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1))} className="p-4 bg-[#D4AF37] hover:bg-[#B8962E] rounded-2xl text-white shadow-[0_10px_30px_rgba(212,175,55,0.3)]"><ChevronRight size={28}/></button>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 border-r border-white/10 px-6 text-white min-w-[150px] justify-center">
-                            <button onClick={() => setGlobalZoom(prev => Math.max(0.2, prev - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomOut size={20}/></button>
-                            <span className="text-xs font-black font-sans">{Math.round(globalZoom * 100)}%</span>
-                            <button onClick={() => setGlobalZoom(prev => Math.min(4, prev + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomIn size={20}/></button>
-                        </div>
+                            
+                            <div className="flex items-center gap-4 border-r border-white/10 px-6">
+                                <button onClick={() => setCurrentSlideIndex(prev => Math.max(prev - 1, -1))} className="p-4 bg-white/5 hover:bg-white/20 rounded-2xl text-white"><ChevronLeft size={28}/></button>
+                                <div className="flex flex-col items-center min-w-[4rem]">
+                                    <span className="text-[#D4AF37] font-black text-2xl leading-none">{currentSlideIndex === -1 ? '00' : (currentSlideIndex + 1).toString().padStart(2, '0')}</span>
+                                    <span className="text-[9px] text-gray-500 font-black uppercase mt-1">Séquence</span>
+                                </div>
+                                <button onClick={() => setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1))} className="p-4 bg-[#D4AF37] hover:bg-[#B8962E] rounded-2xl text-white shadow-[0_10px_30px_rgba(212,175,55,0.3)]"><ChevronRight size={28}/></button>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 border-r border-white/10 px-6 text-white min-w-[150px] justify-center">
+                                <button onClick={() => setGlobalZoom(prev => Math.max(0.2, prev - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomOut size={20}/></button>
+                                <span className="text-xs font-black font-sans">{Math.round(globalZoom * 100)}%</span>
+                                <button onClick={() => setGlobalZoom(prev => Math.min(4, prev + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomIn size={20}/></button>
+                            </div>
 
-                        <div className="flex items-center gap-4 px-6 border-r border-white/10">
-                            <button onClick={() => setIsAutoPlaying(!isAutoPlaying)} className={`p-4 rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 shadow-lg text-white' : 'bg-white/5 text-gray-400'}`}>
-                                {isAutoPlaying ? <Pause size={24}/> : <Play size={24}/>}
-                            </button>
-                            <button onClick={() => setShowClock(!showClock)} className={`p-4 rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Heure"><Clock size={24}/></button>
-                            <button onClick={() => setShowBgSelector(!showBgSelector)} className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all" title="Arrière-plans"><ImageIcon size={24}/></button>
-                            <button onClick={() => setIsBlackout(!isBlackout)} className={`p-4 rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400'}`} title="Blackout (B)"><Monitor size={24}/></button>
-                        </div>
+                            <div className="flex items-center gap-4 px-6 border-r border-white/10">
+                                <button onClick={() => setIsAutoPlaying(!isAutoPlaying)} className={`p-4 rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 shadow-lg text-white' : 'bg-white/5 text-gray-400'}`}>
+                                    {isAutoPlaying ? <Pause size={24}/> : <Play size={24}/>}
+                                </button>
+                                <button onClick={() => setShowClock(!showClock)} className={`p-4 rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Heure"><Clock size={24}/></button>
+                                <button onClick={() => setShowBgSelector(!showBgSelector)} className="p-4 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all" title="Arrière-plans"><ImageIcon size={24}/></button>
+                                <button onClick={() => setIsBlackout(!isBlackout)} className={`p-4 rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400'}`} title="Blackout (B)"><Monitor size={24}/></button>
+                            </div>
 
-                        <div className="px-6">
-                            <button onClick={() => { setProjectionMode(false); setLocalBackgrounds([]); if (document.fullscreenElement) document.exitFullscreen(); }} className="p-4 bg-red-500/80 hover:bg-red-500 rounded-2xl text-white shadow-xl transition-all"><X size={28}/></button>
+                            <div className="px-6">
+                                <button onClick={() => { setProjectionMode(false); setLocalBackgrounds([]); if (document.fullscreenElement) document.exitFullscreen(); }} className="p-4 bg-red-500/80 hover:bg-red-500 rounded-2xl text-white shadow-xl transition-all"><X size={28}/></button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         );

@@ -1,4 +1,5 @@
 const db = require('../models');
+const axios = require('axios');
 
 // --- Worship Service Management ---
 
@@ -271,7 +272,6 @@ exports.uploadMedia = async (req, res) => {
     }
 };
 
-const axios = require('axios');
 exports.getBiblePassage = async (req, res) => {
     try {
         const { passage, version } = req.query;
@@ -280,29 +280,148 @@ exports.getBiblePassage = async (req, res) => {
         // Parse reference (e.g., "Jean 3:16" or "Jean 3")
         // We need the Book Code (e.g. JHN), Chapter, and Verse
         // For now, let's keep it simple: if the user passes a book like "Jean", we map it to "JHN"
-        const bibleTools = require('../utils/bibleTools'); // I will create this
+        const bibleTools = require('../utils/bibleTools');
         const { bookCode, chapter, verses } = bibleTools.parseReference(passage);
 
         if (!bookCode) return res.status(400).json({ message: "Livre non reconnu." });
 
-        const url = `https://api.getbible.net/v2/${version || 'ls1910'}/${bookCode}/${chapter}.json`;
-        console.log("Fetching Bible from:", url);
-        
-        const response = await axios.get(url);
-        const data = response.data;
+        const currentVersion = version || 'ls1910';
+        console.log(`Searching Bible: ${passage} | Version: ${currentVersion}`);
 
-        // If verses were specified (e.g. 16, or 10-23), filter the results
-        let finalVerses = data.verses || [];
-        if (verses && verses.length > 0) {
-            finalVerses = finalVerses.filter(v => verses.includes(parseInt(v.verse)));
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7'
+        };
+
+        const bookIdToName = {
+            '1': 'Genesis', '2': 'Exodus', '3': 'Leviticus', '4': 'Numbers', '5': 'Deuteronomy',
+            '6': 'Joshua', '7': 'Judges', '8': 'Ruth', '9': '1 Samuel', '10': '2 Samuel',
+            '11': '1 Kings', '12': '2 Kings', '13': '1 Chronicles', '14': '2 Chronicles', '15': 'Ezra',
+            '16': 'Nehemiah', '17': 'Esther', '18': 'Job', '19': 'Psalms', '20': 'Proverbs',
+            '21': 'Ecclesiastes', '22': 'Song of Solomon', '23': 'Isaiah', '24': 'Jeremiah', '25': 'Lamentations',
+            '26': 'Ezekiel', '27': 'Daniel', '28': 'Hosea', '29': 'Joel', '30': 'Amos',
+            '31': 'Obadiah', '32': 'Jonah', '33': 'Micah', '34': 'Nahum', '35': 'Habakkuk',
+            '36': 'Zephaniah', '37': 'Haggai', '38': 'Zechariah', '39': 'Malachi',
+            '40': 'Matthew', '41': 'Mark', '42': 'Luke', '43': 'John', '44': 'Acts',
+            '45': 'Romans', '46': '1 Corinthians', '47': '2 Corinthians', '48': 'Galatians', '49': 'Ephesians',
+            '50': 'Philippians', '51': 'Colossians', '52': '1 Thessalonians', '53': '2 Thessalonians', '54': '1 Timothy',
+            '55': '2 Timothy', '56': 'Titus', '57': 'Philemon', '58': 'Hebrews', '59': 'James',
+            '60': '1 Peter', '61': '2 Peter', '62': '1 John', '63': '2 John', '64': '3 John',
+            '65': 'Jude', '66': 'Revelation'
+        };
+
+        // Map our internal version codes to BibleGateway codes
+        const versionMap = {
+            'hcv': 'HCV',      // Haitian Creole
+            'ls1910': 'LSG',   // Louis Segond 1910
+            'neg1979': 'NEG1979', // Nouvelle Edition de Genève
+            'kjv': 'KJV'       // King James Version
+        };
+        const targetVersion = versionMap[currentVersion] || 'LSG';
+
+        try {
+            const cheerio = require('cheerio');
+            
+            // Construct standard reference for BibleGateway
+            // BibleGateway is very smart and usually accepts English names even for French bibles
+            let gatewayRef = `${bookIdToName[bookCode]} ${chapter}`;
+            const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(gatewayRef)}&version=${targetVersion}`;
+            
+            console.log(`Scraping BibleGateway: ${url}`);
+            
+            const response = await axios.get(url, { headers });
+            const $ = cheerio.load(response.data);
+            let rawVerses = [];
+
+            // More robust selector: BibleGateway verses always have a class containing the verse number
+            // and are usually within a .text class div or span
+            $('[class*="-text"]').each((i, el) => {
+                const fullClass = $(el).attr('class');
+                if (!fullClass) return;
+
+                // Match formats like "text Gen-1-1", "text lsg-v1", etc.
+                // We look for the last set of digits in classes that look like verse identifiers
+                const parts = fullClass.split(' ');
+                let verseNum = null;
+
+                for (const cls of parts) {
+                    // Look for patterns like "v1", "verse-1", "Gen-1-1"
+                    const m = cls.match(/-(\d+)$/) || cls.match(/v(\d+)$/);
+                    if (m) {
+                        verseNum = parseInt(m[1]);
+                        break;
+                    }
+                }
+
+                if (verseNum === null) {
+                    // Fallback to searching for .versenum inside or nearby if scraper is failing
+                    const numEl = $(el).find('.versenum');
+                    if (numEl.length > 0) {
+                        verseNum = parseInt(numEl.text().trim());
+                    }
+                }
+
+                // Clone element and remove non-verse text (footnotes, crossrefs)
+                const clone = $(el).clone();
+                clone.find('sup, .chapternum, .versenum, .crossreference, .footnote').remove();
+                
+                let textContent = clone.text().replace(/\u00A0/g, ' ').replace(/¶/g, '').trim();
+                textContent = textContent.replace(/^\d+/, '').trim();
+
+                if (textContent && verseNum !== null && !Number.isNaN(verseNum)) {
+                    rawVerses.push({ verse: verseNum, text: textContent });
+                }
+            });
+
+            // Merge same verse chunks (Biblegateway often splits the same verse into multiple spans)
+            const mergedVerses = [];
+            for (let v of rawVerses) {
+                const existing = mergedVerses.find(m => m.verse === v.verse);
+                if (existing) {
+                    // Only append if it's not exactly the same text (sometimes BG duplicates content in hidden spans)
+                    if (!existing.text.includes(v.text)) {
+                        existing.text += " " + v.text;
+                    }
+                } else {
+                    mergedVerses.push({ ...v });
+                }
+            }
+
+            if (mergedVerses.length > 0) {
+                let finalVerses = mergedVerses;
+                if (verses && verses.length > 0) {
+                    finalVerses = finalVerses.filter(v => verses.includes(v.verse));
+                }
+
+                return res.json({
+                    reference: `${passage.split(':')[0]}`,
+                    verses: finalVerses
+                });
+            }
+            
+            // If the robust scraper fails, try a fallback: search for anything inside .passage-text
+            console.log("BibleGateway primary scraper failed, trying fallback...");
+            let fallbackText = '';
+            $('.passage-content').each((i, el) => {
+                const clone = $(el).clone();
+                clone.find('sup, .chapternum, .versenum, .crossreference, .footnote').remove();
+                fallbackText += clone.text().replace(/\u00A0/g, ' ').replace(/¶/g, '').trim() + " ";
+            });
+
+            if (fallbackText.trim()) {
+                return res.json({
+                    reference: passage,
+                    verses: [{ verse: 1, text: fallbackText.trim() }] // Simplified result
+                });
+            }
+            
+            throw new Error("No verses extracted from BibleGateway for: " + gatewayRef);
+        } catch (e) {
+            console.error("Bible Scraper Error:", e.stack || e);
+            return res.status(500).json({ message: "Erreur lors de la récupération du passage avec cette version." });
         }
-
-        res.json({
-            reference: `${data.book_name} ${data.chapter}`,
-            verses: finalVerses.map(v => ({ verse: v.verse, text: v.text }))
-        });
     } catch (err) {
-        console.error("Bible Proxy Error:", err.message);
-        res.status(500).json({ message: "Erreur lors de la récupération du passage." });
+        console.error("Bible Proxy Error:", err.stack || err);
+        res.status(500).json({ message: "Erreur serveur inattendue." });
     }
 };
