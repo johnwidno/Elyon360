@@ -136,7 +136,7 @@ const WorshipBuilder = () => {
     const [currentActiveTransition, setCurrentActiveTransition] = useState('fade');
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const [autoPlaySpeed, setAutoPlaySpeed] = useState(5000); // Default 5s
-    const [projectionBackground, setProjectionBackground] = useState({ id: 'none', type: 'color', value: 'bg-black' });
+    const [projectionBackground, setProjectionBackground] = useState({ id: 'mountain', label: 'Sommet', type: 'image', value: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop' });
     const [bgOverlayOpacity, setBgOverlayOpacity] = useState(0.6);
     const [showBgSelector, setShowBgSelector] = useState(false);
     const [showClock, setShowClock] = useState(true);
@@ -150,6 +150,9 @@ const WorshipBuilder = () => {
     const [bibleSearchQuery, setBibleSearchQuery] = useState('');
     const [isToolbarVisible, setIsToolbarVisible] = useState(true);
     const [showTransitionDropdown, setShowTransitionDropdown] = useState(false);
+    const [projectionTextColor, setProjectionTextColor] = useState('#FFFFFF');
+    const [showTextColorSelector, setShowTextColorSelector] = useState(false);
+    const textColorPresets = ['#FFFFFF', '#000000', '#D4AF37', '#34D399', '#3B82F6', '#EF4444', '#A855F7', '#FFD700', '#F97316'];
     const toolbarTimerRef = useRef(null);
 
     const [contentZoom, setContentZoom] = useState(1);
@@ -950,7 +953,7 @@ const WorshipBuilder = () => {
                             {/* Time display */}
                             <span
                                 className="font-black text-white tracking-widest leading-none font-sans whitespace-nowrap drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]"
-                                style={{ fontSize: `${Math.round(2.5 * clockScale)}rem` }}
+                                style={{ fontSize: `${Math.round(2.5 * clockScale)}rem`, color: projectionTextColor }}
                             >
                                 {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                             </span>
@@ -1347,7 +1350,7 @@ const WorshipBuilder = () => {
                                                 </div>
 
                                                 {/* 2. Scrollable Middle Area */}
-                                                <div className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-start bg-transparent custom-scrollbar py-4 sm:py-6 px-4 sm:px-12 space-y-12 sm:space-y-24">
+                                                <div className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-start bg-transparent custom-scrollbar py-12 sm:py-16 px-4 sm:px-12 space-y-12 sm:space-y-24">
 
                                                     {(focusedContent.metadata?.songs || []).map((song, si) => {
                                                         const id = `song-${si}`;
@@ -1368,15 +1371,20 @@ const WorshipBuilder = () => {
                                                         const id = `content-${ci}`;
                                                         const isZoomed = zoomedElementId === id;
                                                         return (
-                                                            <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full text-center transition-all duration-700 ${isZoomed ? 'scale-110 sm:scale-125 z-50 origin-center px-4' : 'scale-100 z-10 opacity-80 hover:opacity-100'}`}>
+                                                            <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full text-center flex flex-col items-center gap-4 transition-all duration-700 ${isZoomed ? 'scale-110 sm:scale-125 z-50 origin-top px-4' : 'scale-100 z-10 opacity-80 hover:opacity-100'}`}>
                                                                 {(item.type === 'image' || item.type === 'video') && item.url ? (
                                                                     item.type === 'image' ? (
                                                                         <img src={getMediaUrl(item.url)} alt="" className="w-full h-auto max-h-[75vh] object-contain rounded-3xl mx-auto shadow-2xl" />
                                                                     ) : (
                                                                         <video src={getMediaUrl(item.url)} controls autoPlay className="w-full h-auto max-h-[75vh] object-contain rounded-3xl mx-auto shadow-2xl" />
                                                                     )
-                                                                ) : item.content ? (
-                                                                    <p className="font-medium text-gray-50 leading-tight drop-shadow-xl" style={{ fontSize: 'clamp(1.8rem, 7vw, 6.5rem)' }}>{item.content}</p>
+                                                                ) : item.content || item.title ? (
+                                                                    <>
+                                                                        <p className="font-medium text-gray-50 leading-tight drop-shadow-xl transition-all duration-500 w-full" style={{ fontSize: focusedContent.type === 'announcement' ? (isZoomed ? 'clamp(2.5rem, 10vw, 8rem)' : 'clamp(1.5rem, 6vw, 4.5rem)') : 'clamp(1.8rem, 7vw, 6.5rem)' }}>{item.content || item.title}</p>
+                                                                        {focusedContent.type === 'announcement' && item.description && (
+                                                                            <p className="italic opacity-80 transition-all duration-500 w-full" style={{ fontSize: isZoomed ? 'clamp(1.5rem, 6vw, 4.5rem)' : 'clamp(1rem, 4vw, 3rem)', color: projectionTextColor }}>{item.description}</p>
+                                                                        )}
+                                                                    </>
                                                                 ) : null}
                                                                 {item.responsable && (
                                                                     <div className="mt-8 sm:mt-12 flex items-center justify-center gap-4 sm:gap-6">
@@ -1388,16 +1396,15 @@ const WorshipBuilder = () => {
                                                             </div>
                                                         );
                                                     })}
-
                                                     {(focusedContent.metadata?.passages || []).map((pass, pi) => {
                                                         const id = `bible-${pi}`;
                                                         const isZoomed = zoomedElementId === id;
                                                         return (
                                                             <div key={id} onClick={(e) => { e.stopPropagation(); setZoomedElementId(isZoomed ? null : id); }} className={`cursor-zoom-in w-full space-y-6 sm:space-y-12 transition-all duration-700 ${isZoomed ? 'scale-110 sm:scale-120 z-50 origin-center px-4' : 'scale-100 z-10 opacity-70 hover:opacity-100'}`}>
-                                                                <h3 className="font-black text-emerald-400 text-center drop-shadow-2xl" style={{ fontSize: 'clamp(2.5rem, 10vw, 7rem)' }}>{pass.reference}</h3>
+                                                                <h3 className="font-black text-center drop-shadow-2xl" style={{ fontSize: 'clamp(2.5rem, 10vw, 7rem)', color: projectionTextColor }}>{pass.reference}</h3>
                                                                 {pass.text && (
                                                                     <div className="p-0 border-l-[12px] sm:border-l-[32px] border-emerald-500/20">
-                                                                        <p className="font-medium text-gray-100 leading-relaxed text-center drop-shadow-lg" style={{ fontSize: 'clamp(1.3rem, 5.5vw, 5.5rem)' }}>{pass.text}</p>
+                                                                        <p className="font-medium leading-relaxed text-center drop-shadow-lg" style={{ fontSize: 'clamp(1.3rem, 5.5vw, 5.5rem)', color: projectionTextColor }}>{pass.text}</p>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -1408,7 +1415,7 @@ const WorshipBuilder = () => {
 
                                                 {/* 3. Bottom Taskbar — ultra-slim, flush to bottom */}
                                                 <div className="h-[4vh] min-h-[40px] w-full bg-black/90 border-t border-white/5 z-50 flex items-center justify-center px-6 flex-shrink-0">
-                                                    <div className="text-[10px] font-black text-white/20 uppercase tracking-[1em]">ELYON 360 - {t(focusedContent.label, focusedContent.label)}</div>
+                                                    <div className="text-[10px] font-black uppercase tracking-[1em]" style={{ color: projectionTextColor, opacity: 0.2 }}>ELYON 360 - {t(focusedContent.label, focusedContent.label)}</div>
                                                 </div>
 
                                                 {/* Floating Return Arrow */}
@@ -1445,36 +1452,36 @@ const WorshipBuilder = () => {
                                                     <img src={slide.src} alt={slide.alt} className={`shadow-2xl transition-all duration-500 max-h-[80vh] object-contain ${isZoomed ? 'scale-110' : 'scale-90'}`} />
                                                 );
                                                 if (slide.type === 'h1') return (
-                                                    <h1 className={`font-black text-[#D4AF37] drop-shadow-[0_15px_60px_rgba(212,175,55,0.4)] uppercase tracking-tighter leading-none text-center transition-all duration-500 w-full px-4`} style={{ fontSize: isZoomed ? 'clamp(4rem, 15vw, 10rem)' : 'clamp(2.5rem, 10vw, 8rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                    <h1 className={`font-black drop-shadow-[0_15px_60px_rgba(212,175,55,0.4)] uppercase tracking-tighter leading-none text-center transition-all duration-500 w-full px-4`} style={{ fontSize: isZoomed ? 'clamp(4rem, 15vw, 10rem)' : 'clamp(2.5rem, 10vw, 8rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                 );
                                                 if (slide.type === 'h2') return (
-                                                    <h2 className={`font-black text-white drop-shadow-2xl tracking-tight leading-tight text-center transition-all duration-500 w-full px-4`} style={{ fontSize: isZoomed ? 'clamp(3.5rem, 12vw, 8rem)' : 'clamp(2.2rem, 8vw, 6rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                    <h2 className={`font-black drop-shadow-2xl tracking-tight leading-tight text-center transition-all duration-500 w-full px-4`} style={{ fontSize: isZoomed ? 'clamp(3.5rem, 12vw, 8rem)' : 'clamp(2.2rem, 8vw, 6rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                 );
                                                 if (slide.type === 'h3') return (
                                                     <div className="flex flex-col items-center gap-4 sm:gap-6">
                                                         <div className="w-16 sm:w-24 h-0.5 sm:h-1 rounded-full bg-[#D4AF37]/50" />
-                                                        <h3 className={`font-bold text-[#D4AF37]/90 tracking-wide italic text-center transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(3rem, 10vw, 7rem)' : 'clamp(1.8rem, 6vw, 5rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                        <h3 className={`font-bold tracking-wide italic text-center transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(3rem, 10vw, 7rem)' : 'clamp(1.8rem, 6vw, 5rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                         <div className="w-16 sm:w-24 h-0.5 sm:h-1 rounded-full bg-[#D4AF37]/50" />
                                                     </div>
                                                 );
                                                 if (slide.type === 'paragraph') return (
-                                                    <p className={`text-gray-100 font-medium leading-relaxed w-full px-4 text-center transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                    <p className={`font-medium leading-relaxed w-full px-4 text-center transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                 );
                                                 if (slide.type === 'bullet') return (
                                                     <div className="flex items-start gap-4 sm:gap-10 text-left w-full px-4 sm:px-8">
                                                         <div className={`rounded-full bg-[#D4AF37] flex-shrink-0 shadow-[0_0_15px_rgba(212,175,55,0.6)] transition-all duration-500 ${isZoomed ? 'w-4 h-4 sm:w-8 sm:h-8 mt-4 sm:mt-6' : 'w-2 h-2 sm:w-5 sm:h-5 mt-3 sm:mt-4'}`} />
-                                                        <p className={`text-gray-100 font-medium leading-relaxed transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                        <p className={`font-medium leading-relaxed transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                     </div>
                                                 );
                                                 if (slide.type === 'numbered') return (
                                                     <div className="flex items-start gap-4 sm:gap-10 text-left w-full px-4 sm:px-8">
-                                                        <span className={`font-black text-[#D4AF37] flex-shrink-0 leading-tight transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2.5rem, 10vw, 8rem)' : 'clamp(1.5rem, 6vw, 5rem)', width: isZoomed ? 'clamp(3rem, 15vw, 8.5rem)' : 'clamp(2rem, 10vw, 6.5rem)' }}>{slide.number}.</span>
-                                                        <p className={`text-gray-100 font-medium leading-relaxed transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                        <span className={`font-black flex-shrink-0 leading-tight transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2.5rem, 10vw, 8rem)' : 'clamp(1.5rem, 6vw, 5rem)', width: isZoomed ? 'clamp(3rem, 15vw, 8.5rem)' : 'clamp(2rem, 10vw, 6.5rem)', color: projectionTextColor }}>{slide.number}.</span>
+                                                        <p className={`font-medium leading-relaxed transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                     </div>
                                                 );
                                                 if (slide.type === 'blockquote') return (
                                                     <div className={`border-l-4 sm:border-l-8 border-emerald-500/50 pl-6 sm:pl-16 text-left w-full px-4 sm:px-8 py-6 sm:py-10 transition-all duration-500`}>
-                                                        <p className={`font-serif italic text-white leading-relaxed transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)' }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
+                                                        <p className={`font-serif italic leading-relaxed transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 6rem)' : 'clamp(1.2rem, 4.5vw, 4rem)', color: projectionTextColor }} dangerouslySetInnerHTML={{ __html: slide.html || baseText }} />
                                                         <div className="mt-4 sm:mt-8 w-16 sm:w-32 h-0.5 sm:h-1 bg-emerald-500/30 rounded-full" />
                                                     </div>
                                                 );
@@ -1489,13 +1496,12 @@ const WorshipBuilder = () => {
                                                         <div className="absolute left-6 flex items-center gap-2">
                                                             <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">MESSAGE : PRÉDICATION</span>
                                                         </div>
-                                                        <h3 className="text-sm sm:text-base font-bold text-white/90 text-center font-serif italic truncate max-w-[60%] uppercase">
+                                                        <h3 className="text-sm sm:text-base font-bold text-center font-serif italic truncate max-w-[60%] uppercase" style={{ color: projectionTextColor }}>
                                                             {service?.sermon?.title || 'Parole de Vie'}
                                                         </h3>
                                                         <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
                                                     </div>
 
-                                                    {/* 2. Middle Content Area */}
                                                     <div
                                                         className="flex-1 w-full relative flex items-center justify-center bg-transparent py-4 sm:py-6 px-4 sm:px-8 overflow-hidden"
 
@@ -1521,11 +1527,11 @@ const WorshipBuilder = () => {
                                                                     style={{ cursor: isZoomed ? 'zoom-out' : 'zoom-in' }}
                                                                 >
                                                                     <div className="w-40 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full mb-6 shrink-0" />
-                                                                    <h1 className={`font-serif font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-100 to-gray-500 uppercase tracking-tight leading-tight drop-shadow-2xl transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(4rem, 15vw, 9rem)' : 'clamp(2.5rem, 10vw, 7rem)' }}>
+                                                                    <h1 className={`font-serif font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-100 to-gray-500 uppercase tracking-tight leading-tight drop-shadow-2xl transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(4rem, 15vw, 9rem)' : 'clamp(2.5rem, 10vw, 7rem)', color: projectionTextColor, backgroundImage: 'none', WebkitBackgroundClip: 'initial' }}>
                                                                         Message de la parole de Dieu
                                                                     </h1>
                                                                     {service?.sermon?.title && (
-                                                                        <h5 className={`text-gray-200 font-bold tracking-wide mt-6 sm:mt-10 drop-shadow-md transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2.5rem, 10vw, 6rem)' : 'clamp(1.5rem, 6vw, 4rem)' }}>
+                                                                        <h5 className={`text-gray-200 font-bold tracking-wide mt-6 sm:mt-10 drop-shadow-md transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2.5rem, 10vw, 6rem)' : 'clamp(1.5rem, 6vw, 4rem)', color: projectionTextColor }}>
                                                                             {service.sermon.title}
                                                                         </h5>
                                                                     )}
@@ -1534,7 +1540,7 @@ const WorshipBuilder = () => {
                                                                             {service.sermon.preacher.photo && (
                                                                                 <img src={service.sermon.preacher.photo} alt="" className={`rounded-full border-2 border-white/20 object-cover shadow-inner transition-all duration-500 ${isZoomed ? 'w-24 h-24 sm:w-32 sm:h-32' : 'w-16 h-16 sm:w-24 sm:h-24'}`} />
                                                                             )}
-                                                                            <h3 className={`text-white font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] opacity-95 transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 5rem)' : 'clamp(1rem, 4vw, 3rem)' }}>
+                                                                            <h3 className={`text-white font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] opacity-95 transition-all duration-500`} style={{ fontSize: isZoomed ? 'clamp(2rem, 8vw, 5rem)' : 'clamp(1rem, 4vw, 3rem)', color: projectionTextColor }}>
                                                                                 {service.sermon.preacher.firstName} {service.sermon.preacher.lastName}
                                                                             </h3>
                                                                         </div>
@@ -1564,7 +1570,7 @@ const WorshipBuilder = () => {
                                                             disabled={isOnTitleSlide}
                                                             className="flex items-center gap-2 text-white/40 hover:text-white disabled:opacity-0 transition-all text-[10px] font-black uppercase tracking-widest group flex-shrink-0 max-w-[35vw]"
                                                         >
-                                                            <ChevronLeft size={16} className="flex-shrink-0" /> <span className="hidden sm:inline opacity-70 group-hover:opacity-100 truncate">{prevLabel}</span>
+                                                            <ChevronLeft size={16} className="flex-shrink-0" /> <span className="hidden sm:inline opacity-70 group-hover:opacity-100 truncate" style={{ color: projectionTextColor }}>{prevLabel}</span>
                                                         </button>
 
                                                         <div className="flex items-center gap-4 sm:gap-6">
@@ -1587,7 +1593,7 @@ const WorshipBuilder = () => {
                                                                 </button>
                                                             </div>
 
-                                                            <div className="text-base sm:text-xl font-black text-[#D4AF37]/60 tabular-nums">
+                                                            <div className="text-base sm:text-xl font-black tabular-nums" style={{ color: projectionTextColor, opacity: 0.6 }}>
                                                                 {isOnTitleSlide ? 'INTRO' : `${sermonSlideIndex + 1} / ${totalContentSlides}`}
                                                             </div>
                                                             <div className="flex items-center gap-1.5 px-4">
@@ -1603,7 +1609,7 @@ const WorshipBuilder = () => {
                                                             disabled={sermonSlideIndex === totalContentSlides - 1}
                                                             className="flex items-center gap-2 text-[#D4AF37] hover:text-[#D4AF37]/80 transition-all text-[10px] font-black uppercase tracking-widest group flex-shrink-0 max-w-[35vw]"
                                                         >
-                                                            <span className="hidden sm:inline opacity-70 group-hover:opacity-100 truncate">{nextLabel}</span> <ChevronRight size={16} className="flex-shrink-0" />
+                                                            <span className="hidden sm:inline opacity-70 group-hover:opacity-100 truncate" style={{ color: projectionTextColor }}>{nextLabel}</span> <ChevronRight size={16} className="flex-shrink-0" />
                                                         </button>
                                                     </div>
 
@@ -1648,7 +1654,7 @@ const WorshipBuilder = () => {
                                                 </div>
                                             ) : (
                                                 <div className="w-full h-96 flex items-center justify-center rounded-[4rem] border-2 border-dashed border-white/20">
-                                                    <p className="text-4xl text-gray-500 font-black uppercase tracking-widest">Aucune vidéo</p>
+                                                    <p className="text-4xl font-black uppercase tracking-widest" style={{ color: projectionTextColor, opacity: 0.5 }}>Aucune vidéo</p>
                                                 </div>
                                             );
                                         })()}
@@ -1679,11 +1685,11 @@ const WorshipBuilder = () => {
                                             className="w-32 h-32 sm:w-56 sm:h-56 mb-8 sm:mb-12 rounded-full border-4 sm:border-8 border-white/5 p-4 sm:p-6 shadow-[0_40px_100px_rgba(0,0,0,0.6)] bg-white/5 backdrop-blur-xl"
                                         />
                                     )}
-                                    <h1 className="font-black text-[#D4AF37] uppercase tracking-tighter drop-shadow-[0_20px_80px_rgba(0,0,0,0.9)] leading-none text-center" style={{ fontSize: 'clamp(3rem, 12vw, 10rem)' }}>
+                                    <h1 className="font-black uppercase tracking-tighter drop-shadow-[0_20px_80px_rgba(0,0,0,0.9)] leading-none text-center" style={{ fontSize: 'clamp(2rem, 8vw, 6rem)', color: projectionTextColor }}>
                                         {service?.theme || t('worship_program', 'Programme du Culte')}
                                     </h1>
                                     <div className="w-32 sm:w-64 h-1.5 sm:h-3 bg-[#D4AF37] mt-8 sm:mt-12 rounded-full shadow-[0_0_60px_rgba(212,175,55,0.8)]" />
-                                    <p className="mt-8 sm:mt-12 font-bold text-gray-300 uppercase tracking-[0.2em] sm:tracking-[0.4em] opacity-60 text-center" style={{ fontSize: 'clamp(1rem, 4vw, 3rem)' }}>
+                                    <p className="mt-8 sm:mt-12 font-bold uppercase tracking-[0.2em] sm:tracking-[0.4em] opacity-60 text-center" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.8rem)', color: projectionTextColor }}>
                                         {new Date(service?.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                     </p>
 
@@ -1703,8 +1709,8 @@ const WorshipBuilder = () => {
                                         <div className="w-full h-full flex flex-col relative overflow-hidden">
                                             {/* 1 - HEADER BAR: Title of the block (Static Flow) */}
                                             <div className="w-full pt-8 sm:pt-12 pb-6 flex flex-col items-center flex-shrink-0 border-b border-white/5 bg-[#0B1120]/50 backdrop-blur-md">
-                                                <div className="text-white/90 font-black text-xl sm:text-3xl tracking-[0.4em] uppercase text-center flex flex-col items-center gap-2">
-                                                    <span className="opacity-40 text-xs sm:text-sm tracking-[0.8em]">{toRoman(currentSlideIndex + 1)}</span>
+                                                <div className="font-black text-xl sm:text-3xl tracking-[0.4em] uppercase text-center flex flex-col items-center gap-2" style={{ color: projectionTextColor }}>
+                                                    <span className="opacity-40 text-xs sm:text-sm tracking-[0.8em]" style={{ color: projectionTextColor }}>{toRoman(currentSlideIndex + 1)}</span>
                                                     {t(block.label, block.label)}
                                                 </div>
                                                 <div className="w-12 sm:w-24 h-1 bg-[#D4AF37] mt-4 rounded-full opacity-60" />
@@ -1712,7 +1718,7 @@ const WorshipBuilder = () => {
 
 
                                             {/* 2 - MIDDLE ZONE: Central Content Container (Flexible Space) */}
-                                            <div className="flex-1 w-full flex flex-col items-center justify-center p-4 sm:p-12 overflow-y-auto noscrollbar">
+                                            <div className="flex-1 w-full flex flex-col items-center justify-center pt-8 pb-4 px-4 sm:p-12 overflow-y-auto noscrollbar">
 
                                                 <Rnd
                                                     size={blockLayouts[block.id]?.size || { width: '100%', height: 'auto' }}
@@ -1734,21 +1740,21 @@ const WorshipBuilder = () => {
                                                             {(block.metadata?.passages || []).map((pass, pi) => (
                                                                 <div key={`bible-${pi}`} className="w-full text-center space-y-6 sm:space-y-10 animate-in fade-in duration-700">
                                                                     <h3
-                                                                        className="font-black text-emerald-400 drop-shadow-[0_10px_60px_rgba(52,211,153,0.35)] tracking-tighter cursor-pointer hover:text-emerald-300 hover:scale-105 transition-all duration-300"
-                                                                        style={{ fontSize: 'clamp(3rem, 12vw, 9rem)' }}
+                                                                        className="font-black drop-shadow-[0_10px_60px_rgba(52,211,153,0.35)] tracking-tighter cursor-pointer hover:opacity-80 hover:scale-105 transition-all duration-300"
+                                                                        style={{ fontSize: 'clamp(3rem, 12vw, 9rem)', color: projectionTextColor }}
                                                                     >
                                                                         {pass.reference}
                                                                     </h3>
                                                                     {pass.responsable && (
                                                                         <div className="flex items-center justify-center gap-4 sm:gap-8">
                                                                             <div className="h-px w-12 sm:w-24 bg-[#D4AF37]/30" />
-                                                                            <p className="text-[#D4AF37]/80 font-bold uppercase tracking-[0.3em]" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.8rem)' }}>
+                                                                            <p className="font-bold uppercase tracking-[0.3em]" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.8rem)', color: '#D4AF37' }}>
                                                                                 {pass.responsable}
                                                                             </p>
                                                                             <div className="h-px w-12 sm:w-24 bg-[#D4AF37]/30" />
                                                                         </div>
                                                                     )}
-                                                                    <p className="text-white/15 uppercase tracking-[0.5em] font-bold" style={{ fontSize: 'clamp(0.5rem, 1.2vw, 0.75rem)' }}>
+                                                                    <p className="uppercase tracking-[0.5em] font-bold" style={{ fontSize: 'clamp(0.5rem, 1.2vw, 0.75rem)', color: projectionTextColor, opacity: 0.15 }}>
                                                                         Cliquer pour lire le texte complet
                                                                     </p>
                                                                 </div>
@@ -1766,7 +1772,7 @@ const WorshipBuilder = () => {
                                                                         {globalResponsable && (
                                                                             <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6 sm:mb-10">
                                                                                 <div className="h-px w-12 sm:w-24 bg-[#D4AF37]/30" />
-                                                                                <p className="text-[#D4AF37]/80 font-bold uppercase tracking-[0.3em]" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.8rem)' }}>
+                                                                                <p className="font-bold uppercase tracking-[0.3em]" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.8rem)', color: '#D4AF37' }}>
                                                                                     {globalResponsable}
                                                                                 </p>
                                                                                 <div className="h-px w-12 sm:w-24 bg-[#D4AF37]/30" />
@@ -1778,8 +1784,8 @@ const WorshipBuilder = () => {
                                                                                 <div key={`song-${si}`}>
                                                                                     <div className="group/songtitle w-full py-4 sm:py-6 px-6 sm:px-12 cursor-pointer hover:bg-white/5 transition-all duration-300 text-center">
                                                                                         <p
-                                                                                            className="font-bold text-white/90 group-hover/songtitle:text-blue-300 transition-colors duration-300 drop-shadow-xl w-full text-center"
-                                                                                            style={{ fontSize: 'clamp(1.1rem, 3.5vw, 2.8rem)', letterSpacing: '0.02em' }}
+                                                                                            className="font-bold transition-colors duration-300 drop-shadow-xl w-full text-center"
+                                                                                            style={{ fontSize: 'clamp(1.1rem, 3.5vw, 2.8rem)', letterSpacing: '0.02em', color: projectionTextColor }}
                                                                                         >
                                                                                             {[song.number, song.collection, song.title].filter(Boolean).join(' · ')}
                                                                                         </p>
@@ -1794,9 +1800,41 @@ const WorshipBuilder = () => {
                                                                 );
                                                             })()}
 
+                                                            {/* ── ANNONCES: Horizontal separated list matching song style ── */}
+                                                            {block.type === 'announcement' && block.metadata?.contents && block.metadata.contents.length > 0 && (() => {
+                                                                const announcements = block.metadata.contents;
+                                                                return (
+                                                                    <div className="w-full animate-in fade-in duration-700">
+                                                                        <div className="w-full overflow-y-auto noscrollbar" style={{ maxHeight: '65vh' }}>
+                                                                            {announcements.map((item, ai) => (
+                                                                                <div key={`announcement-${ai}`}>
+                                                                                    <div className="w-full py-4 sm:py-6 px-6 sm:px-12 text-center flex flex-col items-center justify-center gap-2">
+                                                                                        <p
+                                                                                            className="font-bold drop-shadow-xl w-full text-center"
+                                                                                            style={{ fontSize: 'clamp(1.1rem, 3.5vw, 2.8rem)', letterSpacing: '0.02em', color: projectionTextColor }}
+                                                                                        >
+                                                                                            {item.content || item.title}
+                                                                                        </p>
+                                                                                        {item.description && (
+                                                                                            <p className="italic opacity-70" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.8rem)', color: projectionTextColor }}>
+                                                                                                {item.description}
+                                                                                            </p>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    {ai < announcements.length - 1 && (
+                                                                                        <div className="w-full h-px bg-white/10" />
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })()}
+
+
                                                             {/* General Content Section (Image, Video, Text) */}
-                                                            {(block.metadata?.contents || []).map((item, ci) => (
-                                                                <div key={`content-${ci}`} className="w-full text-center space-y-10 animate-in zoom-in duration-1000">
+                                                            {block.type !== 'announcement' && (block.metadata?.contents || []).map((item, ci) => (
+                                                                <div key={`content-${ci}`} className="w-full flex flex-col items-center justify-center text-center space-y-10 animate-in zoom-in duration-1000">
                                                                     {((item.type === 'image' || item.type === 'video') && item.url) ? (
                                                                         <div className="relative group/media">
                                                                             {item.type === 'image' ? (
@@ -1806,12 +1844,12 @@ const WorshipBuilder = () => {
                                                                             )}
                                                                         </div>
                                                                     ) : item.content && (
-                                                                        <div className="space-y-4">
-                                                                            <p className="text-2xl sm:text-6xl lg:text-[7.5rem] font-black text-gray-50 leading-tight text-center px-4">
+                                                                        <div className="space-y-4 w-full flex flex-col items-center justify-center">
+                                                                            <p className="text-2xl sm:text-6xl lg:text-[7.5rem] font-black leading-tight text-center px-4 w-full" style={{ color: projectionTextColor }}>
                                                                                 {item.content}
                                                                             </p>
                                                                             {item.description && (
-                                                                                <p className="text-xl sm:text-3xl text-gray-400 font-medium italic text-center px-6">
+                                                                                <p className="text-lg sm:text-2xl font-medium italic text-center px-6 opacity-75" style={{ color: projectionTextColor }}>
                                                                                     {item.description}
                                                                                 </p>
                                                                             )}
@@ -1819,9 +1857,9 @@ const WorshipBuilder = () => {
                                                                     )}
 
                                                                     {item.responsable && (
-                                                                        <div className="flex items-center justify-center gap-6 mt-12">
+                                                                        <div className="flex items-center justify-center gap-6 mt-12 w-full">
                                                                             <div className="h-px w-8 sm:w-16 bg-[#D4AF37]/30" />
-                                                                            <p className="text-2xl sm:text-4xl text-[#D4AF37] font-black uppercase tracking-[0.2em]">{item.responsable}</p>
+                                                                            <p className="text-2xl sm:text-4xl font-black uppercase tracking-[0.2em]" style={{ color: '#D4AF37' }}>{item.responsable}</p>
                                                                             <div className="h-px w-8 sm:w-16 bg-[#D4AF37]/30" />
                                                                         </div>
                                                                     )}
@@ -1843,7 +1881,7 @@ const WorshipBuilder = () => {
                                                             {/* Sermon Presentation */}
                                                             {block.type === 'sermon' && (
                                                                 <div className="w-full text-center space-y-10 sm:space-y-20 animate-in slide-in-from-bottom duration-1000">
-                                                                    <h3 className="text-4xl sm:text-8xl lg:text-9xl font-black text-[#D4AF37] uppercase tracking-tighter drop-shadow-3xl px-4">
+                                                                    <h3 className="text-4xl sm:text-8xl lg:text-9xl font-black uppercase tracking-tighter drop-shadow-3xl px-4" style={{ color: projectionTextColor }}>
                                                                         Message de la parole de Dieu
                                                                     </h3>
                                                                     <div className="w-24 sm:w-48 h-2 bg-[#D4AF37] mx-auto rounded-full opacity-40 shadow-[0_0_30px_rgba(212,175,55,0.5)]" />
@@ -1860,7 +1898,6 @@ const WorshipBuilder = () => {
 
                                         </div>
                                     );
-
                                 })()}
                             </motion.div>
                         )}
@@ -1868,7 +1905,7 @@ const WorshipBuilder = () => {
                 </div>
 
                 {/* --- NAVIGATION & TOOLS (Floating UI) --- */}
-                <div className="fixed bottom-12 inset-x-0 z-[6000] flex flex-col items-center gap-6 pointer-events-none group">
+                <div className="fixed bottom-2 inset-x-0 z-[6000] flex flex-col items-center gap-4 pointer-events-none group">
                     <AnimatePresence>
                         {showBgSelector && (
                             <motion.div
@@ -1876,7 +1913,7 @@ const WorshipBuilder = () => {
                                 animate={{ y: 0, opacity: 1, scale: 1 }}
                                 exit={{ y: 20, opacity: 0, scale: 0.95 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="absolute bottom-full mb-8 right-12 pointer-events-auto bg-black/90 backdrop-blur-3xl p-5 rounded-[2rem] border border-white/10 w-[280px] shadow-4xl max-h-[70vh] overflow-y-auto noscrollbar"
+                                className="absolute bottom-full mb-6 right-12 pointer-events-auto bg-black/90 backdrop-blur-3xl p-5 rounded-[2rem] border border-white/10 w-[280px] shadow-4xl max-h-[70vh] overflow-y-auto noscrollbar"
                             >
                                 <div className="flex flex-col gap-4 mb-6">
                                     <div className="flex items-center justify-between bg-white/5 px-4 py-3 rounded-xl border border-white/10">
@@ -1945,19 +1982,19 @@ const WorshipBuilder = () => {
                     {!focusedContent && (
                         <div
                             onClick={(e) => e.stopPropagation()}
-                            className={`pointer-events-auto relative flex flex-wrap items-center justify-center gap-2 sm:gap-6 p-2 sm:p-4 bg-black/80 sm:bg-black/70 backdrop-blur-3xl border border-white/10 rounded-2xl sm:rounded-full shadow-2xl transition-all duration-700 mx-4 max-w-[95vw] ${isToolbarVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'}`}
+                            className={`pointer-events-auto relative flex flex-nowrap items-center justify-start sm:justify-center gap-1 p-1 sm:p-2 bg-black/90 sm:bg-black/80 backdrop-blur-3xl border border-white/10 rounded-xl sm:rounded-full shadow-2xl transition-all duration-700 mx-4 max-w-[98vw] overflow-x-auto noscrollbar ${isToolbarVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'}`}
                         >
-                            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-6 border-r border-white/10 relative">
+                            <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 border-r border-white/10 relative flex-shrink-0">
                                 <button
                                     onClick={() => setShowTransitionDropdown(!showTransitionDropdown)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-[10px] sm:text-xs font-black uppercase text-white transition-all border border-white/5"
+                                    className="flex items-center gap-1 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[9px] sm:text-[10px] font-black uppercase text-white transition-all border border-white/5"
                                 >
                                     {activeTransitionType === 'fade' && <Layers size={14} className="text-blue-400" />}
                                     {activeTransitionType === 'slide' && <ChevronRight size={14} className="text-blue-400" />}
                                     {activeTransitionType === 'zoom' && <Maximize size={14} className="text-blue-400" />}
                                     {activeTransitionType === 'none' && <X size={14} className="text-blue-400" />}
                                     <span className="hidden sm:inline">{activeTransitionType}</span>
-                                    <ChevronUp size={12} className={`transition-transform duration-300 ${showTransitionDropdown ? 'rotate-180' : ''}`} />
+                                    <ChevronUp size={10} className={`transition-transform duration-300 ${showTransitionDropdown ? 'rotate-180' : ''}`} />
                                 </button>
 
                                 <AnimatePresence>
@@ -1977,7 +2014,7 @@ const WorshipBuilder = () => {
                                                 <button
                                                     key={t.id}
                                                     onClick={() => { setActiveTransitionType(t.id); setShowTransitionDropdown(false); }}
-                                                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTransitionType === t.id ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                                                    className={`w-full flex items-center justify-between px-4 py-2 rounded-xl text-[10px] font-bold transition-all ${activeTransitionType === t.id ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
                                                 >
                                                     <span className="flex items-center gap-3">{t.icon} {t.label}</span>
                                                     {activeTransitionType === t.id && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
@@ -1988,43 +2025,74 @@ const WorshipBuilder = () => {
                                 </AnimatePresence>
                             </div>
 
-                            <div className="flex items-center gap-3 sm:gap-4 border-r border-white/10 px-3 sm:px-6">
-                                <button onClick={() => setCurrentSlideIndex(prev => Math.max(prev - 1, -1))} className="p-2 sm:p-4 bg-white/5 hover:bg-white/20 rounded-xl sm:rounded-2xl text-white"><ChevronLeft size={20} className="sm:w-7 sm:h-7" /></button>
-                                <div className="flex flex-col items-center min-w-[2rem] sm:min-w-[4rem]">
-                                    <span className="text-[#D4AF37] font-black text-lg sm:text-2xl leading-none">{currentSlideIndex === -1 ? '00' : (currentSlideIndex + 1).toString().padStart(2, '0')}</span>
-                                    <span className="text-[7px] sm:text-[9px] text-gray-500 font-black uppercase mt-1 hidden sm:inline">Séquence</span>
+                            <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 border-r border-white/10 relative flex-shrink-0">
+                                <button
+                                    onClick={() => setShowTextColorSelector(!showTextColorSelector)}
+                                    className="flex items-center gap-1 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[9px] sm:text-[10px] font-black uppercase text-white transition-all border border-white/5"
+                                    title="Couleur du texte"
+                                >
+                                    <PenTool size={14} style={{ color: projectionTextColor }} />
+                                    <span className="hidden sm:inline">Texte</span>
+                                    <ChevronUp size={10} className={`transition-transform duration-300 ${showTextColorSelector ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                <AnimatePresence>
+                                    {showTextColorSelector && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            className="absolute bottom-full mb-4 left-0 bg-zinc-900 border border-white/10 p-2.5 rounded-2xl shadow-2xl min-w-[180px] z-[7000]"
+                                        >
+                                            <div className="grid grid-cols-5 gap-2">
+                                                {textColorPresets.map(color => (
+                                                    <button
+                                                        key={color}
+                                                        onClick={() => { setProjectionTextColor(color); setShowTextColorSelector(false); }}
+                                                        className={`w-5 h-5 rounded-full border border-white/20 transition-transform hover:scale-125 ${projectionTextColor === color ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-900' : ''}`}
+                                                        style={{ backgroundColor: color }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+
+                            <div className="flex items-center gap-2 sm:gap-3 border-r border-white/10 px-2 sm:px-4 flex-shrink-0">
+                                <button onClick={() => setCurrentSlideIndex(prev => Math.max(prev - 1, -1))} className="p-1 sm:p-2.5 bg-white/5 hover:bg-white/20 rounded-lg sm:rounded-xl text-white"><ChevronLeft size={16} className="sm:w-6 sm:h-6" /></button>
+                                <div className="flex flex-col items-center min-w-[1.5rem] sm:min-w-[3rem]">
+                                    <span className="text-[#D4AF37] font-black text-base sm:text-xl leading-none">{currentSlideIndex === -1 ? '00' : (currentSlideIndex + 1).toString().padStart(2, '0')}</span>
+                                    <span className="text-[6px] sm:text-[8px] text-gray-500 font-black uppercase mt-0.5 hidden sm:inline">Séquence</span>
                                 </div>
 
-                                <button onClick={() => setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1))} className="p-2 sm:p-4 bg-[#D4AF37] hover:bg-[#B8962E] rounded-xl sm:rounded-2xl text-white shadow-[0_10px_30px_rgba(212,175,55,0.3)]"><ChevronRight size={20} className="sm:w-7 sm:h-7" /></button>
+                                <button onClick={() => setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1))} className="p-1 sm:p-2.5 bg-[#D4AF37] hover:bg-[#B8962E] rounded-lg sm:rounded-xl text-white shadow-[0_5px_15px_rgba(212,175,55,0.3)]"><ChevronRight size={16} className="sm:w-6 sm:h-6" /></button>
                             </div>
 
-                            <div className="hidden sm:flex items-center gap-4 border-r border-white/10 px-6 text-white min-w-[100px] justify-center">
-                                <button onClick={() => setGlobalZoom(prev => Math.max(0.2, prev - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomOut size={20} /></button>
-                                <span className="text-xs font-black font-sans">{Math.round(globalZoom * 100)}%</span>
-                                <button onClick={() => setGlobalZoom(prev => Math.min(4, prev + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomIn size={20} /></button>
+                            <div className="hidden sm:flex items-center gap-2 border-r border-white/10 px-4 text-white min-w-[80px] justify-center flex-shrink-0">
+                                <button onClick={() => setGlobalZoom(prev => Math.max(0.2, prev - 0.1))} className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomOut size={16} /></button>
+                                <span className="text-[10px] font-black font-sans">{Math.round(globalZoom * 100)}%</span>
+                                <button onClick={() => setGlobalZoom(prev => Math.min(4, prev + 0.1))} className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><ZoomIn size={16} /></button>
                             </div>
 
-                            <div className="flex items-center gap-2 sm:gap-4 px-2 sm:px-6 border-r border-white/10">
-                                <button onClick={() => setIsAutoPlaying(!isAutoPlaying)} className={`p-2 sm:p-4 rounded-lg sm:rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 shadow-lg text-white' : 'bg-white/5 text-gray-400'}`}>
-                                    {isAutoPlaying ? <Pause size={18} className="sm:w-6 sm:h-6" /> : <Play size={18} className="sm:w-6 sm:h-6" />}
+                            <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-4 border-r border-white/10 flex-shrink-0">
+                                <button onClick={() => setIsAutoPlaying(!isAutoPlaying)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 shadow-lg text-white' : 'bg-white/5 text-gray-400'}`}>
+                                    {isAutoPlaying ? <Pause size={14} className="sm:w-5 sm:h-5" /> : <Play size={14} className="sm:w-5 sm:h-5" />}
                                 </button>
-                                <button onClick={() => setShowClock(!showClock)} className={`p-2 sm:p-4 rounded-lg sm:rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Heure"><Clock size={18} className="sm:w-6 sm:h-6" /></button>
-                                <button onClick={() => setShowBgSelector(!showBgSelector)} className={`p-2 sm:p-4 rounded-lg sm:rounded-xl transition-all ${showBgSelector ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Arrière-plans"><ImageIcon size={18} className="sm:w-6 sm:h-6" /></button>
-                                <button onClick={() => setIsBlackout(!isBlackout)} className={`p-2 sm:p-4 rounded-lg sm:rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400'}`} title="Blackout (B)"><Monitor size={18} className="sm:w-6 sm:h-6" /></button>
+                                <button onClick={() => setShowClock(!showClock)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Heure"><Clock size={14} className="sm:w-5 sm:h-5" /></button>
+                                <button onClick={() => setShowBgSelector(!showBgSelector)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showBgSelector ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Arrière-plans"><ImageIcon size={14} className="sm:w-5 sm:h-5" /></button>
+                                <button onClick={() => setIsBlackout(!isBlackout)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400'}`} title="Blackout (B)"><Monitor size={14} className="sm:w-5 sm:h-5" /></button>
                             </div>
 
-                            <div className="px-2 sm:px-6">
-                                <button onClick={() => { setProjectionMode(false); setLocalBackgrounds([]); if (document.fullscreenElement) document.exitFullscreen(); }} className="p-2 sm:p-4 bg-red-500/80 hover:bg-red-500 rounded-lg sm:rounded-2xl text-white shadow-xl transition-all"><X size={20} className="sm:w-7 sm:h-7" /></button>
+                            <div className="px-1 sm:px-4 flex-shrink-0">
+                                <button onClick={() => { setProjectionMode(false); setLocalBackgrounds([]); if (document.fullscreenElement) document.exitFullscreen(); }} className="p-1 sm:p-3 bg-red-500/80 hover:bg-red-500 rounded-lg sm:rounded-xl text-white shadow-xl transition-all"><X size={16} className="sm:w-6 sm:h-6" /></button>
                             </div>
                         </div>
-
-
                     )}
                 </div>
             </div>
         );
     }
-
     if (loading) {
         return (
             <AdminLayout>
