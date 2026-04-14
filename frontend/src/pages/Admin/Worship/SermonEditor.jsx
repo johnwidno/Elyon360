@@ -713,7 +713,7 @@ const SermonEditor = ({ serviceId, initialData }) => {
                     slideList.push({ id: slideId, title: slideTitle, num: slideNum });
                     
                     fullContent += `
-                        <div id="${slideId}" class="pptx-slide-render" style="width: 29.7cm; aspect-ratio: 16/9; background: #1e293b; margin: 0 auto 80px auto; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.8); overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; background-image: radial-gradient(circle at 10% 10%, rgba(212,175,55,0.1) 0%, transparent 40%), radial-gradient(circle at 90% 90%, rgba(212,175,55,0.05) 0%, transparent 40%);">
+                        <div id="${slideId}" class="pptx-slide-render" style="width: 100%; max-width: 29.7cm; aspect-ratio: 16/9; background: #1e293b; margin: 0 auto 80px auto; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.8); overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; background-image: radial-gradient(circle at 10% 10%, rgba(212,175,55,0.1) 0%, transparent 40%), radial-gradient(circle at 90% 90%, rgba(212,175,55,0.05) 0%, transparent 40%);">
                             <div style="position: absolute; top: 30px; left: 50px; display: flex; align-items: center; gap: 15px;">
                                 <div style="width: 30px; height: 2px; background: #D4AF37;"></div>
                                 <span style="color: #D4AF37; font-size: 10px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase;">DIAPOSITIVE ${slideNum}</span>
@@ -721,6 +721,7 @@ const SermonEditor = ({ serviceId, initialData }) => {
                             
                             <div style="width: 100%; padding: 40px 100px; display: flex; flex-direction: column; gap: 40px; align-items: center; text-align: center;">
                                 ${slideText.trim() ? `<h2 style="color: #fff; font-size: 2.5rem; font-weight: 800; line-height: 1.1; margin: 0; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">${slideText.trim().substring(0, 150)}${slideText.length > 150 ? '...' : ''}</h2>` : ''}
+
                                 
                                 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%;">
                                     ${slideImagesHtml || (slideText.trim() ? '' : '<div style="color: rgba(255,255,255,0.1); font-size: 100px; opacity: 0.2;">👁</div>')}
@@ -775,28 +776,28 @@ const SermonEditor = ({ serviceId, initialData }) => {
     return (
         <div className="flex flex-col md:flex-row gap-6 h-full p-2">
             {/* Slide Navigation Sidebar */}
-            <div className="w-64 flex flex-col bg-white dark:bg-[#111C44] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl shrink-0">
+            <div className="w-full md:w-64 flex flex-col bg-white dark:bg-[#111C44] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl shrink-0 max-h-[300px] md:max-h-full">
                 <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Presentation size={16} className="text-brand-primary" />
-                        <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white">Plan des Slides</h3>
+                        <h3 className="text-[10px] md:text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white">Plan des Slides</h3>
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto noscrollbar p-2 space-y-2">
                     {slides.length === 0 && (
-                        <p className="text-[10px] text-gray-400 text-center py-10 italic">Aucune slide détectée.</p>
+                        <p className="text-[10px] text-gray-400 text-center py-6 md:py-10 italic">Aucune slide détectée.</p>
                     )}
                     {slides.map((s) => (
                         <div key={s.id} className="relative group">
                             <button
                                 onClick={() => { scrollToSlide(s.id); setActiveSlideId(s.id); }}
-                                className={`w-full text-left p-3 rounded-xl transition-all border ${activeSlideId === s.id ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30' : 'hover:bg-brand-primary/10 border-transparent hover:border-brand-primary/20'}`}
+                                className={`w-full text-left p-2.5 md:p-3 rounded-xl transition-all border ${activeSlideId === s.id ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30' : 'hover:bg-brand-primary/10 border-transparent hover:border-brand-primary/20'}`}
                             >
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className={`text-[10px] font-black uppercase ${activeSlideId === s.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-brand-primary'}`}>DIAPOSITIVE {s.num}</span>
+                                    <span className={`text-[9px] md:text-[10px] font-black uppercase ${activeSlideId === s.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-brand-primary'}`}>DIAPOSITIVE {s.num}</span>
                                     {activeSlideId === s.id && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>}
                                 </div>
-                                <div className={`text-[11px] font-bold line-clamp-2 leading-relaxed pr-6 ${activeSlideId === s.id ? 'text-indigo-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                                <div className={`text-[10px] md:text-[11px] font-bold line-clamp-2 leading-relaxed pr-6 ${activeSlideId === s.id ? 'text-indigo-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
                                     {s.title}
                                 </div>
                             </button>
@@ -805,7 +806,7 @@ const SermonEditor = ({ serviceId, initialData }) => {
                                 className="absolute right-2 top-2 p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 title="Supprimer"
                             >
-                                <XCircle size={14} />
+                                <XCircle size={12} />
                             </button>
                         </div>
                     ))}
@@ -813,8 +814,6 @@ const SermonEditor = ({ serviceId, initialData }) => {
                 <div className="p-3 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-white/5">
                     <button 
                         onClick={() => {
-                            // Find MenuBar's addSlide logic by simulating or calling a prop if we moved it
-                            // For simplicity, let's just trigger a click on the toolbar button or use a local handler
                             const title = window.prompt('Titre de la diapositive :', 'Nouvelle Diapositive');
                             if (title !== null) {
                                 const id = `slide-manual-${Date.now()}`;
@@ -831,29 +830,30 @@ const SermonEditor = ({ serviceId, initialData }) => {
                                 setTimeout(() => scrollToSlide(id), 100);
                             }
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 md:py-3 bg-indigo-500 text-white rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20"
                     >
-                        <PlusCircle size={14} /> Nouveau Slide
+                        <PlusCircle size={14} /> {t('new_slide', 'Nouveau Slide')}
                     </button>
                 </div>
             </div>
 
             {/* Editor Area */}
-            <div className="flex-1 flex flex-col bg-white dark:bg-[#111C44] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
-                <div className="p-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gray-50/50 dark:bg-white/5 shrink-0">
-                    <div className="flex items-center gap-6">
+            <div className="flex-1 flex flex-col bg-white dark:bg-[#111C44] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm min-w-0">
+                <div className="p-3 md:p-4 border-b border-gray-100 dark:border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50/50 dark:bg-white/5 shrink-0 gap-3">
+                    <div className="flex items-center gap-4 md:gap-6 w-full sm:w-auto">
                         <input 
                             type="text" 
-                            placeholder={t('sermon_title_placeholder', "Titre global de la prédication...")}
+                            placeholder={t('sermon_title_placeholder', "Titre...")}
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="bg-transparent border-none text-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0 w-64"
+                            className="bg-transparent border-none text-lg md:text-xl font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0 w-full sm:w-48 lg:w-64"
                         />
-                        <div className="flex items-center gap-2 px-3 py-1 bg-brand-primary/10 rounded-full border border-brand-primary/20">
+                        <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-brand-primary/10 rounded-full border border-brand-primary/20 shrink-0">
                             <Edit3 size={12} className="text-brand-primary" />
                             <span className="text-[10px] font-black uppercase tracking-tighter text-brand-primary">Mode Visualisation & Édition</span>
                         </div>
                     </div>
+
 
                     <div className="flex items-center gap-4">
                         {lastSaved && <span className="text-xs text-gray-400 font-medium">{t('saved_at', 'Sauvegardé à')} {lastSaved.toLocaleTimeString()}</span>}
@@ -905,15 +905,17 @@ const SermonEditor = ({ serviceId, initialData }) => {
                 
                 <style>{`
                     .ProseMirror {
-                        min-height: 29.7cm;
-                        padding: 3cm 2.5cm !important;
+                        min-height: 40vh;
+                        padding: clamp(1rem, 5vw, 3cm) clamp(1rem, 4vw, 2.5cm) !important;
                         background: white !important;
                         color: #1a1a1a !important;
                         box-shadow: 0 0 50px rgba(0,0,0,0.15);
-                        margin: 40px auto !important;
-                        width: 21cm;
+                        margin: 20px auto !important;
+                        width: 100%;
+                        max-width: 21cm;
                         border-radius: 4px;
                     }
+
                     .ProseMirror h1, .ProseMirror h2, .ProseMirror h3 {
                         color: #1a1a1a !important;
                         margin-bottom: 0.8em;

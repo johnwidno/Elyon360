@@ -57,18 +57,34 @@ def create_ultra_pro_document():
     
     doc.add_paragraph("Cette fonctionnalité garantit que la bonne information atteint la bonne personne au bon moment, optimisant ainsi l'engagement communautaire.")
 
-    # --- SECTION 3 : INFRASTRUCTURE ET MULTI-TENANCY ---
-    doc.add_heading("3. Infrastructure Multi-Tenant de Haute Précision", level=1)
+    # --- SECTION 3 : ÉCOSYSTÈME ET WORKFLOW LITURGIQUE ---
+    doc.add_heading("3. Workflow Liturgique et Gestion du Culte", level=1)
+    doc.add_paragraph("Elyon 360 révolutionne la gestion du déroulement des services (Service Blocks). L'interface est conçue pour une lecture fluide pendant le culte, privilégiant la clarté référentielle.")
+
+    doc.add_heading("3.1 Lectures Bibliques (Système de Focus)", level=2)
+    doc.add_paragraph("Pour éviter l'encombrement visuel, les lectures sont présentées en deux temps :")
+    doc.add_paragraph("- Vue Référentielle : Affiche uniquement la référence biblique (ex: 2 Knonik 14) suivie du nom de la personne responsable de la lecture.")
+    doc.add_paragraph("- Mode Focus : L'utilisateur accède au texte complet de la lecture uniquement en cliquant sur la référence. Cela permet au conducteur de culte de garder une vue d'ensemble sans être submergé par le texte.")
+
+    doc.add_heading("3.2 Gestion des Chants et Hymnologie", level=2)
+    doc.add_paragraph("Le module de chants suit une structure rigoureuse pour les groupes de louange et chorales :")
+    doc.add_paragraph("- En-tête : Nom de la personne ou du groupe responsable du chant.")
+    doc.add_paragraph("- Liste des Chants : Affichage épuré comprenant le numéro, la langue/référence, et le titre (ex: 123 FR, CHE, Je louerai l'Éternel).")
+    doc.add_paragraph("- Séparation : Chaque titre de chant est séparé par un trait horizontal net pour une distinction immédiate.")
+    doc.add_paragraph("- Interaction : Le clic sur le titre du chant ouvre le 'Focus Chant' contenant les paroles complètes et les notes d'exécution.")
+
+    # --- SECTION 4 : INFRASTRUCTURE ET MULTI-TENANCY ---
+    doc.add_heading("4. Infrastructure Multi-Tenant de Haute Précision", level=1)
     doc.add_paragraph("L'architecture technique est conçue pour l'infaillibilité :")
     doc.add_paragraph("- Isolation des Données (Shield Architecture) : Chaque organisation dispose d'un périmètre de sécurité étanche au niveau de la base de données PostgreSQL.")
     doc.add_paragraph("- Performance Temps Réel : Utilisation de WebSockets pour les notifications et mises à jour en direct, sans rechargement de page.")
 
-    # --- SECTION 4 : GESTION FINANCIÈRE ET AUDIT ---
-    doc.add_heading("4. Moteur de Comptabilité et Audit Transparent", level=1)
+    # --- SECTION 5 : GESTION FINANCIÈRE ET AUDIT ---
+    doc.add_heading("5. Moteur de Comptabilité et Audit Transparent", level=1)
     doc.add_paragraph("Le module financier est certifiable. Il intègre un journal d'audit complet où chaque transaction (Dîme, Offrande, Dépense) est tracée avec l'identité de l'opérateur, assurant une transparence totale devant le conseil de l'église.")
 
-    # --- SECTION 5 : ROADMAP TECHNOLOGIQUE ---
-    doc.add_heading("5. Vision Future et Évolutivité", level=1)
+    # --- SECTION 6 : ROADMAP TECHNOLOGIQUE ---
+    doc.add_heading("6. Vision Future et Évolutivité", level=1)
     doc.add_paragraph("Elyon 360 est en constante évolution. La roadmap 2026 inclut :")
     doc.add_paragraph("- Automatisation Marketing Ecclésiale : Suivi automatique des nouveaux visiteurs par SMS/Email.")
     doc.add_paragraph("- IA Prédictive : Estimation des besoins logistiques pour les grands événements cultuels.")

@@ -137,36 +137,44 @@ const PublicProjection = () => {
                 {blocks.sort((a, b) => a.orderIndex - b.orderIndex).map((block, i) => (
                     <div key={block.id} className="group relative">
                         {/* Block Index Label */}
-                        <div className="absolute -left-12 top-0 text-white/5 text-8xl font-black select-none group-hover:text-[#D4AF37]/10 transition-colors">
+                        <div className="absolute left-1/2 -top-12 -translate-x-1/2 text-white/5 text-7xl sm:text-[12rem] font-black select-none pointer-events-none uppercase tracking-tighter">
                             {toRoman(i + 1)}
                         </div>
 
+
+
                         <div className="space-y-8 relative">
-                            <div className="flex items-center gap-6">
-                                <div className="h-0.5 flex-1 bg-gradient-to-r from-[#D4AF37]/50 to-transparent"></div>
-                                <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-widest text-[#D4AF37]">{block.label}</h2>
-                                <div className="h-0.5 w-12 bg-[#D4AF37]/20"></div>
+                            <div className="flex items-center justify-center gap-6">
+                                <div className="h-0.5 flex-1 bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent"></div>
+                                <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-[0.3em] text-[#D4AF37] text-center">{block.label}</h2>
+                                <div className="h-0.5 flex-1 bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent"></div>
                             </div>
+
 
                             {/* Block Content Rendering */}
                             <div className="pl-0 sm:pl-10">
                                 {block.type === 'sermon' && block.metadata && (
                                     <div
-                                        className="prose prose-invert max-w-none cursor-pointer"
+                                        className="prose prose-invert max-w-none cursor-pointer text-center py-10"
                                         onClick={() => setFocusedContent({ type: 'sermon', title: block.label, content: block.metadata.content || block.metadata.sermonHtml, isHtml: true })}
-                                        dangerouslySetInnerHTML={{ __html: block.metadata.content || block.metadata.sermonHtml }}
-                                    />
+                                    >
+                                        <div dangerouslySetInnerHTML={{ __html: block.metadata.content || block.metadata.sermonHtml }} />
+                                    </div>
                                 )}
+
 
                                 {block.type === 'song' && (
                                     <div
-                                        className="bg-white/5 border border-white/10 p-10 rounded-[2rem] hover:bg-white/10 transition-all cursor-pointer group/card"
+                                        className="py-12 sm:py-24 hover:bg-white/5 transition-all cursor-pointer group/card w-full text-center"
                                         onClick={() => setFocusedContent({ type: 'song', title: block.metadata?.title || block.label, subtitle: block.metadata?.responsable, content: block.metadata?.lyrics, isHtml: false })}
                                     >
-                                        <h3 className="text-4xl font-bold italic text-blue-400 mb-6 group-hover/card:translate-x-2 transition-transform">« {block.metadata?.title} »</h3>
-                                        <p className="text-xl text-gray-400 line-clamp-3 leading-relaxed">{block.metadata?.lyrics}</p>
+                                        <h3 className="text-4xl sm:text-7xl font-black italic text-blue-400 mb-8 drop-shadow-2xl">« {block.metadata?.title} »</h3>
+                                        <p className="text-xl sm:text-4xl text-gray-100 leading-relaxed max-w-5xl mx-auto whitespace-pre-wrap">{block.metadata?.lyrics}</p>
                                     </div>
                                 )}
+
+
+
 
                                 {block.type === 'image' && block.metadata?.imageUrl && (
                                     <div
@@ -187,17 +195,19 @@ const PublicProjection = () => {
 
             {/* Focused Content Modal */}
             {focusedContent && (
-                <div className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-3xl flex flex-col items-center p-6 sm:p-20 overflow-y-auto noscrollbar">
-                    <button onClick={() => setFocusedContent(null)} className="fixed top-6 left-6 text-white bg-white/10 p-4 rounded-full hover:bg-white/20 transition-all z-[1100]">
-                        <ArrowLeft size={24} />
+                <div className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-3xl flex flex-col items-center p-4 sm:p-10 lg:p-20 overflow-y-auto noscrollbar">
+                    <button onClick={() => setFocusedContent(null)} className="fixed top-4 left-4 sm:top-6 sm:left-6 text-white bg-white/10 p-3 sm:p-4 rounded-full hover:bg-white/20 transition-all z-[1100]">
+                        <ArrowLeft size={20} className="sm:w-6 sm:h-6" />
                     </button>
 
-                    <div className="max-w-6xl w-full mx-auto space-y-10">
-                        <div className="text-center space-y-4">
-                            <h2 className="text-5xl sm:text-7xl font-black text-[#D4AF37] uppercase">{focusedContent.title}</h2>
-                            {focusedContent.subtitle && <p className="text-2xl text-gray-400 italic">Par {focusedContent.subtitle}</p>}
-                            <div className="w-32 h-1 bg-[#D4AF37] mx-auto opacity-50"></div>
+
+                    <div className="max-w-6xl w-full mx-auto space-y-6 sm:space-y-10 mt-12 sm:mt-0">
+                        <div className="text-center space-y-3 sm:space-y-4">
+                            <h2 className="text-3xl sm:text-5xl lg:text-7xl font-black text-[#D4AF37] uppercase px-4">{focusedContent.title}</h2>
+                            {focusedContent.subtitle && <p className="text-lg sm:text-2xl text-gray-400 italic">Par {focusedContent.subtitle}</p>}
+                            <div className="w-16 sm:w-32 h-0.5 sm:h-1 bg-[#D4AF37] mx-auto opacity-50"></div>
                         </div>
+
 
                         {focusedContent.isHtml ? (
                             <div className="prose prose-invert max-w-none pb-40" dangerouslySetInnerHTML={{ __html: focusedContent.content }} />
