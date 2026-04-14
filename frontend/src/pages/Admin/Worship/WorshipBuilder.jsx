@@ -1030,7 +1030,7 @@ const WorshipBuilder = () => {
 
                                                     {/* 2. Scrollable Middle Area - Verses Content */}
                                                     <div
-                                                        className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-12"
+                                                        className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-6"
                                                         onWheel={(e) => {
                                                             if (Math.abs(e.deltaY) > 80) { // Significant scroll threshold
                                                                 if (e.deltaY > 0) {
@@ -1076,7 +1076,7 @@ const WorshipBuilder = () => {
                                                     </div>
 
                                                     {/* 3. Ultra-Slim Bottom Taskbar */}
-                                                    <div className="h-[6vh] min-h-[60px] w-full bg-zinc-950 border-t border-white/5 z-50 flex items-center justify-between px-8">
+                                                    <div className="h-[4vh] min-h-[40px] w-full bg-black/90 border-t border-white/5 z-50 flex items-center justify-between px-6">
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.max(0, p - 1)); }}
                                                             disabled={mediaSlideIndex === 0}
@@ -1335,19 +1335,19 @@ const WorshipBuilder = () => {
                                         {/* Default Content (Accueil, Prière, Media direct etc.) */}
                                         {focusedContent.type !== 'reading' && focusedContent.type !== 'song' && focusedContent.type !== 'sermon' && (
                                             <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
-                                                {/* 1. Ultra-Compact Top Bar */}
-                                                <div className="h-[6vh] min-h-[60px] w-full flex items-center justify-center bg-zinc-950/90 border-b border-white/5 z-50 px-8 backdrop-blur-3xl relative">
-                                                    <div className="absolute left-8 flex items-center gap-3">
-                                                        <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">{t(focusedContent.label, focusedContent.label)}</span>
+                                                {/* 1. Top Bar — ultra-compact, opaque */}
+                                                <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-6 backdrop-blur-3xl relative flex-shrink-0">
+                                                    <div className="absolute left-6 flex items-center gap-2">
+                                                        <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">{t(focusedContent.label, focusedContent.label)}</span>
                                                     </div>
-                                                    <h3 className="text-xl sm:text-3xl font-bold text-white drop-shadow-lg text-center font-serif italic uppercase tracking-widest">
+                                                    <h3 className="text-sm sm:text-base font-bold text-white drop-shadow-lg text-center font-serif italic uppercase truncate max-w-[60%]">
                                                         {t(focusedContent.label, focusedContent.label)}
                                                     </h3>
-                                                    <div className="absolute right-8 text-[10px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Projection Directe</div>
+                                                    <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
                                                 </div>
 
                                                 {/* 2. Scrollable Middle Area */}
-                                                <div className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-start bg-transparent custom-scrollbar py-8 sm:py-20 px-4 sm:px-12 space-y-16 sm:space-y-32">
+                                                <div className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-start bg-transparent custom-scrollbar py-4 sm:py-6 px-4 sm:px-12 space-y-12 sm:space-y-24">
 
                                                     {(focusedContent.metadata?.songs || []).map((song, si) => {
                                                         const id = `song-${si}`;
@@ -1406,8 +1406,8 @@ const WorshipBuilder = () => {
 
                                                 </div>
 
-                                                {/* 3. Ultra-Slim Bottom Taskbar */}
-                                                <div className="h-[6vh] min-h-[60px] w-full bg-zinc-950 border-t border-white/5 z-50 flex items-center justify-center px-8">
+                                                {/* 3. Bottom Taskbar — ultra-slim, flush to bottom */}
+                                                <div className="h-[4vh] min-h-[40px] w-full bg-black/90 border-t border-white/5 z-50 flex items-center justify-center px-6 flex-shrink-0">
                                                     <div className="text-[10px] font-black text-white/20 uppercase tracking-[1em]">ELYON 360 - {t(focusedContent.label, focusedContent.label)}</div>
                                                 </div>
 
@@ -1428,6 +1428,16 @@ const WorshipBuilder = () => {
                                             const isOnTitleSlide = sermonSlideIndex === -1;
                                             const currentSlide = !isOnTitleSlide ? (sermonSlides[sermonSlideIndex] || null) : null;
                                             const isZoomed = !!zoomedElementId;
+
+                                            const getSlidePreviewText = (slide) => {
+                                                if (!slide) return '';
+                                                let text = slide.text || '';
+                                                const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
+                                                return cleanText.length > 70 ? cleanText.substring(0, 70) + '...' : cleanText;
+                                            };
+
+                                            const prevLabel = sermonSlideIndex === 0 ? 'INTRO' : sermonSlideIndex > 0 ? getSlidePreviewText(sermonSlides[sermonSlideIndex - 1]) : 'Précédent';
+                                            const nextLabel = isOnTitleSlide ? getSlidePreviewText(sermonSlides[0]) : sermonSlideIndex < totalContentSlides - 1 ? getSlidePreviewText(sermonSlides[sermonSlideIndex + 1]) : 'Suivant';
 
                                             const renderSlideContent = (slide) => {
                                                 const baseText = slide.text;
@@ -1476,18 +1486,18 @@ const WorshipBuilder = () => {
                                                 <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
                                                     {/* 1. Ultra-Compact Top Bar */}
                                                     <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-6 backdrop-blur-3xl relative flex-shrink-0">
-                                                        <div className="absolute left-8 flex items-center gap-3">
-                                                            <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">MESSAGE : PRÉDICATION</span>
+                                                        <div className="absolute left-6 flex items-center gap-2">
+                                                            <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">MESSAGE : PRÉDICATION</span>
                                                         </div>
-                                                        <h3 className="text-xl sm:text-3xl font-bold text-white drop-shadow-lg text-center font-serif italic uppercase tracking-widest">
+                                                        <h3 className="text-sm sm:text-base font-bold text-white/90 text-center font-serif italic truncate max-w-[60%] uppercase">
                                                             {service?.sermon?.title || 'Parole de Vie'}
                                                         </h3>
-                                                        <div className="absolute right-8 text-[10px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Projection Directe</div>
+                                                        <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
                                                     </div>
 
                                                     {/* 2. Middle Content Area */}
                                                     <div
-                                                        className="flex-1 w-full relative flex items-center justify-center bg-transparent py-6 sm:py-12 px-4 sm:px-8 overflow-hidden"
+                                                        className="flex-1 w-full relative flex items-center justify-center bg-transparent py-4 sm:py-6 px-4 sm:px-8 overflow-hidden"
 
                                                         onWheel={(e) => {
                                                             if (Math.abs(e.deltaY) > 80) {
@@ -1504,7 +1514,7 @@ const WorshipBuilder = () => {
                                                                 <motion.div
                                                                     key="sermon-title-card"
                                                                     initial={{ opacity: 0, scale: 0.9 }}
-                                                                    animate={{ opacity: 1, scale: 1 }}
+                                                                    animate={{ opacity: 1, scale: contentZoom }}
                                                                     exit={{ opacity: 0, scale: 1.1 }}
                                                                     className="w-full h-full flex flex-col items-center justify-center text-center space-y-12 cursor-zoom-in"
                                                                     onClick={() => setZoomedElementId(isZoomed ? null : 'sermon-title')}
@@ -1535,7 +1545,7 @@ const WorshipBuilder = () => {
                                                                 <motion.div
                                                                     key={`sermon-slide-${sermonSlideIndex}`}
                                                                     initial={{ opacity: 0, x: 100 }}
-                                                                    animate={{ opacity: 1, x: 0 }}
+                                                                    animate={{ opacity: 1, x: 0, scale: contentZoom }}
                                                                     exit={{ opacity: 0, x: -100 }}
                                                                     transition={{ type: "spring", damping: 25, stiffness: 200 }}
                                                                     className="w-full h-full flex flex-col items-center justify-center py-10 cursor-zoom-in"
@@ -1548,23 +1558,42 @@ const WorshipBuilder = () => {
                                                     </div>
 
                                                     {/* 3. Bottom Taskbar */}
-                                                    <div className="h-[6vh] min-h-[60px] w-full bg-zinc-950 border-t border-white/5 z-50 flex items-center justify-between px-8">
+                                                    <div className="h-[4vh] min-h-[40px] w-full bg-black/90 border-t border-white/5 z-50 flex items-center justify-between px-6 flex-shrink-0">
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setSermonSlideIndex(p => Math.max(-1, p - 1)); }}
                                                             disabled={isOnTitleSlide}
-                                                            className="flex items-center gap-3 text-white/40 hover:text-white disabled:opacity-0 transition-all text-xs font-black uppercase tracking-widest group"
+                                                            className="flex items-center gap-2 text-white/40 hover:text-white disabled:opacity-0 transition-all text-[10px] font-black uppercase tracking-widest group flex-shrink-0 max-w-[35vw]"
                                                         >
-                                                            <ChevronLeft size={20} /> <span className="hidden sm:inline">Diapo Précédente</span>
+                                                            <ChevronLeft size={16} className="flex-shrink-0" /> <span className="hidden sm:inline opacity-70 group-hover:opacity-100 truncate">{prevLabel}</span>
                                                         </button>
 
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="text-xl sm:text-2xl font-black text-[#D4AF37]/60 tabular-nums">
+                                                        <div className="flex items-center gap-4 sm:gap-6">
+                                                            {/* Zoom Controls */}
+                                                            <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/5 hidden sm:flex">
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); setContentZoom(p => Math.max(0.5, p - 0.1)); }}
+                                                                    className="w-5 h-5 flex items-center justify-center bg-white/5 hover:bg-white/20 rounded-full text-white font-bold transition-all text-xs"
+                                                                    title="Dézoomer"
+                                                                >
+                                                                    -
+                                                                </button>
+                                                                <SearchIcon size={12} className="text-white/20" />
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); setContentZoom(p => Math.min(3, p + 0.1)); }}
+                                                                    className="w-5 h-5 flex items-center justify-center bg-white/5 hover:bg-white/20 rounded-full text-white font-bold transition-all text-xs"
+                                                                    title="Zoomer"
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
+
+                                                            <div className="text-base sm:text-xl font-black text-[#D4AF37]/60 tabular-nums">
                                                                 {isOnTitleSlide ? 'INTRO' : `${sermonSlideIndex + 1} / ${totalContentSlides}`}
                                                             </div>
-                                                            <div className="flex items-center gap-2 px-6">
-                                                                <div className={`w-2 h-2 rounded-full ${isOnTitleSlide ? 'bg-[#D4AF37]' : 'bg-white/10'}`} />
+                                                            <div className="flex items-center gap-1.5 px-4">
+                                                                <div className={`w-1.5 h-1.5 rounded-full ${isOnTitleSlide ? 'bg-[#D4AF37]' : 'bg-white/10'}`} />
                                                                 {sermonSlides.map((_, i) => (
-                                                                    <div key={i} className={`w-1.5 h-1.5 rounded-full ${i === sermonSlideIndex ? 'bg-[#D4AF37]' : 'bg-white/10'}`} />
+                                                                    <div key={i} className={`w-1 h-1 rounded-full ${i === sermonSlideIndex ? 'bg-[#D4AF37]' : 'bg-white/10'}`} />
                                                                 ))}
                                                             </div>
                                                         </div>
@@ -1572,15 +1601,15 @@ const WorshipBuilder = () => {
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setSermonSlideIndex(p => Math.min(totalContentSlides - 1, p + 1)); }}
                                                             disabled={sermonSlideIndex === totalContentSlides - 1}
-                                                            className="flex items-center gap-3 text-[#D4AF37] hover:text-[#D4AF37]/80 transition-all text-xs font-black uppercase tracking-widest group"
+                                                            className="flex items-center gap-2 text-[#D4AF37] hover:text-[#D4AF37]/80 transition-all text-[10px] font-black uppercase tracking-widest group flex-shrink-0 max-w-[35vw]"
                                                         >
-                                                            <span className="hidden sm:inline">Diapo Suivante</span> <ChevronRight size={20} />
+                                                            <span className="hidden sm:inline opacity-70 group-hover:opacity-100 truncate">{nextLabel}</span> <ChevronRight size={16} className="flex-shrink-0" />
                                                         </button>
                                                     </div>
 
                                                     {/* Floating Return Arrow */}
                                                     <button
-                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); }}
+                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); setContentZoom(1); }}
                                                         className="absolute top-2 left-2 z-[10000] p-2 text-white/10 hover:text-white/60 transition-all"
                                                     >
                                                         <ArrowLeft size={16} />
