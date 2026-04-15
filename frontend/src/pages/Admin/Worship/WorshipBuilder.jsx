@@ -158,6 +158,8 @@ const WorshipBuilder = () => {
     const [contentZoom, setContentZoom] = useState(1);
     const [isReadingFullWidth, setIsReadingFullWidth] = useState(false);
     const [isSongFullWidth, setIsSongFullWidth] = useState(false);
+    const [activePreviewItem, setActivePreviewItem] = useState(null);
+    const [previewZoom, setPreviewZoom] = useState(1);
     const [songTransitionPending, setSongTransitionPending] = useState(null);
     const [biblePreview, setBiblePreview] = useState(null);
     const [bibleVersion, setBibleVersion] = useState('ls1910'); // 'ls1910' (FR), 'hcv' (Creole), 'kjv' (EN)
@@ -1728,9 +1730,9 @@ const WorshipBuilder = () => {
                                                     className="flex flex-col items-center justify-center w-full"
                                                     bounds="parent"
                                                     disableDragging={!projectionMode}
-                                                     enableResizing={projectionMode}
+                                                    enableResizing={projectionMode}
                                                 >
-                                                    <div className={`w-full flex flex-col items-center justify-center group cursor-pointer transition-all hover:scale-[1.01]`} onClick={(e) => { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setMediaSlideIndex(0); setZoomedElementId(null); }}>
+                                                    <div className={`w-full flex flex-col items-center justify-center group cursor-pointer transition-all hover:scale-[1.01]`} onClick={(e) => { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setMediaSlideIndex(0); setZoomedElementId(null); }} onTouchStart={(e) => { e.currentTarget.dataset.startX = e.touches[0].clientX; e.currentTarget.dataset.startY = e.touches[0].clientY; }} onTouchEnd={(e) => { const dx = Math.abs(e.changedTouches[0].clientX - parseFloat(e.currentTarget.dataset.startX || 0)); const dy = Math.abs(e.changedTouches[0].clientY - parseFloat(e.currentTarget.dataset.startY || 0)); if (dx < 10 && dy < 10) { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setMediaSlideIndex(0); setZoomedElementId(null); } }}>
 
                                                         {/* All-In-One Unified Content Rendering */}
                                                         <div className="w-full flex flex-col items-center justify-start gap-6 sm:gap-10">
@@ -2105,126 +2107,192 @@ const WorshipBuilder = () => {
 
     if (presentationMode) {
         return (
-            <div className="fixed inset-0 z-[500] bg-[#FAFAF5] overflow-y-auto animate-in fade-in duration-500 print:bg-white pb-20 font-serif">
-                {/* Modern Fixed Header (Admin Only) */}
-                <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 px-6 py-4 flex items-center justify-between print:hidden shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#3E322B] rounded-xl flex items-center justify-center text-white">
-                            <Layers size={20} />
+            <>
+                <div className="fixed inset-0 z-[500] bg-[#FAFAF5] overflow-y-auto animate-in fade-in duration-500 print:bg-white pb-20 font-serif">
+                    {/* Modern Fixed Header (Admin Only) */}
+                    <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#0B1120]/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 px-6 py-4 flex items-center justify-between print:hidden shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[#3E322B] rounded-xl flex items-center justify-center text-white">
+                                <Layers size={20} />
+                            </div>
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-wider text-serif">Aperçu du Programme</h2>
                         </div>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-wider text-serif">Aperçu du Programme</h2>
+                        <div className="flex items-center gap-3">
+                            <button onClick={exportToPDF} className="flex items-center gap-2 px-5 py-2.5 bg-[#3E322B] text-white rounded-xl text-sm font-bold hover:shadow-xl transition-all">
+                                <Save size={16} /> Imprimer / PDF
+                            </button>
+                            <button onClick={() => setPresentationMode(false)} className="p-2.5 bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-red-500 rounded-xl transition-all">
+                                <X size={20} />
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button onClick={exportToPDF} className="flex items-center gap-2 px-5 py-2.5 bg-[#3E322B] text-white rounded-xl text-sm font-bold hover:shadow-xl transition-all">
-                            <Save size={16} /> Imprimer / PDF
-                        </button>
-                        <button onClick={() => setPresentationMode(false)} className="p-2.5 bg-gray-100 dark:bg-white/5 text-gray-400 hover:text-red-500 rounded-xl transition-all">
-                            <X size={20} />
-                        </button>
-                    </div>
-                </div>
 
-                <div id="programme-export-zone" className="max-w-4xl mx-auto bg-white shadow-2xl print:shadow-none print:w-full print:max-w-none">
-                    <style>{`
+                    <div id="programme-export-zone" className="max-w-4xl mx-auto bg-white shadow-2xl print:shadow-none print:w-full print:max-w-none">
+                        <style>{`
                         @page { size: letter; margin: 15mm; }
                         body { background: white !important; }
                     `}</style>
-                    {/* Header: Deep Coffee Background */}
-                    <div className="bg-[#3E322B] text-center py-6 px-6 space-y-2 relative">
-                        {churchData?.logoUrl && (
-                            <img src={churchData.logoUrl.startsWith('http') ? churchData.logoUrl : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${churchData.logoUrl}`} alt="Logo" className="w-12 h-12 mx-auto mb-2 object-contain rounded-full bg-white/10" />
-                        )}
-                        <p className="text-[#D4AF37] text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em]">{churchData?.name || 'ÉGLISE ADVENTISTE DU 7ÈME JOUR'}</p>
-                        <h1 className="text-3xl sm:text-5xl text-white font-bold leading-tight">
-                            Programme du Culte
-                        </h1>
-                        <p className="text-[#D4AF37] text-lg sm:text-xl italic">
-                            {service?.theme ? `Thème Spécial : ${service.theme}` : 'Le Déroulement du Culte'}
-                        </p>
-                        <div className="text-[#D4AF37] text-[9px] sm:text-[10px] font-bold uppercase tracking-widest pt-2 flex flex-wrap justify-center gap-2 sm:gap-4">
-                            <span>{new Date(service?.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase()}</span>
-                            <span className="opacity-50 inline">•</span>
-                            <span>{service?.time?.replace(':', 'H') || '08H00'}</span>
-                        </div>
-                    </div>
-
-                    {/* Body: Classic Document Flow */}
-                    <div className="px-10 py-4 sm:px-16 space-y-3 bg-[#FAFAF5]">
-                        <div className="space-y-3">
-                            {blocks.sort((a, b) => a.orderIndex - b.orderIndex).map((block, i) => (
-                                <div key={block.id} className="space-y-2">
-                                    <h3 className="text-[12px] sm:text-[14px] text-[#3E322B] font-bold border-b border-[#3E322B]/10 pb-0.5 uppercase">
-                                        {toRoman(i + 1)}. {t(block.label, block.label)}
-                                    </h3>
-
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {/* Contents (Responsabilités) */}
-                                        {(block.metadata?.contents || []).map((item) => (
-                                            <div key={item.id} className="flex justify-between items-baseline gap-4 text-[11px]">
-                                                <span className="text-[#3E322B] font-medium leading-tight">{item.content}</span>
-                                                {item.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">{item.responsable}</span>}
-                                            </div>
-                                        ))}
-
-                                        {/* Songs */}
-                                        {(block.metadata?.songs || []).map((song) => (
-                                            <div key={song.id} className="space-y-0.5 border-l border-[#D4AF37]/30 pl-3">
-                                                <div className="flex justify-between items-baseline gap-4 text-[11px]">
-                                                    <span className="text-[#3E322B] font-bold italic">« {song.title} »</span>
-                                                    {song.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">Dirigé par {song.responsable}</span>}
-                                                </div>
-                                                {song.lyrics && <p className="text-[10px] text-gray-500 italic leading-tight">{song.lyrics.split('\n').join(' / ')}</p>}
-                                            </div>
-                                        ))}
-
-                                        {/* Bible Readings */}
-                                        {(block.metadata?.passages || []).map((pass) => (
-                                            <div key={pass.id} className="space-y-0.5 border-l border-[#3E322B]/10 pl-3">
-                                                <div className="flex justify-between items-baseline gap-4 text-[11px]">
-                                                    <span className="text-[#3E322B] font-bold">Lecture : {pass.reference}</span>
-                                                    {pass.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">{pass.responsable}</span>}
-                                                </div>
-                                                {pass.text && <p className="text-[10px] text-gray-500 italic leading-tight text-justify line-clamp-2">"{pass.text}"</p>}
-                                            </div>
-                                        ))}
-
-                                        {/* Legacy fallback */}
-                                        {(!block.metadata?.contents && !block.metadata?.songs && !block.metadata?.passages && (block.metadata?.responsable || block.metadata?.content)) && (
-                                            <div key="legacy" className="flex justify-between items-baseline gap-4 text-[11px]">
-                                                <span className="text-[#3E322B] font-medium leading-tight">{block.metadata.content}</span>
-                                                {block.metadata.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">{block.metadata.responsable}</span>}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Footer: Matching Header Style */}
-                    <div className="bg-[#3E322B] py-6 px-6 text-center space-y-4">
-                        <p className="text-[#D4AF37] text-xl italic font-serif">« Que Dieu vous bénisse »</p>
-                        <div className="space-y-1.5 flex flex-col items-center">
-                            <p className="text-[#D4AF37]/70 text-[9px] font-bold uppercase tracking-widest">
-                                {churchData?.name || 'Église Adventiste du 7ème Jour'}
-                                {churchData?.address && ` — ${churchData.address}`}
-                            </p>
-                            {(churchData?.contactPhone || churchData?.churchEmail || churchData?.contactEmail) && (
-                                <p className="text-[#D4AF37]/50 text-[8px] uppercase tracking-widest">
-                                    {churchData.contactPhone && `${churchData.contactPhone}`}
-                                    {churchData.contactPhone && (churchData.churchEmail || churchData.contactEmail) && ' | '}
-                                    {(churchData.churchEmail || churchData.contactEmail) && `${churchData.churchEmail || churchData.contactEmail}`}
-                                </p>
+                        {/* Header: Deep Coffee Background */}
+                        <div className="bg-[#3E322B] text-center py-6 px-6 space-y-2 relative">
+                            {churchData?.logoUrl && (
+                                <img src={churchData.logoUrl.startsWith('http') ? churchData.logoUrl : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${churchData.logoUrl}`} alt="Logo" className="w-12 h-12 mx-auto mb-2 object-contain rounded-full bg-white/10" />
                             )}
-                            <p className="text-[#D4AF37]/40 text-[8px] uppercase tracking-tighter pt-2 border-t border-[#D4AF37]/10 w-fit">
-                                Un programme propulsé par <span className="font-bold text-[#D4AF37]/60">Elyon360</span>
+                            <p className="text-[#D4AF37] text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em]">{churchData?.name || 'ÉGLISE ADVENTISTE DU 7ÈME JOUR'}</p>
+                            <h1 className="text-3xl sm:text-5xl text-white font-bold leading-tight">
+                                Programme du Culte
+                            </h1>
+                            <p className="text-[#D4AF37] text-lg sm:text-xl italic">
+                                {service?.theme ? `Thème Spécial : ${service.theme}` : 'Le Déroulement du Culte'}
                             </p>
+                            <div className="text-[#D4AF37] text-[9px] sm:text-[10px] font-bold uppercase tracking-widest pt-2 flex flex-wrap justify-center gap-2 sm:gap-4">
+                                <span>{new Date(service?.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase()}</span>
+                                <span className="opacity-50 inline">•</span>
+                                <span>{service?.time?.replace(':', 'H') || '08H00'}</span>
+                            </div>
+                        </div>
+
+                        {/* Body: Classic Document Flow */}
+                        <div className="px-10 py-4 sm:px-16 space-y-3 bg-[#FAFAF5]">
+                            <div className="space-y-3">
+                                {blocks.sort((a, b) => a.orderIndex - b.orderIndex).map((block, i) => (
+                                    <div key={block.id} className="space-y-2">
+                                        <h3 className="text-[12px] sm:text-[14px] text-[#3E322B] font-bold border-b border-[#3E322B]/10 pb-0.5 uppercase">
+                                            {toRoman(i + 1)}. {t(block.label, block.label)}
+                                        </h3>
+
+                                        <div className="grid grid-cols-1 gap-1">
+                                            {/* Contents (Responsabilités) */}
+                                            {(block.metadata?.contents || []).map((item) => (
+                                                <div key={item.id} className="flex justify-between items-baseline gap-4 text-[11px]">
+                                                    <span className="text-[#3E322B] font-medium leading-tight">{item.content}</span>
+                                                    {item.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">{item.responsable}</span>}
+                                                </div>
+                                            ))}
+
+                                            {/* Songs */}
+                                            {(block.metadata?.songs || []).map((song) => (
+                                                <div key={song.id}
+                                                    className="space-y-0.5 border-l border-[#D4AF37]/30 pl-3 cursor-pointer hover:bg-black/5 p-1 rounded transition-colors active:scale-95"
+                                                    onClick={() => { setActivePreviewItem({ type: 'song', ...song }); setPreviewZoom(1); }}
+                                                >
+                                                    <div className="flex justify-between items-baseline gap-4 text-[11px]">
+                                                        <span className="text-[#3E322B] font-bold italic">« {song.title} »</span>
+                                                        {song.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">Dirigé par {song.responsable}</span>}
+                                                    </div>
+                                                    {song.lyrics && <p className="text-[10px] text-gray-500 italic leading-tight">{song.lyrics.split('\n').join(' / ')}</p>}
+                                                </div>
+                                            ))}
+
+                                            {/* Bible Readings */}
+                                            {(block.metadata?.passages || []).map((pass) => (
+                                                <div key={pass.id}
+                                                    className="space-y-0.5 border-l border-[#3E322B]/10 pl-3 cursor-pointer hover:bg-black/5 p-1 rounded transition-colors active:scale-95"
+                                                    onClick={() => { setActivePreviewItem({ type: 'passage', ...pass }); setPreviewZoom(1); }}
+                                                >
+                                                    <div className="flex justify-between items-baseline gap-4 text-[11px]">
+                                                        <span className="text-[#3E322B] font-bold">Lecture : {pass.reference}</span>
+                                                        {pass.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">{pass.responsable}</span>}
+                                                    </div>
+                                                    {pass.text && <p className="text-[10px] text-gray-500 italic leading-tight text-justify line-clamp-2">"{pass.text}"</p>}
+                                                </div>
+                                            ))}
+
+                                            {/* Legacy fallback */}
+                                            {(!block.metadata?.contents && !block.metadata?.songs && !block.metadata?.passages && (block.metadata?.responsable || block.metadata?.content)) && (
+                                                <div key="legacy" className="flex justify-between items-baseline gap-4 text-[11px]">
+                                                    <span className="text-[#3E322B] font-medium leading-tight">{block.metadata.content}</span>
+                                                    {block.metadata.responsable && <span className="text-[#3E322B]/60 italic font-medium whitespace-nowrap">{block.metadata.responsable}</span>}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Footer: Matching Header Style */}
+                        <div className="bg-[#3E322B] py-6 px-6 text-center space-y-4">
+                            <p className="text-[#D4AF37] text-xl italic font-serif">« Que Dieu vous bénisse »</p>
+                            <div className="space-y-1.5 flex flex-col items-center">
+                                <p className="text-[#D4AF37]/70 text-[9px] font-bold uppercase tracking-widest">
+                                    {churchData?.name || 'Église Adventiste du 7ème Jour'}
+                                    {churchData?.address && ` — ${churchData.address}`}
+                                </p>
+                                {(churchData?.contactPhone || churchData?.churchEmail || churchData?.contactEmail) && (
+                                    <p className="text-[#D4AF37]/50 text-[8px] uppercase tracking-widest">
+                                        {churchData.contactPhone && `${churchData.contactPhone}`}
+                                        {churchData.contactPhone && (churchData.churchEmail || churchData.contactEmail) && ' | '}
+                                        {(churchData.churchEmail || churchData.contactEmail) && `${churchData.churchEmail || churchData.contactEmail}`}
+                                    </p>
+                                )}
+                                <p className="text-[#D4AF37]/40 text-[8px] uppercase tracking-tighter pt-2 border-t border-[#D4AF37]/10 w-fit">
+                                    Un programme propulsé par <span className="font-bold text-[#D4AF37]/60">Elyon360</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                {/* INTERACTIVE PREVIEW MODAL FOR MEMBERS */}
+                <AnimatePresence>
+                    {activePreviewItem && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="fixed inset-0 z-[9000] bg-black/95 backdrop-blur-xl flex flex-col print:hidden"
+                        >
+                            {/* Header and Controls */}
+                            <div className="flex items-center justify-between p-4 bg-black/40 border-b border-white/10 sticky top-0 z-10 flex-shrink-0">
+                                <h3 className="text-white font-bold tracking-widest uppercase text-sm truncate max-w-[50%] text-center mx-auto">
+                                    {activePreviewItem.type === 'song' ? activePreviewItem.title : activePreviewItem.reference}
+                                </h3>
+                                <div className="absolute right-4 flex items-center gap-2">
+                                    <button onClick={() => setPreviewZoom(z => Math.max(0.6, z - 0.2))} className="p-2 sm:p-3 bg-white/10 text-white rounded-lg sm:rounded-xl hover:bg-white/20 active:scale-95 transition-all">
+                                        <ZoomOut size={18} className="sm:w-6 sm:h-6" />
+                                    </button>
+                                    <button onClick={() => setPreviewZoom(z => Math.min(3, z + 0.2))} className="p-2 sm:p-3 bg-white/10 text-white rounded-lg sm:rounded-xl hover:bg-white/20 active:scale-95 transition-all">
+                                        <ZoomIn size={18} className="sm:w-6 sm:h-6" />
+                                    </button>
+                                    <button onClick={() => setActivePreviewItem(null)} className="p-2 sm:p-3 bg-red-500/80 text-white rounded-lg sm:rounded-xl hover:bg-red-500 ml-2 active:scale-95 transition-all">
+                                        <X size={18} className="sm:w-6 sm:h-6" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 w-full flex flex-col justify-start items-center pb-24 text-sans">
+                                <div className="w-full text-center transition-transform duration-300 origin-top" style={{ transform: `scale(${previewZoom})` }}>
+                                    {activePreviewItem.type === 'song' ? (
+                                        <div className="max-w-2xl mx-auto space-y-8">
+                                            <h2 className="text-[#D4AF37] text-2xl sm:text-4xl font-black italic">« {activePreviewItem.title} »</h2>
+                                            {activePreviewItem.lyrics ? (
+                                                <p className="text-gray-100 whitespace-pre-wrap leading-relaxed text-lg sm:text-2xl font-medium drop-shadow-md pb-12">{activePreviewItem.lyrics}</p>
+                                            ) : (
+                                                <p className="text-gray-500 italic pb-12">Paroles indisponibles</p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="max-w-3xl mx-auto space-y-8 flex flex-col items-center">
+                                            <h2 className="text-[#34D399] text-3xl sm:text-5xl font-black drop-shadow-xl">{activePreviewItem.reference}</h2>
+                                            {activePreviewItem.text ? (
+                                                <div className="border-l-[6px] border-[#34D399]/40 pl-6 sm:pl-10 py-2 sm:py-6 w-full text-left">
+                                                    <p className="text-gray-100 text-xl sm:text-3xl leading-[1.8] tracking-wide text-justify font-serif pb-12">{activePreviewItem.text}</p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 italic pb-12">Texte indisponible</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </>
         );
     }
+
 
     return (
         <AdminLayout>
