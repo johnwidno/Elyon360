@@ -7,7 +7,7 @@ import worshipService from '../../../api/worshipService';
 import SermonEditor from './SermonEditor';
 import { Rnd } from 'react-rnd';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, GripVertical, Plus, Minus, Music, Book, BookOpen, Heart, Users, Speaker, Save, Mic, Trash2, X, Search as SearchIcon, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Layers, PenTool, LayoutTemplate, PlusCircle, Type, UserCheck, Users as UsersIcon, MessageSquare, Send, Clock, MapPin, Monitor, Maximize, Play, Pause, Image as ImageIcon, ZoomIn, ZoomOut, Video } from 'lucide-react';
+import { ArrowLeft, GripVertical, Plus, Minus, Music, Book, BookOpen, Heart, Users, Speaker, Save, Mic, Trash2, X, Search as SearchIcon, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Layers, PenTool, LayoutTemplate, PlusCircle, Type, UserCheck, Users as UsersIcon, MessageSquare, Send, Clock, MapPin, Monitor, Maximize, Play, Pause, Image as ImageIcon, ZoomIn, ZoomOut, Video, Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -450,6 +450,17 @@ const WorshipBuilder = () => {
         } catch (error) {
             toast.error('Erreur lors de l\'ajout du bloc');
         }
+    };
+
+
+    const handleShareProjection = () => {
+        const shareUrl = `${window.location.origin}/public/worship/${id}`;
+        navigator.clipboard.writeText(shareUrl)
+            .then(() => toast.success('Lien de projection copié !', {
+                icon: '🔗',
+                style: { borderRadius: '10px', background: '#333', color: '#fff' }
+            }))
+            .catch(() => toast.error('Erreur lors de la copie du lien'));
     };
 
     const handleUpdateBlockMetadata = async (blockId, metadataUpdate) => {
@@ -1999,11 +2010,11 @@ const WorshipBuilder = () => {
                     {!focusedContent && (
                         <div
                             onClick={(e) => e.stopPropagation()}
-                            className={`pointer-events-auto relative flex flex-nowrap items-center justify-start sm:justify-center gap-1 p-1 sm:p-2 bg-black/90 sm:bg-black/80 backdrop-blur-3xl border border-white/10 rounded-xl sm:rounded-full shadow-2xl transition-all duration-700 mx-4 max-w-[98vw] overflow-x-auto noscrollbar ${isToolbarVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'}`}
+                            className={`pointer-events-auto relative flex flex-nowrap items-center justify-start sm:justify-center gap-1 p-1 sm:p-2 bg-black/90 sm:bg-black/80 backdrop-blur-3xl border border-white/10 rounded-xl sm:rounded-full shadow-2xl transition-all duration-700 mx-4 max-w-[98vw] ${isToolbarVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'}`}
                         >
                             <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 border-r border-white/10 relative flex-shrink-0">
                                 <button
-                                    onClick={() => setShowTransitionDropdown(!showTransitionDropdown)}
+                                    onClick={(e) => { e.stopPropagation(); setShowTransitionDropdown(!showTransitionDropdown); }}
                                     className="flex items-center gap-1 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[9px] sm:text-[10px] font-black uppercase text-white transition-all border border-white/5"
                                 >
                                     {activeTransitionType === 'fade' && <Layers size={14} className="text-blue-400" />}
@@ -2020,7 +2031,7 @@ const WorshipBuilder = () => {
                                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            className="absolute bottom-full mb-4 left-0 bg-zinc-900 border border-white/10 p-2 rounded-2xl shadow-2xl min-w-[140px] z-[7000]"
+                                            className="absolute bottom-full mb-4 left-0 bg-zinc-900 border border-white/10 p-2 rounded-2xl shadow-2xl min-w-[140px] z-[8000]"
                                         >
                                             {[
                                                 { id: 'fade', icon: <Layers size={14} />, label: 'Fondu' },
@@ -2044,7 +2055,7 @@ const WorshipBuilder = () => {
 
                             <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 border-r border-white/10 relative flex-shrink-0">
                                 <button
-                                    onClick={() => setShowTextColorSelector(!showTextColorSelector)}
+                                    onClick={(e) => { e.stopPropagation(); setShowTextColorSelector(!showTextColorSelector); }}
                                     className="flex items-center gap-1 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-full text-[9px] sm:text-[10px] font-black uppercase text-white transition-all border border-white/5"
                                     title="Couleur du texte"
                                 >
@@ -2059,7 +2070,7 @@ const WorshipBuilder = () => {
                                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            className="absolute bottom-full mb-4 left-0 bg-zinc-900 border border-white/10 p-2.5 rounded-2xl shadow-2xl min-w-[180px] z-[7000]"
+                                            className="absolute bottom-full mb-4 left-0 bg-zinc-900 border border-white/10 p-2.5 rounded-2xl shadow-2xl min-w-[180px] z-[8000]"
                                         >
                                             <div className="grid grid-cols-5 gap-2">
                                                 {textColorPresets.map(color => (
@@ -2093,12 +2104,12 @@ const WorshipBuilder = () => {
                             </div>
 
                             <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-4 border-r border-white/10 flex-shrink-0">
-                                <button onClick={() => setIsAutoPlaying(!isAutoPlaying)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 shadow-lg text-white' : 'bg-white/5 text-gray-400'}`}>
+                                <button onClick={(e) => { e.stopPropagation(); setIsAutoPlaying(!isAutoPlaying); }} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 shadow-lg text-white' : 'bg-white/5 text-gray-400'}`}>
                                     {isAutoPlaying ? <Pause size={14} className="sm:w-5 sm:h-5" /> : <Play size={14} className="sm:w-5 sm:h-5" />}
                                 </button>
-                                <button onClick={() => setShowClock(!showClock)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Heure"><Clock size={14} className="sm:w-5 sm:h-5" /></button>
-                                <button onClick={() => setShowBgSelector(!showBgSelector)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showBgSelector ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Arrière-plans"><ImageIcon size={14} className="sm:w-5 sm:h-5" /></button>
-                                <button onClick={() => setIsBlackout(!isBlackout)} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400'}`} title="Blackout (B)"><Monitor size={14} className="sm:w-5 sm:h-5" /></button>
+                                <button onClick={(e) => { e.stopPropagation(); setShowClock(!showClock); }} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Heure"><Clock size={14} className="sm:w-5 sm:h-5" /></button>
+                                <button onClick={(e) => { e.stopPropagation(); setShowBgSelector(!showBgSelector); }} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showBgSelector ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`} title="Arrière-plans"><ImageIcon size={14} className="sm:w-5 sm:h-5" /></button>
+                                <button onClick={(e) => { e.stopPropagation(); setIsBlackout(!isBlackout); }} className={`p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white' : 'bg-white/5 text-gray-400'}`} title="Blackout (B)"><Monitor size={14} className="sm:w-5 sm:h-5" /></button>
                             </div>
 
                             <div className="px-1 sm:px-4 flex-shrink-0">
@@ -2332,6 +2343,13 @@ const WorshipBuilder = () => {
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <button
+                            onClick={handleShareProjection}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white dark:bg-[#111C44] border border-gray-200 dark:border-white/10 rounded-xl text-xs sm:text-sm font-semibold hover:border-brand-primary transition-all shadow-sm"
+                            title="Partager le lien de projection"
+                        >
+                            <Share2 size={14} className="text-blue-500" /> {t('share', 'Partager')}
+                        </button>
                         <button
                             onClick={() => setPresentationMode(true)}
                             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white dark:bg-[#111C44] border border-gray-200 dark:border-white/10 rounded-xl text-xs sm:text-sm font-semibold hover:border-brand-primary transition-all shadow-sm"
