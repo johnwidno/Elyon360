@@ -267,14 +267,7 @@ const WorshipBuilder = () => {
     useEffect(() => {
         if (isAutoPlaying && projectionMode) {
             autoPlayRef.current = setInterval(() => {
-                setCurrentSlideIndex(prev => {
-                    const next = prev + 1;
-                    if (next >= blocks.length) {
-                        setIsAutoPlaying(false);
-                        return prev;
-                    }
-                    return next;
-                });
+                setCurrentSlideIndex(prev => (prev + 1) % blocks.length);
             }, autoPlaySpeed);
         } else {
             clearInterval(autoPlayRef.current);
@@ -905,7 +898,7 @@ const WorshipBuilder = () => {
 
         const transitionVariants = {
             fade: { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } },
-            slide: { initial: { x: '100%', opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: '-100%', opacity: 0 } },
+            slide: { initial: { x: '100%', opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: '-100%', opacity: 0 }, transition: { type: 'spring', damping: 25, stiffness: 120 } },
             zoom: { initial: { scale: 0.8, opacity: 0 }, animate: { scale: 1, opacity: 1 }, exit: { scale: 1.2, opacity: 0 } },
             none: { initial: {}, animate: {}, exit: {} }
         };
@@ -955,7 +948,7 @@ const WorshipBuilder = () => {
                             {/* Time display */}
                             <span
                                 className="font-black text-white tracking-widest leading-none font-sans whitespace-nowrap drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]"
-                                style={{ fontSize: `${Math.round(2.5 * clockScale)}rem`, color: projectionTextColor }}
+                                style={{ fontSize: `clamp(0.8rem, 6vw, ${Math.round(2 * clockScale)}rem)`, color: projectionTextColor }}
                             >
                                 {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                             </span>
@@ -990,7 +983,7 @@ const WorshipBuilder = () => {
                 <div className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300" style={{ opacity: isBlackout ? 1 : bgOverlayOpacity }} />
 
                 {/* Content Layer with Frame Motion & Rnd */}
-                <div className={`relative min-h-[100vh] flex flex-col items-center justify-start ${focusedContent ? 'w-full px-0' : 'p-6 sm:p-20 pt-32 pb-48'}`} style={{ transform: `scale(${globalZoom})`, transformOrigin: 'top center' }}>
+                <div className={`relative min-h-[100vh] flex flex-col items-center justify-start ${focusedContent ? 'w-full px-0' : 'p-4 sm:p-10 pt-12 pb-32'}`} style={{ transform: `scale(${globalZoom})`, transformOrigin: 'top center' }}>
                     <AnimatePresence mode="wait">
                         {focusedContent ? (
                             <motion.div
@@ -1003,14 +996,14 @@ const WorshipBuilder = () => {
                             >
                                 <button
                                     onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); setLineSpotlight(null); }}
-                                    className="fixed top-4 left-4 sm:top-8 sm:left-8 flex items-center gap-2 sm:gap-3 px-4 py-2 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 rounded-xl sm:rounded-2xl transition-all text-sm sm:text-xl font-black z-[100] backdrop-blur-3xl border border-white/10 text-white shadow-2xl"
+                                    className="fixed top-4 left-4 sm:top-8 sm:left-8 z-[10000] p-3 sm:px-6 sm:py-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl rounded-full text-white shadow-2xl flex items-center justify-center transition-all border border-white/20"
                                 >
-                                    <ArrowLeft size={16} className="sm:hidden" />
-                                    <ArrowLeft size={28} className="hidden sm:block" /> {t('back', 'Retour')}
+                                    <ArrowLeft size={20} className="sm:hidden" />
+                                    <span className="hidden sm:flex items-center gap-2"><ArrowLeft size={24} /> <span className="font-bold uppercase tracking-widest text-[10px]">Retour</span></span>
                                 </button>
 
 
-                                <div className="text-center w-full pt-6 pb-0">
+                                <div className="text-center w-full pt-1 pb-0">
                                     <div className="w-full flex-1 flex flex-col items-center justify-start">
                                         {focusedContent.type === 'reading' && (() => {
                                             const allSlides = (focusedContent.metadata?.passages || []).flatMap(p => parseVersesToSlides(p.text));
@@ -1021,21 +1014,21 @@ const WorshipBuilder = () => {
                                             return (
                                                 <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
                                                     {/* 1. Ultra-Compact Top Bar - CENTERED */}
-                                                    <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-6 backdrop-blur-3xl relative flex-shrink-0">
-                                                        <div className="absolute left-6 flex items-center gap-2">
-                                                            <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">LECTURE</span>
+                                                    <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-4 sm:px-6 backdrop-blur-3xl relative flex-shrink-0">
+                                                        <div className="absolute left-4 sm:left-6 flex items-center gap-2">
+                                                            <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em] hidden sm:inline-block">LECTURE</span>
                                                         </div>
 
-                                                        <h3 className="text-sm sm:text-base font-bold text-emerald-400 drop-shadow-lg text-center truncate max-w-[60%]">
+                                                        <h3 className="text-sm sm:text-base font-bold text-emerald-400 drop-shadow-lg text-center truncate max-w-[70%]">
                                                             {reference}
                                                         </h3>
 
-                                                        <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Projection Directe</div>
+                                                        <div className="absolute right-4 sm:right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Projection Directe</div>
                                                     </div>
 
                                                     {/* 2. Scrollable Middle Area - Verses Content */}
                                                     <div
-                                                        className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-6"
+                                                        className="focus-scroll flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-6"
                                                         onWheel={(e) => {
                                                             if (Math.abs(e.deltaY) > 80) { // Significant scroll threshold
                                                                 if (e.deltaY > 0) {
@@ -1050,6 +1043,12 @@ const WorshipBuilder = () => {
                                                             {slide ? (
                                                                 <motion.div
                                                                     key={`v-slide-${slide.id}`}
+                                                                    drag="x"
+                                                                    dragConstraints={{ left: 0, right: 0 }}
+                                                                    onDragEnd={(e, { offset, velocity }) => {
+                                                                        if (offset.x < -60 || velocity.x < -500) setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1));
+                                                                        if (offset.x > 60 || velocity.x > 500) setMediaSlideIndex(p => Math.max(0, p - 1));
+                                                                    }}
                                                                     initial={{ opacity: 0 }}
                                                                     animate={{
                                                                         opacity: 1,
@@ -1058,7 +1057,7 @@ const WorshipBuilder = () => {
                                                                     }}
                                                                     exit={{ opacity: 0 }}
                                                                     transition={{ duration: 0.4 }}
-                                                                    className={`flex flex-col items-center justify-center cursor-zoom-in transition-all duration-500 ${isReadingFullWidth ? 'w-full max-w-none px-16' : 'w-full max-w-5xl mx-auto px-12'}`}
+                                                                    className={`flex flex-col items-center justify-center cursor-zoom-in transition-all duration-500 ${isReadingFullWidth ? 'w-full max-w-none px-6 sm:px-16' : 'w-full max-w-5xl mx-auto px-8 sm:px-12'}`}
                                                                     onClick={() => setIsReadingFullWidth(!isReadingFullWidth)}
                                                                 >
                                                                     <p className="text-gray-100 font-medium leading-[1.6] text-center"
@@ -1129,14 +1128,6 @@ const WorshipBuilder = () => {
                                                             <span className="hidden sm:inline">Suivant</span> <ChevronRight size={20} />
                                                         </button>
                                                     </div>
-
-                                                    {/* Floating Return Arrow */}
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); }}
-                                                        className="absolute top-2 left-2 z-[10000] p-2 text-white/10 hover:text-white/60 transition-all"
-                                                    >
-                                                        <ArrowLeft size={16} />
-                                                    </button>
                                                 </div>
                                             );
                                         })()}
@@ -1179,21 +1170,23 @@ const WorshipBuilder = () => {
 
                                             return (
                                                 <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
-                                                    <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-6 backdrop-blur-3xl relative flex-shrink-0">
-                                                        <div className="absolute left-6 flex items-center gap-2">
-                                                            <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.5em]">CHANT {slide?.songNumber || ''}</span>
+                                                    <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-4 sm:px-6 backdrop-blur-3xl relative flex-shrink-0">
+                                                        <div className="absolute left-4 sm:left-6 flex items-center gap-2">
+                                                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest hidden sm:inline-block">CHANT {slide?.songNumber || ''}</span>
+                                                            {!slide?.songNumber && <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest sm:hidden">CHANT</span>}
+                                                            {slide?.songNumber && <span className="text-[10px] font-black text-blue-400 sm:hidden">{slide.songNumber}</span>}
                                                         </div>
 
-                                                        <h3 className="text-sm sm:text-base font-bold text-white/90 text-center font-serif italic truncate max-w-[60%]">
+                                                        <h3 className="text-sm sm:text-base font-bold text-white/90 text-center font-serif italic truncate max-w-[70%]">
                                                             « {slide?.songTitle || 'Chant'} »
                                                         </h3>
 
-                                                        <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
+                                                        <div className="absolute right-4 sm:right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
                                                     </div>
 
                                                     {/* 2. Scrollable Middle Area - Lyrics Content */}
                                                     <div
-                                                        className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-6"
+                                                        className="focus-scroll flex-1 w-full overflow-y-auto overflow-x-hidden relative flex items-start justify-center bg-transparent custom-scrollbar py-6"
                                                         onWheel={(e) => {
                                                             if (Math.abs(e.deltaY) > 80) {
                                                                 if (e.deltaY > 0) {
@@ -1208,6 +1201,12 @@ const WorshipBuilder = () => {
                                                             {slide ? (
                                                                 <motion.div
                                                                     key={`s-slide-${slide.id}`}
+                                                                    drag="x"
+                                                                    dragConstraints={{ left: 0, right: 0 }}
+                                                                    onDragEnd={(e, { offset, velocity }) => {
+                                                                        if (offset.x < -60 || velocity.x < -500) handleNext();
+                                                                        if (offset.x > 60 || velocity.x > 500) handlePrev();
+                                                                    }}
                                                                     initial={{ opacity: 0 }}
                                                                     animate={{
                                                                         opacity: 1,
@@ -1216,7 +1215,7 @@ const WorshipBuilder = () => {
                                                                     }}
                                                                     exit={{ opacity: 0 }}
                                                                     transition={{ duration: 0.4 }}
-                                                                    className={`flex flex-col items-center justify-center cursor-zoom-in transition-all duration-500 ${isSongFullWidth ? 'w-full max-w-none px-16' : 'w-full max-w-5xl mx-auto px-12'}`}
+                                                                    className={`flex flex-col items-center justify-center cursor-zoom-in transition-all duration-500 ${isSongFullWidth ? 'w-full max-w-none px-6 sm:px-16' : 'w-full max-w-5xl mx-auto px-8 sm:px-12'}`}
                                                                     onClick={() => setIsSongFullWidth(!isSongFullWidth)}
                                                                 >
                                                                     <p className="text-gray-100 font-medium leading-[1.5] text-center whitespace-pre-wrap px-4 sm:px-0"
@@ -1324,15 +1323,7 @@ const WorshipBuilder = () => {
                                                                 </div>
                                                             </motion.div>
                                                         )}
-                                                    </AnimatePresence>
-
-                                                    {/* Floating Return Arrow */}
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); setLineSpotlight(null); }}
-                                                        className="fixed top-4 left-4 sm:top-8 sm:left-8 flex items-center gap-2 sm:gap-3 p-3 sm:px-8 sm:py-4 bg-white/10 hover:bg-white/20 rounded-xl sm:rounded-2xl transition-all text-sm sm:text-xl font-black z-[100] backdrop-blur-3xl border border-white/10 text-white shadow-2xl"
-                                                    >
-                                                        <ArrowLeft size={18} className="sm:w-7 sm:h-7" /> <span className="hidden sm:inline">{t('back', 'Retour')}</span>
-                                                    </button>
+                                                        </AnimatePresence>
                                                 </div>
                                             );
                                         })()}
@@ -1341,18 +1332,32 @@ const WorshipBuilder = () => {
                                         {focusedContent.type !== 'reading' && focusedContent.type !== 'song' && focusedContent.type !== 'sermon' && (
                                             <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
                                                 {/* 1. Top Bar — ultra-compact, opaque */}
-                                                <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-6 backdrop-blur-3xl relative flex-shrink-0">
-                                                    <div className="absolute left-6 flex items-center gap-2">
-                                                        <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">{t(focusedContent.label, focusedContent.label)}</span>
+                                                <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-4 sm:px-6 backdrop-blur-3xl relative flex-shrink-0">
+                                                    <div className="absolute left-4 sm:left-6 flex items-center gap-2">
+                                                        <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em] hidden sm:inline-block">{t(focusedContent.label, focusedContent.label)}</span>
                                                     </div>
-                                                    <h3 className="text-sm sm:text-base font-bold text-white drop-shadow-lg text-center font-serif italic uppercase truncate max-w-[60%]">
+                                                    <h3 className="text-sm sm:text-base font-bold text-white drop-shadow-lg text-center font-serif italic uppercase truncate max-w-[70%]">
                                                         {t(focusedContent.label, focusedContent.label)}
                                                     </h3>
-                                                    <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
+                                                    <div className="absolute right-4 sm:right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
                                                 </div>
 
                                                 {/* 2. Scrollable Middle Area */}
-                                                <div className="flex-1 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-start bg-transparent custom-scrollbar py-12 sm:py-16 px-4 sm:px-12 space-y-12 sm:space-y-24">
+                                                <motion.div
+                                                    drag="x"
+                                                    dragConstraints={{ left: 0, right: 0 }}
+                                                    onDragEnd={(e, { offset, velocity }) => {
+                                                        if (offset.x < -70 || velocity.x < -500) {
+                                                            setCurrentSlideIndex(prev => Math.min(blocks.length - 1, prev + 1));
+                                                            setFocusedContent(null);
+                                                        }
+                                                        if (offset.x > 70 || velocity.x > 500) {
+                                                            setCurrentSlideIndex(prev => Math.max(0, prev - 1));
+                                                            setFocusedContent(null);
+                                                        }
+                                                    }}
+                                                    className="focus-scroll flex-1 w-full overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-start bg-transparent custom-scrollbar py-12 sm:py-16 px-6 sm:px-12 space-y-12 sm:space-y-24"
+                                                >
 
                                                     {(focusedContent.metadata?.songs || []).map((song, si) => {
                                                         const id = `song-${si}`;
@@ -1413,20 +1418,13 @@ const WorshipBuilder = () => {
                                                         );
                                                     })}
 
-                                                </div>
+                                                </motion.div>
 
                                                 {/* 3. Bottom Taskbar — ultra-slim, flush to bottom */}
                                                 <div className="h-[4vh] min-h-[40px] w-full bg-black/90 border-t border-white/5 z-50 flex items-center justify-center px-6 flex-shrink-0">
                                                     <div className="text-[10px] font-black uppercase tracking-[1em]" style={{ color: projectionTextColor, opacity: 0.2 }}>ELYON 360 - {t(focusedContent.label, focusedContent.label)}</div>
                                                 </div>
 
-                                                {/* Floating Return Arrow */}
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); }}
-                                                    className="absolute top-2 left-2 z-[10000] p-2 text-white/10 hover:text-white/60 transition-all"
-                                                >
-                                                    <ArrowLeft size={16} />
-                                                </button>
                                             </div>
                                         )}
 
@@ -1494,18 +1492,18 @@ const WorshipBuilder = () => {
                                             return (
                                                 <div className="fixed inset-0 flex flex-col bg-transparent z-[8000] overflow-hidden" onClick={e => e.stopPropagation()}>
                                                     {/* 1. Ultra-Compact Top Bar */}
-                                                    <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-6 backdrop-blur-3xl relative flex-shrink-0">
-                                                        <div className="absolute left-6 flex items-center gap-2">
-                                                            <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em]">MESSAGE : PRÉDICATION</span>
+                                                    <div className="h-[4vh] min-h-[40px] w-full flex items-center justify-center bg-zinc-950/95 border-b border-white/5 z-50 px-4 sm:px-6 backdrop-blur-3xl relative flex-shrink-0">
+                                                        <div className="absolute left-4 sm:left-6 flex items-center gap-2">
+                                                            <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.5em] hidden sm:inline-block">MESSAGE : PRÉDICATION</span>
                                                         </div>
-                                                        <h3 className="text-sm sm:text-base font-bold text-center font-serif italic truncate max-w-[60%] uppercase" style={{ color: projectionTextColor }}>
+                                                        <h3 className="text-sm sm:text-base font-bold text-center font-serif italic truncate max-w-[70%] uppercase" style={{ color: projectionTextColor }}>
                                                             {service?.sermon?.title || 'Parole de Vie'}
                                                         </h3>
-                                                        <div className="absolute right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
+                                                        <div className="absolute right-4 sm:right-6 text-[9px] font-black text-white/10 uppercase tracking-widest hidden lg:block">Focus</div>
                                                     </div>
 
                                                     <div
-                                                        className="flex-1 w-full relative flex items-center justify-center bg-transparent py-4 sm:py-6 px-4 sm:px-8 overflow-hidden"
+                                                        className="focus-scroll flex-1 w-full relative flex items-center justify-center bg-transparent py-4 sm:py-6 px-6 sm:px-8 overflow-y-auto noscrollbar"
 
                                                         onWheel={(e) => {
                                                             if (Math.abs(e.deltaY) > 80) {
@@ -1521,6 +1519,12 @@ const WorshipBuilder = () => {
                                                             {isOnTitleSlide ? (
                                                                 <motion.div
                                                                     key="sermon-title-card"
+                                                                    drag="x"
+                                                                    dragConstraints={{ left: 0, right: 0 }}
+                                                                    onDragEnd={(e, { offset, velocity }) => {
+                                                                        if (offset.x < -60 || velocity.x < -500) setSermonSlideIndex(0);
+                                                                        if (offset.x > 60 || velocity.x > 500) setFocusedContent(null);
+                                                                    }}
                                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                                     animate={{ opacity: 1, scale: contentZoom }}
                                                                     exit={{ opacity: 0, scale: 1.1 }}
@@ -1552,6 +1556,12 @@ const WorshipBuilder = () => {
                                                             ) : currentSlide ? (
                                                                 <motion.div
                                                                     key={`sermon-slide-${sermonSlideIndex}`}
+                                                                    drag="x"
+                                                                    dragConstraints={{ left: 0, right: 0 }}
+                                                                    onDragEnd={(e, { offset, velocity }) => {
+                                                                        if (offset.x < -60 || velocity.x < -500) setSermonSlideIndex(p => Math.min(totalContentSlides - 1, p + 1));
+                                                                        if (offset.x > 60 || velocity.x > 500) setSermonSlideIndex(p => Math.max(-1, p - 1));
+                                                                    }}
                                                                     initial={{ opacity: 0, x: 100 }}
                                                                     animate={{ opacity: 1, x: 0, scale: contentZoom }}
                                                                     exit={{ opacity: 0, x: -100 }}
@@ -1615,13 +1625,6 @@ const WorshipBuilder = () => {
                                                         </button>
                                                     </div>
 
-                                                    {/* Floating Return Arrow */}
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); setContentZoom(1); }}
-                                                        className="absolute top-2 left-2 z-[10000] p-2 text-white/10 hover:text-white/60 transition-all"
-                                                    >
-                                                        <ArrowLeft size={16} />
-                                                    </button>
                                                 </div>
                                             );
                                         })()}
@@ -1667,6 +1670,11 @@ const WorshipBuilder = () => {
                             <motion.div
                                 key="intro-slide"
                                 {...currentVariant}
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                onDragEnd={(e, { offset, velocity }) => {
+                                    if (offset.x < -70 || velocity.x < -500) setCurrentSlideIndex(0);
+                                }}
                                 transition={{ duration: 0.8, ease: "circOut" }}
                                 className="w-full h-full flex flex-col items-center justify-center text-center space-y-12"
                             >
@@ -1698,12 +1706,18 @@ const WorshipBuilder = () => {
                                 </Rnd>
                             </motion.div>
                         ) : (
-                            <motion.div
-                                key={`slide-${currentSlideIndex}`}
-                                {...currentVariant}
-                                transition={{ duration: 0.8, ease: "circOut" }}
-                                className="w-full h-full flex flex-col items-center justify-center"
-                            >
+                             <motion.div
+                                 key={`slide-${currentSlideIndex}`}
+                                 {...currentVariant}
+                                 drag="x"
+                                 dragConstraints={{ left: 0, right: 0 }}
+                                 onDragEnd={(e, { offset, velocity }) => {
+                                     if (offset.x < -70 || velocity.x < -500) setCurrentSlideIndex(p => Math.min(blocks.length - 1, p + 1));
+                                     if (offset.x > 70 || velocity.x > 500) setCurrentSlideIndex(p => Math.max(-1, p - 1));
+                                 }}
+                                 transition={{ duration: 0.8, ease: "circOut" }}
+                                 className="w-full h-full flex flex-col items-center justify-center"
+                             >
                                 {(() => {
                                     const block = sortedBlocks[currentSlideIndex];
                                     if (!block) return null;
@@ -1731,6 +1745,7 @@ const WorshipBuilder = () => {
                                                     bounds="parent"
                                                     disableDragging={!projectionMode}
                                                     enableResizing={projectionMode}
+                                                    cancel=".focus-scroll"
                                                 >
                                                     <div className={`w-full flex flex-col items-center justify-center group cursor-pointer transition-all hover:scale-[1.01]`} onClick={(e) => { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setMediaSlideIndex(0); setZoomedElementId(null); }} onTouchStart={(e) => { e.currentTarget.dataset.startX = e.touches[0].clientX; e.currentTarget.dataset.startY = e.touches[0].clientY; }} onTouchEnd={(e) => { const dx = Math.abs(e.changedTouches[0].clientX - parseFloat(e.currentTarget.dataset.startX || 0)); const dy = Math.abs(e.changedTouches[0].clientY - parseFloat(e.currentTarget.dataset.startY || 0)); if (dx < 10 && dy < 10) { e.stopPropagation(); setFocusedContent(block); setSermonSlideIndex(-1); setMediaSlideIndex(0); setZoomedElementId(null); } }}>
 
