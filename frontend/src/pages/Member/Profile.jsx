@@ -1,22 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-    ArrowLeft, Mail, MapPin, Calendar, Heart,
-    MessageSquare, Share2, Building2, User, Send,
-    Facebook, Linkedin, Instagram, Clock,
-    Image as ImageIcon, FileText, CheckCircle,
-    MoreVertical, ChevronDown
+import { 
+    ArrowLeft, Share2, MoreVertical, Send, 
+    ImageIcon, MessageSquare, Heart, MapPin, 
+    Clock, Building2, UserCircle2, ExternalLink
 } from 'lucide-react';
 import api from '../../api/axios';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
-const toSentenceCase = (str) => {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
-
-const FONT = "'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif";
+const FONT_FAMILY = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
 const PublicMemberProfile = () => {
     const { id } = useParams();
@@ -26,10 +19,6 @@ const PublicMemberProfile = () => {
     const [member, setMember] = useState(null);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('posts');
-    const [expandedPosts, setExpandedPosts] = useState({});
-    const [messageSent, setMessageSent] = useState(false);
-    const postsRef = useRef(null);
 
     const locale = lang === 'FR' ? 'fr-FR' : 'en-US';
 
@@ -58,231 +47,190 @@ const PublicMemberProfile = () => {
         return `${apiBase}/uploads/${path}`;
     };
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '';
-        return new Date(dateStr).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
-    };
-
-    const togglePost = (postId) => {
-        setExpandedPosts(prev => ({ ...prev, [postId]: !prev[postId] }));
-    };
-
-    const scrollToPosts = () => {
-        setActiveTab('posts');
-        setTimeout(() => {
-            postsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-    };
-
     if (loading) {
         return (
-            <div className={`flex flex-col items-center justify-center min-h-screen gap-6 ${isDark ? 'bg-black' : 'bg-white'}`} style={{ fontFamily: FONT }}>
-                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[#0F172A]' : 'bg-slate-50'}`}>
+                <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     if (!member) {
         return (
-            <div className={`flex flex-col items-center justify-center min-h-screen p-8 text-center ${isDark ? 'bg-black text-white' : 'bg-white text-slate-900'}`} style={{ fontFamily: FONT }}>
-                <h2 className="text-3xl font-black mb-4">Membre introuvable</h2>
-                <button onClick={() => navigate(-1)} className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-full font-black">
-                    <ArrowLeft size={20} /> Retour
-                </button>
+            <div className="min-h-screen flex flex-col items-center justify-center p-10 text-center">
+                <h2 className="text-2xl font-bold mb-4">Membre introuvable</h2>
+                <button onClick={() => navigate(-1)} className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold">Retour</button>
             </div>
         );
     }
 
     const initials = `${member.firstName?.[0] || ''}${member.lastName?.[0] || ''}`.toUpperCase();
-    const hasSocials = member.facebookUrl || member.linkedinUrl || member.instagramUrl || member.tiktokUrl;
 
     return (
-        <div
-            className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-black text-white' : 'bg-[#FDFDFD] text-slate-900'}`}
-            style={{ fontFamily: FONT }}
+        <div 
+            className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-black text-white' : 'bg-white text-slate-900'}`}
+            style={{ fontFamily: FONT_FAMILY }}
         >
-            {/* ── TOP NAVIGATION ── */}
-            <div className="fixed top-0 left-0 right-0 z-[60] px-4 h-16 flex items-center justify-between backdrop-blur-xl bg-opacity-80 border-b border-transparent">
-                <button onClick={() => navigate(-1)} className={`w-10 h-10 flex items-center justify-center rounded-full ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}>
-                    <ArrowLeft size={20} />
+            {/* ── HEADER ── */}
+            <div className="sticky top-0 z-50 flex items-center justify-between px-5 h-[70px] bg-white dark:bg-black border-b border-slate-100 dark:border-white/10">
+                <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-slate-700 dark:text-slate-300">
+                    <ArrowLeft size={24} strokeWidth={2.5} />
                 </button>
-                <button className={`w-10 h-10 flex items-center justify-center rounded-full ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}>
-                    <MoreVertical size={20} />
-                </button>
-            </div>
-
-            {/* ── COVER HEADER ── */}
-            <div className="relative h-48 sm:h-64 bg-indigo-600">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#4F46E5] to-[#7C3AED]" />
-                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-            </div>
-
-            {/* ── PROFILE MAIN INFO ── */}
-            <div className="px-5 -mt-16 relative z-10">
-                <div className="flex flex-col items-center">
-                    {/* AVATAR */}
-                    <div className="relative">
-                        <div className={`w-36 h-36 rounded-full border-[6px] shadow-2xl overflow-hidden ${isDark ? 'border-black' : 'border-white'} bg-slate-200`}>
-                            {member.photo ? (
-                                <img src={getImageUrl(member.photo)} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white text-5xl font-black">{initials}</div>
-                            )}
-                        </div>
-                        <div className="absolute bottom-3 right-3 w-6 h-6 bg-emerald-500 rounded-full border-4 border-white dark:border-black" />
-                    </div>
-
-                    {/* NAME & TAG */}
-                    <h1 className="text-3xl font-black tracking-tight mt-5">{member.firstName} {member.lastName}</h1>
-                    {member.nickname && (
-                        <p className="text-indigo-600 font-bold text-sm mt-1 underline">@{member.nickname}</p>
-                    )}
-
-                    {/* CHURCH & TYPE */}
-                    <div className="mt-4 flex flex-col items-center gap-2">
-                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-black uppercase tracking-wider border border-indigo-100 dark:border-indigo-800">
-                           <Building2 size={14} /> {member.church?.name ? toSentenceCase(member.church.name) : 'ElyonSys Platform'}
-                        </div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                            {member.contactSubtype?.name || 'Membre Officiel'}
-                        </p>
-                    </div>
-
-                    {/* LOCATION & JOINED */}
-                    <div className="flex items-center gap-4 mt-4 text-slate-500 text-sm font-semibold">
-                        {(member.city || member.country) && (
-                            <span className="flex items-center gap-1.5">
-                                <MapPin size={16} className="text-rose-500" />
-                                {[member.city, member.country].filter(Boolean).join(', ')}
-                            </span>
-                        )}
-                        <span className="flex items-center gap-1.5">
-                            <Calendar size={16} />
-                            {new Date(member.createdAt).getFullYear()}
-                        </span>
-                    </div>
-
-                    {/* ACTIONS BUTTONS (MATCHING FIGMA) */}
-                    <div className="w-full max-w-sm mt-8 flex flex-col gap-3">
-                        <a
-                            href={`mailto:${member.email}`}
-                            className="w-full flex items-center justify-center gap-3 h-14 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all"
-                        >
-                            <Send size={20} />
-                            Envoyer un message
-                        </a>
-                        <button
-                            onClick={scrollToPosts}
-                            className={`w-full flex items-center justify-center gap-3 h-14 border-2 rounded-2xl font-black text-lg transition-all active:scale-95 ${isDark ? 'border-indigo-500 text-indigo-400 hover:bg-indigo-500/10' : 'border-indigo-600 text-indigo-600 hover:bg-indigo-50'}`}
-                        >
-                            <ImageIcon size={20} />
-                            Voir tous ces publications
-                        </button>
-                    </div>
-
-                    {/* BIO SECTION */}
-                    {member.notes && (
-                        <div className="w-full max-w-md mt-10 text-center">
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4 divider-text">À propos</h3>
-                            <p className="text-slate-600 dark:text-slate-400 text-[15px] leading-relaxed font-medium italic">
-                                "{member.notes}"
-                            </p>
-                        </div>
-                    )}
-
-                    {/* SOCIALS */}
-                    {hasSocials && (
-                        <div className="flex items-center justify-center gap-5 mt-8">
-                            {member.facebookUrl && <a href={member.facebookUrl} target="_blank" rel="noreferrer" className="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full"><Facebook size={20} /></a>}
-                            {member.instagramUrl && <a href={member.instagramUrl} target="_blank" rel="noreferrer" className="w-12 h-12 flex items-center justify-center bg-gradient-to-tr from-yellow-500 via-rose-500 to-purple-600 text-white rounded-full"><Instagram size={20} /></a>}
-                            {member.linkedinUrl && <a href={member.linkedinUrl} target="_blank" rel="noreferrer" className="w-12 h-12 flex items-center justify-center bg-[#0077b5] text-white rounded-full"><Linkedin size={20} /></a>}
-                        </div>
-                    )}
-
-                    {/* STATS DIVIDER */}
-                    <div className={`w-full grid grid-cols-3 gap-1 mt-12 mb-6 border-y ${isDark ? 'border-white/5 bg-white/5' : 'border-slate-100 bg-slate-50'}`}>
-                        <div className="py-6 flex flex-col items-center">
-                            <span className="text-2xl font-black">{posts.length}</span>
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Posts</span>
-                        </div>
-                        <div className="py-6 flex flex-col items-center border-x border-slate-100 dark:border-white/5">
-                            <span className="text-2xl font-black">1.4k</span>
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Abonnés</span>
-                        </div>
-                        <div className="py-6 flex flex-col items-center">
-                            <span className="text-2xl font-black">280</span>
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Abonnements</span>
-                        </div>
-                    </div>
+                <div className="flex-1 px-4 truncate">
+                    <h1 className="text-[17px] font-black tracking-tight truncate text-center">
+                        {member.firstName} {member.lastName}
+                    </h1>
+                </div>
+                <div className="flex gap-1">
+                    <button className="p-2 text-slate-700 dark:text-slate-300">
+                        <Share2 size={24} />
+                    </button>
                 </div>
             </div>
 
-            {/* ── PUBLICATIONS SECTION ── */}
-            <div ref={postsRef} className="px-5 pb-20 max-w-2xl mx-auto">
-                <div className="flex items-center justify-between mb-6 sticky top-16 bg-inherit py-4 z-40 border-b border-transparent">
-                    <h2 className="text-xl font-black flex items-center gap-2">
-                        <FileText className="text-indigo-600" />
-                        Publications
-                    </h2>
-                    <div className="flex gap-2">
-                        <button onClick={() => setActiveTab('posts')} className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${activeTab === 'posts' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
-                            <ImageIcon size={18} />
-                        </button>
+            {/* ── PROFILE INFO CONTAINER ── */}
+            <div className="px-5 pt-8 flex flex-col items-center">
+                
+                {/* ── AVATAR ── */}
+                <div className="w-[124px] h-[124px] rounded-full overflow-hidden mb-6 shadow-2xl bg-slate-200">
+                    {member.photo ? (
+                        <img src={getImageUrl(member.photo)} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white text-4xl font-black">
+                            {initials}
+                        </div>
+                    )}
+                </div>
+
+                {/* ── NAME & DESCRIPTION ── */}
+                <h2 className="text-[28px] font-black leading-tight text-center px-4">
+                    {member.firstName} {member.lastName}
+                </h2>
+                
+                {member.notes && (
+                    <p className="mt-3 text-[#64748B] dark:text-slate-400 text-[15px] font-medium leading-relaxed text-center max-w-[320px]">
+                        {member.notes}
+                    </p>
+                )}
+
+                {/* ── LOCATION ── */}
+                {(member.city || member.country) && (
+                    <div className="mt-4 flex items-center gap-2 text-[#475569] dark:text-slate-500 text-[14px] font-bold">
+                        <MapPin size={18} className="text-rose-500" />
+                        {[member.city, member.country].filter(Boolean).join(', ')}
                     </div>
+                )}
+
+                {/* ── ACTIONS BAR ── */}
+                <div className="w-full max-w-[400px] mt-10 space-y-4">
+                    {/* Primary Button */}
+                    <button 
+                        onClick={() => window.location.href = `mailto:${member.email}`}
+                        className="w-full h-[64px] bg-[#4318FF] hover:bg-[#320ED9] active:scale-[0.98] text-white rounded-[24px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/20"
+                    >
+                        <Send size={22} strokeWidth={2.5} />
+                        <span className="text-[17px] font-black">Envoyer un message a {member.firstName}</span>
+                    </button>
+
+                    {/* Secondary Button */}
+                    <button 
+                        onClick={() => document.getElementById('publications-section').scrollIntoView({ behavior: 'smooth' })}
+                        className="w-full h-[64px] bg-[#F4F7FE] dark:bg-slate-900 hover:bg-[#E8EDFB] dark:hover:bg-slate-800 active:scale-[0.98] text-[#1B2559] dark:text-slate-200 rounded-[24px] flex items-center justify-center gap-3 transition-all"
+                    >
+                        <ImageIcon size={22} className="text-[#4318FF]" />
+                        <span className="text-[17px] font-black">Voir tous ces publications</span>
+                    </button>
+                </div>
+
+                {/* ── STATS ROW ── */}
+                <div className="w-full max-w-[400px] mt-10 flex items-center justify-between px-6">
+                    <div className="flex flex-col items-center">
+                        <span className="text-[22px] font-black text-[#1B2559] dark:text-white">{posts.length}</span>
+                        <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#A3AED0]">Publications</span>
+                    </div>
+                    <div className="w-[1px] h-10 bg-slate-100 dark:bg-white/10" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-[22px] font-black text-[#1B2559] dark:text-white">1.2k</span>
+                        <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#A3AED0]">Abonnés</span>
+                    </div>
+                    <div className="w-[1px] h-10 bg-slate-100 dark:bg-white/10" />
+                    <div className="flex flex-col items-center">
+                        <span className="text-[22px] font-black text-[#1B2559] dark:text-white">450</span>
+                        <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#A3AED0]">Abonnements</span>
+                    </div>
+                </div>
+
+                {/* ── SOCIALS ── */}
+                <div className="flex items-center justify-center gap-4 mt-10">
+                    {[
+                        { url: member.facebookUrl, color: 'bg-[#E7EDFF] text-[#4318FF]', icon: 'f' },
+                        { url: member.instagramUrl, color: 'bg-[#FFEDED] text-[#F33535]', icon: 'i' },
+                        { url: member.linkedinUrl, color: 'bg-[#E7F7FF] text-[#007AB5]', icon: 'l' }
+                    ].filter(s => s.url).map((s, idx) => (
+                        <a key={idx} href={s.url} target="_blank" rel="noreferrer" className={`w-[48px] h-[48px] rounded-[16px] flex items-center justify-center font-black text-xl hover:scale-110 transition-transform ${s.color}`}>
+                            {s.icon === 'f' && 'f'}
+                            {s.icon === 'i' && 'i'}
+                            {s.icon === 'l' && 'in'}
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            {/* ── PUBLICATIONS LIST ── */}
+            <div id="publications-section" className="mt-16 px-5 pb-24 max-w-[600px] mx-auto">
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="w-1.5 h-6 bg-[#4318FF] rounded-full" />
+                    <h3 className="text-[20px] font-black text-[#1B2559] dark:text-white">Dernières publications</h3>
                 </div>
 
                 <div className="space-y-6">
                     {posts.length === 0 ? (
-                        <div className="py-10 text-center text-slate-400 font-bold">Aucune publication.</div>
+                        <div className="py-20 flex flex-col items-center text-[#A3AED0]">
+                            <ImageIcon size={48} strokeWidth={1} />
+                            <p className="mt-4 font-bold">Aucune publication à afficher</p>
+                        </div>
                     ) : posts.map((post) => (
-                        <div key={post.id} className={`rounded-3xl p-5 border ${isDark ? 'bg-[#0A0A0A] border-white/5' : 'bg-white border-slate-100 shadow-sm'}`}>
-                           <div className="flex items-start justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-200">
-                                        {member.photo && <img src={getImageUrl(member.photo)} alt="" className="w-full h-full object-cover" />}
+                        <div key={post.id} className="group p-5 bg-white dark:bg-slate-900/50 rounded-[32px] border border-slate-50 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-300">
+                            <div className="flex gap-4">
+                                {/* Post Image (if exists) */}
+                                {post.imageUrl && (
+                                    <div className="w-[100px] h-[100px] rounded-[24px] overflow-hidden shrink-0 shadow-lg">
+                                        <img src={getImageUrl(post.imageUrl)} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
                                     </div>
-                                    <div>
-                                        <p className="font-black text-sm">{member.firstName}</p>
-                                        <p className="text-[10px] text-slate-400 font-bold">{formatDate(post.createdAt)}</p>
+                                )}
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-[12px] font-bold text-[#A3AED0] uppercase tracking-wider">
+                                            {new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+                                        </span>
+                                        <ExternalLink size={14} className="text-slate-300" />
+                                    </div>
+                                    <h4 className="text-[16px] font-black text-[#1B2559] dark:text-white leading-tight mb-2 line-clamp-2">
+                                        {post.content}
+                                    </h4>
+                                    <div className="flex items-center gap-4 mt-auto">
+                                        <button className="flex items-center gap-1.5 text-[12px] font-black text-rose-500 transition-transform active:scale-90">
+                                            <Heart size={16} fill="currentColor" /> {post.likesCount || 0}
+                                        </button>
+                                        <button className="flex items-center gap-1.5 text-[12px] font-black text-[#4318FF]">
+                                            <MessageSquare size={16} fill="currentColor" className="opacity-20" /> {post.commentsCount || 0}
+                                        </button>
                                     </div>
                                 </div>
-                           </div>
-                           <p className={`text-[15px] leading-relaxed font-medium mb-4 ${isDark ? 'text-slate-300' : 'text-slate-600'} ${!expandedPosts[post.id] ? 'line-clamp-3' : ''}`}>
-                                {post.content}
-                           </p>
-                           {post.content && post.content.length > 150 && (
-                               <button onClick={() => togglePost(post.id)} className="text-indigo-600 text-xs font-black mb-4">
-                                   {expandedPosts[post.id] ? 'VOIR MOINS' : 'VOIR PLUS'}
-                               </button>
-                           )}
-                           {post.imageUrl && (
-                               <div className="rounded-2xl overflow-hidden aspect-square sm:aspect-video mb-4">
-                                   <img src={getImageUrl(post.imageUrl)} alt="" className="w-full h-full object-cover" />
-                               </div>
-                           )}
-                           <div className="flex items-center gap-6 pt-4 border-t border-slate-50 dark:border-white/5">
-                                <button className="flex items-center gap-2 text-xs font-black text-slate-400 hover:text-rose-500"><Heart size={18}/> {post.likesCount || 0}</button>
-                                <button className="flex items-center gap-2 text-xs font-black text-slate-400 hover:text-indigo-600"><MessageSquare size={18}/> {post.commentsCount || 0}</button>
-                           </div>
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
-                .divider-text {
-                    display: flex;
-                    align-items: center;
-                }
-                .divider-text::before, .divider-text::after {
-                    content: "";
-                    flex: 1;
-                    height: 1px;
-                    background: ${isDark ? '#FFFFFF10' : '#00000008'};
-                }
-                .divider-text::before { margin-right: 1.5rem; }
-                .divider-text::after { margin-left: 1.5rem; }
-            `}} />
+            {/* ── MOBILE NAV OVERLAY (Decoration to match Figma) ── */}
+            <div className={`fixed bottom-0 left-0 right-0 h-20 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-t border-slate-100 dark:border-white/10 z-[60] flex items-center justify-around px-2 sm:hidden`}>
+                <div className="w-12 h-12 flex items-center justify-center text-[#A3AED0]"><UserCircle2 size={24} /></div>
+                <div className="w-12 h-12 flex items-center justify-center text-[#A3AED0]"><Building2 size={24} /></div>
+                <div className="w-14 h-14 bg-[#4318FF] rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 -mt-6 border-[6px] border-white dark:border-black"><ExternalLink size={24} /></div>
+                <div className="w-12 h-12 flex items-center justify-center text-[#A3AED0]"><MessageSquare size={24} /></div>
+                <div className="w-12 h-12 flex items-center justify-center text-[#A3AED0]"><Send size={24} /></div>
+            </div>
         </div>
     );
 };
