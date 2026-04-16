@@ -25,6 +25,10 @@ router.delete('/:id/notes/:noteId', protect, hasPermission('members'), memberCon
 router.get('/:id/actions', protect, hasPermission('members'), memberController.getMemberActions);
 router.post('/:id/actions', protect, hasPermission('members'), memberController.createMemberAction);
 
+// Community Search (Global)
+router.get('/global-search', protect, memberController.searchGlobalMembers);
+router.get('/public-profile/:id', protect, memberController.getPublicMemberProfile);
+
 // Requests
 router.get('/:id/requests', protect, hasPermission('members'), memberController.getMemberRequests);
 

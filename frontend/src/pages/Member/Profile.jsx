@@ -13,7 +13,9 @@ import {
     Share2,
     MoreHorizontal,
     Camera,
-    UserPlus
+    UserPlus,
+    Building2,
+    User
 } from 'lucide-react';
 import axios from 'axios';
 import { useLanguage } from '../../context/LanguageContext';
@@ -34,16 +36,11 @@ const PublicMemberProfile = () => {
             try {
                 setLoading(true);
                 const token = localStorage.getItem('token');
-                const [memberRes, postsRes] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL}/members/${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    axios.get(`${process.env.REACT_APP_API_URL}/community-posts?authorId=${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
-                ]);
-                setMember(memberRes.data);
-                setPosts(postsRes.data || []);
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/members/public-profile/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setMember(res.data.member);
+                setPosts(res.data.posts || []);
             } catch (error) {
                 console.error("Error fetching member profile:", error);
             } finally {
@@ -131,15 +128,28 @@ const PublicMemberProfile = () => {
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div>
                                         <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{member.firstName} {member.lastName}</h1>
-                                        <p className="text-indigo-500 font-bold uppercase tracking-[0.2em] text-xs mt-1">Membre de la Communauté</p>
+                                        <div className="flex flex-col gap-1 mt-2">
+                                            <p className="text-indigo-500 font-black uppercase tracking-[0.15em] text-[10px] flex items-center gap-1.5">
+                                                <Building2 size={12} /> {member.church?.name || 'ElyonSys Platform'}
+                                            </p>
+                                            <p className="text-slate-500 font-bold text-xs flex items-center gap-1.5">
+                                                <User size={12} className="text-slate-400" /> {member.contactSubtype?.name || 'Membre'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center justify-center sm:justify-end gap-2">
-                                        <button className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2">
-                                            <UserPlus size={18} /> {t('follow', 'Suivre')}
-                                        </button>
-                                        <button className={`px-6 py-2.5 rounded-2xl border font-black transition-all active:scale-95 ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
-                                            {t('message', 'Message')}
-                                        </button>
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex items-center justify-center sm:justify-end gap-2">
+                                            <button className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                                <UserPlus size={18} /> {t('follow', 'Suivre')}
+                                            </button>
+                                            <button className={`px-6 py-2.5 rounded-2xl border font-black transition-all active:scale-95 ${isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
+                                                {t('message', 'Message')}
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center justify-center sm:justify-end gap-4 text-xs font-bold text-slate-500">
+                                            {member.phone && <span className="flex items-center gap-1"><Phone size={12} /> {member.phone}</span>}
+                                            {member.email && <span className="flex items-center gap-1"><Mail size={12} /> {member.email}</span>}
+                                        </div>
                                     </div>
                                 </div>
 

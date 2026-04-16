@@ -711,3 +711,61 @@ exports.updateMemberRequest = async (req, res) => {
         res.status(500).json({ message: "Error updating request" });
     }
 };
+
+// Global Member Search (Cross-church)
+exports.searchGlobalMembers = async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q || q.length < 3) return res.json([]);
+
+        const users = await db.User.findAll({
+            where: {
+                [db.Sequelize.Op.or]: [
+                    { firstName: { [db.Sequelize.Op.like]: `%${q}%` } },
+                    { lastName: { [db.Sequelize.Op.like]: `%${q}%` } },
+                    { email: { [db.Sequelize.Op.like]: `%${q}%` } }
+                ]
+            },
+            attributes: ['id', 'firstName', 'lastName', 'photo', 'role'],
+            include: [{
+                model: db.Church,
+                as: 'church',
+                attributes: ['name', 'acronym']
+            }],
+            limit: 15
+        });
+
+        res.json(users);
+    } catch (err) {
+        console.error("Global search error:", err);
+        res.status(500).json({ message: "Search failed" });
+    }
+};
+
+// Get Public Profile (No churchId filter)
+exports.getPublicMemberProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const member = await db.User.findByPk(id, {
+            attributes: ['id', 'firstName', 'lastName', 'photo', 'email', 'phone', 'bio', 'status', 'createdAt', 'role', 'facebookUrl', 'linkedinUrl', 'instagramUrl', 'tiktokUrl'],
+            include: [
+                { model: db.Church, as: 'church', attributes: ['name', 'acronym', 'logoUrl'] },
+                { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] }
+            ]
+        });
+
+        if (!member) return res.status(404).json({ message: "Member not found" });
+
+        // Get limited posts
+        const posts = await db.CommunityPost.findAll({
+            where: { authorId: id },
+            order: [['createdAt', 'DESC']],
+            limit: 5
+        });
+
+        res.json({ member, posts });
+    } catch (err) {
+        console.error("Error fetching public profile:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};

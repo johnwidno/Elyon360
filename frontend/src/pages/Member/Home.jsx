@@ -8,7 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import {
     User, Bell, Heart, MessageSquare, LogOut, LayoutDashboard,
     Settings, BookOpen, Users, Building2, Activity,
-    Mail, Phone, Edit3, Check, X, Menu, ChevronRight,
+    Mail, Phone, Edit3, Check, X, Menu, ChevronRight, ChevronLeft,
     MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown,
     Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter, Music, Star,
     Camera, Award, PlusCircle, ShieldAlert, Maximize, AlertCircle, Lock, TrendingUp, Save, MoreHorizontal, Share2
@@ -202,6 +202,8 @@ export default function MemberHome() {
     const [postsLimit, setPostsLimit] = useState(window.innerWidth > 640 ? 4 : 5);
     const [zoomedImageUrl, setZoomedImageUrl] = useState(null);
     const [members, setMembers] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [eventIndex, setEventIndex] = useState(0);
 
     // ── fetch ──────────────────────────────────────────────────────────────────
     const handleNotificationClick = async (notif) => {
@@ -215,6 +217,24 @@ export default function MemberHome() {
         }
         goTab('notifications');
         setIsNotificationsOpen(false);
+    };
+
+    const handleSearch = async (val) => {
+        setSearchQuery(val);
+        if (val.length < 3) {
+            setSearchResults([]);
+            return;
+        }
+
+        try {
+            setIsSearching(true);
+            const res = await api.get(`/members/global-search?q=${val}`);
+            setSearchResults(res.data);
+        } catch (error) {
+            console.error("Search error:", error);
+        } finally {
+            setIsSearching(false);
+        }
     };
 
     const fetchData = async () => {
@@ -314,31 +334,6 @@ export default function MemberHome() {
         }
     };
 
-
-    useEffect(() => {
-        if (!searchQuery.trim()) {
-            setSearchResults([]);
-            return;
-        }
-        const timer = setTimeout(async () => {
-            try {
-                // Search for members
-                const mRes = await api.get(`/members?search=${searchQuery}`);
-                setSearchResults(Array.isArray(mRes.data) ? mRes.data.slice(0, 5) : []);
-
-                // Filter local posts
-                const matches = communityPosts.filter(p =>
-                    p.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    p.authorName?.toLowerCase().includes(searchQuery.toLowerCase())
-                ).slice(0, 5);
-                setPostResults(matches);
-            } catch (err) {
-                console.error("Search error:", err);
-            }
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchQuery, communityPosts]);
 
     useEffect(() => { fetchData(); }, []);
 
@@ -866,6 +861,55 @@ export default function MemberHome() {
                         </div>
                     </div>
 
+                    <div className="flex-1 max-w-xl hidden md:block group relative">
+                    <div className={`relative flex items-center h-11 px-4 rounded-xl border transition-all ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-100 border-transparent focus-within:bg-white focus-within:border-indigo-500'}`}>
+                        <Search className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                        <input 
+                            type="text" 
+                            value={searchQuery}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            placeholder={t('search_placeholder', 'Rechercher des membres (LinkedIn style)...')} 
+                            className="bg-transparent border-none outline-none font-medium ml-3 w-full text-sm placeholder:text-slate-400" 
+                        />
+                        {isSearching && <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-500 border-t-transparent mr-2"></div>}
+                    </div>
+
+                    {/* Search Results Dropdown */}
+                    {searchResults.length > 0 && (
+                        <div className={`absolute top-full left-0 right-0 mt-2 rounded-2xl border shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                            <div className="max-h-[400px] overflow-y-auto">
+                                {searchResults.map(m => (
+                                    <button 
+                                        key={m.id} 
+                                        onClick={() => {
+                                            navigate(`/member/profile/${m.id}`);
+                                            setSearchResults([]);
+                                            setSearchQuery('');
+                                        }}
+                                        className={`w-full flex items-center gap-4 p-4 text-left transition-colors border-b last:border-b-0 ${isDark ? 'hover:bg-slate-800 border-slate-800' : 'hover:bg-slate-50 border-slate-100'}`}
+                                    >
+                                        <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                                            {m.photo ? (
+                                                <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white font-black text-sm">
+                                                    {m.firstName?.[0]}{m.lastName?.[0]}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-sm truncate">{m.firstName} {m.lastName}</p>
+                                            <p className="text-[11px] text-slate-500 font-medium truncate flex items-center gap-1.5 uppercase tracking-widest">
+                                                <MapPin size={10} /> {m.church?.name || 'ElyonSys Platform'}
+                                            </p>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                     <div className="flex items-center gap-3 sm:gap-5">
                         <button onClick={toggleTheme} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-amber-400 transition-all hover:scale-110 active:scale-95 shadow-sm border border-slate-200 dark:border-slate-700">
                              {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
@@ -1015,9 +1059,8 @@ export default function MemberHome() {
                     {/* Vue d'ensemble                                        */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'dashboard' && (
-                        <div className="animate-in fade-in duration-500 h-full flex flex-col pt-0">
-                            {/* ── HEADER OVERLAY / TOP SPACE ── */}
-                            <div className="px-5 py-4 flex flex-col gap-6">
+                        <div className="animate-in fade-in duration-500 h-full flex flex-col pt-0 max-w-[1600px] mx-auto">
+                            <div className="px-5 sm:px-8 py-6 flex flex-col gap-10">
                                 
                                 {/* ── SEARCH & SEND BAR (From Figma) ── */}
                                 <div className="flex items-center gap-3">
@@ -1064,77 +1107,96 @@ export default function MemberHome() {
                                     ))}
                                 </div>
 
-                                {/* ── UPCOMING EVENTS SECTION ── */}
-                                <div className="mt-2">
+                                <div className="mt-2 relative group-events">
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-5 h-5 rounded-full bg-[#fde68a] flex items-center justify-center">
-                                                <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
-                                            </div>
-                                            <h3 className="text-[14px] font-bold text-[#1e1b4b] dark:text-white">{t('upcoming_event', 'Evenement a venir')}</h3>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-1 h-5 bg-brand-orange rounded-full" />
+                                            <h3 className="text-[14px] font-black text-slate-800 dark:text-white uppercase tracking-widest">{t('upcoming_events_title', 'Événements à venir')}</h3>
                                         </div>
-                                        <button onClick={() => goTab('events')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'voir tout')}</button>
-                                    </div>
-                                    <div className="rounded-2xl overflow-hidden shadow-sm aspect-[21/9] bg-slate-100 dark:bg-slate-800 relative group">
-                                        {events.length > 0 ? (
-                                            events[0].imageUrl ? (
-                                                <img src={getImageUrl(events[0].imageUrl)} alt={events[0].title} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                            ) : (
-                                                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-violet-600 flex flex-col items-center justify-center p-6 text-white">
-                                                    <h4 className="font-black text-[16px] text-center mb-2 line-clamp-2">{events[0].title}</h4>
-                                                    <div className="flex items-center gap-2 text-[11px] font-bold opacity-80">
-                                                        <Calendar size={14} />
-                                                        {new Date(events[0].startDate).toLocaleDateString(locale)}
-                                                    </div>
-                                                    {events[0].location && (
-                                                        <div className="flex items-center gap-2 text-[11px] font-bold opacity-80 mt-1">
-                                                            <MapPin size={14} />
-                                                            {events[0].location}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )
-                                        ) : (
-                                            <div className="w-full h-full bg-slate-200 dark:bg-slate-900 flex flex-col items-center justify-center gap-2 p-4 text-center">
-                                                <Calendar className="text-slate-400" size={32} />
-                                                <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest italic">
-                                                    {t('no_event_recorded', 'aucune evenment enregistre')}
-                                                </p>
+                                        <div className="flex items-center gap-2">
+                                            {/* Desktop Nav */}
+                                            <div className="hidden md:flex items-center gap-2 mr-2">
+                                                <button 
+                                                    onClick={() => setEventIndex(prev => Math.max(0, prev - 1))}
+                                                    disabled={eventIndex === 0}
+                                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-30 hover:shadow-md transition-all"
+                                                >
+                                                    <ChevronLeft size={16} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => setEventIndex(prev => events.length > (prev + 1) * 3 ? prev + 1 : prev)}
+                                                    disabled={events.length <= (eventIndex + 1) * 3}
+                                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-30 hover:shadow-md transition-all"
+                                                >
+                                                    <ChevronRight size={16} />
+                                                </button>
                                             </div>
-                                        )}
+                                            <button onClick={() => goTab('events')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'voir tout')}</button>
+                                        </div>
+                                    </div>
+
+                                    {/* Events Grid/Horizontal Scroll */}
+                                    <div className="relative overflow-hidden">
+                                        <div 
+                                            className="flex gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 noscrollbar snap-x snap-mandatory transition-transform duration-500 ease-in-out md:flex-row"
+                                            style={{ transform: window.innerWidth > 768 ? `translateX(-${eventIndex * 100}%)` : 'none' }}
+                                        >
+                                            {events.length > 0 ? (
+                                                events.map((event, idx) => (
+                                                    <div 
+                                                        key={idx} 
+                                                        className="min-w-[85%] sm:min-w-[calc(33.333%-1rem)] snap-center group/ev relative rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 h-40 sm:h-48"
+                                                    >
+                                                        {event.imageUrl ? (
+                                                            <img src={getImageUrl(event.imageUrl)} alt={event.title} className="w-full h-full object-cover transition-transform group-hover/ev:scale-110 duration-700" />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-violet-600 flex flex-col items-center justify-center p-4 text-white text-center">
+                                                                <Calendar size={28} className="opacity-20 mb-2" />
+                                                                <h4 className="font-black text-[13px] leading-tight line-clamp-2">{event.title}</h4>
+                                                            </div>
+                                                        )}
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
+                                                            <h4 className="text-white font-black text-xs mb-1 truncate">{event.title}</h4>
+                                                            <div className="flex items-center gap-2 text-[9px] font-bold text-white/70">
+                                                                <Calendar size={10} /> {new Date(event.startDate).toLocaleDateString(locale)}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="w-full py-12 bg-slate-50 dark:bg-slate-900 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800">
+                                                    <Calendar size={32} className="text-slate-300 mb-2" />
+                                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{t('no_event_recorded', 'aucune evenment enregistre')}</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* ── COMMUNITY MEMBERS SECTION ── */}
-                                <div className="mt-4">
+                                <div className="mt-2">
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-5 h-5 rounded-full bg-[#fde68a] flex items-center justify-center">
-                                                <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
-                                            </div>
-                                            <h3 className="text-[14px] font-bold text-[#1e1b4b] dark:text-white">{t('members_community', 'Membre de ma comunaué')}</h3>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-1 h-5 bg-indigo-500 rounded-full" />
+                                            <h3 className="text-[14px] font-black text-slate-800 dark:text-white uppercase tracking-widest">{t('members_community', 'Membre de ma comunaué')}</h3>
                                         </div>
-                                        <button onClick={() => goTab('profile')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'Voir tout')}</button>
+                                        <button onClick={() => goTab('profile')} className="text-[12px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors uppercase tracking-tight">{t('view_all', 'Voir tout')}</button>
                                     </div>
-                                    <div className="flex items-center gap-4 overflow-x-auto pb-2 noscrollbar">
+                                    <div className="flex items-center gap-4 overflow-x-auto pb-6 noscrollbar -mx-5 sm:-mx-8 px-5 sm:px-8">
                                         {members.slice(0, 10).map((m, idx) => (
-                                            <button 
-                                                key={idx} 
-                                                onClick={() => navigate(`/member/profile/${m.id}`)}
-                                                className="flex flex-col items-center gap-1.5 shrink-0 min-w-[70px] group/member transition-transform active:scale-95"
-                                            >
-                                                <div className="w-14 h-14 rounded-full border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden bg-slate-50 relative">
+                                            <button key={m.id || idx} onClick={() => navigate(`/member/profile/${m.id}`)}
+                                                className="flex flex-col items-center gap-3 shrink-0 group/member transition-all">
+                                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm group-hover/member:shadow-xl group-hover/member:scale-110 group-hover/member:border-indigo-500 transition-all duration-300 relative">
                                                     {m.photo ? (
-                                                        <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover group-hover/member:scale-110 transition-transform" />
+                                                        <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-brand-primary text-white text-xs font-bold uppercase group-hover/member:bg-brand-primary/80">
+                                                        <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white text-xs font-black uppercase">
                                                             {m.firstName?.[0]}{m.lastName?.[0]}
                                                         </div>
                                                     )}
-                                                    <div className="absolute inset-0 bg-black/0 group-hover/member:bg-black/10 transition-colors" />
                                                 </div>
-                                                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate w-full text-center group-hover/member:text-brand-primary">
-                                                    {m.firstName} {m.lastName}
+                                                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate w-20 text-center tracking-tight">
+                                                    {m.firstName}
                                                 </span>
                                             </button>
                                         ))}
@@ -1142,24 +1204,22 @@ export default function MemberHome() {
                                 </div>
 
                                 {/* ── COMMUNITY POSTS SECTION ── */}
-                                <div className="mt-4">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-5 h-5 rounded-full bg-[#fde68a] flex items-center justify-center">
-                                                <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
-                                            </div>
-                                            <h3 className="text-[14px] font-bold text-[#1e1b4b] dark:text-white">{t('community_posts', 'publications de la communauté')}</h3>
+                                <div className="mt-2">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-1 h-5 bg-orange-500 rounded-full" />
+                                            <h3 className="text-[14px] font-black text-slate-800 dark:text-white uppercase tracking-widest">{t('community_posts', 'publications de la communauté')}</h3>
                                         </div>
-                                        <button onClick={() => goTab('activity')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'Voir tout')}</button>
+                                        <button onClick={() => goTab('activity')} className="text-[12px] font-bold text-orange-600 hover:text-orange-700 transition-colors uppercase tracking-tight">{t('view_all', 'Voir tout')}</button>
                                     </div>
                                     
-                                    <div className="space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         {communityPosts.length > 0 ? (
-                                            communityPosts.slice(0, 5).map((post, idx) => (
-                                                <div key={post.id || idx} className="flex flex-col gap-4 animate-in fade-in duration-500">
+                                            communityPosts.slice(0, 4).map((post, idx) => (
+                                                <div key={post.id || idx} className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2">
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-11 h-11 rounded-full overflow-hidden bg-slate-100 shadow-sm">
+                                                            <div className="w-11 h-11 rounded-full overflow-hidden bg-slate-100 border border-slate-100 shadow-sm">
                                                                 {post.author?.photo ? (
                                                                     <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" />
                                                                 ) : (
@@ -1169,37 +1229,57 @@ export default function MemberHome() {
                                                                 )}
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <span className="text-[14px] font-bold text-slate-900 dark:text-white">
+                                                                <span className="text-[14px] font-black text-slate-900 dark:text-white leading-tight">
                                                                     {post.author?.firstName} {post.author?.lastName}
                                                                 </span>
-                                                                <span className="text-[12px] text-slate-500 font-medium">
-                                                                    {POST_CATEGORIES.find(c => c.value === (post.type || 'general'))?.label.split(' ')[1] || 'Général'}
-                                                                </span>
-                                                                <span className="text-[12px] text-slate-400">
-                                                                    {new Date(post.createdAt).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' })}
-                                                                </span>
+                                                                <div className="flex items-center gap-2 mt-0.5">
+                                                                    <span className="text-[10px] font-black uppercase text-indigo-500 tracking-wider">
+                                                                        {POST_CATEGORIES.find(c => c.value === (post.type || 'general'))?.label.split(' ')[1] || 'Général'}
+                                                                    </span>
+                                                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                                                    <span className="text-[10px] font-bold text-slate-400">
+                                                                        {new Date(post.createdAt).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' })}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <span className="text-[12px] text-slate-500 font-medium">
-                                                            {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
-                                                        </span>
+                                                        <button className="text-slate-400 hover:text-slate-600 p-1">
+                                                            <MoreHorizontal size={18} />
+                                                        </button>
                                                     </div>
                                                     
-                                                    <div className="pl-0">
-                                                        <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                                                    <div className="min-h-[60px]">
+                                                        <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                                                             {post.content}
                                                         </p>
                                                         {post.imageUrl && (
-                                                            <div className="mt-4 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
-                                                                <img src={getImageUrl(post.imageUrl)} alt="" className="w-full object-cover max-h-[300px]" />
+                                                            <div className="mt-4 rounded-2xl overflow-hidden shadow-sm">
+                                                                <img src={getImageUrl(post.imageUrl)} alt="" className="w-full object-cover max-h-[250px] hover:scale-105 transition-transform duration-700" />
                                                             </div>
                                                         )}
+                                                    </div>
+
+                                                    <div className="pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
+                                                        <div className="flex items-center gap-4">
+                                                            <button className="flex items-center gap-1.5 text-slate-400 hover:text-indigo-500 transition-colors">
+                                                                <Heart size={16} />
+                                                                <span className="text-[11px] font-bold">24</span>
+                                                            </button>
+                                                            <button className="flex items-center gap-1.5 text-slate-400 hover:text-indigo-500 transition-colors">
+                                                                <MessageSquare size={16} />
+                                                                <span className="text-[11px] font-bold">12</span>
+                                                            </button>
+                                                        </div>
+                                                        <button className="text-slate-400 hover:text-indigo-500 transition-colors">
+                                                            <Share2 size={16} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="py-10 text-center text-slate-400 italic text-sm">
-                                                Aucune publication
+                                            <div className="col-span-full py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-800 mb-8">
+                                                <Activity size={32} className="mx-auto text-slate-300 mb-2 opacity-50" />
+                                                <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest italic">{t('no_posts', 'Aucune publication')}</p>
                                             </div>
                                         )}
                                     </div>
@@ -1338,8 +1418,7 @@ export default function MemberHome() {
                     {/* ══════════════════════════════════════════════════════ */}
                     {/* Mon profil                                            */}
                     {/* ══════════════════════════════════════════════════════ */}
-                    {
-                        activeTab === 'profile' && (
+                    {activeTab === 'profile' && (
                             <div className="animate-in fade-in duration-300 w-full space-y-6">
 
                                 {/* Avatar card with Cover */}
@@ -2383,8 +2462,8 @@ export default function MemberHome() {
                             </div>
                         </div>
                     )}
-                </div > {/* end scrollable content */}
-            </div > {/* end main area */}
+                </div>
+            </div>
 
             {/* ── CREATE POST MODAL (Professional Version) ── */}
             {
