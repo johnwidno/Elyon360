@@ -3,13 +3,24 @@ const router = express.Router();
 const memberController = require('../controllers/memberController');
 const { protect, hasPermission } = require('../middleware/authGuard');
 
-// Member Routes
+// ── Specific literal routes FIRST (before /:id) ────────────────────────────
+
+// Own profile (authenticated user)
 router.get('/profile', protect, memberController.getProfile);
 router.put('/profile', protect, memberController.updateProfile);
 
-// Admin Routes (for members management)
+// Community: accessible to all authenticated members
+router.get('/global-search', protect, memberController.searchGlobalMembers);
+router.get('/public-profile/:id', protect, memberController.getPublicMemberProfile);
+
+// List all members of the church
+router.get('/', protect, memberController.getAllMembers);
+
+// ── Admin Routes (require 'members' permission) ─────────────────────────────
+
 router.post('/', protect, hasPermission('members'), memberController.createMember);
-router.get('/', protect, hasPermission('members'), memberController.getAllMembers);
+
+// IMPORTANT: parameterized /:id routes come AFTER all literal routes
 router.get('/:id', protect, hasPermission('members'), memberController.getMemberById);
 router.put('/:id', protect, hasPermission('members'), memberController.updateMember);
 router.delete('/:id', protect, hasPermission('members'), memberController.deleteMember);
@@ -24,10 +35,6 @@ router.delete('/:id/notes/:noteId', protect, hasPermission('members'), memberCon
 // Actions
 router.get('/:id/actions', protect, hasPermission('members'), memberController.getMemberActions);
 router.post('/:id/actions', protect, hasPermission('members'), memberController.createMemberAction);
-
-// Community Search (Global)
-router.get('/global-search', protect, memberController.searchGlobalMembers);
-router.get('/public-profile/:id', protect, memberController.getPublicMemberProfile);
 
 // Requests
 router.get('/:id/requests', protect, hasPermission('members'), memberController.getMemberRequests);

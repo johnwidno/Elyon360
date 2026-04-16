@@ -720,10 +720,11 @@ exports.searchGlobalMembers = async (req, res) => {
 
         const users = await db.User.findAll({
             where: {
+                churchId: req.church.id,
                 [db.Sequelize.Op.or]: [
-                    { firstName: { [db.Sequelize.Op.like]: `%${q}%` } },
-                    { lastName: { [db.Sequelize.Op.like]: `%${q}%` } },
-                    { email: { [db.Sequelize.Op.like]: `%${q}%` } }
+                    { firstName: { [db.Sequelize.Op.iLike]: `%${q}%` } },
+                    { lastName: { [db.Sequelize.Op.iLike]: `%${q}%` } },
+                    { email: { [db.Sequelize.Op.iLike]: `%${q}%` } }
                 ]
             },
             attributes: ['id', 'firstName', 'lastName', 'photo', 'role'],
@@ -747,7 +748,7 @@ exports.getPublicMemberProfile = async (req, res) => {
     try {
         const { id } = req.params;
         const member = await db.User.findByPk(id, {
-            attributes: ['id', 'firstName', 'lastName', 'photo', 'email', 'phone', 'bio', 'status', 'createdAt', 'role', 'facebookUrl', 'linkedinUrl', 'instagramUrl', 'tiktokUrl'],
+            attributes: ['id', 'firstName', 'lastName', 'photo', 'email', 'phone', 'notes', 'status', 'createdAt', 'role', 'city', 'country', 'address', 'nickname', 'joinDate', 'facebookUrl', 'linkedinUrl', 'instagramUrl', 'tiktokUrl', 'websiteUrl'],
             include: [
                 { model: db.Church, as: 'church', attributes: ['name', 'acronym', 'logoUrl'] },
                 { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] }

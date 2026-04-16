@@ -424,11 +424,11 @@ function App() {
               }
             />
 
-            {/* Routes Protégées (Membre) */}
+            {/* Public Member Profile - accessible to any authenticated user */}
             <Route
               path="/member/profile/:id"
               element={
-                <ProtectedRoute role="member">
+                <ProtectedRoute>
                   <PublicMemberProfile />
                 </ProtectedRoute>
               }

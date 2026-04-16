@@ -8,7 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import {
     User, Bell, Heart, MessageSquare, LogOut, LayoutDashboard,
     Settings, BookOpen, Users, Building2, Activity,
-    Mail, Phone, Edit3, Check, X, Menu, ChevronRight, ChevronLeft,
+    Mail, Phone, Edit3, Check, X, Menu, ChevronRight, ChevronLeft, ArrowLeft,
     MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown,
     Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter, Music, Star,
     Camera, Award, PlusCircle, ShieldAlert, Maximize, AlertCircle, Lock, TrendingUp, Save, MoreHorizontal, Share2
@@ -57,7 +57,12 @@ const POST_CATEGORIES = [
     { value: 'autre', label: '➕ Autre', color: 'gray' },
 ];
 
-// ─── IMAGE URL HELPER ───────────────────────────────────────────────────────
+// ─── UTILS ──────────────────────────────────────────────────────────────────
+const toSentenceCase = (str) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http') || path.startsWith('data:')) return path;
@@ -204,6 +209,7 @@ export default function MemberHome() {
     const [members, setMembers] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [eventIndex, setEventIndex] = useState(0);
+    const [expandedEventIds, setExpandedEventIds] = useState({});
 
     // ── fetch ──────────────────────────────────────────────────────────────────
     const handleNotificationClick = async (notif) => {
@@ -745,15 +751,15 @@ export default function MemberHome() {
                             </div>
                         )}
                     </div>
-                    <div className="min-w-0 flex flex-col justify-center gap-0.5">
-                        <h1 className="text-[11px] font-bold leading-none tracking-tight text-white whitespace-nowrap opacity-50">
-                            Elyon Syst <span className="text-orange-500">360</span>
+                    <div className="min-w-0 flex flex-col justify-center">
+                        <h1 className="text-[10px] font-bold leading-none tracking-tight text-white/40 whitespace-nowrap mb-1">
+                            Elyon Syst <span className="text-orange-500/60">360</span>
                         </h1>
-                        <h2 className="text-white font-black text-[14px] leading-tight tracking-tight truncate">
-                            {profile?.church?.acronym || 'Sigle'}
+                        <h2 className="text-white font-black text-[16px] leading-tight tracking-tight uppercase">
+                            {profile?.church?.acronym || 'SIGLE'}
                         </h2>
-                        <p className="text-slate-500 text-[9px] font-medium tracking-tight leading-tight truncate max-w-[140px]" title={profile?.church?.name}>
-                            {profile?.church?.name || 'Église de Dieu'}
+                        <p className="text-slate-500 text-[10px] font-bold tracking-tight leading-tight line-clamp-2 mt-1" title={profile?.church?.name}>
+                            {profile?.church?.name ? toSentenceCase(profile.church.name) : 'Nom de l\'église'}
                         </p>
                     </div>
                 </div>
@@ -848,7 +854,7 @@ export default function MemberHome() {
 
                             {/* Mobile Header Content (Church Branding) */}
                             <div className="lg:hidden">
-                                <h1 className="text-[14px] font-black leading-none tracking-tight flex items-center gap-1.5 whitespace-nowrap" style={{ color: isDark ? '#f8fafc' : '#111827' }}>
+                                <h1 className="text-[11px] sm:text-[13px] font-black leading-none tracking-tight flex items-center gap-1.5 whitespace-nowrap" style={{ color: isDark ? '#f8fafc' : '#111827' }}>
                                     Elyon Syst <span className="text-orange-500">360</span>
                                 </h1>
                                 <div className="group relative">
@@ -861,56 +867,7 @@ export default function MemberHome() {
                         </div>
                     </div>
 
-                    <div className="flex-1 max-w-xl hidden md:block group relative">
-                    <div className={`relative flex items-center h-11 px-4 rounded-xl border transition-all ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-100 border-transparent focus-within:bg-white focus-within:border-indigo-500'}`}>
-                        <Search className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
-                        <input 
-                            type="text" 
-                            value={searchQuery}
-                            onChange={(e) => handleSearch(e.target.value)}
-                            placeholder={t('search_placeholder', 'Rechercher des membres (LinkedIn style)...')} 
-                            className="bg-transparent border-none outline-none font-medium ml-3 w-full text-sm placeholder:text-slate-400" 
-                        />
-                        {isSearching && <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-500 border-t-transparent mr-2"></div>}
-                    </div>
-
-                    {/* Search Results Dropdown */}
-                    {searchResults.length > 0 && (
-                        <div className={`absolute top-full left-0 right-0 mt-2 rounded-2xl border shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
-                            <div className="max-h-[400px] overflow-y-auto">
-                                {searchResults.map(m => (
-                                    <button 
-                                        key={m.id} 
-                                        onClick={() => {
-                                            navigate(`/member/profile/${m.id}`);
-                                            setSearchResults([]);
-                                            setSearchQuery('');
-                                        }}
-                                        className={`w-full flex items-center gap-4 p-4 text-left transition-colors border-b last:border-b-0 ${isDark ? 'hover:bg-slate-800 border-slate-800' : 'hover:bg-slate-50 border-slate-100'}`}
-                                    >
-                                        <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0">
-                                            {m.photo ? (
-                                                <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white font-black text-sm">
-                                                    {m.firstName?.[0]}{m.lastName?.[0]}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="font-bold text-sm truncate">{m.firstName} {m.lastName}</p>
-                                            <p className="text-[11px] text-slate-500 font-medium truncate flex items-center gap-1.5 uppercase tracking-widest">
-                                                <MapPin size={10} /> {m.church?.name || 'ElyonSys Platform'}
-                                            </p>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                    <div className="flex items-center gap-3 sm:gap-5">
+                    <div className="flex-1 flex justify-end items-center gap-3 sm:gap-5">
                         <button onClick={toggleTheme} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-amber-400 transition-all hover:scale-110 active:scale-95 shadow-sm border border-slate-200 dark:border-slate-700">
                              {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
                         </button>
@@ -1062,27 +1019,71 @@ export default function MemberHome() {
                         <div className="animate-in fade-in duration-500 h-full flex flex-col pt-0 max-w-[1600px] mx-auto">
                             <div className="px-5 sm:px-8 py-6 flex flex-col gap-10">
                                 
-                                {/* ── SEARCH & SEND BAR (From Figma) ── */}
+                                {/* ── SEARCH BAR + POST BUTTON ── */}
                                 <div className="flex items-center gap-3">
-                                    <div className="relative flex-1 group transition-all duration-300">
-                                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                                            <Search className="h-4 w-4 text-slate-400 group-focus-within:text-brand-orange transition-colors" />
+                                    {/* Search Bar */}
+                                    <div className="relative flex-1 group z-10">
+                                    <div className="relative flex items-center h-12 bg-[#f0f0f0] dark:bg-slate-900 rounded-2xl transition-all focus-within:ring-2 focus-within:ring-indigo-500/50 shadow-sm">
+                                        <div className="pl-4 pr-3 text-slate-400">
+                                            <Search size={20} />
                                         </div>
                                         <input
                                             type="text"
                                             value={searchQuery}
-                                            onChange={e => setSearchQuery(e.target.value)}
-                                            placeholder={t('search', 'Search')}
-                                            className="w-full pl-11 pr-4 py-2.5 bg-[#f0f0f0] dark:bg-slate-900 border-none rounded-xl font-medium text-slate-800 dark:text-slate-200 focus:ring-0 transition-all text-[14px] outline-none"
+                                            onChange={(e) => handleSearch(e.target.value)}
+                                            placeholder={t('search_placeholder', 'Rechercher des membres...')}
+                                            className="w-full h-full bg-transparent border-none outline-none font-medium text-slate-800 dark:text-slate-200 text-sm placeholder:text-slate-400"
                                         />
+                                        {isSearching && (
+                                            <div className="absolute right-4 animate-spin rounded-full h-5 w-5 border-2 border-indigo-500 border-t-transparent"></div>
+                                        )}
                                     </div>
-                                    <button 
+                                    
+                                    {/* Search Results Dropdown */}
+                                    {searchResults.length > 0 && (
+                                        <div className={`absolute top-full left-0 right-0 mt-3 rounded-2xl border shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                                            <div className="max-h-[400px] overflow-y-auto">
+                                                {searchResults.map(m => (
+                                                    <button 
+                                                        key={m.id} 
+                                                        onClick={() => {
+                                                            navigate(`/member/profile/${m.id}`);
+                                                            setSearchResults([]);
+                                                            setSearchQuery('');
+                                                        }}
+                                                        className={`w-full flex items-center gap-4 p-4 text-left transition-colors border-b last:border-b-0 ${isDark ? 'hover:bg-slate-800 border-slate-800' : 'hover:bg-slate-50 border-slate-100'}`}
+                                                    >
+                                                        <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 shrink-0 border border-slate-100 dark:border-slate-700">
+                                                            {m.photo ? (
+                                                                <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center bg-indigo-600 text-white font-black text-sm">
+                                                                    {m.firstName?.[0]}{m.lastName?.[0]}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className="font-bold text-sm truncate text-slate-900 dark:text-white">{m.firstName} {m.lastName}</p>
+                                                            <p className="text-[11px] text-slate-500 font-medium truncate flex items-center gap-1.5 uppercase tracking-widest mt-0.5">
+                                                                <MapPin size={10} /> {m.church?.name || 'ElyonSys Platform'}
+                                                            </p>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    </div>{/* end search inner div */}
+
+                                    {/* Post Button */}
+                                    <button
                                         onClick={() => setIsPostModalOpen(true)}
-                                        className="text-blue-500 hover:scale-110 active:scale-95 transition-all outline-none"
+                                        className="shrink-0 w-12 h-12 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-2xl shadow-md shadow-indigo-600/30 transition-all"
+                                        title={t('new_post', 'Nouvelle publication')}
                                     >
-                                        <Send size={20} strokeWidth={2.5} />
+                                        <Send size={18} strokeWidth={2.5} />
                                     </button>
-                                </div>
+                                </div>{/* end flex row */}
 
                                 {/* ── QUICK ACTION GRID (2x3) ── */}
                                 <div className="grid grid-cols-3 gap-3">
@@ -1138,27 +1139,71 @@ export default function MemberHome() {
                                     {/* Events Grid/Horizontal Scroll */}
                                     <div className="relative overflow-hidden">
                                         <div 
-                                            className="flex gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 noscrollbar snap-x snap-mandatory transition-transform duration-500 ease-in-out md:flex-row"
-                                            style={{ transform: window.innerWidth > 768 ? `translateX(-${eventIndex * 100}%)` : 'none' }}
+                                            className="flex gap-4 sm:gap-6 overflow-x-auto sm:overflow-hidden pb-4 sm:pb-0 noscrollbar snap-x snap-mandatory transition-all duration-500 ease-in-out"
+                                            style={{ 
+                                                transform: window.innerWidth > 768 ? `translateX(-${eventIndex * (100 / 3)}%)` : 'none'
+                                            }}
                                         >
                                             {events.length > 0 ? (
                                                 events.map((event, idx) => (
                                                     <div 
                                                         key={idx} 
-                                                        className="min-w-[85%] sm:min-w-[calc(33.333%-1rem)] snap-center group/ev relative rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 h-40 sm:h-48"
+                                                        className="w-[280px] sm:w-[calc(33.333%-1rem)] shrink-0 snap-center group/ev relative rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                                                     >
-                                                        {event.imageUrl ? (
-                                                            <img src={getImageUrl(event.imageUrl)} alt={event.title} className="w-full h-full object-cover transition-transform group-hover/ev:scale-110 duration-700" />
-                                                        ) : (
-                                                            <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-violet-600 flex flex-col items-center justify-center p-4 text-white text-center">
-                                                                <Calendar size={28} className="opacity-20 mb-2" />
-                                                                <h4 className="font-black text-[13px] leading-tight line-clamp-2">{event.title}</h4>
+                                                        {/* Image Section (Top) */}
+                                                        <div 
+                                                            className="h-40 sm:h-48 relative overflow-hidden shrink-0 cursor-pointer"
+                                                            onClick={() => goTab('events')}
+                                                        >
+                                                            {event.imageUrl ? (
+                                                                <img src={getImageUrl(event.imageUrl)} alt={event.title} className="w-full h-full object-cover transition-transform group-hover/ev:scale-110 duration-700" />
+                                                            ) : (
+                                                                <div className="w-full h-full bg-gradient-to-br from-indigo-500/10 to-violet-600/10 flex items-center justify-center p-4">
+                                                                    <Calendar size={40} className="text-indigo-500/30 group-hover/ev:scale-110 transition-transform duration-500" />
+                                                                </div>
+                                                            )}
+                                                            <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-xl shadow-sm">
+                                                                <p className="text-[11px] font-black text-indigo-600 uppercase tracking-widest leading-none">
+                                                                    {new Date(event.startDate).toLocaleDateString(locale, { month: 'short', day: 'numeric' })}
+                                                                </p>
                                                             </div>
-                                                        )}
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
-                                                            <h4 className="text-white font-black text-xs mb-1 truncate">{event.title}</h4>
-                                                            <div className="flex items-center gap-2 text-[9px] font-bold text-white/70">
-                                                                <Calendar size={10} /> {new Date(event.startDate).toLocaleDateString(locale)}
+                                                        </div>
+
+                                                        {/* Info Section (Bottom) */}
+                                                        <div className="p-5 flex-1 flex flex-col justify-between bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800">
+                                                            <div>
+                                                                <h4 
+                                                                    onClick={() => goTab('events')}
+                                                                    className="text-slate-900 dark:text-white font-black text-[15px] leading-tight line-clamp-2 mb-2 group-hover/ev:text-indigo-600 transition-colors cursor-pointer hover:underline"
+                                                                >
+                                                                    {event.title}
+                                                                </h4>
+                                                                <div className="relative">
+                                                                    <p className={`text-[12px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-1.5 transition-all duration-300 ${expandedEventIds[idx] ? '' : 'line-clamp-2'}`}>
+                                                                        {event.description || t('no_description_event', 'Rejoignez-nous pour ce moment spécial au sein de notre communauté.')}
+                                                                    </p>
+                                                                    {event.description && event.description.length > 50 && (
+                                                                        <button 
+                                                                            onClick={(e) => { e.stopPropagation(); setExpandedEventIds(prev => ({ ...prev, [idx]: !prev[idx] })); }}
+                                                                            className="text-[10px] font-black text-indigo-500 hover:text-indigo-600 uppercase tracking-widest mb-4 bg-transparent border-none outline-none cursor-pointer"
+                                                                        >
+                                                                            {expandedEventIds[idx] ? t('see_less', 'Voir moins') : `... ${t('see_more', 'Voir plus')}`}
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-1.5 text-[9px] font-black text-indigo-500 uppercase tracking-tighter">
+                                                                    <Clock size={10} />
+                                                                    <span>
+                                                                        {new Date(event.startDate).toLocaleDateString(locale)} 
+                                                                        {event.endDate && ` - ${new Date(event.endDate).toLocaleDateString(locale)}`}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover/ev:bg-indigo-600 group-hover/ev:text-white transition-all">
+                                                                    <ChevronRight size={14} />
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1277,13 +1322,119 @@ export default function MemberHome() {
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="col-span-full py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-800 mb-8">
+                                            <div className="col-span-full py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-700 mb-8">
                                                 <Activity size={32} className="mx-auto text-slate-300 mb-2 opacity-50" />
                                                 <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest italic">{t('no_posts', 'Aucune publication')}</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {/* ══════════════════════════════════════════════════════ */}
+                    {/* Activité (Flux de publications)                       */}
+                    {/* ══════════════════════════════════════════════════════ */}
+                    {activeTab === 'activity' && (
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-10">
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-600 shadow-lg shadow-orange-500/20">
+                                        <Activity size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                                            {t('community_activity', 'Activité')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('community_activity_subtitle', 'Découvrez les dernières publications')}</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setIsPostModalOpen(true)}
+                                    className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[1.25rem] text-[11px] font-black uppercase tracking-widest shadow-xl hover:shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    <Plus size={16} />
+                                    {t('create_post', 'Publier')}
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                                {communityPosts.length > 0 ? (
+                                    communityPosts.map((post, idx) => (
+                                        <div key={post.id || idx} className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-2xl transition-all duration-500 group animate-in fade-in slide-in-from-bottom-6 duration-700" style={{ animationDelay: `${idx * 150}ms` }}>
+                                            <div className="flex items-start justify-between mb-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm transition-transform group-hover:scale-110">
+                                                        {post.author?.photo ? (
+                                                            <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-sm font-black uppercase">
+                                                                {post.author?.firstName?.[0]}{post.author?.lastName?.[0]}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <h4 className="text-[16px] font-black text-slate-900 dark:text-white leading-tight mb-0.5">
+                                                            {post.author?.firstName} {post.author?.lastName}
+                                                        </h4>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[11px] font-black uppercase text-indigo-500 tracking-wider">
+                                                                {POST_CATEGORIES.find(c => c.value === (post.type || 'general'))?.label.split(' ')[1] || 'Général'}
+                                                            </span>
+                                                            <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                                            <span className="text-[11px] font-bold text-slate-400 capitalize">
+                                                                {new Date(post.createdAt).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long' })}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                                    <MoreHorizontal size={20} />
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                <p className="text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                                                    {post.content}
+                                                </p>
+                                                {post.imageUrl && (
+                                                    <div className="rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                                                        <img src={getImageUrl(post.imageUrl)} alt="" className="w-full object-cover max-h-[400px] transition-transform duration-1000 group-hover:scale-105" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
+                                                <div className="flex items-center gap-6">
+                                                    <button className="flex items-center gap-2 text-slate-400 hover:text-indigo-500 transition-all group/btn">
+                                                        <div className="w-10 h-10 rounded-full flex items-center justify-center group-hover/btn:bg-indigo-50 dark:group-hover/btn:bg-indigo-900/20 transition-all">
+                                                            <Heart size={20} className="group-hover/btn:fill-indigo-500 transition-all" />
+                                                        </div>
+                                                        <span className="text-[13px] font-black tracking-tight pt-0.5">24</span>
+                                                    </button>
+                                                    <button className="flex items-center gap-2 text-slate-400 hover:text-indigo-500 transition-all group/btn">
+                                                        <div className="w-10 h-10 rounded-full flex items-center justify-center group-hover/btn:bg-indigo-50 dark:group-hover/btn:bg-indigo-900/20 transition-all">
+                                                            <MessageSquare size={20} />
+                                                        </div>
+                                                        <span className="text-[13px] font-black tracking-tight pt-0.5">12</span>
+                                                    </button>
+                                                </div>
+                                                <button className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-500 transition-all">
+                                                    <Share2 size={20} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-24 text-center bg-white dark:bg-slate-800 rounded-[3.5rem] border-2 border-dashed border-slate-100 dark:border-slate-700 shadow-sm">
+                                        <Activity size={48} className="mx-auto text-slate-200 mb-6" />
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('no_posts_yet', 'Rien à voir ici')}</h3>
+                                        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">{t('no_posts_subtitle', 'Soyez le premier à publier !')}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -1310,16 +1461,20 @@ export default function MemberHome() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {events.map(event => {
+                                {events.map((event, i) => {
                                     const isUpcoming = new Date(event.startDate) >= new Date();
                                     return (
-                                        <div key={event.id} className={`rounded-[2.5rem] overflow-hidden group shadow-sm border transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 relative ${isUpcoming ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'bg-slate-50/50 dark:bg-slate-900/50 border-transparent grayscale opacity-70'}`}>
+                                        <div 
+                                            key={event.id} 
+                                            className={`rounded-[2.5rem] overflow-hidden group shadow-sm border transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 relative animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ${isUpcoming ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'bg-slate-50/50 dark:bg-slate-900/50 border-transparent grayscale opacity-70'}`}
+                                            style={{ animationDelay: `${i * 100}ms` }}
+                                        >
                                             <div className="h-56 relative overflow-hidden">
                                                 {event.imageUrl ? (
                                                     <img src={getImageUrl(event.imageUrl)} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 ) : (
                                                     <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 flex items-center justify-center text-white">
-                                                        <Calendar size={64} className="opacity-20" />
+                                                        <Calendar size={64} className="opacity-20 transition-transform group-hover:scale-110 duration-700" />
                                                     </div>
                                                 )}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1330,61 +1485,68 @@ export default function MemberHome() {
                                                 </div>
                                             </div>
                                             
-                                            <div className="p-8 space-y-5">
-                                                <h3 className="font-black text-[22px] leading-tight text-slate-900 dark:text-white line-clamp-2 group-hover:text-blue-600 transition-colors">
-                                                    {event.title}
-                                                </h3>
-                                                
-                                                <div className="space-y-4 pt-2">
-                                                    <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
-                                                        <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 dark:border-slate-800">
-                                                            <Calendar size={18} />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('date', 'Date')}</p>
-                                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                                                {new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                                            </p>
-                                                        </div>
-                                                    </div>
+                                            <div className="p-8 space-y-5 flex flex-col h-full">
+                                                <div className="flex-1">
+                                                    <h3 className="font-black text-[22px] leading-tight text-slate-900 dark:text-white line-clamp-2 group-hover:text-blue-600 transition-colors mb-4">
+                                                        {event.title}
+                                                    </h3>
                                                     
-                                                    <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
-                                                        <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 dark:border-slate-800">
-                                                            <Clock size={18} />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('time', 'Heure')}</p>
-                                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                                                {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    {event.location && (
+                                                    <div className="space-y-4 pt-2">
                                                         <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
-                                                            <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 dark:border-slate-800">
-                                                                <MapPin size={18} />
+                                                            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500 shadow-sm border border-indigo-100 dark:border-indigo-800 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                                <Calendar size={18} />
                                                             </div>
-                                                            <div className="min-w-0 flex-1">
-                                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('location', 'Lieu')}</p>
-                                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate pr-2">
-                                                                    {event.location}
+                                                            <div>
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('date', 'Date')}</p>
+                                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                                                    {new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                                    {event.endDate && (
+                                                                        <span className="block text-[11px] opacity-60">
+                                                                            Au {new Date(event.endDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                                        </span>
+                                                                    )}
                                                                 </p>
                                                             </div>
+                                                        </div>
+                                                        
+                                                        <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+                                                            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500 shadow-sm border border-indigo-100 dark:border-indigo-800 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                                <Clock size={18} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('time', 'Heure')}</p>
+                                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                                                    {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        {event.location && (
+                                                            <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+                                                                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500 shadow-sm border border-indigo-100 dark:border-indigo-800 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                                    <MapPin size={18} />
+                                                                </div>
+                                                                <div className="min-w-0 flex-1">
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('location', 'Lieu')}</p>
+                                                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate pr-2">
+                                                                        {event.location}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {event.description && (
+                                                        <div className="mt-6 p-5 rounded-3xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 group-hover:bg-indigo-50/30 dark:group-hover:bg-indigo-900/10 transition-colors duration-500">
+                                                            <p className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed font-medium">
+                                                                {event.description}
+                                                            </p>
                                                         </div>
                                                     )}
                                                 </div>
 
-                                                {event.description && (
-                                                    <div className="mt-6 p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                                                        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed line-clamp-3 italic">
-                                                            " {event.description} "
-                                                        </p>
-                                                    </div>
-                                                )}
-
-                                                <div className="pt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                                    <button className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95">
+                                                <div className="pt-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 translate-y-0 lg:translate-y-4 lg:group-hover:translate-y-0 transition-all duration-500 mt-auto">
+                                                    <button className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95">
                                                         {t('view_details', 'En savoir plus')}
                                                     </button>
                                                 </div>
@@ -1406,9 +1568,7 @@ export default function MemberHome() {
                         </div>
                     )}
 
-                    {/* ══════════════════════════════════════════════════════ */}
-                    {/* Cultes & Événements (Phase 6)                        */}
-                    {/* ══════════════════════════════════════════════════════ */}
+
                     {activeTab === 'worship' && (
                         <div className="animate-in fade-in duration-300 w-full">
                             <MemberWorship />
