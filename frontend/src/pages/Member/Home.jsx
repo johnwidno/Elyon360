@@ -972,17 +972,22 @@ export default function MemberHome() {
                     </div>
                 </div>
 
-                <div className="sm:hidden fixed bottom-0 left-0 right-0 z-[100] flex items-end justify-center pointer-events-none pb-4 transition-all duration-500">
-                    <div className="flex items-center justify-around px-2 py-1 transition-all duration-700 rounded-[2rem] border border-white/10 dark:border-slate-800/20 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] pointer-events-auto translate-y-20 opacity-0 group-hover/main:translate-y-0 group-hover/main:opacity-100 active:translate-y-0 active:opacity-100 touch-pan-y"
+                {/* ── MOBILE BOTTOM NAV TRIGGER & BAR ──────────────────────────── */}
+                <div className="sm:hidden fixed bottom-0 left-0 right-0 z-[100] group/nav-container pointer-events-none">
+                    {/* Visual hint indicator */}
+                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-slate-400/20 rounded-full group-hover/nav-container:opacity-0 transition-opacity" />
+                    
+                    {/* The actual trigger zone (Invisible but interactive) */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-auto" />
+
+                    {/* The Navigation Bar */}
+                    <div className="relative mx-auto mb-4 flex items-center justify-around px-2 py-1 transition-all duration-700 rounded-[2rem] border border-white/10 dark:border-slate-800/20 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] pointer-events-auto translate-y-32 opacity-0 group-hover/nav-container:translate-y-0 group-hover/nav-container:opacity-100"
                         style={{ 
                             background: isDark ? 'rgba(8, 12, 20, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
                             height: '48px',
                             width: '80%',
-                            transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                            transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                         }}>
-                        {/* Enlarged trigger zone for touch sensitivity */}
-                        <div className="absolute -top-32 left-0 right-0 h-40 -z-10" />
-                        
                         {[
                             { id: 'dashboard', icon: <Home size={17} /> },
                             { id: 'activity', icon: <Activity size={17} /> },
