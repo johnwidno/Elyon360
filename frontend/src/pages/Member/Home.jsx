@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../auth/AuthProvider';
@@ -10,7 +10,8 @@ import {
     Settings, BookOpen, Users, Building2, Activity,
     Mail, Phone, Edit3, Check, X, Menu, ChevronRight,
     MapPin, FileText, Send, Plus, Calendar, Home, Maximize2, CreditCard, Search, Image, RefreshCw, Clock, ChevronDown,
-    Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter, Music
+    Moon, Sun, Droplets, History, CloudOff, CheckCircle, Download, Filter, Music, Star,
+    Camera, Award, PlusCircle, ShieldAlert, Maximize, AlertCircle, Lock, TrendingUp, Save, MoreHorizontal, Share2
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import MemberRequests from './MemberRequests';
@@ -19,14 +20,14 @@ import SundaySchoolReportDetails from '../Admin/SundaySchool/SundaySchoolReportD
 import MemberWorship from './MemberWorship';
 
 // ─── SHARED STYLES ────────────────────────────────────────────────────────────
-const SIDEBAR_BG = '#0f172a';
-const SIDEBAR_BORDER = '#1e293b';
-const ACTIVE_BG = '#1e293b';
+const SIDEBAR_BG = '#080c14'; // Deeper navy for premium feel
+const SIDEBAR_BORDER = '#151b28';
+const ACTIVE_BG = 'rgba(99, 102, 241, 0.1)';
 const ACTIVE_CLR = '#6366f1';
 const BORDER_CLR = '#f1f5f9';
 const BG_CLR = '#f8fafc';
-const FONT = "'Inter','Segoe UI',sans-serif";
-const SERIF = "'Inter', sans-serif"; // Using Inter for headers as well for consistency
+const FONT = "'Plus Jakarta Sans', sans-serif";
+const SERIF = "'Plus Jakarta Sans', sans-serif";
 
 const POST_CATEGORIES = [
     { value: 'general', label: '📢 Général', color: 'blue' },
@@ -68,13 +69,18 @@ function Card({ children, className = '', style = {} }) {
     const isDark = theme === 'dark';
     return (
         <div
-            className={`bg-white dark:bg-slate-800 rounded-2xl border transition-colors ${className}`}
-            style={{ borderColor: isDark ? '#1e293b' : '#f1f5f9', ...style }}
+            className={`bg-white dark:bg-slate-800 rounded-[2rem] border transition-all duration-300 ${className}`}
+            style={{ 
+                borderColor: isDark ? '#334155' : '#f1f5f9', 
+                boxShadow: isDark ? '0 10px 30px -10px rgba(0,0,0,0.5)' : '0 10px 30px -10px rgba(99,102,241,0.05)',
+                ...style 
+            }}
         >
             {children}
         </div>
     );
 }
+
 
 // ─── SECTION TITLE ────────────────────────────────────────────────────────────
 function PageTitle({ title, subtitle }) {
@@ -117,18 +123,16 @@ function RowCard({ left, center, right }) {
 // ─── BADGE ────────────────────────────────────────────────────────────────────
 function Badge({ label, color = 'gray' }) {
     const map = {
-        amber: { border: '#f59e0b', text: '#b45309', bg: '#fffbeb' },
-        green: { border: '#22c55e', text: '#166534', bg: '#f0fdf4' },
-        gray: { border: '#d1d5db', text: '#6b7280', bg: '#f9fafb' },
-        blue: { border: '#6366f1', text: '#4338ca', bg: '#eef2ff' },
-        rose: { border: '#f43f5e', text: '#be123c', bg: '#fff1f2' },
+        amber: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/30',
+        green: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30',
+        gray: 'bg-gray-50 text-gray-500 border-gray-100 dark:bg-slate-700/50 dark:text-slate-400 dark:border-slate-700',
+        blue: 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-900/30',
+        rose: 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/30',
+        indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-900/30',
     };
-    const c = map[color] || map.gray;
+    const classes = map[color] || map.gray;
     return (
-        <span
-            className="text-[11px] font-semibold px-3 py-1 rounded-full border"
-            style={{ borderColor: c.border, color: c.text, background: c.bg }}
-        >
+        <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full border ${classes}`}>
             {label}
         </span>
     );
@@ -197,6 +201,7 @@ export default function MemberHome() {
     const [postFilter, setPostFilter] = useState('all');
     const [postsLimit, setPostsLimit] = useState(window.innerWidth > 640 ? 4 : 5);
     const [zoomedImageUrl, setZoomedImageUrl] = useState(null);
+    const [members, setMembers] = useState([]);
 
     // ── fetch ──────────────────────────────────────────────────────────────────
     const handleNotificationClick = async (notif) => {
@@ -259,6 +264,14 @@ export default function MemberHome() {
             setCommunityPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
             setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : []);
             setCeremonies(Array.isArray(ceremoniesRes?.data) ? ceremoniesRes.data : []);
+
+            // Fetch community members for the dashboard
+            try {
+                const memRes = await api.get('/members?limit=12');
+                setMembers(Array.isArray(memRes.data) ? memRes.data : []);
+            } catch (memErr) {
+                console.error('Members fetch error:', memErr);
+            }
 
             // NEW: Sync authUser with latest roles and church info to ensure switcher works
             if (profRes.data && authUser) {
@@ -721,53 +734,58 @@ export default function MemberHome() {
     // SIDEBAR (shared between desktop + mobile drawer)
     // ═══════════════════════════════════════════════════════════════════════════
     const SidebarContent = () => (
-        <div className="flex flex-col h-full border-r" style={{ background: SIDEBAR_BG, borderColor: SIDEBAR_BORDER }}>
-            {/* Logo & Church Info */}
-            <div className="px-5 py-8 border-b" style={{ borderColor: SIDEBAR_BORDER }}>
-                <div className="flex items-center gap-5 mb-5">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 text-white text-[19px] font-black overflow-hidden bg-white shadow-lg border-2 border-slate-800">
+        <div className="flex flex-col h-full border-r relative overflow-hidden" style={{ background: SIDEBAR_BG, borderColor: SIDEBAR_BORDER }}>
+            {/* Subtle background decoration */}
+            <div className="absolute top-0 left-0 w-full h-64 bg-indigo-500/5 blur-3xl rounded-full -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+            
+            {/* Logo & Church Info (Refined as requested) */}
+            <div className="px-6 py-10 border-b relative z-10" style={{ borderColor: SIDEBAR_BORDER }}>
+                <div className="flex items-center gap-4 mb-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white font-black overflow-hidden bg-white shadow-lg relative group transition-transform hover:scale-105 active:scale-95">
                         {profile?.church?.logoUrl ? (
-                            <img src={getImageUrl(profile.church.logoUrl)} alt="Logo" className="w-full h-full object-contain p-1" />
+                            <img src={getImageUrl(profile.church.logoUrl)} alt="Logo" className="w-full h-full object-contain p-1 transition-transform group-hover:scale-110" />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                <span className="font-black text-white">{(profile?.church?.acronym || profile?.church?.name || '✝')[0].toUpperCase()}</span>
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600">
+                                <span className="font-black text-white text-sm">{(profile?.church?.acronym || profile?.church?.name || '✝')[0].toUpperCase()}</span>
                             </div>
                         )}
                     </div>
-                    <div className="min-w-0 flex flex-col gap-1">
-                        <p className="text-[10px] font-black text-indigo-400 tracking-[0.2em] uppercase">
-                            ELYONSYS 360
-                        </p>
-                        <p className="text-white font-black text-[18px] leading-relaxed tracking-tight uppercase truncate">
+                    <div className="min-w-0 flex flex-col justify-center">
+                        <h1 className="text-[15px] font-black leading-none tracking-tight text-white mb-1">
+                            Elyon Syst <span className="text-orange-500">360</span>
+                        </h1>
+                        <h2 className="text-indigo-400 font-bold text-[14px] leading-tight tracking-[0.1em] uppercase truncate">
                             {profile?.church?.acronym || 'SIGLE'}
-                        </p>
+                        </h2>
                     </div>
                 </div>
                 {profile?.church?.name && (
-                    <p className="text-slate-400 text-[12px] font-semibold leading-loose truncate px-1" title={profile.church.name}>
-                        {profile.church.name}
-                    </p>
+                    <div className="mt-2 pl-0.5">
+                        <p className="text-slate-500 text-[9px] font-bold tracking-tight leading-none truncate opacity-70" title={profile.church.name}>
+                            {profile.church.name}
+                        </p>
+                    </div>
                 )}
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-3 py-6 overflow-y-auto noscrollbar">
-                <div className="space-y-1">
+            <nav className="flex-1 px-4 py-8 overflow-y-auto noscrollbar relative z-10">
+                <div className="space-y-1.5">
                     {navItems.map(item => {
                         const active = activeTab === item.id;
                         return (
                             <button key={item.id} onClick={() => goTab(item.id)}
-                                className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-left group"
+                                className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all text-left group relative overflow-hidden`}
                                 style={{
                                     background: active ? ACTIVE_BG : 'transparent',
-                                    color: active ? '#fff' : '#94a3b8'
                                 }}>
-                                <span className={`transition-transform duration-300 group-hover:scale-110 ${active ? 'text-indigo-600' : 'text-slate-400'}`}>
-                                    {item.icon}
+                                {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-r-full shadow-[0_0_15px_rgba(99,102,241,0.5)]" />}
+                                <span className={`transition-all duration-300 ${active ? 'text-indigo-500 scale-110' : 'text-slate-500 group-hover:text-slate-300 group-hover:scale-110'}`}>
+                                    {React.cloneElement(item.icon, { size: 18, strokeWidth: active ? 2.5 : 2 })}
                                 </span>
-                                <span className={`text-[13px] ${active ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
+                                <span className={`text-[13px] tracking-tight transition-colors ${active ? 'font-black text-white' : 'font-bold text-slate-400 group-hover:text-slate-200'}`}>{item.label}</span>
                                 {item.badge && (
-                                    <span className="ml-auto w-5 h-5 bg-amber-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                                    <span className="ml-auto px-2 py-0.5 bg-indigo-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
                                         {item.badge}
                                     </span>
                                 )}
@@ -778,14 +796,14 @@ export default function MemberHome() {
             </nav>
 
             {/* Logout at bottom */}
-            <div className="p-3 mt-auto border-t" style={{ borderColor: SIDEBAR_BORDER }}>
+            <div className="p-4 mt-auto border-t relative z-10" style={{ borderColor: SIDEBAR_BORDER }}>
                 <button onClick={logout}
-                    className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all text-red-400 hover:bg-red-500/10 group">
-                    <LogOut size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
-                    <span className="text-[13px] font-bold">{t('logout', 'Déconnexion')}</span>
+                    className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all text-red-400/80 hover:text-red-400 hover:bg-red-500/10 group">
+                    <LogOut size={18} className="transition-transform duration-300 group-hover:-translate-x-1" />
+                    <span className="text-[13px] font-black tracking-tight">{t('logout', 'Déconnexion')}</span>
                 </button>
             </div>
-        </div >
+        </div>
     );
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -813,177 +831,59 @@ export default function MemberHome() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
                 {/* ── TOP HEADER BAR ──────────────────────────────────────── */}
-                <div className="flex items-center justify-between px-4 sm:px-6 shrink-0 relative transition-colors"
-                    style={{ height: '64px', background: isDark ? '#0f172a' : '#fff', borderBottom: `1px solid ${isDark ? '#1e293b' : BORDER_CLR}`, zIndex: 90 }}>
-                    <div className="flex items-center gap-3">
-                        {/* Hamburger (mobile/tablet) */}
-                        <button className="lg:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors text-gray-400"
+                <div className="flex items-center justify-between px-6 shrink-0 relative transition-all duration-300"
+                    style={{ 
+                        height: '74px', 
+                        background: isDark ? 'rgba(8, 12, 20, 0.95)' : 'rgba(255, 255, 255, 0.95)', 
+                        backdropFilter: 'blur(16px)',
+                        borderBottom: `1px solid ${isDark ? '#151b28' : '#f1f5f9'}`, 
+                        zIndex: 90 
+                    }}>
+                    <div className="flex items-center gap-4">
+                        <button className="lg:hidden p-1 text-slate-800 dark:text-slate-200 transition-all active:scale-95"
                             onClick={() => setSidebarOpen(true)}>
-                            <Menu size={20} />
+                            <Menu size={26} />
                         </button>
-                        <div className="hidden sm:flex items-center gap-2 text-gray-400 text-sm">
-                            <LayoutDashboard size={16} className="text-gray-300" />
-                            <span className="font-bold text-gray-800 dark:text-slate-200 text-[14px] tracking-tight">
-                                {navItems.find(n => n.id === activeTab) ? t(navItems.find(n => n.id === activeTab).id, navItems.find(n => n.id === activeTab).label) : t('member_space', 'Espace Membre')}
-                            </span>
+                        <div className="flex flex-col justify-center">
+                            {/* Desktop Header Content (Tab Title) */}
+                            <div className="hidden lg:block">
+                                <h1 className="text-[16px] font-black leading-none tracking-tight text-slate-900 dark:text-white uppercase italic">
+                                    {navItems.find(n => n.id === activeTab)?.label || 'Tableau de bord'}
+                                </h1>
+                                <p className="text-[10px] font-bold text-indigo-500 mt-1 uppercase tracking-widest opacity-60">
+                                    Espace Membre
+                                </p>
+                            </div>
+
+                            {/* Mobile Header Content (Church Branding) */}
+                            <div className="lg:hidden">
+                                <h1 className="text-[17px] font-black leading-none tracking-tight flex items-center gap-1.5" style={{ color: isDark ? '#f8fafc' : '#111827' }}>
+                                    Elyon Syst <span className="text-orange-500">360</span>
+                                </h1>
+                                <p className="text-[10px] font-bold text-slate-500 mt-1 tracking-tight">
+                                    {profile?.church?.name || 'Eglise de Dieu de Port au prince'}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="flex items-center gap-3 sm:gap-5">
+                        <button onClick={toggleLang} className="text-[13px] font-black text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors px-2 py-1">
+                            {lang === 'FR' ? 'FR/EN' : 'EN/FR'}
+                        </button>
 
-                        {/* 1. Global Search Bar */}
-                        <div className="relative group flex items-center" ref={searchRef}>
-                            {/* Desktop Search */}
-                            <div className="hidden md:flex items-center relative">
-                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                    <Search size={15} className="text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
-                                </div>
-                                <input
-                                    type="text"
-                                    placeholder={t('search_posts', "Rechercher des publications...")}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 pr-4 py-2 w-48 lg:w-64 bg-gray-50 dark:bg-slate-900/50 border border-transparent focus:border-indigo-100 dark:focus:border-indigo-500/20 rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-indigo-500/5 text-gray-900 dark:text-white dark:text-gray-100 transition-all placeholder-gray-400 outline-none"
-                                />
-
-                                {/* Desktop Search Results with Publications */}
-                                {searchQuery.trim() && (
-                                    <div className="absolute top-full left-0 mt-3 w-96 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden max-h-[80vh] overflow-y-auto noscrollbar">
-                                        {/* Membres Section */}
-                                        <div className="p-4 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('member_results', 'Membres')}</p>
-                                        </div>
-                                        {searchResults.length === 0 ? (
-                                            <div className="p-4 text-center text-gray-400 text-[11px] italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
-                                        ) : (
-                                            searchResults.map(m => (
-                                                <div key={m.id} className="p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer flex items-center gap-3 border-b border-gray-50 dark:border-slate-700"
-                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(`${m.firstName} ${m.lastName}`); setIsSearchOpen(false); }}>
-                                                    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 text-[10px] font-bold">
-                                                        {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <p className="text-xs font-bold text-gray-900 dark:text-white dark:text-gray-100 truncate">
-                                                            {m.firstName} {m.lastName}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-
-                                        {/* Publications Section */}
-                                        <div className="p-4 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">{t('publication_results', 'Publications')}</p>
-                                        </div>
-                                        {postResults.length === 0 ? (
-                                            <div className="p-4 text-center text-gray-400 text-[11px] italic">{t('no_post_found', 'Aucune publication trouvée')}</div>
-                                        ) : (
-                                            postResults.map(p => (
-                                                <div key={p.id} className="p-4 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors cursor-pointer border-b border-gray-50 dark:border-slate-700"
-                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(p.title || p.content.slice(0, 10)); setIsSearchOpen(false); }}>
-                                                    <p className="text-[12px] font-bold text-gray-900 dark:text-white line-clamp-1">{p.title || t('untitled_post', 'Sans titre')}</p>
-                                                    <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">{p.content}</p>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Mobile Search Button & Toggleable Overlay */}
-                            <div className="md:hidden">
-                                <button
-                                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isSearchOpen ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
-                                    onClick={() => setIsSearchOpen(!isSearchOpen)}
-                                >
-                                    {isSearchOpen ? <X size={20} /> : <Search size={20} />}
-                                </button>
-
-                                {isSearchOpen && (
-                                    <div className="fixed inset-0 z-[120] bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top duration-300">
-                                        <div className="p-4 border-b border-gray-100 dark:border-slate-800 flex items-center gap-3">
-                                            <div className="flex-1 relative">
-                                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                                                <input
-                                                    autoFocus
-                                                    type="text"
-                                                    placeholder={t('search_posts', "Rechercher des publications...")}
-                                                    value={searchQuery}
-                                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-[15px] font-bold outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Escape') setIsSearchOpen(false);
-                                                        if (e.key === 'Enter') setIsSearchOpen(false);
-                                                    }}
-                                                />
-                                            </div>
-                                            <button
-                                                onClick={() => setIsSearchOpen(false)}
-                                                className="p-3 text-gray-500 font-bold text-sm uppercase tracking-wider"
-                                            >
-                                                {t('close', 'Fermer')}
-                                            </button>
-                                        </div>
-                                        <div className="p-4 max-h-[calc(100vh-100px)] overflow-y-auto noscrollbar">
-                                            {searchQuery.trim() && (
-                                                <div className="space-y-6">
-                                                    {/* Membres Section */}
-                                                    <div className="space-y-4">
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{t('member_results', 'Membres')}</p>
-                                                        {searchResults.length === 0 ? (
-                                                            <div className="p-6 text-center text-gray-400 text-sm italic">{t('no_member_found', 'Aucun membre trouvé')}</div>
-                                                        ) : (
-                                                            searchResults.map(m => (
-                                                                <div key={m.id} className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-[1.5rem] flex items-center gap-4 active:scale-95 transition-all shadow-sm"
-                                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(`${m.firstName} ${m.lastName}`); setIsSearchOpen(false); }}>
-                                                                    <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-500 font-bold">
-                                                                        {m.photo ? <img src={getImageUrl(m.photo)} className="w-full h-full object-cover" /> : <span className="uppercase text-lg">{m.firstName?.[0] || ''}{m.lastName?.[0] || ''}</span>}
-                                                                    </div>
-                                                                    <div className="min-w-0">
-                                                                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{m.firstName} {m.lastName}</p>
-                                                                    </div>
-                                                                </div>
-                                                            ))
-                                                        )}
-                                                    </div>
-
-                                                    {/* Publications Section */}
-                                                    <div className="space-y-4">
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{t('publication_results', 'Publications')}</p>
-                                                        {postResults.length === 0 ? (
-                                                            <div className="p-6 text-center text-gray-400 text-sm italic">{t('no_post_found', 'Aucune publication trouvée')}</div>
-                                                        ) : (
-                                                            postResults.map(p => (
-                                                                <div key={p.id} className="p-5 bg-white dark:bg-slate-800 rounded-[1.5rem] border border-gray-100 dark:border-slate-700 active:scale-95 transition-all"
-                                                                    onClick={() => { setActiveTab('dashboard'); setSearchQuery(p.title || p.content.slice(0, 10)); setIsSearchOpen(false); }}>
-                                                                    <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-2 truncate">{p.title || t('untitled_post', 'Sans titre')}</h4>
-                                                                    <p className="text-[12px] text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">{p.content}</p>
-                                                                </div>
-                                                            ))
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* 2. Language Toggle */}
-                        <div className="flex items-center bg-gray-50 dark:bg-slate-900 p-1 rounded-xl border border-gray-100 dark:border-slate-800">
-                            <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${lang === 'FR' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-gray-400'}`}>FR</button>
-                            <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-tighter transition-all ${lang === 'EN' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-gray-400'}`}>EN</button>
-                        </div>
-
-                        {/* 3. Notifications */}
+                        {/* Notifications */}
                         <div className="relative">
                             <button
-                                className={`relative w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isNotificationsOpen ? 'bg-amber-50 text-amber-600' : 'hover:bg-gray-50 text-gray-400'}`}
+                                className={`relative w-10 h-10 flex items-center justify-center rounded-xl transition-all ${isNotificationsOpen ? 'bg-indigo-50 text-indigo-600' : 'text-slate-800'}`}
                                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                             >
-                                <Bell size={19} />
-                                {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full border-2 border-white animate-pulse" />}
+                                <Bell size={24} className="text-[#6366f1]" strokeWidth={2.5} />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-1 right-1 w-[14px] h-[14px] bg-indigo-600 text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center">
+                                        {unreadCount}
+                                    </span>
+                                )}
                             </button>
 
                             {isNotificationsOpen && (
@@ -991,8 +891,7 @@ export default function MemberHome() {
                                     <div className="fixed inset-0 z-[100]" onClick={() => setIsNotificationsOpen(false)}></div>
                                     <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
                                         <div className="p-6 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50 flex items-center justify-between">
-                                            <h4 className="font-black text-gray-900 dark:text-white dark:text-gray-100 text-sm italic uppercase tracking-widest">{t('notifications', 'Notifications')}</h4>
-                                            {unreadCount > 0 && <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-black rounded-full italic">{unreadCount} {t('new_notifications_count', 'nouvelle(s)')}</span>}
+                                            <h4 className="font-black text-gray-900 dark:text-white text-sm italic uppercase tracking-widest">{t('notifications', 'Notifications')}</h4>
                                         </div>
                                         <div className="max-h-[350px] overflow-y-auto noscrollbar">
                                             {notifications.length === 0 ? (
@@ -1005,90 +904,61 @@ export default function MemberHome() {
                                                             <Bell size={14} />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="text-[12px] font-bold text-gray-900 dark:text-white dark:text-gray-100 tracking-tight leading-snug">{n.title}</p>
+                                                            <p className="text-[12px] font-bold text-gray-900 dark:text-white tracking-tight leading-snug">{n.title}</p>
                                                             <p className="text-[10px] text-gray-500 mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
                                                 ))
                                             )}
                                         </div>
-                                        <button onClick={() => { goTab('notifications'); setIsNotificationsOpen(false); }}
-                                            className="w-full p-4 text-[11px] font-black uppercase text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors bg-white dark:bg-slate-800">
-                                            {t('view_all_notifications', 'Voir toutes les notifications')}
-                                        </button>
                                     </div>
                                 </>
                             )}
                         </div>
 
-                        {/* Theme Toggle (Desktop - After notifications) */}
-                        <button
-                            onClick={toggleTheme}
-                            className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-500/20 shadow-sm"
-                            title={isDark ? "Light Mode" : "Dark Mode"}
-                        >
-                            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                        </button>
-
-                        {/* 4. Add Post Button (Send) */}
-                        <button
-                            onClick={() => setIsPostModalOpen(true)}
-                            title={t('publish_message', 'Publier un message')}
-                            className="flex items-center justify-center p-2.5 rounded-xl shadow-lg shadow-indigo-50 dark:shadow-none bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
-                        >
-                            <Send size={18} strokeWidth={2.5} />
-                        </button>
-
-                        {/* 5. Profile Dropdown Container */}
+                        {/* Profile */}
                         <div className="relative">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black cursor-pointer overflow-hidden border border-gray-100 group shadow-sm transition-all active:scale-95"
-                                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
-                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)} title={`${profile?.firstName} ${profile?.lastName}`}>
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer overflow-hidden border-2 border-white shadow-sm transition-all active:scale-95 bg-slate-100"
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}>
                                 {profile?.photo ? (
-                                    <img src={getImageUrl(profile.photo)} alt="P" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                ) : initials}
+                                    <img src={getImageUrl(profile.photo)} alt="P" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-xs font-black text-slate-500">
+                                        {initials}
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Dropdown Menu */}
                             {isProfileDropdownOpen && (
                                 <>
-                                    <div className="fixed inset-0 z-[100] cursor-pointer" onClick={() => setIsProfileDropdownOpen(false)}></div>
+                                    <div className="fixed inset-0 z-[100]" onClick={() => setIsProfileDropdownOpen(false)}></div>
                                     <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-700 z-[101] overflow-hidden animate-in slide-in-from-top-4 duration-300">
                                         <div className="px-6 py-6 border-b border-gray-50 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50">
-                                            <p className="font-black text-gray-900 dark:text-white dark:text-gray-100 text-[15px] italic">
+                                            <p className="font-black text-gray-900 dark:text-white text-[15px] italic line-clamp-1">
                                                 {profile?.firstName} {profile?.lastName}
                                             </p>
-                                            <p className="text-gray-500 dark:text-gray-400 text-[11px] font-medium truncate mt-1 italic" title={profile?.email}>
+                                            <p className="text-gray-500 dark:text-gray-400 text-[11px] font-medium truncate mt-1 italic">
                                                 {profile?.email}
                                             </p>
                                         </div>
                                         <div className="p-3 space-y-1">
-                                            <button
-                                                onClick={() => { goTab('profile'); setIsProfileDropdownOpen(false); }}
-                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all"
-                                            >
+                                            <button onClick={() => { goTab('profile'); setIsProfileDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition-all">
                                                 <User size={16} /> {t('my_profile', 'Mon Profil')}
                                             </button>
                                             {isStaff && (
-                                                <button
-                                                    onClick={() => navigate('/admin')}
-                                                    className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
-                                                >
-                                                    <LayoutDashboard size={16} />
-                                                    {t('admin_space', 'Espace administrateur')}
+                                                <button onClick={() => navigate('/admin')}
+                                                    className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                                                    <LayoutDashboard size={16} /> {t('admin_space', 'Espace administrateur')}
                                                 </button>
                                             )}
-                                            <button
-                                                onClick={() => { goTab('settings'); setIsProfileDropdownOpen(false); }}
-                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all"
-                                            >
+                                            <button onClick={() => { goTab('settings'); setIsProfileDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-gray-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition-all">
                                                 <Settings size={16} /> {t('settings', 'Paramètres')}
                                             </button>
                                             <div className="h-px bg-gray-100/50 my-1 mx-4" />
-                                            <button
-                                                onClick={logout}
-                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                            >
+                                            <button onClick={logout}
+                                                className="w-full flex items-center gap-3 px-4 py-3 text-[12px] font-black text-red-500 hover:bg-red-50 rounded-xl transition-all">
                                                 <LogOut size={16} /> {t('logout', 'Déconnexion')}
                                             </button>
                                         </div>
@@ -1100,381 +970,313 @@ export default function MemberHome() {
                 </div>
 
                 {/* ── MOBILE BOTTOM NAV ────────────────────────────────────── */}
-                <div className="sm:hidden fixed bottom-1 left-0 right-0 z-40 flex items-center justify-around px-2 py-1 transition-all mx-4 rounded-3xl"
-                    style={{ background: isDark ? '#0f172a' : '#fff', border: `1px solid ${isDark ? '#1e293b' : BORDER_CLR}`, height: '58px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+                <div className="sm:hidden fixed bottom-6 left-6 right-6 z-40 flex items-center justify-around px-2 py-2 transition-all rounded-[2rem] border border-white/20 dark:border-slate-800/50 backdrop-blur-xl shadow-2xl"
+                    style={{ 
+                        background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)', 
+                        height: '64px'
+                    }}>
                     {[
-                        { id: 'dashboard', icon: <Home size={18} /> },
-                        { id: 'activity', icon: <Activity size={18} /> },
-                        { id: 'requests', icon: <FileText size={18} /> },
-                        { id: 'communion', icon: <Droplets size={18} /> },
-                        { id: 'donations', icon: <Heart size={18} /> },
-                        { id: 'toggle-theme', icon: isDark ? <Sun size={18} /> : <Moon size={18} />, action: toggleTheme },
+                        { id: 'dashboard', icon: <Home size={22} />, label: t('overview', 'Accueil') },
+                        { id: 'activity', icon: <Activity size={22} />, label: t('activity', 'Activité') },
+                        { id: 'requests', icon: <FileText size={22} />, label: t('requests', 'Demandes') },
+                        { id: 'communion', icon: <Droplets size={22} />, label: t('communion', 'Cène') },
+                        { id: 'donations', icon: <Heart size={22} />, label: t('donations', 'Dons') },
+                        { id: 'profile', icon: <User size={22} />, label: t('profile', 'Profil') },
                     ].map(item => (
-                        <button key={item.id} onClick={item.action ? item.action : () => goTab(item.id)}
-                            className="relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors"
-                            style={{ color: (activeTab === item.id) ? '#6366f1' : '#9ca3af' }}>
-                            {item.icon}
+                        <button key={item.id} onClick={() => goTab(item.id)}
+                            className={`relative flex flex-col items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 ${activeTab === item.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400'}`}>
+                            {React.cloneElement(item.icon, { strokeWidth: 2.5 })}
                         </button>
                     ))}
                 </div>
 
                 {/* ── SCROLLABLE CONTENT ───────────────────────────────────── */}
-                <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 sm:pb-6">
+                <div className={`flex-1 overflow-y-auto pb-20 sm:pb-6 ${activeTab === 'dashboard' ? '' : 'px-4 sm:px-6 lg:px-8 py-6'}`}>
 
                     {/* ══════════════════════════════════════════════════════ */}
                     {/* Vue d'ensemble                                        */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'dashboard' && (
-                        <div className="space-y-8 animate-in mt-2 fade-in duration-300">
-                            {/* Welcome Card */}
-                            <div className={`p-8 rounded-[2rem] border shadow-sm relative overflow-hidden group transition-colors ${isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-100'}`}>
-                                <div className={`absolute top-0 right-0 w-64 h-64 rounded-full -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110 ${isDark ? 'bg-indigo-500/5' : 'bg-indigo-50/50'}`} />
-                                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8 text-center sm:text-left">
-                                    <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl shadow-indigo-100/20 border-4 border-white dark:border-slate-800 shrink-0"
-                                        style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                        {profile?.photo ? (
-                                            <img src={getImageUrl(profile.photo)} alt="Me" className="w-full h-full object-cover" />
+                        <div className="animate-in fade-in duration-500 h-full flex flex-col pt-0">
+                            {/* ── HEADER OVERLAY / TOP SPACE ── */}
+                            <div className="px-5 py-4 flex flex-col gap-6">
+                                
+                                {/* ── SEARCH & SEND BAR (From Figma) ── */}
+                                <div className="flex items-center gap-3">
+                                    <div className="relative flex-1 group transition-all duration-300">
+                                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                            <Search className="h-4 w-4 text-slate-400 group-focus-within:text-brand-orange transition-colors" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={e => setSearchQuery(e.target.value)}
+                                            placeholder={t('search', 'Search')}
+                                            className="w-full pl-11 pr-4 py-2.5 bg-[#f0f0f0] dark:bg-slate-900 border-none rounded-xl font-medium text-slate-800 dark:text-slate-200 focus:ring-0 transition-all text-[14px] outline-none"
+                                        />
+                                    </div>
+                                    <button 
+                                        onClick={() => setIsPostModalOpen(true)}
+                                        className="text-blue-500 hover:scale-110 active:scale-95 transition-all outline-none"
+                                    >
+                                        <Send size={20} strokeWidth={2.5} />
+                                    </button>
+                                </div>
+
+                                {/* ── QUICK ACTION GRID (2x3) ── */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    {[
+                                        { id: 'profile', label: t('bible_guide', 'Bible Guide'), icon: <BookOpen size={18} />, color: '#4318FF' },
+                                        { id: 'worship', label: t('worship', 'Culte'), icon: <Music size={18} />, color: '#ea762a' },
+                                        { id: 'communion', label: t('holy_communion', 'Sainte Scene'), icon: <Droplets size={18} />, color: '#05CD99' },
+                                        { id: 'profile', label: t('my_church', 'Mon Eglise'), icon: <Building2 size={18} />, color: '#FFB547' },
+                                        { id: 'donations', label: t('donations', 'Don'), icon: <Heart size={18} />, color: '#f06292' },
+                                        { id: 'dashboard', label: 'Elyon Sys', icon: <LayoutDashboard size={18} />, color: '#6366f1' },
+                                    ].map((item, idx) => (
+                                        <button 
+                                            key={idx}
+                                            onClick={() => goTab(item.id)}
+                                            className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all active:scale-95 group"
+                                        >
+                                            <div className="text-slate-700 dark:text-slate-300 group-hover:scale-110 transition-transform">
+                                                {item.icon}
+                                            </div>
+                                            <span className="text-[11px] font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">{item.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* ── UPCOMING EVENTS SECTION ── */}
+                                <div className="mt-2">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-[#fde68a] flex items-center justify-center">
+                                                <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
+                                            </div>
+                                            <h3 className="text-[14px] font-bold text-[#1e1b4b] dark:text-white">{t('upcoming_event', 'Evenement a venir')}</h3>
+                                        </div>
+                                        <button onClick={() => goTab('events')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'voir tout')}</button>
+                                    </div>
+                                    <div className="rounded-2xl overflow-hidden shadow-sm aspect-[21/9] bg-slate-100">
+                                        {events[0]?.imageUrl ? (
+                                            <img src={getImageUrl(events[0].imageUrl)} alt="" className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                                                {initials}
+                                            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                                                <Image className="text-slate-400" />
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex-1 space-y-2">
-                                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
-                                            {t('hello', 'Hello')}, {profile ? `${profile.firstName} ${profile.lastName}` : t('loading')} 👋
-                                        </h1>
-                                        <p className="text-slate-500 font-medium text-lg">{t('welcome_member_space', 'Welcome to your member space')}</p>
-                                    </div>
                                 </div>
-                            </div>
 
-                            {/* ── Dashboard Content (Activity Accordion) ── */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                {/* Left Column: Upcoming Events */}
-                                <div className="lg:col-span-2 space-y-8">
-                                    <div className="w-full">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                                                <Calendar className="text-indigo-500" size={20} />
-                                                {t('upcoming_events')}
-                                            </h3>
-                                            <button onClick={() => goTab('events')} className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
-                                                {t('view_all')}
-                                            </button>
+                                {/* ── COMMUNITY MEMBERS SECTION ── */}
+                                <div className="mt-4">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-[#fde68a] flex items-center justify-center">
+                                                <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
+                                            </div>
+                                            <h3 className="text-[14px] font-bold text-[#1e1b4b] dark:text-white">{t('members_community', 'Membre de ma comunaué')}</h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {events.filter(e => new Date(e.startDate) >= new Date()).slice(0, 4).map(event => (
-                                                <div key={event.id} className="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group border-b-4 border-b-transparent hover:border-b-indigo-500">
-                                                    <div className="flex items-start gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                                                            <span className="text-[10px] font-bold uppercase leading-none">{new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { month: 'short' })}</span>
-                                                            <span className="text-lg font-bold leading-none mt-1">{new Date(event.startDate).getDate()}</span>
-                                                        </div>
-                                                        <div className="min-w-0 flex-1">
-                                                            <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate group-hover:text-indigo-600 transition-colors">{event.title}</h4>
-                                                            <div className="flex items-center gap-2 mt-2 text-slate-400 text-[11px] font-medium">
-                                                                <Clock size={12} />
-                                                                <span>{new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                                {event.location && (
-                                                                    <>
-                                                                        <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                                                                        <MapPin size={12} />
-                                                                        <span className="truncate">{event.location}</span>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {events.filter(e => new Date(e.startDate) >= new Date()).length === 0 && (
-                                                <div className="col-span-full py-12 text-center bg-white dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
-                                                    <p className="text-slate-400 text-sm italic">{t('no_upcoming_events', 'Aucun événement à venir')}</p>
-                                                </div>
-                                            )}
-                                        </div>
+                                        <button onClick={() => goTab('profile')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'Voir tout')}</button>
                                     </div>
-                                </div>
-
-                                {/* Right Column: Recent Activity */}
-                                <div className="space-y-8">
-                                    <div className="w-full">
-                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 mb-6">
-                                            <Activity className="text-indigo-500" size={20} />
-                                            {t('recent_activity')}
-                                        </h3>
-                                        <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
-                                            {activityItems.slice(0, 5).map((item, i) => (
-                                                <div key={i} className="flex gap-4 group/item">
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${item.amber ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-500' : 'bg-slate-50 dark:bg-slate-700/50 text-indigo-500 dark:text-indigo-400'}`}>
-                                                        {item.icon}
-                                                    </div>
-                                                    <div className="min-w-0 flex-1 pt-1">
-                                                        <p className="text-[13px] font-bold text-slate-800 dark:text-slate-100 leading-snug group-hover/item:text-indigo-600 transition-colors">{item.text}</p>
-                                                        <p className="text-[11px] text-slate-400 font-medium mt-1">{item.date}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {activityItems.length === 0 && <p className="text-slate-400 text-xs text-center py-4">{t('no_recent_activity')}</p>}
-                                            <button onClick={() => goTab('activity')} className="w-full py-3 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider rounded-xl transition-all">
-                                                {t('view_all_history')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            {/* ── Community Posts Feed (Mobile: Horizontal Scroll) ── */}
-                            <div className="mt-4 sm:hidden">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="font-bold text-gray-800 dark:text-slate-200 text-[15px] flex items-center gap-2">
-                                        <MessageSquare size={16} className="text-indigo-500" />
-                                        {t('community', 'Communauté')}
-                                    </h3>
-                                    {communityPosts.length > postsLimit && (
-                                        <button onClick={() => setPostsLimit(prev => prev === 5 ? 10 : prev + 10)} className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
-                                            {postsLimit === 5 ? 'Voir tout' : 'Voir plus'}
-                                        </button>
-                                    )}
-                                </div>
-                                <div className={postsLimit > 5 ? "space-y-4" : "flex gap-4 overflow-x-auto pb-4 snap-x -mx-4 px-4 scrollbar-hide"}>
-                                    {communityPosts
-                                        .filter(p => postFilter === 'all' || p.type === postFilter)
-                                        .filter(p =>
-                                            !searchQuery ||
-                                            p.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                            p.author?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                            p.author?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
-                                        )
-                                        .slice(0, postsLimit).map(post => {
-                                            const category = POST_CATEGORIES.find(c => c.value === post.type) || POST_CATEGORIES[0];
-                                            const isAuthor = post.authorId == profile?.id;
-                                            const isAdmin = isStaff;
-
-                                            return (
-                                                <div key={post.id} className="min-w-[280px] snap-center">
-                                                    <Card className="p-4 h-full border-2 border-indigo-50/50 relative overflow-hidden">
-                                                        <div className="flex items-center justify-between gap-3 mb-3">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-8 h-8 rounded-full overflow-hidden shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                                                    {post.author?.photo ? <img src={getImageUrl(post.author.photo)} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white text-[10px] uppercase">{post.author?.firstName?.[0] || 'A'}</div>}
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <p className="text-[12px] font-bold text-gray-900 dark:text-white truncate">{post.author?.firstName} {post.author?.lastName}</p>
-                                                                    <div className="flex items-center gap-1.5">
-                                                                        <span className="text-[9px] text-indigo-500 font-bold uppercase tracking-wider">{category.label.split(' ')[1]}</span>
-                                                                        {post.targetSubtype && <span className="text-[8px] font-bold text-gray-400 uppercase">🎯 {post.targetSubtype.name}</span>}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            {(isAuthor || isAdmin) && (
-                                                                <div className="flex items-center gap-1">
-                                                                    <button onClick={() => handleEditPost(post)} className="p-1.5 bg-indigo-50 text-indigo-400 rounded-lg">
-                                                                        <Edit3 size={12} />
-                                                                    </button>
-                                                                    <button onClick={() => handleDeletePost(post.id)} className="p-1.5 bg-red-50 text-red-400 rounded-lg">
-                                                                        <X size={12} />
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-[12px] text-gray-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-3">{post.content}</p>
-                                                        {post.imageUrl && post.imageUrl.trim() !== '' && (
-                                                            <div className="relative group h-32 rounded-xl overflow-hidden mb-3 border border-gray-100 dark:border-slate-700 cursor-pointer"
-                                                                onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
-                                                                <img src={getImageUrl(post.imageUrl)} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                                                <div className="absolute top-2 right-2 w-8 h-8 bg-black/40 backdrop-blur-md rounded-lg flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    <Maximize2 size={16} />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                        <p className="text-[9px] text-gray-400 font-medium">
-                                                            {new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
-                                                        </p>
-                                                    </Card>
-                                                </div>
-                                            );
-                                        })}
-                                    {communityPosts.length === 0 && (
-                                        <p className="text-gray-400 text-sm py-4 italic">{t('no_publication', 'Aucune publication')}</p>
-                                    )}
-
-                                    {postsLimit > 5 && communityPosts.length > postsLimit && (
-                                        <div className="flex justify-center py-4">
-                                            <button onClick={() => setPostsLimit(prev => prev + 10)}
-                                                className="text-[10px] font-black uppercase text-indigo-600 border border-indigo-100 px-6 py-2 rounded-full hover:bg-indigo-50">
-                                                Voir les plus anciens
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Activity + Notifications row (Removed to prevent duplicates) */}
-                            {/* ── Community Posts Feed (Desktop Only) ── */}
-                            <div className="hidden sm:block mt-8 w-full">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="font-bold text-gray-800 dark:text-slate-200 text-[18px] flex items-center gap-3">
-                                        <MessageSquare size={20} className="text-indigo-500" />
-                                        {t('community_posts', 'Publications de la communauté')}
-                                    </h3>
-                                    <div className="flex items-center gap-2">
-                                        <label className="text-[10px] font-black uppercase text-gray-400">{t('filter_by', 'Filtrer par :')}</label>
-                                        <select
-                                            value={postFilter}
-                                            onChange={(e) => setPostFilter(e.target.value)}
-                                            className="px-4 py-2 rounded-xl bg-white border border-gray-100 text-[12px] font-bold text-gray-600 focus:outline-none focus:ring-2 ring-indigo-500/20"
-                                        >
-                                            <option value="all">{t('all', 'Toutes')}</option>
-                                            {POST_CATEGORIES.map(cat => (
-                                                <option key={cat.value} value={cat.value}>{cat.label.split(' ')[1]}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {communityPosts
-                                        .filter(p => (postFilter === 'all' || p.type === postFilter))
-                                        .filter(p =>
-                                            !searchQuery ||
-                                            p.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                            p.author?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                            p.author?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
-                                        )
-                                        .slice(0, postsLimit).map(post => {
-                                            const dateLabel = new Date(post.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-                                            const category = POST_CATEGORIES.find(c => c.value === post.type) || POST_CATEGORIES[0];
-                                            const isAuthor = post.authorId == profile?.id;
-                                            const isAdmin = isStaff;
-
-                                            return (
-                                                <Card key={post.id} className="p-6 border-l-4 hover:shadow-xl hover:shadow-indigo-500/5 transition-all" style={{ borderLeftColor: category.color === 'blue' ? '#6366f1' : (category.color === 'rose' ? '#f43f5e' : (category.color === 'amber' ? '#f59e0b' : '#10b981')) }}>
-                                                    <div className="flex items-center justify-between gap-4 mb-5">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-11 h-11 rounded-full overflow-hidden text-white flex justify-center items-center text-xs font-black shadow-sm shrink-0"
-                                                                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
-                                                                {post.author?.photo ? <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" /> : post.author?.firstName?.[0] || 'A'}
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-black text-[14px] text-gray-900 dark:text-white tracking-tight">{post.author?.firstName} {post.author?.lastName}</p>
-                                                                <div className="flex items-center gap-2 mt-0.5">
-                                                                    <span className="text-[10px] text-gray-400 font-medium">{dateLabel}</span>
-                                                                    {post.targetSubtype && (
-                                                                        <>
-                                                                            <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                                                                            <span className="text-[9px] font-bold text-gray-400 uppercase">🎯 {post.targetSubtype.name}</span>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <Badge label={category.label.split(' ')[1]} color={category.color} />
-                                                            {(isAuthor || isAdmin) && (
-                                                                <div className="flex items-center gap-1">
-                                                                    <button onClick={() => handleEditPost(post)} className="p-2 text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all">
-                                                                        <Edit3 size={14} />
-                                                                    </button>
-                                                                    <button onClick={() => handleDeletePost(post.id)} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                                                        <X size={14} />
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    {post.title && <h3 className="font-bold text-base text-gray-900 dark:text-white mb-2 leading-tight">{post.title}</h3>}
-                                                    <p className="text-gray-600 dark:text-slate-400 text-[13px] whitespace-pre-line mb-4 leading-relaxed line-clamp-4">{post.content}</p>
-                                                    {post.imageUrl && post.imageUrl.trim() !== '' && (
-                                                        <div className="relative group rounded-xl overflow-hidden mt-4 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-700 h-48 cursor-pointer"
-                                                            onClick={() => setZoomedImageUrl(getImageUrl(post.imageUrl))}>
-                                                            <img src={getImageUrl(post.imageUrl)} alt="Attachment" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                            <div className="absolute top-3 right-3 w-10 h-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                                                <Maximize2 size={20} />
-                                                            </div>
+                                    <div className="flex items-center gap-4 overflow-x-auto pb-2 noscrollbar">
+                                        {members.slice(0, 10).map((m, idx) => (
+                                            <div key={idx} className="flex flex-col items-center gap-1.5 shrink-0 min-w-[70px]">
+                                                <div className="w-14 h-14 rounded-full border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden bg-slate-50">
+                                                    {m.photo ? (
+                                                        <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-brand-primary text-white text-xs font-bold uppercase">
+                                                            {m.firstName?.[0]}{m.lastName?.[0]}
                                                         </div>
                                                     )}
-                                                </Card>
-                                            );
-                                        })}
+                                                </div>
+                                                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate w-full text-center">
+                                                    {m.firstName} {m.lastName}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                {communityPosts.length > postsLimit && (
-                                    <div className="flex justify-center pt-8">
-                                        <button
-                                            onClick={() => setPostsLimit(prev => prev + 4)}
-                                            className="px-12 py-4 rounded-[1.5rem] bg-white border-2 border-indigo-50 text-indigo-600 font-black text-[12px] uppercase tracking-widest hover:border-indigo-600/20 hover:bg-indigo-50 transition-all flex items-center gap-3 shadow-sm active:scale-95"
-                                        >
-                                            {t('load_older_posts', 'Charger les publications anciennes')} <ChevronRight size={18} />
-                                        </button>
+                                {/* ── COMMUNITY POSTS SECTION ── */}
+                                <div className="mt-4">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-[#fde68a] flex items-center justify-center">
+                                                <div className="w-3 h-3 rounded-full bg-brand-orange"></div>
+                                            </div>
+                                            <h3 className="text-[14px] font-bold text-[#1e1b4b] dark:text-white">{t('community_posts', 'publications de la communauté')}</h3>
+                                        </div>
+                                        <button onClick={() => goTab('activity')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'Voir tout')}</button>
                                     </div>
-                                )}
-
-                                {communityPosts.length === 0 && (
-                                    <div className="text-center py-16 bg-white/50 dark:bg-slate-800/30 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-slate-700">
-                                        <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400"><MessageSquare size={24} /></div>
-                                        <p className="text-gray-500 dark:text-gray-400 text-[14px] font-medium italic">{t('no_publication_yet', 'Aucune publication pour l\'instant.')}</p>
+                                    
+                                    <div className="space-y-8">
+                                        {communityPosts.length > 0 ? (
+                                            communityPosts.slice(0, 5).map((post, idx) => (
+                                                <div key={post.id || idx} className="flex flex-col gap-4 animate-in fade-in duration-500">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-11 h-11 rounded-full overflow-hidden bg-slate-100 shadow-sm">
+                                                                {post.author?.photo ? (
+                                                                    <img src={getImageUrl(post.author.photo)} alt="" className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold uppercase text-xs">
+                                                                        {post.author?.firstName?.[0] || 'C'}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[14px] font-bold text-slate-900 dark:text-white">
+                                                                    {post.author?.firstName} {post.author?.lastName}
+                                                                </span>
+                                                                <span className="text-[12px] text-slate-500 font-medium">
+                                                                    {POST_CATEGORIES.find(c => c.value === (post.type || 'general'))?.label.split(' ')[1] || 'Général'}
+                                                                </span>
+                                                                <span className="text-[12px] text-slate-400">
+                                                                    {new Date(post.createdAt).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' })}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <span className="text-[12px] text-slate-500 font-medium">
+                                                            {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase()}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div className="pl-0">
+                                                        <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                                                            {post.content}
+                                                        </p>
+                                                        {post.imageUrl && (
+                                                            <div className="mt-4 rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                                                                <img src={getImageUrl(post.imageUrl)} alt="" className="w-full object-cover max-h-[300px]" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="py-10 text-center text-slate-400 italic text-sm">
+                                                Aucune publication
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     )}
+
 
                     {/* ══════════════════════════════════════════════════════ */}
                     {/* Événements                                            */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'events' && (
-                        <div className="animate-in fade-in duration-300 w-full space-y-8">
-                            <PageTitle title={t('upcoming_events')} />
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20">
+                                        <Calendar size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                                            {t('upcoming_events', 'Événements')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('events_subtitle', 'Découvrez les activités de notre église')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {events.map(event => {
                                     const isUpcoming = new Date(event.startDate) >= new Date();
                                     return (
-                                        <Card key={event.id} className={`p-0 overflow-hidden group border-0 shadow-xl shadow-indigo-500/5 transition-all hover:scale-[1.02] ${isUpcoming ? 'bg-white dark:bg-slate-800' : 'bg-gray-50/50 dark:bg-slate-900/50 grayscale opacity-70'}`}>
-                                            <div className="h-40 relative">
+                                        <div key={event.id} className={`rounded-[2.5rem] overflow-hidden group shadow-sm border transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 relative ${isUpcoming ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'bg-slate-50/50 dark:bg-slate-900/50 border-transparent grayscale opacity-70'}`}>
+                                            <div className="h-56 relative overflow-hidden">
                                                 {event.imageUrl ? (
-                                                    <img src={getImageUrl(event.imageUrl)} alt="" className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(event.imageUrl)} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 ) : (
-                                                    <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white">
-                                                        <Calendar size={48} className="opacity-20" />
+                                                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 flex items-center justify-center text-white">
+                                                        <Calendar size={64} className="opacity-20" />
                                                     </div>
                                                 )}
-                                                <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-sm">
-                                                    <Badge label={isUpcoming ? t('upcoming', 'À venir') : t('past', 'Passé')} color={isUpcoming ? 'blue' : 'gray'} />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                <div className="absolute top-6 left-6 flex items-center gap-2">
+                                                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md border ${isUpcoming ? 'bg-blue-500/90 text-white border-blue-400/50 shadow-lg shadow-blue-500/20' : 'bg-slate-500/90 text-white border-slate-400/50'}`}>
+                                                        {isUpcoming ? t('upcoming', 'À venir') : t('past', 'Passé')}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div className="p-6 space-y-4">
-                                                <h3 className="font-bold text-lg text-slate-900 dark:text-white line-clamp-2">{event.title}</h3>
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center gap-3 text-slate-400 text-xs font-medium">
-                                                        <Calendar size={14} className="text-indigo-400" />
-                                                        {new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                            
+                                            <div className="p-8 space-y-5">
+                                                <h3 className="font-black text-[22px] leading-tight text-slate-900 dark:text-white line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                                    {event.title}
+                                                </h3>
+                                                
+                                                <div className="space-y-4 pt-2">
+                                                    <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+                                                        <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 dark:border-slate-800">
+                                                            <Calendar size={18} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('date', 'Date')}</p>
+                                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                                                {new Date(event.startDate).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-3 text-slate-400 text-xs font-medium">
-                                                        <Clock size={14} className="text-indigo-400" />
-                                                        {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    
+                                                    <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+                                                        <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 dark:border-slate-800">
+                                                            <Clock size={18} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('time', 'Heure')}</p>
+                                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                                                {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </p>
+                                                        </div>
                                                     </div>
+
                                                     {event.location && (
-                                                        <div className="flex items-center gap-3 text-slate-400 text-xs font-medium">
-                                                            <MapPin size={14} className="text-indigo-400" />
-                                                            <span className="truncate">{event.location}</span>
+                                                        <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+                                                            <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-100 dark:border-slate-800">
+                                                                <MapPin size={18} />
+                                                            </div>
+                                                            <div className="min-w-0 flex-1">
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{t('location', 'Lieu')}</p>
+                                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate pr-2">
+                                                                    {event.location}
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
-                                                {event.description && <p className="text-slate-400 text-xs line-clamp-2 italic">{event.description}</p>}
+
+                                                {event.description && (
+                                                    <div className="mt-6 p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                                        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed line-clamp-3 italic">
+                                                            " {event.description} "
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                <div className="pt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                    <button className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95">
+                                                        {t('view_details', 'En savoir plus')}
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </Card>
+                                        </div>
                                     );
                                 })}
                                 {events.length === 0 && (
-                                    <div className="col-span-full py-24 text-center bg-white dark:bg-slate-800/50 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
-                                        <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-200">
-                                            <Calendar size={32} />
+                                    <div className="col-span-full py-24 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                                        <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+                                            <Calendar size={48} />
                                         </div>
-                                        <h4 className="text-slate-900 dark:text-white font-bold mb-2">{t('no_events_found', 'Aucun événement trouvé')}</h4>
-                                        <p className="text-slate-400 text-sm italic">{t('check_back_later', 'Revenez plus tard pour de nouvelles activités !')}</p>
+                                        <h4 className="text-slate-900 dark:text-white font-black text-xl mb-2">{t('no_events_found', 'Aucun événement à venir')}</h4>
+                                        <p className="text-slate-500 dark:text-slate-400 text-sm italic">{t('check_back_later', 'Revenez plus tard pour de nouvelles activités !')}</p>
                                     </div>
                                 )}
                             </div>
@@ -1498,13 +1300,12 @@ export default function MemberHome() {
                             <div className="animate-in fade-in duration-300 w-full space-y-6">
 
                                 {/* Avatar card with Cover */}
-                                <Card className="overflow-hidden p-0 relative border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] rounded-[2.5rem] bg-white dark:bg-slate-800">
+                                <div className="rounded-[3rem] overflow-hidden relative border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm mb-8">
                                     {/* Clean Gradient Header */}
-                                    <div className="bg-gradient-to-br from-white via-indigo-50/60 to-slate-50 dark:from-slate-800 dark:via-indigo-950/40 dark:to-slate-900 px-10 pt-10 pb-10 border-b border-gray-100/50 dark:border-white/5">
-
-                                        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-8 text-center sm:text-left">
+                                    <div className="bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-indigo-950/20 dark:via-slate-800 dark:to-blue-950/20 px-8 py-10 sm:px-12 sm:py-12">
+                                        <div className="flex flex-col sm:row items-center sm:items-center gap-8 text-center sm:text-left">
                                             {/* Avatar element */}
-                                            <div className="relative group w-[140px] h-[140px] rounded-[2.5rem] flex items-center justify-center text-white font-black text-[48px] shrink-0 shadow-2xl shadow-indigo-500/10 overflow-hidden cursor-pointer ring-[5px] ring-indigo-100 dark:ring-indigo-500/20 transition-all duration-500 group-hover:rounded-[2rem] group-hover:scale-105"
+                                            <div className="relative group w-[160px] h-[160px] rounded-[2.5rem] flex items-center justify-center text-white font-black text-[56px] shrink-0 shadow-2xl shadow-indigo-500/20 overflow-hidden cursor-pointer ring-[6px] ring-white dark:ring-slate-700 transition-all duration-500 transform group-hover:scale-105"
                                                 style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
                                                 {profile?.photo ? (
                                                     <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" onClick={handlePhotoClick} crossOrigin="anonymous" />
@@ -1515,25 +1316,25 @@ export default function MemberHome() {
                                                 {/* Overlay pour modifier la photo */}
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300"
                                                     onClick={() => fileInputRef.current.click()}>
-                                                    <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md border border-white/20 scale-90 group-hover:scale-100 transition-transform">
-                                                        <Edit3 size={24} className="text-white" />
+                                                    <div className="bg-white/20 p-4 rounded-[1.5rem] backdrop-blur-md border border-white/20 scale-90 group-hover:scale-100 transition-transform">
+                                                        <Camera size={28} className="text-white" />
                                                     </div>
                                                 </div>
                                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
                                             </div>
 
                                             {/* Name + email */}
-                                            <div className="flex-1 min-w-0 sm:pb-2 space-y-3">
+                                            <div className="flex-1 min-w-0 space-y-4">
                                                 <div>
-                                                    <h2 className="font-black text-3xl sm:text-4xl tracking-tighter text-gray-900 dark:text-white leading-tight">
+                                                    <h2 className="font-black font-jakarta text-3xl sm:text-5xl tracking-tighter text-slate-900 dark:text-white leading-tight">
                                                         {profile ? `${profile.firstName} ${profile.lastName}` : t('loading', 'Chargement...')}
                                                     </h2>
-                                                    <p className="text-base mt-2 font-bold text-indigo-500 dark:text-indigo-400">
+                                                    <p className="text-lg mt-1 font-bold text-indigo-500 dark:text-indigo-400">
                                                         {profile?.email || '...'}
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                                                    <span className="px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300">
+                                                    <span className="px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-slate-100 dark:border-white/10 bg-white/50 dark:bg-white/5 text-slate-600 dark:text-slate-300">
                                                         {t('status_member', 'Membre')} {profile?.status || t('active', 'actif')}
                                                     </span>
                                                     {profile?.joinDate && (
@@ -1541,125 +1342,152 @@ export default function MemberHome() {
                                                             {t('since', 'Depuis')} {new Date(profile.joinDate).getFullYear()}
                                                         </span>
                                                     )}
-                                                    {profile?.memberCode && (
-                                                        <span className="px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-indigo-200 dark:border-indigo-500/20 bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
-                                                            {profile.memberCode}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </div>
                                             {/* Edit button */}
                                             {!editing && (
-                                                <div className="sm:ml-auto pb-2">
-                                                    <button onClick={() => setEditing(true)}
-                                                        className="flex items-center gap-3 px-8 py-4 rounded-2xl text-[13px] font-black tracking-widest transition-all shadow-lg hover:shadow-xl active:scale-95 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40">
-                                                        <Edit3 size={18} />
-                                                    </button>
-                                                </div>
+                                                <button onClick={() => setEditing(true)}
+                                                    className="sm:ml-auto w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-sm hover:shadow-xl active:scale-95 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 border border-slate-100 dark:border-slate-600 hover:bg-slate-50">
+                                                    <Edit3 size={24} />
+                                                </button>
                                             )}
                                         </div>
                                     </div>
-                                </Card>
+                                </div>
 
                                 {/* Info card */}
-                                <Card className="p-10">
-                                    <h3 className="font-bold text-[#1a2035] dark:text-white mb-8"
-                                        style={{ fontSize: '20px', fontFamily: SERIF }}>
-                                        {t('personal_information', 'Informations personnelles')}
-                                    </h3>
-
-                                    {/* Removed roles/status badges section per user request */}
+                                <div className="bg-white dark:bg-slate-800 p-8 sm:p-12 rounded-[3rem] shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
+                                    
+                                    <div className="flex items-center gap-4 mb-12 relative z-10">
+                                        <div className="w-1.5 h-8 bg-indigo-500 rounded-full shadow-[0_0_15px_rgba(79,70,229,0.5)]" />
+                                        <h3 className="text-2xl font-black font-jakarta text-slate-900 dark:text-white tracking-tight">
+                                            {t('personal_information', 'Informations personnelles')}
+                                        </h3>
+                                    </div>
 
                                     {editing ? (
-                                        <form onSubmit={handleUpdateProfile} className="space-y-8">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                                        <form onSubmit={handleUpdateProfile} className="space-y-12 relative z-10">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                                 {[
-                                                    { label: t('first_name', 'Prénom'), key: 'firstName' },
-                                                    { label: t('last_name', 'Nom'), key: 'lastName' },
-                                                    { label: t('nickname', 'Surnom'), key: 'nickname' },
-                                                    { label: t('gender_label', 'Sexe'), key: 'gender' },
-                                                    { label: t('birth_place', 'Lieu de naissance'), key: 'birthPlace' },
-                                                    { label: t('status', 'Statut'), key: 'status' },
-                                                    { label: t('marital_status_label', 'État civil'), key: 'maritalStatus' },
-                                                    { label: t('spouse_name', 'Nom conjoint'), key: 'spouseName' },
-                                                    { label: t('email', 'Email'), key: 'email', type: 'email' },
-                                                    { label: t('phone', 'Téléphone'), key: 'phone' },
-                                                    { label: t('address', 'Adresse'), key: 'address' },
+                                                    { label: t('first_name', 'Prénom'), key: 'firstName', icon: <User size={16} /> },
+                                                    { label: t('last_name', 'Nom'), key: 'lastName', icon: <User size={16} /> },
+                                                    { label: t('nickname', 'Surnom'), key: 'nickname', icon: <Camera size={16} /> },
+                                                    { label: t('email', 'Email'), key: 'email', type: 'email', icon: <Mail size={16} /> },
+                                                    { label: t('phone', 'Téléphone'), key: 'phone', icon: <Phone size={16} /> },
+                                                    { label: t('address', 'Adresse'), key: 'address', icon: <MapPin size={16} /> },
+                                                    { label: t('birth_place', 'Lieu de naissance'), key: 'birthPlace', icon: <MapPin size={16} /> },
+                                                    { label: t('marital_status_label', 'État civil'), key: 'maritalStatus', icon: <Heart size={16} /> },
+                                                    { label: t('spouse_name', 'Nom conjoint'), key: 'spouseName', icon: <Users size={16} /> },
+                                                    { label: t('gender_label', 'Sexe'), key: 'gender', icon: <User size={16} /> },
+                                                    { label: t('status', 'Statut'), key: 'status', icon: <Activity size={16} /> },
                                                 ].map(f => (
-                                                    <div key={f.key}>
-                                                        <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-2">{f.label}</label>
-                                                        <input type={f.type || 'text'} value={formData[f.key] || ''}
+                                                    <div key={f.key} className="space-y-2">
+                                                        <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 pl-1">
+                                                            <span className="text-indigo-500">{f.icon}</span>
+                                                            {f.label}
+                                                        </label>
+                                                        <input 
+                                                            type={f.type || 'text'} 
+                                                            value={formData[f.key] || ''}
                                                             onChange={e => setFormData({ ...formData, [f.key]: e.target.value })}
-                                                            className="w-full px-5 py-3.5 rounded-xl border dark:border-slate-700 dark:bg-slate-900 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-400 dark:focus:ring-indigo-500/50 transition-all dark:text-white"
-                                                            style={{ borderColor: isDark ? '#334155' : BORDER_CLR }} />
+                                                            className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-[14px] font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition-all dark:text-white" 
+                                                        />
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="flex gap-4 pt-4 max-w-sm">
-                                                <button type="button" onClick={() => setEditing(false)}
-                                                    className="flex-1 py-3 border rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors"
-                                                    style={{ borderColor: BORDER_CLR }}>
-                                                    {t('cancel', 'Annuler')}
-                                                </button>
+                                            <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-50 dark:border-slate-700">
                                                 <button type="submit" disabled={savingProfile}
-                                                    className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md active:scale-95 bg-[#1a2035] dark:bg-indigo-600"
+                                                    className="flex-1 py-4.5 px-8 rounded-2xl text-[12px] font-black uppercase tracking-widest text-white transition-all shadow-xl shadow-indigo-500/30 active:scale-95 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 flex items-center justify-center gap-3"
                                                 >
-                                                    {savingProfile ? '...' : t('save', 'Enregistrer')}
+                                                    {savingProfile ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
+                                                    {savingProfile ? t('saving', 'Enregistrement...') : t('save', 'Enregistrer')}
+                                                </button>
+                                                <button type="button" onClick={() => setEditing(false)}
+                                                    className="px-8 py-4.5 rounded-2xl text-[12px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
+                                                >
+                                                    {t('cancel', 'Annuler')}
                                                 </button>
                                             </div>
                                         </form>
                                     ) : (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                                             {[
-                                                { label: t('nickname', 'Surnom'), value: profile?.nickname, icon: <User size={14} className="text-indigo-400" /> },
-                                                { label: t('gender_label', 'Sexe'), value: profile?.gender === 'M' ? t('masculine', 'Masculin') : (profile?.gender === 'F' ? t('feminine', 'Féminin') : profile?.gender), icon: <Users size={14} className="text-indigo-400" /> },
-                                                { label: t('marital_status_label', 'État civil'), value: profile?.maritalStatus, icon: <Heart size={14} className="text-indigo-400" /> },
-                                                { label: t('member_category', 'Catégorie de membre'), value: profile?.contactSubtype?.name || t('member', 'Membre'), icon: <LayoutDashboard size={14} className="text-indigo-400" /> },
-                                                { label: t('phone', 'Téléphone'), value: profile?.phone, icon: <Phone size={14} className="text-indigo-400" /> },
-                                                { label: t('email', 'Email'), value: profile?.email, icon: <Mail size={14} className="text-indigo-400" /> },
-                                                { label: t('address', 'Adresse'), value: [profile?.address, profile?.city].filter(Boolean).join(', ') || '–', icon: <MapPin size={14} className="text-indigo-400" /> },
-                                                { label: t('birth_date', 'Date de naissance'), value: profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–', icon: <Calendar size={14} className="text-indigo-400" /> },
-                                                { label: t('join_date', "Date d'adhésion"), value: profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–', icon: <Clock size={14} className="text-indigo-400" /> },
-                                                { label: t('member_code', 'Code membre'), value: profile?.memberCode || '–', icon: <CreditCard size={14} className="text-indigo-400" /> },
+                                                { label: t('nickname', 'Surnom'), value: profile?.nickname, icon: <Camera size={18} /> },
+                                                { label: t('gender_label', 'Sexe'), value: profile?.gender === 'M' ? t('masculine', 'Masculin') : (profile?.gender === 'F' ? t('feminine', 'Féminin') : profile?.gender), icon: <User size={18} /> },
+                                                { label: t('marital_status_label', 'État civil'), value: profile?.maritalStatus, icon: <Heart size={18} /> },
+                                                { label: t('member_category', 'Catégorie'), value: profile?.contactSubtype?.name || t('member', 'Membre'), icon: <Award size={18} /> },
+                                                { label: t('phone', 'Téléphone'), value: profile?.phone, icon: <Phone size={18} /> },
+                                                { label: t('email', 'Email'), value: profile?.email, icon: <Mail size={18} /> },
+                                                { label: t('address', 'Adresse'), value: [profile?.address, profile?.city].filter(Boolean).join(', ') || '–', icon: <MapPin size={18} />, fullWidth: true },
+                                                { label: t('birth_date', 'Date de naissance'), value: profile?.birthDate ? new Date(profile.birthDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–', icon: <Calendar size={18} /> },
+                                                { label: t('join_date', "Adhésion"), value: profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '–', icon: <Clock size={18} /> },
+                                                { label: t('member_code', 'Code membre'), value: profile?.memberCode || '–', icon: <CreditCard size={18} /> },
                                             ].filter(Boolean).map((item, i) => (
-                                                <div key={i} className="flex flex-col gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all group">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        {item.icon}
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-indigo-500 transition-colors uppercase">{item.label}</p>
+                                                <div key={i} className={`flex flex-col gap-3 p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg group ${item.fullWidth ? 'md:col-span-2 lg:col-span-3' : ''}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-indigo-500 shadow-sm border border-slate-50 dark:border-slate-700 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                                            {item.icon}
+                                                        </div>
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{item.label}</p>
                                                     </div>
-                                                    <p className="text-[14px] font-bold text-slate-800 dark:text-slate-100 break-words pl-5" style={{ fontFamily: FONT }}>
+                                                    <p className="text-[15px] font-black text-slate-900 dark:text-slate-100 break-words pl-1 tracking-tight">
                                                         {item.value || '–'}
                                                     </p>
                                                 </div>
                                             ))}
                                         </div>
                                     )}
-                                </Card>
+                                </div>
                             </div>
                         )
                     }
 
                     {activeTab === 'activity' && (
-                        <div className="animate-in fade-in duration-300 w-full">
-                            <PageTitle title={t('recent_activity', 'Activité récente')} />
-                            <div className="space-y-3 w-full">
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="flex items-center gap-3 mb-10">
+                                <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/20">
+                                    <Activity size={24} className="text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                        {t('recent_activity', 'Activité récente')}
+                                    </h2>
+                                    <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('latest_updates', 'Dernières mises à jour')}</p>
+                                </div>
+                            </div>
+                            <div className="space-y-4 w-full">
                                 {activityItems.length === 0 ? (
-                                    <Card className="p-12 text-center text-gray-400">
-                                        <Activity size={36} className="mx-auto text-gray-200 mb-3" />
-                                        <p>{t('no_recent_activity', 'Aucune activité récente')}</p>
-                                    </Card>
+                                    <div className="py-32 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden relative">
+                                        <div className="absolute inset-0 bg-slate-50/50 dark:bg-slate-900/50 -z-10" />
+                                        <div className="w-24 h-24 bg-amber-50 dark:bg-amber-950/30 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-300 dark:text-amber-700 shadow-inner">
+                                            <Activity size={48} />
+                                        </div>
+                                        <h4 className="text-slate-900 dark:text-white font-black text-2xl mb-2">{t('no_recent_activity', 'Aucune activité récente')}</h4>
+                                        <p className="text-slate-500 dark:text-slate-400 text-sm italic max-w-sm mx-auto">{t('check_back_later_activity', 'Votre activité ici apparaîtra dès que vous interagirez avec la plateforme.')}</p>
+                                    </div>
                                 ) : (
                                     activityItems.map((item, i) => (
-                                        <RowCard key={i}
-                                            left={<IconCircle icon={item.icon} amber={item.amber} />}
-                                            center={
-                                                <>
-                                                    <p className="text-gray-800 dark:text-slate-200 font-medium text-[13px]">{item.text}</p>
-                                                    <p className="text-gray-400 text-[11px] mt-0.5">{item.date}</p>
-                                                </>
-                                            }
-                                            right={<Badge label={item.badge} color={item.badgeColor} />}
-                                        />
+                                        <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col sm:row items-start sm:items-center justify-between gap-6 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                                            <div className="flex items-center gap-5 w-full sm:w-auto">
+                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 duration-500 ${item.amber ? 'bg-amber-50 text-amber-500 dark:bg-amber-900/20' : 'bg-indigo-50 text-indigo-500 dark:bg-indigo-900/20'}`}>
+                                                    {React.cloneElement(item.icon, { size: 22 })}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-slate-900 dark:text-slate-100 font-black text-[16px] leading-tight mb-1 truncate">{item.text}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock size={12} className="text-slate-400" />
+                                                        <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider">{item.date}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="shrink-0 flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-4 sm:pt-0">
+                                                <Badge label={item.badge} color={item.amber ? 'amber' : 'blue'} />
+                                                <button className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-700/50 transition-all border border-transparent hover:border-indigo-100">
+                                                    <ChevronRight size={20} />
+                                                </button>
+                                            </div>
+                                        </div>
                                     ))
                                 )}
                             </div>
@@ -1669,119 +1497,133 @@ export default function MemberHome() {
                     {/* ══════════════════════════════════════════════════════ */}
                     {/* Mes demandes                                          */}
                     {/* ══════════════════════════════════════════════════════ */}
-                    {
-                        activeTab === 'requests' && (
-                            <div className="animate-in fade-in duration-300 w-full">
-                                <PageTitle title={t('my_requests', 'Mes demandes')} />
-                                {/* Use MemberRequests component but wrap the list items in our style */}
+                    {activeTab === 'requests' && (
+                        <div className="animate-in fade-in duration-300 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-purple-500 to-fuchsia-600 shadow-lg shadow-purple-500/20">
+                                    <FileText size={24} className="text-white" />
+                                </div>
+                                <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                    {t('my_requests', 'Mes demandes')}
+                                </h2>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-slate-700">
                                 <MemberRequests renderMode="cards" />
                             </div>
-                        )
-                    }
+                        </div>
+                    )}
 
                     {/* ══════════════════════════════════════════════════════ */}
                     {/* Ma carte membre                                     */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'my_card' && (
-                        <div className="animate-in fade-in zoom-in-95 duration-500 w-full flex flex-col items-center">
-                            <PageTitle
-                                title={t('my_member_card', 'Ma carte membre')}
-                                subtitle={t('card_id_desc', 'Votre identification officielle au sein de la communauté.')}
-                            />
+                        <div className="animate-in fade-in duration-300 w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center">
+                            <div className="w-full flex items-center gap-3 mb-10">
+                                <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-lg shadow-indigo-600/20">
+                                    <CreditCard size={24} className="text-white" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                        {t('my_member_card', 'Ma carte membre')}
+                                    </h2>
+                                    <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('card_id_desc', 'Identification officielle au sein de la communauté')}</p>
+                                </div>
+                            </div>
 
                             {!activeCard ? (
-                                <Card className="w-full max-w-2xl p-16 text-center border-dashed border-2 dark:border-slate-700 flex flex-col items-center gap-6">
-                                    <div className="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-300 dark:text-slate-600">
+                                <div className="w-full max-w-2xl py-24 text-center bg-white dark:bg-slate-800/50 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center px-10">
+                                    <div className="w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center text-slate-200 dark:text-slate-700 mb-8 border border-slate-100 dark:border-slate-800">
                                         <CreditCard size={40} />
                                     </div>
-                                    <div className="space-y-4">
-                                        <p className="text-gray-900 dark:text-white font-black text-lg">{t('no_active_card', 'Aucune carte active')}</p>
-                                        <p className="text-gray-500 text-sm max-w-md mx-auto">
-                                            {t('card_not_generated_desc', "Votre carte de membre n'a pas encore été générée ou est en attente d'activation. Si vous n'en avez jamais fait la demande, vous pouvez le faire maintenant.")}
-                                        </p>
-                                        <div className="pt-4 border-t border-gray-100 flex justify-center">
-                                            <button
-                                                onClick={() => handleQuickCardRequest('member_card_new', 'Demande de Nouvelle Carte Membre')}
-                                                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm flex items-center gap-2"
-                                            >
-                                                <Plus size={16} /> {t('request_member_card', 'Effectuer une demande de carte')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Card>
+                                    <h4 className="text-slate-900 dark:text-white font-black text-2xl mb-4">{t('no_active_card', 'Aucune carte active')}</h4>
+                                    <p className="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-md mx-auto mb-10 italic">
+                                        {t('card_not_generated_desc', "Votre carte de membre n'a pas encore été générée. Si vous êtes un nouveau membre, elle sera disponible après validation de votre dossier.")}
+                                    </p>
+                                    <button
+                                        onClick={() => handleQuickCardRequest('member_card_new', 'Demande de Nouvelle Carte Membre')}
+                                        className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-black uppercase tracking-widest rounded-[1.5rem] transition-all shadow-xl shadow-indigo-500/20 active:scale-95 flex items-center gap-3"
+                                    >
+                                        <PlusCircle size={20} /> {t('request_member_card', 'Commander une carte')}
+                                    </button>
+                                </div>
                             ) : (
-                                <div className="w-full max-w-4xl space-y-12 pb-12">
-                                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 p-4 rounded-2xl flex items-center gap-4 text-amber-800 dark:text-amber-200 text-[13px] font-medium shadow-sm">
-                                        <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center shrink-0">
-                                            <Settings size={18} className="text-amber-600 dark:text-amber-400" />
+                                <div className="w-full max-w-4xl space-y-12 pb-16">
+                                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-6 rounded-[2rem] flex items-start gap-5 text-amber-800 dark:text-amber-200 text-[14px] font-bold shadow-sm leading-relaxed">
+                                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center shrink-0 text-amber-600">
+                                            <ShieldAlert size={24} />
                                         </div>
-                                        <span>{t('card_id_official_desc', "Cette carte est votre document d'identité officiel. Notez qu'elle ne peut pas être modifiée par l'utilisateur.")}</span>
+                                        <div>
+                                            {t('card_id_official_desc', "Cette carte est votre document d'identité officiel. Elle est requise pour accéder aux services réservés aux membres.")}
+                                        </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 place-items-center relative">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 place-items-center">
                                         {/* Recto */}
-                                        <div className="space-y-4 w-full flex flex-col items-center">
-                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('front_side', 'Côté recto')}</p>
+                                        <div className="space-y-6 w-full flex flex-col items-center">
+                                            <span className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">{t('front_side', 'Recto')}</span>
                                             <div
-                                                className="shadow-2xl shadow-indigo-200/50 rounded-xl overflow-hidden ring-1 ring-black/5 cursor-zoom-in group relative transition-transform hover:-translate-y-1"
+                                                className="shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)] rounded-3xl overflow-hidden cursor-zoom-in group relative transition-all hover:-translate-y-2"
                                                 onClick={() => setCardZoomSide('front')}
                                             >
                                                 <CardDisplay card={activeCard} side="front" />
-                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
-                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-900 dark:text-white p-3 rounded-full shadow-lg backdrop-blur-sm">
-                                                        <Maximize2 size={24} />
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-all bg-white/95 text-slate-900 p-4 rounded-full shadow-2xl backdrop-blur-md">
+                                                        <Maximize size={24} />
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Verso */}
-                                        <div className="space-y-4 w-full flex flex-col items-center">
-                                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('back_side', 'Côté verso')}</p>
+                                        <div className="space-y-6 w-full flex flex-col items-center">
+                                            <span className="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">{t('back_side', 'Verso')}</span>
                                             <div
-                                                className="shadow-2xl shadow-indigo-200/50 rounded-xl overflow-hidden ring-1 ring-black/5 cursor-zoom-in group relative transition-transform hover:-translate-y-1"
+                                                className="shadow-[0_40px_80px_-20px_rgba(0,0,0,0.2)] rounded-3xl overflow-hidden cursor-zoom-in group relative transition-all hover:-translate-y-2"
                                                 onClick={() => setCardZoomSide('back')}
                                             >
                                                 <CardDisplay card={activeCard} side="back" />
-                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
-                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-900 dark:text-white p-3 rounded-full shadow-lg backdrop-blur-sm">
-                                                        <Maximize2 size={24} />
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-all bg-white/95 text-slate-900 p-4 rounded-full shadow-2xl backdrop-blur-md">
+                                                        <Maximize size={24} />
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-center gap-4 pt-8">
-                                        <div className="px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full text-[12px] font-black tracking-widest border border-indigo-100">
-                                            {t('card_status', 'Statut de la carte')}: {activeCard.status}
+                                    <div className="flex flex-col items-center pt-10 border-t border-slate-100 dark:border-slate-800">
+                                        <div className="flex flex-wrap justify-center gap-4 mb-8">
+                                            <div className="px-8 py-3 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-black text-[12px] tracking-widest shadow-sm">
+                                                {t('card_status', 'Statut')}: <span className="uppercase text-slate-900 dark:text-white">{activeCard.status}</span>
+                                            </div>
+                                            <div className="px-8 py-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 text-slate-400 font-black text-[12px] tracking-widest shadow-sm">
+                                                ID: <span className="text-slate-900 dark:text-white">{activeCard.cardNumber}</span>
+                                            </div>
                                         </div>
-                                        <p className="text-gray-400 text-[11px] font-medium italic">{t('member_id_identification', 'Identification member ID')}: {activeCard.cardNumber}</p>
 
-                                        <div className="mt-6 flex flex-wrap justify-center gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                                             <button
-                                                onClick={() => handleQuickCardRequest('member_card_lost', t('declare_lost_card', 'Déclaration de Carte Perdue'))}
-                                                className="px-4 py-2 border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl text-xs font-bold transition-colors"
+                                                onClick={() => handleQuickCardRequest('member_card_lost', t('declare_lost_card', 'Carte Perdue'))}
+                                                className="flex items-center justify-center gap-3 px-6 py-4 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 rounded-2xl text-[12px] font-black tracking-widest transition-all hover:bg-amber-100"
                                             >
-                                                {t('declare_lost_card', 'Déclarer une carte perdue')}
+                                                <AlertCircle size={18} /> {t('declare_lost_card', 'PERDUE')}
                                             </button>
                                             <button
-                                                onClick={() => handleQuickCardRequest('member_card_stolen', t('declare_stolen_card', 'Déclaration de Carte Volée'))}
-                                                className="px-4 py-2 border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl text-xs font-bold transition-colors"
+                                                onClick={() => handleQuickCardRequest('member_card_stolen', t('declare_stolen_card', 'Carte Volée'))}
+                                                className="flex items-center justify-center gap-3 px-6 py-4 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 rounded-2xl text-[12px] font-black tracking-widest transition-all hover:bg-rose-100"
                                             >
-                                                {t('declare_stolen_card', 'Déclarer une carte volée')}
+                                                <Lock size={18} /> {t('declare_stolen_card', 'VOLÉE')}
                                             </button>
                                             <button
-                                                onClick={() => handleQuickCardRequest('member_card_defective', t('declare_defective_card', 'Déclaration de Carte Défectueuse'))}
-                                                className="px-4 py-2 border border-gray-200 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-xl text-xs font-bold transition-colors"
+                                                onClick={() => handleQuickCardRequest('member_card_defective', t('declare_defective_card', 'Carte Défectueuse'))}
+                                                className="flex items-center justify-center gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700 rounded-2xl text-[12px] font-black tracking-widest transition-all hover:bg-slate-200 dark:hover:bg-slate-800"
                                             >
-                                                {t('my_card_is_defective', 'Ma carte est défectueuse')}
+                                                <Settings size={18} /> {t('my_card_is_defective', 'DÉFECTUEUSE')}
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             )}
-
                         </div>
                     )}
 
@@ -1789,98 +1631,151 @@ export default function MemberHome() {
                     {/* HISTORIQUE DES DONS                                   */}
                     {/* ══════════════════════════════════════════════════════ */}
                     {activeTab === 'donations' && (
-                        <div className="animate-in fade-in duration-300 w-full">
-                            <div className="flex items-start justify-between mb-6">
-                                <PageTitle title={t('donation_history', 'Historique des dons')} />
-                                <Card className="px-4 py-3 text-right shrink-0 ml-4">
-                                    <p className="text-[10px] font-bold text-gray-400 tracking-wide">
-                                        {t('total', 'Total')} {new Date().getFullYear()}
-                                    </p>
-                                    <p className="font-bold text-gray-900 dark:text-white mt-0.5" style={{ fontSize: '18px' }}>
-                                        {displayTotal}
-                                    </p>
-                                </Card>
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-rose-400 to-rose-600 shadow-lg shadow-rose-500/20">
+                                        <Heart size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                            {t('donation_history', 'Historique des dons')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('support_community', 'Votre soutien à la communauté')}</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-white dark:bg-slate-800 p-1 rounded-[2.5rem] shadow-xl shadow-rose-500/5 border border-rose-100 dark:border-rose-900/30">
+                                    <div className="bg-rose-50 dark:bg-rose-950/20 px-8 py-5 rounded-[2.2rem] flex items-center gap-6">
+                                        <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-rose-500 shadow-sm border border-rose-100 dark:border-rose-800">
+                                            <TrendingUp size={28} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black text-rose-500 dark:text-rose-400 uppercase tracking-widest leading-none mb-2">
+                                                {t('total_contribution', 'Contribution Totale')} {new Date().getFullYear()}
+                                            </p>
+                                            <p className="font-black text-slate-900 dark:text-white text-3xl leading-none tracking-tight">
+                                                {displayTotal}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {donations.length === 0 ? (
-                                    <Card className="p-12 text-center">
-                                        <Heart size={36} className="mx-auto text-gray-200 mb-3" />
-                                        <p className="text-gray-400 text-sm">{t('no_donation_recorded', 'Aucun don enregistré')}</p>
-                                    </Card>
-                                ) : donations.map(d => (
-                                    <RowCard key={d.id}
-                                        left={<IconCircle icon={<Heart size={16} />} amber />}
-                                        center={
-                                            <>
-                                                <p className="text-gray-800 dark:text-slate-200 font-medium text-[13px]">{t('donation', 'Don')}</p>
-                                                <p className="text-gray-400 text-[11px] mt-0.5">
-                                                    {d.date ? new Date(d.date).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                                                    {d.paymentMethod && <> · {d.paymentMethod}</>}
+                                    <div className="py-32 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-slate-50/50 dark:bg-slate-900/50 -z-10" />
+                                        <div className="w-24 h-24 bg-rose-50 dark:bg-rose-950/30 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-300 dark:text-rose-700 shadow-inner">
+                                            <Heart size={48} />
+                                        </div>
+                                        <h4 className="text-slate-900 dark:text-white font-black text-2xl mb-2">{t('no_donation_recorded', 'Aucun don enregistré')}</h4>
+                                        <p className="text-slate-500 dark:text-slate-400 text-sm italic max-w-sm mx-auto">{t('donation_empty_desc', "Vos contributions apparaîtront ici. Merci pour votre générosité.")}</p>
+                                    </div>
+                                ) : (
+                                    donations.map((d, i) => (
+                                        <div key={d.id} className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between gap-6 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                                            <div className="flex items-center gap-5">
+                                                <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 dark:bg-rose-900/20 flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 duration-500 shadow-sm border border-rose-100 dark:border-rose-900/10">
+                                                    <Heart size={22} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-slate-900 dark:text-slate-100 font-black text-[16px] leading-tight mb-1">{t('generous_donation', 'Don Généreux')}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar size={12} className="text-slate-400" />
+                                                        <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold mt-0.5 uppercase tracking-wider">
+                                                            {d.date ? new Date(d.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
+                                                            {d.paymentMethod && <span className="mx-2 text-slate-300">•</span>}
+                                                            <span className="text-indigo-500 dark:text-indigo-400">{d.paymentMethod}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-black text-emerald-600 dark:text-emerald-400 text-xl tracking-tight">
+                                                    +{parseFloat(d.amount).toLocaleString(locale)} <span className="text-xs text-slate-400 font-bold ml-1 uppercase">{d.currency || 'HTG'}</span>
                                                 </p>
-                                            </>
-                                        }
-                                        right={
-                                            <p className="font-bold text-gray-900 dark:text-white text-[15px]">
-                                                {parseFloat(d.amount).toLocaleString(locale)} {d.currency || 'HTG'}
-                                            </p>
-                                        }
-                                    />
-                                ))}
+                                                <Badge label={t('recorded', 'Enregistré')} color="green" />
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'communion' && (
-                        <div className="animate-in fade-in duration-300 w-full text-left">
-                            <PageTitle
-                                title={t('holy_communion_participation', 'Participation à la Sainte Cène')}
-                                subtitle={t('communion_desc', 'Suivez vos participations aux cérémonies de communion.')}
-                            />
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                <Card className="p-6 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white border-0 shadow-lg shadow-indigo-100">
-                                    <Droplets className="mb-4 opacity-50" size={32} />
-                                    <p className="text-[11px] font-black tracking-widest opacity-80">{t('total_participations', 'Total participations')}</p>
-                                    <p className="text-4xl font-black mt-1">
-                                        {ceremonies.filter(c => c.type === 'sainte_cene').length}
-                                    </p>
-                                </Card>
-                                <Card className="p-6">
-                                    <Calendar className="mb-4 text-amber-500" size={32} />
-                                    <p className="text-[11px] font-black tracking-widest text-gray-400">{t('last_participation', 'Dernière participation')}</p>
-                                    <p className="text-xl font-bold mt-1 text-gray-900 dark:text-white">
-                                        {ceremonies.filter(c => c.type === 'sainte_cene')[0]?.date ? new Date(ceremonies.filter(c => c.type === 'sainte_cene')[0].date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : t('none', 'Aucune')}
-                                    </p>
-                                </Card>
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/20">
+                                        <Droplets size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                            {t('holy_communion_participation', 'Sainte Cène')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('spiritual_growth', 'Votre cheminement spirituel')}</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 tracking-tight flex items-center gap-3">
-                                    <Clock size={18} className="text-indigo-500" />
-                                    {t('participation_history', 'Historique des participations')}
-                                </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                                <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-500/20 relative overflow-hidden group">
+                                    <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                                    <Droplets className="mb-6 opacity-40" size={40} />
+                                    <p className="text-[11px] font-black tracking-[0.2em] uppercase text-indigo-200">{t('total_participations', 'Total participations')}</p>
+                                    <p className="text-5xl font-black mt-2 tracking-tighter">
+                                        {ceremonies.filter(c => c.type === 'sainte_cene').length}
+                                    </p>
+                                </div>
+                                <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-500">
+                                            <Calendar size={24} />
+                                        </div>
+                                        <p className="text-[11px] font-black tracking-[0.2em] uppercase text-slate-400">{t('last_participation', 'Dernière fois')}</p>
+                                    </div>
+                                    <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                                        {ceremonies.filter(c => c.type === 'sainte_cene')[0]?.date ? new Date(ceremonies.filter(c => c.type === 'sainte_cene')[0].date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : t('none', 'Aucune')}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
+                                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                                        {t('participation_history', 'Historique des participations')}
+                                    </h3>
+                                </div>
 
                                 {ceremonies.filter(c => c.type === 'sainte_cene').length === 0 ? (
-                                    <Card className="p-16 text-center border-dashed border-2 dark:border-slate-700">
-                                        <Droplets size={48} className="mx-auto text-gray-100 mb-4" />
-                                        <p className="text-gray-400 font-medium">{t('no_communion_history', "Aucun historique de participation à la Sainte Cène n'est enregistré pour le moment.")}</p>
-                                    </Card>
+                                    <div className="py-32 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm">
+                                        <Droplets size={48} className="mx-auto text-slate-200 mb-6" />
+                                        <p className="text-slate-400 font-bold italic max-w-sm mx-auto">{t('no_communion_history', "Aucun historique de participation à la Sainte Cène n'est enregistré.")}</p>
+                                    </div>
                                 ) : (
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         {ceremonies.filter(c => c.type === 'sainte_cene').map(c => (
-                                            <RowCard
-                                                key={c.id}
-                                                left={<IconCircle icon={<Droplets size={16} />} amber={false} />}
-                                                center={
-                                                    <>
-                                                        <p className="text-gray-900 dark:text-white font-bold text-[14px]">{c.title || t('holy_communion', 'Sainte Cène')}</p>
-                                                        <p className="text-gray-400 text-[11px] mt-0.5">{new Date(c.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                                        {c.description && <p className="text-gray-500 text-[12px] mt-1 italic">{c.description}</p>}
-                                                    </>
-                                                }
-                                                right={<Badge label={t('present', 'Présent')} color="green" />}
-                                            />
+                                            <div key={c.id} className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between gap-6 transition-all hover:shadow-xl hover:-translate-y-1 group">
+                                                <div className="flex items-center gap-5">
+                                                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-500 dark:bg-indigo-900/20 flex items-center justify-center shrink-0 shadow-sm border border-indigo-100 dark:border-indigo-900/10">
+                                                        <Droplets size={22} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-slate-900 dark:text-slate-100 font-black text-[16px] leading-tight mb-1">{c.title || t('holy_communion', 'Sainte Cène')}</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar size={12} className="text-slate-400" />
+                                                            <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold mt-0.5 uppercase tracking-wider">{new Date(c.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                        </div>
+                                                        {c.description && <p className="text-slate-400 text-[13px] mt-2 italic line-clamp-1">{c.description}</p>}
+                                                    </div>
+                                                </div>
+                                                <div className="shrink-0">
+                                                    <Badge label={t('present', 'Présent')} color="green" />
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
                                 )}
@@ -1888,75 +1783,95 @@ export default function MemberHome() {
                         </div>
                     )}
                     {activeTab === 'notifications' && (
-                        <div className="animate-in fade-in duration-300 w-full text-left">
-                            <PageTitle title={t('notifications', 'Notifications')}
-                                subtitle={unreadCount > 0 ? `${unreadCount} ${t('unread', 'non lue')}${unreadCount > 1 ? 's' : ''}` : t('all_up_to_date', 'Tout est à jour')} />
+                        <div className="animate-in fade-in duration-300 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12 gap-8">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/20">
+                                        <Bell size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                            {t('notifications', 'Notifications')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('latest_updates', 'Dernières mises à jour')}</p>
+                                    </div>
+                                </div>
+                                {unreadCount > 0 && (
+                                    <span className="px-5 py-2.5 rounded-[1.5rem] bg-amber-500 text-white text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-500/20 ring ring-amber-500/30">
+                                        {unreadCount} {t('unread', 'non lues')}
+                                    </span>
+                                )}
+                            </div>
 
                             <div className="space-y-4">
-                                <div className="space-y-3">
-                                    {notifications.filter(n => !n.isRead).length === 0 ? (
-                                        notifications.length > 0 && notifications.filter(n => !n.isRead).length === 0 && (
-                                            <div className="mb-4 p-6 bg-indigo-50/30 border-2 border-dashed border-indigo-100/50 rounded-[1.5rem] text-center">
-                                                <p className="text-gray-400 text-[11px] font-black italic tracking-widest">{t('no_unread_notifs', 'Saisie à jour : aucune nouvelle notification')}</p>
-                                            </div>
-                                        )
-                                    ) : notifications.filter(n => !n.isRead).map(n => (
-                                        <RowCard key={n.id}
-                                            onClick={() => handleNotificationClick(n)}
-                                            left={<IconCircle icon={<Bell size={16} />} amber />}
-                                            center={
-                                                <>
-                                                    <p className="text-gray-800 dark:text-slate-200 font-bold text-[13px]">{n.title}</p>
-                                                    <p className="text-gray-400 text-[11px] mt-0.5">
+                                {notifications.filter(n => !n.isRead).length > 0 ? (
+                                    notifications.filter(n => !n.isRead).map(n => (
+                                        <div key={n.id} onClick={() => handleNotificationClick(n)} className="bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] shadow-sm border-2 border-amber-100 dark:border-amber-900/30 flex items-start justify-between gap-4 transition-all hover:shadow-md cursor-pointer relative overflow-hidden group">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+                                            <div className="flex items-start gap-4">
+                                                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 dark:bg-amber-900/20 flex items-center justify-center shrink-0">
+                                                    <Bell size={18} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-slate-900 dark:text-slate-100 font-bold text-[14px] leading-tight">{n.title}</p>
+                                                    <p className="text-slate-500 dark:text-slate-400 text-[11px] font-bold mt-1 uppercase tracking-wider">
                                                         {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                                                     </p>
-                                                    {n.message && <p className="text-gray-500 text-[12px] mt-1 line-clamp-2">{n.message}</p>}
-                                                </>
-                                            }
-                                            right={<span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-200 animate-pulse" />}
-                                        />
-                                    ))}
-                                </div>
+                                                    {n.message && <p className="text-slate-600 dark:text-slate-300 text-[13px] mt-2 leading-relaxed">{n.message}</p>}
+                                                </div>
+                                            </div>
+                                            <div className="shrink-0 pt-1">
+                                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-200 animate-pulse block" />
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    notifications.length > 0 && (
+                                        <div className="py-8 px-6 bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-[1.5rem] text-center">
+                                            <p className="text-slate-400 text-[11px] font-black italic tracking-widest">{t('no_unread_notifs', 'Aucune nouvelle notification')}</p>
+                                        </div>
+                                    )
+                                )}
 
                                 {notifications.filter(n => n.isRead).length > 0 && (
                                     <div className="pt-4">
                                         <button
                                             onClick={() => setIsOldNotificationsExpanded(!isOldNotificationsExpanded)}
-                                            className="w-full flex items-center justify-between p-5 bg-white border border-gray-100 rounded-[1.5rem] hover:bg-gray-50 transition-all group active:scale-[0.99] shadow-sm"
+                                            className="w-full flex items-center justify-between p-5 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-[1.5rem] hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group shadow-sm"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-white transition-colors">
+                                                <div className="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-white dark:group-hover:bg-slate-800 transition-colors">
                                                     <Clock size={18} />
                                                 </div>
                                                 <div className="text-left">
-                                                    <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors">
+                                                    <h3 className="text-[13px] font-black tracking-widest text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors uppercase">
                                                         {t('older_notifications', 'Anciennes notifications')}
                                                     </h3>
-                                                    <p className="text-[11px] text-gray-400 font-medium">
-                                                        {notifications.filter(n => n.isRead).length} {t('read_notifications', 'conversations lues')}
+                                                    <p className="text-[11px] text-slate-400 font-bold mt-0.5">
+                                                        {notifications.filter(n => n.isRead).length} {t('read_notifications', 'lues')}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className={`transition-transform duration-500 ${isOldNotificationsExpanded ? 'rotate-180 text-indigo-600' : 'text-gray-300'}`}>
+                                            <div className={`transition-transform duration-500 ${isOldNotificationsExpanded ? 'rotate-180 text-indigo-500' : 'text-slate-300'}`}>
                                                 <ChevronDown size={20} />
                                             </div>
                                         </button>
 
                                         {isOldNotificationsExpanded && (
-                                            <div className="mt-3 space-y-3 animate-in slide-in-from-top-4 duration-500">
+                                            <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
                                                 {notifications.filter(n => n.isRead).map(n => (
-                                                    <RowCard key={n.id}
-                                                        left={<IconCircle icon={<Bell size={16} />} amber={false} />}
-                                                        center={
-                                                            <>
-                                                                <p className="text-gray-500 font-medium text-[13px]">{n.title}</p>
-                                                                <p className="text-gray-400 text-[11px] mt-0.5">
-                                                                    {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
-                                                                </p>
-                                                                {n.message && <p className="text-gray-400 text-[12px] mt-1 opacity-75">{n.message}</p>}
-                                                            </>
-                                                        }
-                                                    />
+                                                    <div key={n.id} className="bg-white/60 dark:bg-slate-800/60 p-5 rounded-[1.5rem] border border-gray-50 dark:border-slate-800 flex items-start gap-4 opacity-75 hover:opacity-100 transition-opacity">
+                                                        <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-slate-400 flex items-center justify-center shrink-0">
+                                                            <Bell size={16} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-slate-900 dark:text-slate-100 font-bold text-[13px]">{n.title}</p>
+                                                            <p className="text-slate-400 text-[10px] font-bold mt-0.5 uppercase tracking-wider">
+                                                                {n.createdAt ? new Date(n.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                                                            </p>
+                                                            {n.message && <p className="text-slate-500 dark:text-slate-400 text-[12px] mt-1.5 leading-relaxed">{n.message}</p>}
+                                                        </div>
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
@@ -1964,10 +1879,13 @@ export default function MemberHome() {
                                 )}
 
                                 {notifications.length === 0 && (
-                                    <Card className="p-12 text-center">
-                                        <Bell size={36} className="mx-auto text-gray-200 mb-3" />
-                                        <p className="text-gray-400 text-sm">{t('no_notifications', 'Aucune notification')}</p>
-                                    </Card>
+                                    <div className="py-24 text-center bg-white dark:bg-slate-800/50 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm">
+                                        <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-950/30 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-300 dark:text-indigo-700">
+                                            <Bell size={40} />
+                                        </div>
+                                        <h4 className="text-slate-900 dark:text-white font-black text-xl mb-2">{t('no_notifications', 'Aucune notification')}</h4>
+                                        <p className="text-slate-500 dark:text-slate-400 text-sm italic">{t('check_back_later', 'Nous vous tiendrons au courant de tout changement !')}</p>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -1975,359 +1893,366 @@ export default function MemberHome() {
 
 
                     {activeTab === 'sunday_school' && (
-                        <div className="animate-in fade-in duration-300 w-full text-left">
-                            <PageTitle title={t('sunday_school', 'École du dimanche')} subtitle={t('ss_subtitle', 'Gérez vos classes et suivez vos progrès spirituels')} />
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-lg shadow-indigo-500/20">
+                                        <BookOpen size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                            {t('sunday_school', 'École du dimanche')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('ss_subtitle', 'Ma progression et mes classes actives')}</p>
+                                    </div>
+                                </div>
+                            </div>
 
                             {/* Current Classes */}
-                            {(!profile?.sundaySchoolClasses || profile.sundaySchoolClasses.length === 0) ? (
-                                <Card className="p-12 text-center text-gray-400">
-                                    <BookOpen size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>{t('no_ss_class', "Vous n'êtes inscrit dans aucune classe pour le moment.")}</p>
-                                </Card>
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                    {profile.sundaySchoolClasses.map(cls => (
-                                        <Card key={cls.id} className="p-6 relative overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-500">
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
-                                            <div className="flex items-start justify-between relative z-10">
-                                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mb-4 transition-transform group-hover:-rotate-6">
-                                                    <BookOpen size={24} />
-                                                </div>
-                                            </div>
-                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 text-lg mb-1">{cls.name || t('class', 'Classe')}</h4>
-                                            <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-4">{cls.membership?.level || t('member', 'Membre')}</p>
-                                            <div className="flex items-center gap-3 mt-auto">
-                                                <div className="flex -space-x-2">
-                                                    {[1, 2].map(i => (
-                                                        <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-slate-800 bg-gray-100 dark:bg-slate-700 overflow-hidden">
-                                                            <div className="w-full h-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-[10px] text-indigo-400 font-bold">U</div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <span className="text-[11px] text-gray-500">{t('active_class', 'Classe active')}</span>
-                                            </div>
-                                        </Card>
-                                    ))}
+                            <div className="mb-12">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
+                                    <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                                        {t('my_enrolled_classes', 'Mes Classes Inscrites')}
+                                    </h3>
                                 </div>
-                            )}
 
-                            {/* Attendance Current Month */}
-                            <div className="mt-8">
-                                <button
-                                    onClick={() => setIsSundayAttendanceExpanded(!isSundayAttendanceExpanded)}
-                                    className="w-full flex items-center justify-between p-6 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-[1.5rem] border border-transparent hover:border-emerald-100 dark:hover:border-emerald-900/30 transition-all group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm transition-transform group-hover:scale-110">
-                                            <CheckCircle size={18} />
+                                {(!profile?.sundaySchoolClasses || profile.sundaySchoolClasses.length === 0) ? (
+                                    <div className="py-24 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                                        <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+                                            <BookOpen size={40} />
                                         </div>
-                                        <div className="text-left">
-                                            <h3 className="text-[13px] font-black tracking-widest text-emerald-600 dark:text-emerald-400">
-                                                {t('attendance_current_month', 'Présence aux classes (mois en cours)')}
-                                            </h3>
-                                        </div>
+                                        <p className="text-slate-400 font-bold italic">{t('no_ss_class', "Vous n'êtes inscrit dans aucune classe pour le moment.")}</p>
                                     </div>
-                                    <ChevronDown size={20} className={`text-emerald-300 transition-transform duration-500 ${isSundayAttendanceExpanded ? 'rotate-180 text-emerald-500' : ''}`} />
-                                </button>
-                                {isSundayAttendanceExpanded && (
-                                    <div className="mt-4 p-2 bg-white dark:bg-slate-800/20 border border-gray-100 dark:border-slate-800 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
-                                        {currentMonthAttendance.length === 0 ? (
-                                            <div className="p-8 text-center">
-                                                <Calendar size={32} className="mx-auto text-gray-200 mb-3" />
-                                                <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_attendance_this_month', 'Aucune présence enregistrée ce mois-ci.')}</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-1">
-                                                {currentMonthAttendance.map(att => (
-                                                    <div key={att.id} className="flex items-center justify-between p-4 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 rounded-2xl transition-all group">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 ${att.status === 'present' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
-                                                                <Check size={18} />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[13px] font-bold text-gray-700 dark:text-gray-200">{att.class?.name}</p>
-                                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{new Date(att.date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <Badge label={t(att.status)} color={att.status === 'present' ? 'green' : 'rose'} />
-                                                            {att.report?.id && (
-                                                                <button
-                                                                    onClick={() => setSsReportModal({ show: true, id: att.report.id })}
-                                                                    className="block mt-1 text-[9px] font-black tracking-widest text-indigo-500 hover:text-indigo-600 hover:underline"
-                                                                >
-                                                                    {t('view_report', 'Voir le rapport')}
-                                                                </button>
-                                                            )}
-                                                        </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {profile.sundaySchoolClasses.map(cls => (
+                                            <div key={cls.id} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
+                                                <div className="relative z-10">
+                                                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center mb-6 shadow-sm">
+                                                        <BookOpen size={28} />
                                                     </div>
-                                                ))}
+                                                    <h4 className="font-black text-slate-900 dark:text-white text-xl mb-1">{cls.name || t('class', 'Classe')}</h4>
+                                                    <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-6">{cls.membership?.level || t('member', 'Membre')}</p>
+                                                    <div className="flex items-center justify-between border-t border-slate-50 dark:border-slate-700 pt-6">
+                                                        <div className="flex -space-x-3">
+                                                            {[1, 2, 3].map(i => (
+                                                                <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-[10px] text-indigo-500 font-black">
+                                                                    U{i}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <Badge label={t('active', 'Actif')} color="indigo" />
+                                                    </div>
+                                                </div>
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Past Attendance with Filter */}
-                            <div className="mt-4">
-                                <button
-                                    onClick={() => setIsSundayPastAttendanceExpanded(!isSundayPastAttendanceExpanded)}
-                                    className="w-full flex items-center justify-between p-6 bg-indigo-50/30 dark:bg-indigo-950/10 rounded-[1.5rem] border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30 transition-all group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-indigo-400 shadow-sm group-hover:rotate-12 transition-all">
-                                            <Filter size={18} />
+                            {/* Attendance Sections */}
+                            <div className="space-y-6">
+                                {/* Current Month Attendance */}
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => setIsSundayAttendanceExpanded(!isSundayAttendanceExpanded)}
+                                        className="w-full flex items-center justify-between p-8 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all group overflow-hidden relative"
+                                    >
+                                        <div className="absolute inset-0 bg-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="flex items-center gap-5 relative z-10">
+                                            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm group-hover:scale-110 transition-transform">
+                                                <CheckCircle size={22} />
+                                            </div>
+                                            <div className="text-left">
+                                                <h3 className="text-[14px] font-black tracking-widest text-emerald-600 dark:text-emerald-400 uppercase">
+                                                    {t('attendance_current_month', 'Présences du mois')}
+                                                </h3>
+                                                <p className="text-slate-400 text-[11px] font-bold mt-1 tracking-widest uppercase">{t('current_evaluation', 'Évaluation en cours')}</p>
+                                            </div>
                                         </div>
-                                        <div className="text-left">
-                                            <h3 className="text-[13px] font-black tracking-widest text-indigo-500 dark:text-indigo-300">
-                                                {t('past_attendance_filter', 'Présence passée et filtres')}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                    <ChevronDown size={20} className={`text-indigo-200 transition-transform duration-500 ${isSundayPastAttendanceExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
-                                </button>
-                                {isSundayPastAttendanceExpanded && (
-                                    <div className="mt-4 p-6 bg-white dark:bg-slate-800/40 border border-gray-100 dark:border-slate-700/50 rounded-[2rem] animate-in slide-in-from-top-4 duration-500 shadow-sm">
-                                        <div className="flex flex-wrap items-end gap-4 mb-6 p-6 bg-gray-50 dark:bg-slate-900/50 rounded-[2rem] border border-gray-100/50 dark:border-slate-800 shadow-sm transition-all focus-within:shadow-indigo-500/5">
-                                            <div className="flex-1 min-w-[150px] relative">
-                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('from', 'Du')}</label>
-                                                <div className="relative group">
-                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none group-focus-within:scale-110 transition-transform" />
-                                                    <input
-                                                        type="date"
-                                                        value={ssAttendanceFilter.startDate}
-                                                        onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, startDate: e.target.value })}
-                                                        className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 min-w-[150px] relative">
-                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('to', 'Au')}</label>
-                                                <div className="relative group">
-                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none group-focus-within:scale-110 transition-transform" />
-                                                    <input
-                                                        type="date"
-                                                        value={ssAttendanceFilter.endDate}
-                                                        onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, endDate: e.target.value })}
-                                                        className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 min-w-[130px] relative">
-                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('month', 'Mois')}</label>
-                                                <select
-                                                    value={ssAttendanceFilter.month}
-                                                    onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, month: e.target.value })}
-                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl px-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all appearance-none cursor-pointer"
-                                                >
-                                                    <option value="all">{t('all', 'Tous')}</option>
-                                                    {Array.from({ length: 12 }, (_, i) => (
-                                                        <option key={i + 1} value={i + 1}>
-                                                            {new Date(2000, i, 1).toLocaleDateString(lang === 'FR' ? 'fr-FR' : 'en-US', { month: 'long' })}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="flex-1 min-w-[110px] relative">
-                                                <label className="block text-[10px] font-black tracking-widest text-indigo-400 mb-2 ml-1 uppercase">{t('year', 'Année')}</label>
-                                                <select
-                                                    value={ssAttendanceFilter.year}
-                                                    onChange={e => setSsAttendanceFilter({ ...ssAttendanceFilter, year: e.target.value })}
-                                                    className="w-full bg-white dark:bg-slate-800 border-0 rounded-xl px-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-4 ring-indigo-500/10 outline-none shadow-sm transition-all appearance-none cursor-pointer"
-                                                >
-                                                    {Array.from({ length: 10 }, (_, i) => {
-                                                        const y = new Date().getFullYear() - 5 + i;
-                                                        return <option key={y} value={y}>{y}</option>;
-                                                    })}
-                                                </select>
-                                            </div>
-                                            {(ssAttendanceFilter.startDate || ssAttendanceFilter.endDate || ssAttendanceFilter.month !== 'all') && (
-                                                <button
-                                                    onClick={() => setSsAttendanceFilter({ startDate: '', endDate: '', month: 'all', year: new Date().getFullYear().toString() })}
-                                                    className="h-[42px] px-5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95"
-                                                >
-                                                    {t('clear', 'Effacer')}
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        <div className="space-y-1">
-                                            {processedAttendance.length === 0 ? (
-                                                <div className="p-8 text-center border-2 border-dashed border-gray-100 dark:border-slate-800 rounded-[1.5rem]">
-                                                    <History size={32} className="mx-auto text-gray-100 mb-3" />
-                                                    <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_past_attendance_found', 'Aucun résultat pour cette période.')}</p>
+                                        <ChevronDown size={22} className={`text-slate-300 transition-transform duration-500 relative z-10 ${isSundayAttendanceExpanded ? 'rotate-180 text-emerald-500' : ''}`} />
+                                    </button>
+                                    
+                                    {isSundayAttendanceExpanded && (
+                                        <div className="animate-in slide-in-from-top-4 duration-500 space-y-4">
+                                            {currentMonthAttendance.length === 0 ? (
+                                                <div className="py-16 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-800">
+                                                    <Calendar size={32} className="mx-auto text-slate-200 mb-4" />
+                                                    <p className="text-slate-400 text-[11px] font-black uppercase tracking-widest italic">{t('no_attendance_this_month', 'Aucune présence ce mois-ci')}</p>
                                                 </div>
                                             ) : (
-                                                processedAttendance.map(att => (
-                                                    <div key={att.id} className="flex items-center justify-between p-4 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 rounded-2xl transition-all group">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${att.status === 'present' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
-                                                                <Clock size={14} />
+                                                <div className="grid gap-4">
+                                                    {currentMonthAttendance.map(att => (
+                                                        <div key={att.id} className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between group">
+                                                            <div className="flex items-center gap-5">
+                                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${att.status === 'present' ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'}`}>
+                                                                    <Check size={20} />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-slate-900 dark:text-slate-100 font-black text-[15px]">{att.class?.name}</p>
+                                                                    <p className="text-slate-400 font-bold text-[11px] uppercase tracking-wider">{new Date(att.date).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <p className="text-[12px] font-bold text-gray-700 dark:text-gray-200">{att.class?.name}</p>
-                                                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{new Date(att.date).toLocaleDateString(locale)}</p>
+                                                            <div className="text-right">
+                                                                <Badge label={t(att.status)} color={att.status === 'present' ? 'green' : 'rose'} />
+                                                                {att.report?.id && (
+                                                                    <button
+                                                                        onClick={() => setSsReportModal({ show: true, id: att.report.id })}
+                                                                        className="block mt-2 text-[10px] font-black tracking-widest text-indigo-500 hover:text-indigo-600 hover:underline uppercase"
+                                                                    >
+                                                                        {t('view_report', 'Voir le rapport')}
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Past Attendance / Filters */}
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => setIsSundayPastAttendanceExpanded(!isSundayPastAttendanceExpanded)}
+                                        className="w-full flex items-center justify-between p-8 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all group overflow-hidden relative"
+                                    >
+                                        <div className="absolute inset-0 bg-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="flex items-center gap-5 relative z-10">
+                                            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-500 shadow-sm group-hover:rotate-12 transition-all">
+                                                <Filter size={22} />
+                                            </div>
+                                            <div className="text-left">
+                                                <h3 className="text-[14px] font-black tracking-widest text-indigo-600 dark:text-indigo-400 uppercase">
+                                                    {t('past_attendance_filter', 'Filtres & Historique')}
+                                                </h3>
+                                                <p className="text-slate-400 text-[11px] font-bold mt-1 tracking-widest uppercase">{t('search_by_date', 'Filtrer par période')}</p>
+                                            </div>
+                                        </div>
+                                        <ChevronDown size={22} className={`text-slate-300 transition-transform duration-500 relative z-10 ${isSundayPastAttendanceExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
+                                    </button>
+
+                                    {isSundayPastAttendanceExpanded && (
+                                        <div className="animate-in slide-in-from-top-4 duration-500 space-y-6">
+                                            {/* Filters UI */}
+                                            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-1">{t('from', 'Du')}</label>
+                                                    <input 
+                                                        type="date" 
+                                                        value={ssAttendanceFilter.startDate} 
+                                                        onChange={e => setSsAttendanceFilter({...ssAttendanceFilter, startDate: e.target.value})}
+                                                        className="w-full p-3 rounded-xl bg-white dark:bg-slate-800 border-0 text-sm font-bold shadow-sm focus:ring-2 focus:ring-indigo-500/20"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-1">{t('to', 'Au')}</label>
+                                                    <input 
+                                                        type="date" 
+                                                        value={ssAttendanceFilter.endDate} 
+                                                        onChange={e => setSsAttendanceFilter({...ssAttendanceFilter, endDate: e.target.value})}
+                                                        className="w-full p-3 rounded-xl bg-white dark:bg-slate-800 border-0 text-sm font-bold shadow-sm focus:ring-2 focus:ring-indigo-500/20"
+                                                    />
+                                                </div>
+                                                <div className="flex items-end">
+                                                    {(ssAttendanceFilter.startDate || ssAttendanceFilter.endDate) && (
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setSsAttendanceFilter({startDate: '', endDate: '', month: 'all', year: new Date().getFullYear().toString()})}
+                                                            className="w-full p-3 rounded-xl bg-indigo-50 text-indigo-600 font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all"
+                                                        >
+                                                            {t('reset', 'Réinitialiser')}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Results List */}
+                                            <div className="grid gap-3">
+                                                {processedAttendance.length === 0 ? (
+                                                    <div className="py-12 text-center text-slate-400 text-sm italic">{t('no_attendance_found', 'Aucune présence trouvée pour cette période.')}</div>
+                                                ) : (
+                                                    processedAttendance.map(att => (
+                                                        <div key={att.id} className="bg-white dark:bg-slate-800 p-5 rounded-[1.8rem] shadow-sm border border-slate-50 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${att.status === 'present' ? 'bg-indigo-50 text-indigo-500' : 'bg-rose-50 text-rose-500'}`}>
+                                                                    <Clock size={18} />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-slate-900 dark:text-slate-100 font-bold text-[14px]">{att.class?.name}</p>
+                                                                    <p className="text-slate-400 font-bold text-[10px] uppercase">{new Date(att.date).toLocaleDateString(locale)}</p>
+                                                                </div>
+                                                            </div>
                                                             <Badge label={t(att.status)} color={att.status === 'present' ? 'green' : 'rose'} />
                                                         </div>
-                                                    </div>
-                                                ))
-                                            )}
+                                                    ))
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
+                                    )}
+                                </div>
 
-                            {/* Class Reports / Historique */}
-                            <div className="mt-4">
-                                <button
-                                    onClick={() => setIsSundayHistoryExpanded(!isSundayHistoryExpanded)}
-                                    className="w-full flex items-center justify-between p-6 bg-gray-50/50 dark:bg-slate-900/50 rounded-[1.5rem] border border-transparent hover:border-gray-100 dark:hover:border-slate-800 transition-all group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-amber-500 transition-colors shadow-sm">
-                                            <FileText size={18} />
+                                {/* Class Reports */}
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={() => setIsSundayHistoryExpanded(!isSundayHistoryExpanded)}
+                                        className="w-full flex items-center justify-between p-8 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all group overflow-hidden relative"
+                                    >
+                                        <div className="absolute inset-0 bg-amber-50/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="flex items-center gap-5 relative z-10">
+                                            <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center text-amber-500 shadow-sm group-hover:scale-110 transition-transform">
+                                                <FileText size={22} />
+                                            </div>
+                                            <div className="text-left">
+                                                <h3 className="text-[14px] font-black tracking-widest text-amber-600 dark:text-amber-400 uppercase">
+                                                    {t('class_reports', 'Rapports de leçons')}
+                                                </h3>
+                                                <p className="text-slate-400 text-[11px] font-bold mt-1 tracking-widest uppercase">{t('study_history', 'Historique des leçons')}</p>
+                                            </div>
                                         </div>
-                                        <div className="text-left">
-                                            <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
-                                                {t('class_reports', 'Rapports de classe')}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                    <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isSundayHistoryExpanded ? 'rotate-180 text-amber-500' : ''}`} />
-                                </button>
-                                {isSundayHistoryExpanded && (
-                                    <div className="mt-4 p-4 bg-white dark:bg-slate-800/20 border border-gray-100 dark:border-slate-800 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
-                                        {/* Report Filters */}
-                                        <div className="flex flex-wrap items-center gap-4 mb-6 p-6 bg-amber-50/30 dark:bg-amber-950/10 rounded-[2rem] border border-amber-100/30 dark:border-amber-900/10 shadow-sm">
-                                            <div className="flex-1 min-w-[200px] relative">
-                                                <label className="block text-[8px] font-black tracking-widest text-amber-500/60 mb-2 ml-1 uppercase">{t('search', 'Rechercher')}</label>
-                                                <div className="relative">
-                                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400" />
-                                                    <input
-                                                        type="text"
+                                        <ChevronDown size={22} className={`text-slate-300 transition-transform duration-500 relative z-10 ${isSundayHistoryExpanded ? 'rotate-180 text-amber-500' : ''}`} />
+                                    </button>
+
+                                    {isSundayHistoryExpanded && (
+                                        <div className="animate-in slide-in-from-top-4 duration-500 space-y-6">
+                                            {/* Report Filters */}
+                                            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] flex flex-wrap gap-4">
+                                                <div className="flex-1 min-w-[200px] relative">
+                                                    <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder={t('search_reports', 'Rechercher une leçon...')}
                                                         value={ssReportFilter.query}
-                                                        onChange={e => setSsReportFilter({ ...ssReportFilter, query: e.target.value })}
-                                                        placeholder={t('search_lesson_placeholder', 'Leçon, classe...')}
-                                                        className="w-full bg-white dark:bg-slate-900 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-amber-500/20 outline-none shadow-sm"
+                                                        onChange={e => setSsReportFilter({...ssReportFilter, query: e.target.value})}
+                                                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-slate-800 border-0 text-sm font-bold shadow-sm focus:ring-2 focus:ring-amber-500/20"
                                                     />
                                                 </div>
+                                                {(ssReportFilter.query || ssReportFilter.startDate) && (
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => setSsReportFilter({query: '', startDate: '', endDate: ''})}
+                                                        className="px-6 rounded-xl bg-amber-100 text-amber-700 font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 hover:text-white transition-all"
+                                                    >
+                                                        {t('clear', 'Effacer')}
+                                                    </button>
+                                                )}
                                             </div>
-                                            <div className="flex-1 min-w-[150px] relative">
-                                                <label className="block text-[8px] font-black tracking-widest text-amber-500/60 mb-2 ml-1 uppercase">{t('from', 'Du')}</label>
-                                                <div className="relative">
-                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
-                                                    <input
-                                                        type="date"
-                                                        value={ssReportFilter.startDate}
-                                                        onChange={e => setSsReportFilter({ ...ssReportFilter, startDate: e.target.value })}
-                                                        className="w-full bg-white dark:bg-slate-900 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-amber-500/20 outline-none shadow-sm"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="flex-1 min-w-[150px] relative">
-                                                <label className="block text-[8px] font-black tracking-widest text-amber-500/60 mb-2 ml-1 uppercase">{t('to', 'Au')}</label>
-                                                <div className="relative">
-                                                    <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
-                                                    <input
-                                                        type="date"
-                                                        value={ssReportFilter.endDate}
-                                                        onChange={e => setSsReportFilter({ ...ssReportFilter, endDate: e.target.value })}
-                                                        className="w-full bg-white dark:bg-slate-900 border-0 rounded-xl pl-10 pr-4 py-2.5 text-[12px] font-bold dark:text-white focus:ring-2 ring-amber-500/20 outline-none shadow-sm"
-                                                    />
-                                                </div>
-                                            </div>
-                                            {(ssReportFilter.query || ssReportFilter.startDate || ssReportFilter.endDate) && (
-                                                <button
-                                                    onClick={() => setSsReportFilter({ query: '', startDate: '', endDate: '' })}
-                                                    className="h-[42px] px-5 bg-amber-100/50 text-amber-700 rounded-xl hover:bg-amber-100 transition-all text-[10px] font-black uppercase tracking-widest mt-4 sm:mt-6"
-                                                >
-                                                    {t('clear', 'Effacer')}
-                                                </button>
-                                            )}
-                                        </div>
 
-                                        {processedReports.length === 0 ? (
-                                            <div className="p-12 text-center">
-                                                <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
-                                                <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_reports_found', 'Aucun rapport de classe trouvé.')}</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-1">
-                                                {processedReports.map(report => (
-                                                    <div key={report.id} className="flex items-center justify-between p-4 hover:bg-amber-50/30 dark:hover:bg-amber-900/10 rounded-2xl transition-all group">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center transition-transform group-hover:scale-110">
-                                                                <BookOpen size={18} />
+                                            {/* Reports List */}
+                                            <div className="grid gap-3">
+                                                {processedReports.length === 0 ? (
+                                                    <div className="py-12 text-center text-slate-400 text-sm italic">{t('no_reports_found', 'Aucun rapport trouvé.')}</div>
+                                                ) : (
+                                                    processedReports.map(report => (
+                                                        <div key={report.id} className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-sm border border-slate-50 dark:border-slate-800 flex items-center justify-between group hover:shadow-md transition-all">
+                                                            <div className="flex items-center gap-5">
+                                                                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                                                                    <BookOpen size={20} />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-slate-900 dark:text-slate-100 font-bold text-[15px] line-clamp-1">{report.lessonTitle || report.title || t('weekly_report', 'Leçon')}</p>
+                                                                    <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">{report.class?.name} • {new Date(report.date).toLocaleDateString(locale)}</p>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <p className="text-[13px] font-bold text-gray-700 dark:text-gray-200 line-clamp-1">{report.lessonTitle || report.title || t('weekly_report', 'Rapport hebdomadaire')}</p>
-                                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{report.class?.name} • {new Date(report.date).toLocaleDateString(locale)}</p>
-                                                            </div>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => setSsReportModal({show: true, id: report.id})}
+                                                                className="px-6 py-2.5 bg-amber-100/50 hover:bg-amber-600 hover:text-white text-amber-700 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase"
+                                                            >
+                                                                {t('view', 'Voir')}
+                                                            </button>
                                                         </div>
-                                                        <button
-                                                            onClick={() => setSsReportModal({ show: true, id: report.id })}
-                                                            className="px-6 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-xl text-[10px] font-black tracking-widest transition-all active:scale-95 whitespace-nowrap"
-                                                        >
-                                                            {t('view', 'Voir')}
-                                                        </button>
-                                                    </div>
-                                                ))}
+                                                    ))
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'groups' && (
-                        <div className="animate-in fade-in duration-300 w-full text-left">
-                            <PageTitle title={t('groups', 'Groupes')} />
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-500/20">
+                                        <Users size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                            {t('groups', 'Mes Groupes')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('groups_subtitle', 'Ma vie de communauté et fraternité')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {(!profile?.memberGroups || profile.memberGroups.filter(g => g.type !== 'ministry').length === 0) ? (
-                                <Card className="p-12 text-center text-gray-400">
-                                    <Users size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>{t('no_group_desc', "Vous n'êtes membre d'aucun groupe.")}</p>
-                                </Card>
+                                <div className="py-24 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+                                        <Users size={40} />
+                                    </div>
+                                    <p className="text-slate-400 font-bold italic">{t('no_group_desc', "Vous n'êtes membre d'aucun groupe pour le moment.")}</p>
+                                </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {profile.memberGroups.filter(g => g.type !== 'ministry').map(g => (
-                                        <Card key={g.id} className="p-5 flex flex-col hover:border-indigo-200 transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-4">
-                                                <Users size={20} />
+                                        <div key={g.id} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
+                                            <div className="relative z-10">
+                                                <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center mb-6 shadow-sm">
+                                                    <Users size={28} />
+                                                </div>
+                                                <h4 className="font-black text-slate-900 dark:text-white text-xl mb-1">{g.name}</h4>
+                                                <p className="text-[11px] text-emerald-500 font-black uppercase tracking-[0.2em] mb-4">{g.type || t('community_group', 'Groupe de Fraternité')}</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed mb-6">
+                                                    {g.description || t('no_description', 'Aucune description disponible pour ce groupe.')}
+                                                </p>
+                                                <div className="pt-6 border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
+                                                    <div className="flex -space-x-2">
+                                                        {[1, 2, 3].map(i => (
+                                                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-[10px] text-emerald-600 font-black">
+                                                                M{i}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <Badge label={t('active', 'Membre')} color="green" />
+                                                </div>
                                             </div>
-                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{g.name}</h4>
-                                            <p className="text-[11px] text-gray-400 font-black tracking-wider mb-2">{g.type || t('group', 'Groupe')}</p>
-                                            <p className="text-sm text-gray-500 line-clamp-2">{g.description || t('no_description', 'Pas de description.')}</p>
-                                        </Card>
+                                        </div>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Historique Accordion */}
-                            <div className="mt-8">
+                            {/* History Accordion */}
+                            <div className="mt-12">
                                 <button
                                     onClick={() => setIsGroupsHistoryExpanded(!isGroupsHistoryExpanded)}
-                                    className="w-full flex items-center justify-between p-6 bg-gray-50 dark:bg-slate-900/50 rounded-[1.5rem] border border-transparent hover:border-gray-100 dark:hover:border-slate-800 transition-all group"
+                                    className="w-full flex items-center justify-between p-8 bg-slate-50/50 dark:bg-slate-900/50 rounded-[2rem] border border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-all group"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors shadow-sm">
-                                            <History size={18} />
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-[1.2rem] flex items-center justify-center text-slate-400 group-hover:text-emerald-500 transition-colors shadow-sm">
+                                            <History size={20} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
-                                                {t('history_past_groups', 'Historique / groupes passés')}
+                                            <h3 className="text-[14px] font-black tracking-widest text-slate-400 group-hover:text-slate-900 dark:text-slate-100 transition-colors uppercase">
+                                                {t('history_past_groups', 'Historique des groupes')}
                                             </h3>
+                                            <p className="text-[11px] text-slate-400 font-bold mt-0.5">{t('past_memberships', 'Anciennes affiliations')}</p>
                                         </div>
                                     </div>
-                                    <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isGroupsHistoryExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
+                                    <ChevronDown size={22} className={`text-slate-300 transition-transform duration-500 ${isGroupsHistoryExpanded ? 'rotate-180 text-emerald-500' : ''}`} />
                                 </button>
                                 {isGroupsHistoryExpanded && (
-                                    <div className="mt-4 p-8 text-center bg-white dark:bg-slate-800/20 border border-dashed border-gray-200 dark:border-slate-700 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
-                                        <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
-                                        <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_inactive_found', 'Aucun groupe inactif ou historique trouvé.')}</p>
+                                    <div className="mt-6 p-12 text-center bg-white dark:bg-slate-800/20 border border-dashed border-slate-200 dark:border-slate-700 rounded-[2.5rem] animate-in slide-in-from-top-4 duration-500">
+                                        <CloudOff size={32} className="mx-auto text-slate-200 mb-4" />
+                                        <p className="text-slate-400 text-[11px] font-black uppercase tracking-widest italic">{t('no_inactive_found', 'Aucun historique de groupe trouvé.')}</p>
                                     </div>
                                 )}
                             </div>
@@ -2335,49 +2260,81 @@ export default function MemberHome() {
                     )}
 
                     {activeTab === 'ministries' && (
-                        <div className="animate-in fade-in duration-300 w-full text-left">
-                            <PageTitle title={t('ministries', 'Ministères')} />
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full px-4 sm:px-6 lg:px-8 py-8">
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/20">
+                                        <Building2 size={24} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-black font-jakarta tracking-tight text-slate-900 dark:text-white">
+                                            {t('ministries', 'Mes Ministères')}
+                                        </h2>
+                                        <p className="text-slate-400 text-sm font-bold mt-1 uppercase tracking-widest">{t('ministries_subtitle', 'Mon service au sein de la Maison du Seigneur')}</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {(!profile?.memberGroups || profile.memberGroups.filter(g => g.type === 'ministry').length === 0) ? (
-                                <Card className="p-12 text-center text-gray-400">
-                                    <Building2 size={36} className="mx-auto text-gray-200 mb-3" />
-                                    <p>{t('no_ministry_desc', "Vous ne faites partie d'aucun ministère.")}</p>
-                                </Card>
+                                <div className="py-24 text-center bg-white dark:bg-slate-800/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+                                        <Building2 size={40} />
+                                    </div>
+                                    <p className="text-slate-400 font-bold italic">{t('no_ministry_desc', "Vous ne faites partie d'aucun ministère pour le moment.")}</p>
+                                </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {profile.memberGroups.filter(g => g.type === 'ministry').map(m => (
-                                        <Card key={m.id} className="p-5 flex flex-col hover:border-indigo-200 transition-colors">
-                                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
-                                                <Building2 size={20} />
+                                        <div key={m.id} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
+                                            <div className="relative z-10">
+                                                <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center mb-6 shadow-sm">
+                                                    <Building2 size={28} />
+                                                </div>
+                                                <h4 className="font-black text-slate-900 dark:text-white text-xl mb-1">{m.name}</h4>
+                                                <p className="text-[11px] text-blue-500 font-black uppercase tracking-[0.2em] mb-4">{t('ministry_active', 'Ministère Actif')}</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed mb-6">
+                                                    {m.description || t('no_description', 'Aucune description disponible pour ce ministère.')}
+                                                </p>
+                                                <div className="pt-6 border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
+                                                    <div className="flex gap-2">
+                                                        <Badge label={t('member', 'Membre')} color="blue" />
+                                                        {m.role && <Badge label={m.role} color="indigo" />}
+                                                    </div>
+                                                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/40 flex items-center justify-center text-blue-500">
+                                                        <Heart size={14} />
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <h4 className="font-bold text-gray-800 dark:text-slate-200 mb-1">{m.name}</h4>
-                                            <p className="text-sm text-gray-500 line-clamp-2">{m.description || t('no_description', 'Pas de description.')}</p>
-                                        </Card>
+                                        </div>
                                     ))}
                                 </div>
                             )}
 
                             {/* Historique Accordion */}
-                            <div className="mt-8">
+                            <div className="mt-12">
                                 <button
                                     onClick={() => setIsMinistriesHistoryExpanded(!isMinistriesHistoryExpanded)}
-                                    className="w-full flex items-center justify-between p-6 bg-gray-50 dark:bg-slate-900/50 rounded-[1.5rem] border border-transparent hover:border-gray-100 dark:hover:border-slate-800 transition-all group"
+                                    className="w-full flex items-center justify-between p-8 bg-slate-50/50 dark:bg-slate-900/50 rounded-[2rem] border border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-all group"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors shadow-sm">
-                                            <History size={18} />
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-[1.2rem] flex items-center justify-center text-slate-400 group-hover:text-blue-500 transition-colors shadow-sm">
+                                            <History size={20} />
                                         </div>
                                         <div className="text-left">
-                                            <h3 className="text-[13px] font-black tracking-widest text-gray-400 group-hover:text-gray-900 dark:text-gray-100 transition-colors">
-                                                {t('history_past_ministries', 'Historique / ministères passés')}
+                                            <h3 className="text-[14px] font-black tracking-widest text-slate-400 group-hover:text-slate-900 dark:text-slate-100 transition-colors uppercase">
+                                                {t('history_past_ministries', 'Historique des ministères')}
                                             </h3>
+                                            <p className="text-[11px] text-slate-400 font-bold mt-0.5">{t('past_service', 'Anciens services')}</p>
                                         </div>
                                     </div>
-                                    <ChevronDown size={20} className={`text-gray-300 transition-transform duration-500 ${isMinistriesHistoryExpanded ? 'rotate-180 text-indigo-500' : ''}`} />
+                                    <ChevronDown size={22} className={`text-slate-300 transition-transform duration-500 ${isMinistriesHistoryExpanded ? 'rotate-180 text-blue-500' : ''}`} />
                                 </button>
                                 {isMinistriesHistoryExpanded && (
-                                    <div className="mt-4 p-8 text-center bg-white dark:bg-slate-800/20 border border-dashed border-gray-200 dark:border-slate-700 rounded-[2rem] animate-in slide-in-from-top-4 duration-500">
-                                        <CloudOff size={32} className="mx-auto text-gray-100 mb-3" />
-                                        <p className="text-gray-400 text-[11px] font-black tracking-widest italic">{t('no_inactive_found', 'Aucun ministère inactif ou historique trouvé.')}</p>
+                                    <div className="mt-6 p-12 text-center bg-white dark:bg-slate-800/20 border border-dashed border-slate-200 dark:border-slate-700 rounded-[2.5rem] animate-in slide-in-from-top-4 duration-500">
+                                        <CloudOff size={32} className="mx-auto text-slate-200 mb-4" />
+                                        <p className="text-slate-400 text-[11px] font-black uppercase tracking-widest italic">{t('no_inactive_found', 'Aucun historique de ministère trouvé.')}</p>
                                     </div>
                                 )}
                             </div>
