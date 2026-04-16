@@ -750,22 +750,18 @@ export default function MemberHome() {
                             </div>
                         )}
                     </div>
-                    <div className="min-w-0 flex flex-col justify-center">
-                        <h1 className="text-[15px] font-black leading-none tracking-tight text-white mb-1">
+                    <div className="min-w-0 flex flex-col justify-center gap-0.5">
+                        <h1 className="text-[11px] font-bold leading-none tracking-tight text-white whitespace-nowrap opacity-50">
                             Elyon Syst <span className="text-orange-500">360</span>
                         </h1>
-                        <h2 className="text-indigo-400 font-bold text-[14px] leading-tight tracking-[0.1em] uppercase truncate">
-                            {profile?.church?.acronym || 'SIGLE'}
+                        <h2 className="text-white font-black text-[14px] leading-tight tracking-tight truncate">
+                            {profile?.church?.acronym || 'Sigle'}
                         </h2>
-                    </div>
-                </div>
-                {profile?.church?.name && (
-                    <div className="mt-2 pl-0.5">
-                        <p className="text-slate-500 text-[9px] font-bold tracking-tight leading-none truncate opacity-70" title={profile.church.name}>
-                            {profile.church.name}
+                        <p className="text-slate-500 text-[9px] font-medium tracking-tight leading-tight truncate max-w-[140px]" title={profile?.church?.name}>
+                            {profile?.church?.name || 'Église de Dieu'}
                         </p>
                     </div>
-                )}
+                </div>
             </div>
 
             {/* Nav */}
@@ -810,7 +806,7 @@ export default function MemberHome() {
     // RENDER
     // ═══════════════════════════════════════════════════════════════════════════
     return (
-        <div className={`flex h-screen overflow-hidden transition-colors ${isDark ? 'bg-slate-950' : ''}`} style={{ fontFamily: FONT, background: isDark ? '#020617' : BG_CLR }}>
+        <div className={`flex h-screen overflow-hidden transition-colors group/main ${isDark ? 'bg-slate-950' : ''}`} style={{ fontFamily: FONT, background: isDark ? '#020617' : BG_CLR }}>
 
             {/* ── DESKTOP SIDEBAR ──────────────────────────────────────────── */}
             <div className="hidden lg:flex flex-col shrink-0 h-full overflow-hidden" style={{ width: '260px' }}>
@@ -819,8 +815,8 @@ export default function MemberHome() {
 
             {/* ── MOBILE DRAWER OVERLAY ────────────────────────────────────── */}
             {sidebarOpen && (
-                <div className="lg:hidden fixed inset-0 z-50 flex">
-                    <div className="flex flex-col shrink-0 h-full" style={{ width: '220px' }}>
+                <div className="lg:hidden fixed inset-0 z-[120] flex">
+                    <div className="flex flex-col shrink-0 h-full animate-in slide-in-from-left duration-300" style={{ width: '260px' }}>
                         <SidebarContent />
                     </div>
                     <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
@@ -857,17 +853,24 @@ export default function MemberHome() {
 
                             {/* Mobile Header Content (Church Branding) */}
                             <div className="lg:hidden">
-                                <h1 className="text-[17px] font-black leading-none tracking-tight flex items-center gap-1.5" style={{ color: isDark ? '#f8fafc' : '#111827' }}>
+                                <h1 className="text-[14px] font-black leading-none tracking-tight flex items-center gap-1.5 whitespace-nowrap" style={{ color: isDark ? '#f8fafc' : '#111827' }}>
                                     Elyon Syst <span className="text-orange-500">360</span>
                                 </h1>
-                                <p className="text-[10px] font-bold text-slate-500 mt-1 tracking-tight">
-                                    {profile?.church?.name || 'Eglise de Dieu de Port au prince'}
-                                </p>
+                                <div className="group relative">
+                                    <p className="text-[10px] font-bold text-slate-500 mt-1 tracking-tight cursor-help" title={profile?.church?.name}>
+                                        {profile?.church?.acronym || 'SIGLE'}
+                                    </p>
+                                    {/* Tooltip for touch/mobile could be title attribute or a simple overlay */}
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3 sm:gap-5">
+                        <button onClick={toggleTheme} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-amber-400 transition-all hover:scale-110 active:scale-95 shadow-sm border border-slate-200 dark:border-slate-700">
+                             {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
+                        </button>
+
                         <button onClick={toggleLang} className="text-[13px] font-black text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors px-2 py-1">
                             {lang === 'FR' ? 'FR/EN' : 'EN/FR'}
                         </button>
@@ -969,25 +972,35 @@ export default function MemberHome() {
                     </div>
                 </div>
 
-                {/* ── MOBILE BOTTOM NAV ────────────────────────────────────── */}
-                <div className="sm:hidden fixed bottom-6 left-6 right-6 z-40 flex items-center justify-around px-2 py-2 transition-all rounded-[2rem] border border-white/20 dark:border-slate-800/50 backdrop-blur-xl shadow-2xl"
-                    style={{ 
-                        background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)', 
-                        height: '64px'
-                    }}>
-                    {[
-                        { id: 'dashboard', icon: <Home size={22} />, label: t('overview', 'Accueil') },
-                        { id: 'activity', icon: <Activity size={22} />, label: t('activity', 'Activité') },
-                        { id: 'requests', icon: <FileText size={22} />, label: t('requests', 'Demandes') },
-                        { id: 'communion', icon: <Droplets size={22} />, label: t('communion', 'Cène') },
-                        { id: 'donations', icon: <Heart size={22} />, label: t('donations', 'Dons') },
-                        { id: 'profile', icon: <User size={22} />, label: t('profile', 'Profil') },
-                    ].map(item => (
-                        <button key={item.id} onClick={() => goTab(item.id)}
-                            className={`relative flex flex-col items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 ${activeTab === item.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400'}`}>
-                            {React.cloneElement(item.icon, { strokeWidth: 2.5 })}
-                        </button>
-                    ))}
+                <div className="sm:hidden fixed bottom-0 left-0 right-0 z-[100] flex items-end justify-center pointer-events-none pb-4 transition-all duration-500">
+                    <div className="flex items-center justify-around px-2 py-1 transition-all duration-700 rounded-[2rem] border border-white/10 dark:border-slate-800/20 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] pointer-events-auto translate-y-20 opacity-0 group-hover/main:translate-y-0 group-hover/main:opacity-100 active:translate-y-0 active:opacity-100 touch-pan-y"
+                        style={{ 
+                            background: isDark ? 'rgba(8, 12, 20, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
+                            height: '48px',
+                            width: '80%',
+                            transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                        }}>
+                        {/* Enlarged trigger zone for touch sensitivity */}
+                        <div className="absolute -top-32 left-0 right-0 h-40 -z-10" />
+                        
+                        {[
+                            { id: 'dashboard', icon: <Home size={17} /> },
+                            { id: 'activity', icon: <Activity size={17} /> },
+                            { id: 'requests', icon: <FileText size={17} /> },
+                            { id: 'donations', icon: <Heart size={17} /> },
+                            { id: 'profile', icon: <User size={17} /> },
+                        ].map(item => (
+                            <button key={item.id} onClick={() => goTab(item.id)}
+                                className={`relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 ${activeTab === item.id ? 'bg-indigo-600 text-white shadow-lg scale-110' : 'text-slate-500 hover:text-indigo-400'}`}>
+                                {React.cloneElement(item.icon, { strokeWidth: 2.5 })}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Info text when hidden - optional, but helps user know it's there */}
+                <div className="sm:hidden fixed bottom-1 left-0 right-0 flex justify-center pointer-events-none opacity-20">
+                    <div className="w-10 h-1 bg-slate-400 rounded-full" />
                 </div>
 
                 {/* ── SCROLLABLE CONTENT ───────────────────────────────────── */}
@@ -1057,12 +1070,31 @@ export default function MemberHome() {
                                         </div>
                                         <button onClick={() => goTab('events')} className="text-[12px] font-bold text-slate-800 dark:text-slate-400">{t('view_all', 'voir tout')}</button>
                                     </div>
-                                    <div className="rounded-2xl overflow-hidden shadow-sm aspect-[21/9] bg-slate-100">
-                                        {events[0]?.imageUrl ? (
-                                            <img src={getImageUrl(events[0].imageUrl)} alt="" className="w-full h-full object-cover" />
+                                    <div className="rounded-2xl overflow-hidden shadow-sm aspect-[21/9] bg-slate-100 dark:bg-slate-800 relative group">
+                                        {events.length > 0 ? (
+                                            events[0].imageUrl ? (
+                                                <img src={getImageUrl(events[0].imageUrl)} alt={events[0].title} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-violet-600 flex flex-col items-center justify-center p-6 text-white">
+                                                    <h4 className="font-black text-[16px] text-center mb-2 line-clamp-2">{events[0].title}</h4>
+                                                    <div className="flex items-center gap-2 text-[11px] font-bold opacity-80">
+                                                        <Calendar size={14} />
+                                                        {new Date(events[0].startDate).toLocaleDateString(locale)}
+                                                    </div>
+                                                    {events[0].location && (
+                                                        <div className="flex items-center gap-2 text-[11px] font-bold opacity-80 mt-1">
+                                                            <MapPin size={14} />
+                                                            {events[0].location}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
                                         ) : (
-                                            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-                                                <Image className="text-slate-400" />
+                                            <div className="w-full h-full bg-slate-200 dark:bg-slate-900 flex flex-col items-center justify-center gap-2 p-4 text-center">
+                                                <Calendar className="text-slate-400" size={32} />
+                                                <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest italic">
+                                                    {t('no_event_recorded', 'aucune evenment enregistre')}
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -1081,20 +1113,25 @@ export default function MemberHome() {
                                     </div>
                                     <div className="flex items-center gap-4 overflow-x-auto pb-2 noscrollbar">
                                         {members.slice(0, 10).map((m, idx) => (
-                                            <div key={idx} className="flex flex-col items-center gap-1.5 shrink-0 min-w-[70px]">
-                                                <div className="w-14 h-14 rounded-full border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden bg-slate-50">
+                                            <button 
+                                                key={idx} 
+                                                onClick={() => navigate(`/member/profile/${m.id}`)}
+                                                className="flex flex-col items-center gap-1.5 shrink-0 min-w-[70px] group/member transition-transform active:scale-95"
+                                            >
+                                                <div className="w-14 h-14 rounded-full border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden bg-slate-50 relative">
                                                     {m.photo ? (
-                                                        <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover" />
+                                                        <img src={getImageUrl(m.photo)} alt="" className="w-full h-full object-cover group-hover/member:scale-110 transition-transform" />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-brand-primary text-white text-xs font-bold uppercase">
+                                                        <div className="w-full h-full flex items-center justify-center bg-brand-primary text-white text-xs font-bold uppercase group-hover/member:bg-brand-primary/80">
                                                             {m.firstName?.[0]}{m.lastName?.[0]}
                                                         </div>
                                                     )}
+                                                    <div className="absolute inset-0 bg-black/0 group-hover/member:bg-black/10 transition-colors" />
                                                 </div>
-                                                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate w-full text-center">
+                                                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 truncate w-full text-center group-hover/member:text-brand-primary">
                                                     {m.firstName} {m.lastName}
                                                 </span>
-                                            </div>
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
@@ -1275,8 +1312,9 @@ export default function MemberHome() {
                                         <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
                                             <Calendar size={48} />
                                         </div>
-                                        <h4 className="text-slate-900 dark:text-white font-black text-xl mb-2">{t('no_events_found', 'Aucun événement à venir')}</h4>
-                                        <p className="text-slate-500 dark:text-slate-400 text-sm italic">{t('check_back_later', 'Revenez plus tard pour de nouvelles activités !')}</p>
+                                        <p className="text-slate-500 dark:text-slate-400 text-sm italic font-bold uppercase tracking-widest group-hover:scale-110 transition-transform">
+                                            {t('no_event_recorded', 'aucune evenment enregistre')}
+                                        </p>
                                     </div>
                                 )}
                             </div>

@@ -58,6 +58,7 @@ import Resources from "./pages/Admin/Logistics/Resources";
 import Reservations from "./pages/Admin/Logistics/Reservations";
 import Maintenance from "./pages/Admin/Logistics/Maintenance";
 import Assignments from "./pages/Admin/Logistics/Assignments";
+import PublicMemberProfile from "./pages/Member/Profile";
 import Suspended from "./pages/Public/Suspended";
 import FirstPasswordChangeModal from "./components/FirstPasswordChangeModal";
 import WorshipDashboard from "./pages/Admin/Worship/WorshipDashboard";
@@ -424,6 +425,14 @@ function App() {
             />
 
             {/* Routes Protégées (Membre) */}
+            <Route
+              path="/member/profile/:id"
+              element={
+                <ProtectedRoute role="member">
+                  <PublicMemberProfile />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/member/*"
               element={
