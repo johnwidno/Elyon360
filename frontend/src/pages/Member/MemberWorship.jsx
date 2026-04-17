@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import worshipService from '../../api/worshipService';
+import api from '../../api/axios';
 import { 
     Calendar, Music, Book, Heart, Users, Speaker, 
     Mic, ChevronDown, MessageSquare, 
@@ -9,8 +10,10 @@ import {
 import toast from 'react-hot-toast';
 
 const styles = `
-  .gradient-banner {
-    background: linear-gradient(135deg, #FF9D6C 0%, #BB6BD9 50%, #4F46E5 100%);
+  .bg-banner-overlay {
+    background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.6)), url("/uploads/church_service.png");
+    background-size: cover;
+    background-position: center;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -38,6 +41,15 @@ export default function MemberWorship() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isSemaineDropdownOpen, setIsSemaineDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http') || path.startsWith('data:')) return path;
+        const baseUrl = api.defaults.baseURL.replace('/api', '');
+        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    };
+
+    const bannerImage = getImageUrl('/uploads/church_service.png');
 
     useEffect(() => {
         const styleSheet = document.createElement("style");
@@ -83,6 +95,10 @@ export default function MemberWorship() {
             setActiveServiceDetails(res.data);
             setActiveServiceId(id);
             setIsSemaineDropdownOpen(false);
+            
+            // AUTO SCROLL TO TOP WHEN A SERVICE IS SELECTED
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
         } catch (error) {
             toast.error('Erreur de chargement des détails');
         } finally {
@@ -157,7 +173,7 @@ export default function MemberWorship() {
             {/* ── CURRENT WORSHIP ─────────────────────────────────────── */}
             {activeServiceDetails ? (
                 <div className="space-y-6">
-                    {/* Title & Dropdown (Always on the same line) */}
+                    {/* Title & Dropdown */}
                     <div className="flex flex-row items-center justify-between gap-2 px-1">
                         <h2 className="text-[13px] sm:text-[19px] font-black text-[#1e1b4b] dark:text-white leading-tight min-w-0 flex-1 truncate">
                             {formatDateFull(activeServiceDetails.date)}
@@ -190,14 +206,18 @@ export default function MemberWorship() {
                         </div>
                     </div>
 
-                    {/* FEATURED BANNER CARD */}
-                    <div className="gradient-banner rounded-[1.5rem] sm:rounded-[3rem] p-8 sm:p-14 lg:p-16 text-white shadow-2xl relative overflow-hidden group min-h-[350px] sm:min-h-[420px] flex flex-col justify-center">
-                        <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-                        <div className="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-[100px]" />
-                        
+                    {/* FEATURED BANNER CARD (Real Background with Overlay) */}
+                    <div 
+                        className="rounded-[1.5rem] sm:rounded-[3rem] p-8 sm:p-14 lg:p-16 shadow-2xl relative overflow-hidden group min-h-[350px] sm:min-h-[420px] flex flex-col justify-center text-white"
+                        style={{
+                            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.6)), url("${bannerImage || 'https://images.unsplash.com/photo-1438032005730-c77930810965?auto=format&fit=crop&q=80&w=2670'}")`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                        }}
+                    >
                         <div className="relative z-10 space-y-8">
                             <div className="space-y-4">
-                                <h3 className="text-xl sm:text-3xl lg:text-4xl font-black leading-tight max-w-4xl drop-shadow-xl">
+                                <h3 className="text-xl sm:text-3xl lg:text-4xl font-black leading-tight max-w-4xl drop-shadow-2xl">
                                     {toSentenceCase(`Theme : ${activeServiceDetails.theme}`)}
                                 </h3>
                                 
@@ -313,7 +333,7 @@ export default function MemberWorship() {
                             </div>
                         ) : (
                             <div className="space-y-6">
-                                <div className="bg-white dark:bg-slate-800 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-700 text-center py-20">
+                                <div className="bg-white dark:bg-slate-800 p-8 rounded-[3rem] border border-slate-50 dark:border-slate-700 text-center py-20">
                                     <MessageSquare size={48} className="mx-auto text-slate-200 mb-4" />
                                     <h4 className="font-black text-slate-400 tracking-[0.1em] text-sm">Espace discussion à venir</h4>
                                     <p className="text-slate-300 italic mt-2">Partagez vos réflexions sur le message de ce culte bientôt.</p>
