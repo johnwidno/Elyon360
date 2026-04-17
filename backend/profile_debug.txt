@@ -3640,3 +3640,17 @@
    -> FOUND: john widno
 [2026-04-09T18:20:25.195Z] getMemberById - ID: 413, ChurchID: 68
    -> FOUND: john widno
+[2026-04-17T14:08:05.081Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Marie-Lucie 
+[2026-04-17T14:08:06.387Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Marie-Lucie 
+[2026-04-17T14:09:21.458Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Marie-Lucie 
+[2026-04-17T14:09:24.661Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Marie-Lucie 
+[2026-04-17T14:09:55.069Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Marie-Lucie 
+[2026-04-17T14:10:39.921Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-17T14:10:41.039Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
