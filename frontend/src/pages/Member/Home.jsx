@@ -751,15 +751,16 @@ export default function MemberHome() {
                             </div>
                         )}
                     </div>
-                    <div className="min-w-0 flex flex-col justify-center">
-                        <h1 className="text-[10px] font-bold leading-none tracking-tight text-white/40 whitespace-nowrap mb-1">
-                            Elyon Syst <span className="text-orange-500/60">360</span>
-                        </h1>
-                        <h2 className="text-white font-black text-[16px] leading-tight tracking-tight uppercase">
-                            {profile?.church?.acronym || 'SIGLE'}
-                        </h2>
-                        <p className="text-slate-500 text-[10px] font-bold tracking-tight leading-tight line-clamp-2 mt-1" title={profile?.church?.name}>
-                            {profile?.church?.name ? toSentenceCase(profile.church.name) : 'Nom de l\'église'}
+                    <div className="min-w-0 flex flex-col justify-center select-none leading-none">
+                        <div className="flex items-center gap-1 font-black text-[10px] text-white/40 uppercase tracking-tighter">
+                            <span>Elyon Syst</span>
+                            <span className="text-orange-500">360</span>
+                        </div>
+                        <span className="text-[18px] font-black tracking-tight text-white mt-1">
+                            {profile?.church?.acronym || 'EDDPFRN'}
+                        </span>
+                        <p className="text-indigo-400 text-[9px] font-bold tracking-tight leading-tight mt-1 uppercase" title={profile?.church?.name}>
+                            {profile?.church?.name ? profile.church.name : 'Eglise de dieu de port au prince'}
                         </p>
                     </div>
                 </div>
@@ -785,6 +786,12 @@ export default function MemberHome() {
                                     <span className="ml-auto px-2 py-0.5 bg-indigo-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
                                         {item.badge}
                                     </span>
+                                )}
+                                {active && (
+                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-indigo-500 rounded-l-full shadow-[0_0_15px_rgba(99,102,241,0.8)]"></div>
+                                )}
+                                {active && (
+                                    <div className="absolute inset-y-1 left-2 right-4 bg-gradient-to-r from-indigo-500/20 to-transparent rounded-xl pointer-events-none border-l-4 border-indigo-500"></div>
                                 )}
                             </button>
                         );
