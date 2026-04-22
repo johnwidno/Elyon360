@@ -114,7 +114,7 @@ app.get('/', (req, res) => {
 
 // Sync Database & Start Server
 const PORT = process.env.PORT || 5000;
-const seedDB = require('./seed_db');
+const seedDB = require('./maintenance/scripts/seed_db');
 
 db.sequelize.sync({ alter: false })
     .then(async () => {

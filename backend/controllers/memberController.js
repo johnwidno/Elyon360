@@ -510,15 +510,65 @@ exports.getProfile = async (req, res) => {
 // Update Personal Profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, address, nickname, photo } = req.body;
         const user = await db.User.findByPk(req.user.id);
-
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé." });
 
-        await user.update({ firstName, lastName, email, phone, address, nickname, photo });
+        // Allowed fields for self-update (excluding role, churchId, etc. for security)
+        const allowedFields = [
+            'firstName', 'lastName', 'email', 'phone', 'address', 'nickname', 'photo', 'coverPic',
+            'birthDate', 'nifCin', 'city', 'department', 'zipCode', 'country', 
+            'workAddress', 'workEmail', 'workPhone', 'emergencyContact', 'emergencyPhone', 'emergencyEmail',
+            'gender', 'maritalStatus', 'birthPlace', 'notes', 
+            'secondaryPhone', 'secondaryEmail', 'bloodGroup', 'spouseId', 'spouseName', 'education', 'bio'
+        ];
+
+        const updateData = {};
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                updateData[field] = req.body[field];
+            }
+        });
+
+        // Handle file uploads if any (from multer)
+        if (req.files) {
+            if (req.files.photo) {
+                updateData.photo = `/uploads/${req.files.photo[0].filename}`;
+            }
+            if (req.files.coverPic) {
+                updateData.coverPic = `/uploads/${req.files.coverPic[0].filename}`;
+            }
+        }
+
+        await user.update(updateData);
+
+        // Handle Spouse Relationship Update
+        if (req.body.spouseId) {
+            const spouseId = req.body.spouseId;
+            const existingRel = await db.Relationship.findOne({
+                where: {
+                    personAId: user.id,
+                    type: 'Conjoint(e)'
+                }
+            });
+
+            if (existingRel) {
+                if (existingRel.personBId !== parseInt(spouseId)) {
+                    await existingRel.update({ personBId: spouseId });
+                }
+            } else {
+                await db.Relationship.create({
+                    churchId: user.churchId,
+                    personAId: user.id,
+                    personBId: spouseId,
+                    type: 'Conjoint(e)',
+                    details: 'Linked from member profile'
+                });
+            }
+        }
         res.json({ message: "Profil mis à jour.", user });
     } catch (error) {
-        res.status(500).json({ message: "Erreur lors de la mise à jour." });
+        console.error("Update Profile Error:", error);
+        res.status(500).json({ message: "Erreur lors de la mise à jour du profil." });
     }
 };
 

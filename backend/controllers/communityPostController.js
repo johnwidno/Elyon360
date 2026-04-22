@@ -51,14 +51,20 @@ exports.createPost = async (req, res) => {
     try {
         ensureAssociations();
         console.log('[DEBUG] createPost: body=', req.body);
-        const { title, type, content, imageUrl, targetSubtypeId, isGlobal } = req.body;
+        const { title, type, content, targetSubtypeId, isGlobal } = req.body;
+        let finalImageUrl = req.body.imageUrl;
+        
+        if (req.file) {
+            finalImageUrl = `/uploads/${req.file.filename}`;
+        }
+
         const post = await db.CommunityPost.create({
             churchId: isGlobal ? null : req.user.churchId,
             authorId: req.user.id,
             title,
             type: type || 'general',
             content,
-            imageUrl,
+            imageUrl: finalImageUrl,
             targetSubtypeId: (targetSubtypeId && targetSubtypeId !== '') ? targetSubtypeId : null,
             isGlobal: !!isGlobal
         });
@@ -109,7 +115,13 @@ exports.updatePost = async (req, res) => {
     try {
         ensureAssociations();
         const { id } = req.params;
-        const { title, type, content, imageUrl, targetSubtypeId, isGlobal } = req.body;
+        const { title, type, content, targetSubtypeId, isGlobal } = req.body;
+        let finalImageUrl = req.body.imageUrl;
+
+        if (req.file) {
+            finalImageUrl = `/uploads/${req.file.filename}`;
+        }
+
         const post = await db.CommunityPost.findByPk(id);
 
         if (!post) return res.status(404).json({ message: 'Post introuvable.' });
@@ -125,7 +137,7 @@ exports.updatePost = async (req, res) => {
             title,
             type: type || 'general',
             content,
-            imageUrl,
+            imageUrl: finalImageUrl,
             targetSubtypeId: targetSubtypeId || null,
             isGlobal: !!isGlobal,
             churchId: isGlobal ? null : req.user.churchId

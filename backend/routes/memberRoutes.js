@@ -5,9 +5,10 @@ const { protect, hasPermission } = require('../middleware/authGuard');
 
 // ── Specific literal routes FIRST (before /:id) ────────────────────────────
 
+const upload = require('../middleware/uploadMiddleware');
 // Own profile (authenticated user)
 router.get('/profile', protect, memberController.getProfile);
-router.put('/profile', protect, memberController.updateProfile);
+router.put('/profile', protect, upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'coverPic', maxCount: 1 }]), memberController.updateProfile);
 
 // Community: accessible to all authenticated members
 router.get('/global-search', protect, memberController.searchGlobalMembers);

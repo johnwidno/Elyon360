@@ -200,6 +200,23 @@ module.exports = (sequelize, Sequelize) => {
     addedById: {
       type: Sequelize.INTEGER,
       allowNull: true
+    },
+    coverPic: {
+      type: Sequelize.TEXT('long'),
+      allowNull: true
+    },
+    education: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+      defaultValue: '[]'
+    },
+    bio: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    spouseId: {
+      type: Sequelize.INTEGER,
+      allowNull: true
     }
   });
 

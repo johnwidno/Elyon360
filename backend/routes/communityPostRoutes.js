@@ -3,9 +3,11 @@ const router = express.Router();
 const communityPostController = require('../controllers/communityPostController');
 const { protect } = require('../middleware/authGuard');
 
+const upload = require('../middleware/uploadMiddleware');
+
 router.get('/', protect, communityPostController.getPosts);
-router.post('/', protect, communityPostController.createPost);
-router.put('/:id', protect, communityPostController.updatePost);
+router.post('/', protect, upload.single('image'), communityPostController.createPost);
+router.put('/:id', protect, upload.single('image'), communityPostController.updatePost);
 router.delete('/:id', protect, communityPostController.deletePost);
 
 module.exports = router;
