@@ -19,14 +19,14 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-
-    if (mimetype && extname) {
+    // Robust check for images
+    const isImage = file.mimetype.startsWith('image/');
+    
+    if (isImage) {
         return cb(null, true);
     } else {
-        cb(new Error('Uniquement les images (jpg, jpeg, png, webp) sont autorisées.'));
+        console.error(`[Upload] Rejected file: ${file.originalname} (Mime: ${file.mimetype})`);
+        cb(new Error(`DEBUG_ERROR: Type de fichier non supporté (${file.mimetype}). Seules les images sont autorisées.`));
     }
 };
 

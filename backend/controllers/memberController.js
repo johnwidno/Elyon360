@@ -5,11 +5,10 @@ const sundaySchoolController = require('./sundaySchoolController');
 
 // Create Member (Admin only)
 const safeDate = (dateStr) => {
-    if (!dateStr) return null;
-    if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return new Date(dateStr + 'T12:00:00Z');
-    }
-    return new Date(dateStr);
+    if (!dateStr || String(dateStr).toLowerCase().includes('invalid date')) return null;
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return null;
+    return date;
 };
 
 exports.createMember = async (req, res) => {
@@ -525,7 +524,20 @@ exports.updateProfile = async (req, res) => {
         const updateData = {};
         allowedFields.forEach(field => {
             if (req.body[field] !== undefined) {
-                updateData[field] = req.body[field];
+                let value = req.body[field];
+                
+                // Sanitize dates
+                if (field.toLowerCase().includes('date') || field === 'birthDate') {
+                    value = safeDate(value);
+                }
+                
+                // Aggressive sanitization for integers / IDs
+                const isIdField = ['spouseId', 'memberCategoryId', 'subtypeId', 'churchId', 'addedById'].includes(field);
+                if (isIdField && (value === '' || value === 'null' || (typeof value === 'string' && value.trim() === ''))) {
+                    value = null;
+                }
+
+                updateData[field] = value;
             }
         });
 
@@ -539,6 +551,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
+        console.log(`[DEBUG] Final UpdateData for User ${user.id}:`, JSON.stringify(updateData, null, 2));
         await user.update(updateData);
 
         // Handle Spouse Relationship Update

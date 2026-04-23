@@ -72,7 +72,7 @@ const PWALayout = () => {
                   <button onClick={() => { setIsMenuOpen(false); setIsEspaceOpen(false); }} className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white -mr-2 -mt-2"><X size={20} /></button>
                 </div>
 
-                <div className="flex-1 space-y-0 overflow-y-auto">
+                <div className="flex-1 space-y-0 overflow-y-auto noscrollbar">
                   {menuItems.map((item, i) => (
                     <button
                       key={i}

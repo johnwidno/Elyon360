@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../../auth/AuthProvider';
 import api from '../../api/axios';
 import { useLanguage } from '../../context/LanguageContext';
@@ -71,6 +72,46 @@ const Home = () => {
     },
   ];
 
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const HeaderContent = (
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 w-full">
+      {/* Tabs */}
+      <div className="flex items-center gap-8">
+        <button
+          onClick={() => setActiveSegment('membre')}
+          className={`text-app-body md:text-lg font-black transition-all relative ${activeSegment === 'membre' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+        >
+          Membre
+          {activeSegment === 'membre' && <motion.div layoutId="tab-active" className="absolute -bottom-4 md:-bottom-7 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-full" />}
+        </button>
+        <button
+          onClick={() => setActiveSegment('communaute')}
+          className={`text-app-body md:text-lg font-black transition-all relative ${activeSegment === 'communaute' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+        >
+          Communauté
+          {activeSegment === 'communaute' && <motion.div layoutId="tab-active" className="absolute -bottom-4 md:-bottom-7 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-full" />}
+        </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative w-full md:w-64 lg:w-80">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+        <input
+          type="text"
+          placeholder="Recherche"
+          className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-xl py-2.5 md:py-3 pl-11 pr-4 text-app-meta font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-800 shadow-sm"
+        />
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-10">
@@ -80,38 +121,16 @@ const Home = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 md:gap-10 p-5 md:p-12 bg-white dark:bg-slate-900 min-h-screen transition-colors max-w-screen-2xl mx-auto relative">
-      
-      {/* Header Row for Desktop */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-slate-50 dark:border-slate-800 pb-4 md:pb-8">
-        {/* Tabs */}
-        <div className="flex items-center gap-8">
-          <button
-            onClick={() => setActiveSegment('membre')}
-            className={`text-app-body md:text-xl font-black transition-all relative ${activeSegment === 'membre' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
-          >
-            Membre
-            {activeSegment === 'membre' && <motion.div layoutId="tab-active" className="absolute -bottom-4 md:-bottom-8 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-full" />}
-          </button>
-          <button
-            onClick={() => setActiveSegment('communaute')}
-            className={`text-app-body md:text-xl font-black transition-all relative ${activeSegment === 'communaute' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
-          >
-            Communauté
-            {activeSegment === 'communaute' && <motion.div layoutId="tab-active" className="absolute -bottom-4 md:-bottom-8 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-full" />}
-          </button>
-        </div>
+    <div className="flex flex-col gap-6 md:gap-10 p-5 md:p-12 md:pt-4 bg-white dark:bg-slate-900 min-h-screen transition-colors max-w-screen-2xl mx-auto relative">
 
-        {/* Search Bar */}
-        <div className="relative w-full md:w-80 lg:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-          <input
-            type="text"
-            placeholder="Recherche"
-            className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-app-body font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-800 shadow-sm"
-          />
+      {/* Header Row - Rendered locally on mobile, Portaled on desktop */}
+      {!isDesktop ? (
+        <div className="flex flex-col gap-6 border-b border-slate-50 dark:border-slate-800 pb-4">
+          {HeaderContent}
         </div>
-      </div>
+      ) : (
+        document.getElementById('topbar-center-target') && createPortal(HeaderContent, document.getElementById('topbar-center-target'))
+      )}
 
       <AnimatePresence mode="wait">
         {activeSegment === 'membre' ? (
@@ -128,7 +147,7 @@ const Home = () => {
                 <div className="w-5 h-5 bg-slate-900 dark:bg-blue-600 rounded flex items-center justify-center text-white">
                   <BookOpen size={12} />
                 </div>
-                 <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('faith_life_community', 'Vie de foi et communauté')}</h3>
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('faith_life_community', 'Vie de foi et communauté')}</h3>
               </div>
 
               <div className="flex gap-3 md:gap-6 overflow-x-auto md:overflow-visible md:flex-wrap noscrollbar -mx-5 px-5 pb-2 scroll-smooth md:mx-0 md:px-0">
@@ -155,7 +174,7 @@ const Home = () => {
                 <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-600 dark:text-slate-400">
                   <Globe size={12} />
                 </div>
-                 <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('communications_events', 'Communications / Evenements')}</h3>
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('communications_events', 'Communications / Evenements')}</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
@@ -180,7 +199,7 @@ const Home = () => {
                         <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-bold text-app-meta">
                           <Clock size={14} className="text-blue-600 dark:text-blue-400" />
                           <span>
-                            {event.date && !isNaN(new Date(event.date)) 
+                            {event.date && !isNaN(new Date(event.date))
                               ? new Date(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
                               : 'À venir'}, 8:00 AM
                           </span>
