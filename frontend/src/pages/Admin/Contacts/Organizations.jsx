@@ -130,18 +130,18 @@ export default function Organizations() {
                             </svg>
                         </div>
                         <div>
-                            <div className="flex items-center space-x-2 text-[10px] font-black text-brand-primary tracking-[0.1em]">
+                            <div className="flex items-center space-x-2 text-app-micro font-black text-brand-primary tracking-[0.1em]">
                                 <span className="w-8 h-[2px] bg-brand-primary"></span>
                                 <span>{t('contacts', 'Contacts')}</span>
                             </div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight transition-colors leading-none">{t('organizations', 'Partenaires')}</h1>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2 transition-colors">{t('organizations_desc', 'Gérez les églises locales, associations et autres organisations partenaires.')}</p>
+                            <p className="text-app-meta font-medium text-gray-500 dark:text-gray-400 mt-2 transition-colors">{t('organizations_desc', 'Gérez les églises locales, associations et autres organisations partenaires.')}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0 ml-auto transition-colors">
                         <button
                             onClick={handleExportPDF}
-                            className="bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 px-5 py-3.5 rounded-2xl font-black text-[10px] tracking-widest hover:bg-rose-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 border border-transparent dark:border-rose-800/20"
+                            className="bg-rose-50 dark:bg-rose-900/10 text-rose-600 dark:text-rose-400 px-5 py-3.5 rounded-2xl font-black text-app-micro tracking-widest hover:bg-rose-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 border border-transparent dark:border-rose-800/20"
                             title={t('export_pdf')}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,7 +152,7 @@ export default function Organizations() {
 
                         <button
                             onClick={handleExportExcel}
-                            className="bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 px-5 py-3.5 rounded-2xl font-black text-[10px] tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 border border-transparent dark:border-emerald-800/20"
+                            className="bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 px-5 py-3.5 rounded-2xl font-black text-app-micro tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 border border-transparent dark:border-emerald-800/20"
                             title={t('export_excel')}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,7 +163,7 @@ export default function Organizations() {
 
                         <button
                             onClick={handleCreate}
-                            className="bg-brand-primary text-white px-8 py-3.5 rounded-2xl font-black text-[11px] tracking-widest hover:bg-brand-deep transition-all shadow-premium active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                            className="bg-brand-primary text-white px-8 py-3.5 rounded-2xl font-black text-app-micro tracking-widest hover:bg-brand-deep transition-all shadow-premium active:scale-95 flex items-center gap-2 whitespace-nowrap"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
@@ -179,11 +179,11 @@ export default function Organizations() {
                         <table className="w-full text-left border-separate border-spacing-0">
                             <thead className="sticky top-0 z-20 bg-white dark:bg-[#1A1A1A] transition-colors">
                                 <tr>
-                                    <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('name', 'Nom')}</th>
-                                    <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('type', 'Catégorie')}</th>
-                                    <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('contact', 'Coordonnées')}</th>
-                                    <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('address', 'Adresse')}</th>
-                                    <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 text-right">{t('actions')}</th>
+                                    <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('name', 'Nom')}</th>
+                                    <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('type', 'Catégorie')}</th>
+                                    <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('contact', 'Coordonnées')}</th>
+                                    <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('address', 'Adresse')}</th>
+                                    <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 text-right">{t('actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50 dark:divide-gray-800 transition-colors">
@@ -191,11 +191,11 @@ export default function Organizations() {
                                      <tr><td colSpan="5" className="px-10 py-32 text-center transition-colors">
                                          <div className="flex flex-col items-center justify-center space-y-4 opacity-40">
                                              <div className="w-8 h-8 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin"></div>
-                                             <p className="text-[10px] font-black tracking-widest">{t('loading')}</p>
+                                             <p className="text-app-micro font-black tracking-widest">{t('loading')}</p>
                                          </div>
                                      </td></tr>
                                  ) : orgs.length === 0 ? (
-                                     <tr><td colSpan="5" className="px-10 py-32 text-center text-gray-300 dark:text-gray-600 font-black tracking-widest text-[10px] transition-colors italic">{t('no_orgs', 'Aucune organisation trouvée')}</td></tr>
+                                     <tr><td colSpan="5" className="px-10 py-32 text-center text-gray-300 dark:text-gray-600 font-black tracking-widest text-app-micro transition-colors italic">{t('no_orgs', 'Aucune organisation trouvée')}</td></tr>
                                  ) : (
                                      orgs.map((o, index) => (
                                          <tr key={o.id}
@@ -203,8 +203,8 @@ export default function Organizations() {
                                              onClick={() => navigate(`/admin/organizations/${o.id}`)}
                                              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}>
                                              <td className="px-10 py-6">
-                                                 <div className="font-black text-gray-900 dark:text-white group-hover:text-brand-primary transition-colors text-[14px] leading-tight flex items-center gap-3 tracking-tight">
-                                                     <div className="w-10 h-10 rounded-xl bg-brand-primary/10 dark:bg-brand-primary/30 border border-brand-primary/20 dark:border-white/5 flex items-center justify-center text-brand-primary dark:text-brand-orange font-black text-[11px] group-hover:scale-110 transition-all shadow-stripe">
+                                                 <div className="font-black text-gray-900 dark:text-white group-hover:text-brand-primary transition-colors text-app-body leading-tight flex items-center gap-3 tracking-tight">
+                                                     <div className="w-10 h-10 rounded-xl bg-brand-primary/10 dark:bg-brand-primary/30 border border-brand-primary/20 dark:border-white/5 flex items-center justify-center text-brand-primary dark:text-brand-orange font-black text-app-micro group-hover:scale-110 transition-all shadow-stripe">
                                                          {o.name?.[0]}
                                                      </div>
                                                      {o.name}
@@ -288,7 +288,7 @@ export default function Organizations() {
                                         <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest">{t('category', 'Catégorie')} <span className="text-rose-500">*</span></label>
                                         <div className="relative">
                                             <select required value={formData.subtypeId} onChange={e => setFormData({ ...formData, subtypeId: e.target.value })}
-                                                className="w-full px-6 py-4 bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-[14px] font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all appearance-none cursor-pointer shadow-stripe">
+                                                className="w-full px-6 py-4 bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 rounded-2xl text-app-body font-bold text-gray-900 dark:text-white outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all appearance-none cursor-pointer shadow-stripe">
                                                 <option value="">{t('select_category')}</option>
                                                 {subtypes.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                             </select>

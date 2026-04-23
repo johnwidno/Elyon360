@@ -21,7 +21,7 @@ const CurrentTime = () => {
         return () => clearInterval(timer);
     }, []);
     return (
-        <span className="text-[10px] font-bold text-gray-500 bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-xl border border-gray-100 dark:border-white/5 whitespace-nowrap tracking-wider transition-all">
+        <span className="text-app-micro font-bold text-gray-500 bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-xl border border-gray-100 dark:border-white/5 whitespace-nowrap tracking-wider transition-all">
             {date.toLocaleTimeString(language === 'en' ? 'en-US' : 'fr-FR', { hour: '2-digit', minute: '2-digit' })} • {date.toLocaleDateString(language === 'en' ? 'en-US' : 'fr-FR')}
         </span>
     );
@@ -143,7 +143,7 @@ export default function Members() {
                     }
                 }
             } catch (error) {
-                console.error("Erreur chargement données:", error);
+                console.error("Error fetching public projection:", error);
             } finally {
                 setLoading(false);
             }
@@ -283,14 +283,14 @@ export default function Members() {
                             <svg className="w-5 h-5 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                         </button>
                         <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-[10px] font-black text-brand-primary tracking-[0.1em]">
+                            <div className="flex items-center space-x-2 text-app-micro font-black text-brand-primary tracking-[0.1em]">
                                 <span className="w-8 h-[2px] bg-brand-primary"></span>
                                 <span>{t('contacts', 'Contacts')}</span>
                             </div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
                                 {t('members_management', 'Gestion des Membres')}
                             </h1>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+                            <p className="text-app-meta font-medium text-gray-500 dark:text-gray-400 mt-2">
                                 {t('members_management_subtitle', 'Consultez, ajoutez et gérez tous les membres de votre communauté.')}
                             </p>
                         </div>
@@ -301,7 +301,7 @@ export default function Members() {
                         <div className="flex items-center gap-4 w-full sm:w-auto">
                             <button
                                 onClick={() => setMessageModal({ isOpen: true, recipients: filteredMembers, mode: 'bulk' })}
-                                className="px-6 py-3.5 bg-brand-primary/5 dark:bg-white/5 text-brand-primary dark:text-brand-orange font-black text-[11px] rounded-2xl border border-brand-primary/10 dark:border-white/5 hover:bg-brand-primary hover:text-white transition-all flex items-center gap-2 active:scale-95 tracking-widest disabled:opacity-50"
+                                className="px-6 py-3.5 bg-brand-primary/5 dark:bg-white/5 text-brand-primary dark:text-brand-orange font-black text-app-micro rounded-2xl border border-brand-primary/10 dark:border-white/5 hover:bg-brand-primary hover:text-white transition-all flex items-center gap-2 active:scale-95 tracking-widest disabled:opacity-50"
                                 disabled={filteredMembers.length === 0}
                             >
                                 <MessageIcon />
@@ -310,7 +310,7 @@ export default function Members() {
 
                             <button
                                 onClick={handleCreate}
-                                className="px-8 py-3.5 bg-brand-primary text-white font-black text-[11px] rounded-2xl shadow-premium hover:bg-brand-deep transition-all flex items-center gap-2 active:scale-95 tracking-widest whitespace-nowrap"
+                                className="px-8 py-3.5 bg-brand-primary text-white font-black text-app-micro rounded-2xl shadow-premium hover:bg-brand-deep transition-all flex items-center gap-2 active:scale-95 tracking-widest whitespace-nowrap"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
@@ -342,14 +342,14 @@ export default function Members() {
                                 <input
                                     type="text"
                                     placeholder={`${t('search')}...`}
-                                    className="pl-12 pr-6 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-xs font-bold focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary w-full sm:w-48 transition-all dark:text-white placeholder-gray-400/60 outline-none"
+                                    className="pl-12 pr-6 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-app-meta font-bold focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary w-full sm:w-48 transition-all dark:text-white placeholder-gray-400/60 outline-none"
                                     value={filters.search}
                                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                                 />
                             </div>
 
                             <select
-                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px] focus:border-brand-primary/30 focus:ring-4 focus:ring-brand-primary/5"
+                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-app-micro font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px] focus:border-brand-primary/30 focus:ring-4 focus:ring-brand-primary/5"
                                 value={filters.status}
                                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                             >
@@ -360,7 +360,7 @@ export default function Members() {
                             </select>
 
                             <select
-                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-[10px] font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px] focus:border-brand-primary/30 focus:ring-4 focus:ring-brand-primary/5"
+                                className="px-4 py-3 bg-gray-50 dark:bg-[#0f172a] border border-transparent dark:border-gray-800 rounded-2xl text-app-micro font-black tracking-widest text-gray-500 dark:text-gray-400 outline-none transition-all cursor-pointer appearance-none min-w-[140px] focus:border-brand-primary/30 focus:ring-4 focus:ring-brand-primary/5"
                                 value={filters.category}
                                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                             >
@@ -371,14 +371,14 @@ export default function Members() {
                             <div className="flex p-1.5 bg-gray-50 dark:bg-[#0f172a] rounded-2xl border border-gray-100 dark:border-gray-800">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-800 text-brand-primary dark:text-brand-orange shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`px-4 py-2.5 rounded-xl text-app-micro font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'list' ? 'bg-white dark:bg-gray-800 text-brand-primary dark:text-brand-orange shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" /></svg>
                                     <span className="hidden xl:inline">{t('list_view', 'Liste')}</span>
                                 </button>
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-800 text-brand-primary dark:text-brand-orange shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`px-4 py-2.5 rounded-xl text-app-micro font-black tracking-widest transition-all flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-gray-800 text-brand-primary dark:text-brand-orange shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                                     <span className="hidden xl:inline">{t('grid_view', 'Grille')}</span>
@@ -418,7 +418,7 @@ export default function Members() {
                             {selectedMemberIds.length > 0 && (
                                 <button
                                     onClick={() => setShowBatchModal(true)}
-                                    className="px-6 h-11 flex items-center gap-2 bg-brand-primary text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/10 dark:shadow-none animate-bounce-subtle"
+                                    className="px-6 h-11 flex items-center gap-2 bg-brand-primary text-white rounded-2xl font-black text-app-micro uppercase tracking-widest hover:bg-brand-deep transition-all shadow-lg shadow-brand-primary/10 dark:shadow-none animate-bounce-subtle"
                                 >
                                     <span>🎴</span>
                                     <span>{t('generate_cards', 'Générer')} {selectedMemberIds.length} {t('cards', 'Cartes')}</span>
@@ -455,13 +455,13 @@ export default function Members() {
                                                 className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
                                             />
                                         </th>
-                                        <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('member', 'Membre')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden xl:table-cell">{t('member_code', 'Code')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('gender', 'Genre')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('age', 'Âge')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('category', 'Catégorie')}</th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('status', 'Statut')}</th>
-                                        <th className="px-10 py-5 text-[10px] font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 text-right">{t('actions', 'Actions')}</th>
+                                        <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800">{t('member', 'Membre')}</th>
+                                        <th className="px-6 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden xl:table-cell">{t('member_code', 'Code')}</th>
+                                        <th className="px-6 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('gender', 'Genre')}</th>
+                                        <th className="px-6 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden md:table-cell">{t('age', 'Âge')}</th>
+                                        <th className="px-6 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('category', 'Catégorie')}</th>
+                                        <th className="px-6 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 hidden lg:table-cell">{t('status', 'Statut')}</th>
+                                        <th className="px-10 py-5 text-app-micro font-black text-gray-400 tracking-widest border-b border-gray-50 dark:border-gray-800 text-right">{t('actions', 'Actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800 transition-colors">
@@ -479,41 +479,41 @@ export default function Members() {
                                             </td>
                                             <td className="px-10 py-6" onClick={() => navigate(`/admin/members/${member.id}`)}>
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-brand-primary dark:text-brand-orange font-extrabold text-sm border border-gray-100 dark:border-gray-800 overflow-hidden group-hover:scale-110 transition-all shadow-sm">
+                                                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-brand-primary dark:text-brand-orange font-extrabold text-app-body border border-gray-100 dark:border-gray-800 overflow-hidden group-hover:scale-110 transition-all shadow-sm">
                                                         {member.photo ? <img src={member.photo} className="w-full h-full object-cover" alt="" /> : `${member.firstName?.[0]}${member.lastName?.[0]}`}
                                                     </div>
                                                     <div>
-                                                        <div className="font-black text-gray-900 dark:text-white transition-colors text-[14px] leading-tight group-hover:text-brand-primary tracking-tight">
+                                                        <div className="font-black text-gray-900 dark:text-white transition-colors text-app-body leading-tight group-hover:text-brand-primary tracking-tight">
                                                             {member.firstName} {member.lastName}
                                                         </div>
-                                                        <div className="text-[10px] font-black text-gray-400 dark:text-gray-500 tracking-widest mt-1 opacity-60">{member.country || t('no_country')}</div>
+                                                        <div className="text-app-micro font-black text-gray-400 dark:text-gray-500 tracking-widest mt-1 opacity-60">{member.country || t('no_country')}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6 hidden xl:table-cell">
-                                                <span className="text-[11px] font-black text-brand-primary dark:text-brand-orange bg-brand-primary/5 dark:bg-brand-primary/20 px-3 py-1.5 rounded-xl border border-brand-primary/10 dark:border-white/10">
+                                                <span className="text-app-micro font-black text-brand-primary dark:text-brand-orange bg-brand-primary/5 dark:bg-brand-primary/20 px-3 py-1.5 rounded-xl border border-brand-primary/10 dark:border-white/10">
                                                     #{member.memberCode || '-'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-6 hidden md:table-cell">
-                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest border border-transparent ${member.gender === 'M' || member.gender === 'Masculin' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400'}`}>
+                                                <span className={`px-4 py-1.5 rounded-xl text-app-micro font-black tracking-widest border border-transparent ${member.gender === 'M' || member.gender === 'Masculin' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400'}`}>
                                                     {member.gender === 'M' || member.gender === 'Masculin' ? t('gender_short_m', 'H') : t('gender_short_f', 'F')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-6 hidden md:table-cell">
-                                                <div className="text-[13px] font-black text-gray-700 dark:text-gray-300 transition-colors tracking-tight">{calculateAge(member.birthDate)} <span className="text-[10px] text-gray-400 font-bold ml-1">{t('years_old', 'ans')}</span></div>
+                                                <div className="text-app-meta font-black text-gray-700 dark:text-gray-300 transition-colors tracking-tight">{calculateAge(member.birthDate)} <span className="text-app-micro text-gray-400 font-bold ml-1">{t('years_old', 'ans')}</span></div>
                                             </td>
                                             <td className="px-6 py-6 hidden lg:table-cell">
-                                                <span className="text-[11px] font-black text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-800 px-4 py-2 rounded-xl flex items-center gap-2 w-fit tracking-tighter">
+                                                <span className="text-app-micro font-black text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/80 border border-gray-100 dark:border-gray-800 px-4 py-2 rounded-xl flex items-center gap-2 w-fit tracking-tighter">
                                                     {subtypes.find(s => s.id === member.subtypeId)?.name || '-'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-6 hidden lg:table-cell transition-colors">
+                                            <td className="px-6 py-6">
                                                 <div className="flex flex-col gap-2">
-                                                    <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[9px] font-black tracking-widest border border-blue-100 dark:border-blue-800/20 w-fit">
+                                                    <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-app-micro font-black tracking-widest border border-blue-100 dark:border-blue-800/20 w-fit">
                                                         {Array.isArray(member.role) ? member.role[0] : member.role}
                                                     </span>
-                                                    <span className={`text-[9px] font-black tracking-widest px-3 py-1 w-fit rounded-lg ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'}`}>
+                                                    <span className={`text-app-micro font-black tracking-widest px-3 py-1 w-fit rounded-lg ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'}`}>
                                                         {t(member.status?.toLowerCase()) || member.status || t('active')}
                                                     </span>
                                                 </div>
@@ -560,10 +560,10 @@ export default function Members() {
                         {/* Pagination Area */}
                         {!showAllMembers && totalPages > 1 && (
                             <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-t border-gray-50 dark:border-gray-800/50 gap-4 mt-auto">
-                                    <div className="text-[11px] font-bold text-gray-500">
+                                    <div className="text-app-micro font-bold text-gray-500">
                                         {t('pagination_showing', 'Affichage')} {startRecord}-{endRecord} {t('pagination_of', 'sur')} {totalMembers} {t('pagination_records', 'records')}
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                                    <div className="flex items-center gap-1.5 text-app-micro font-bold">
                                         <button
                                             disabled={page === 1}
                                             onClick={() => setPage(prev => Math.max(1, prev - 1))}
@@ -672,7 +672,7 @@ const StatCard = ({ label, value, icon, color, subtitle }) => {
             <div className="flex items-start justify-between">
                 <div className="space-y-4">
                     <div className="space-y-1">
-                        <p className="text-[10px] font-black text-gray-400 tracking-widest">{label}</p>
+                        <p className="text-app-micro font-black text-gray-400 tracking-widest">{label}</p>
                         <h4 className="text-3xl font-black dark:text-white tracking-tighter leading-none">{value}</h4>
                     </div>
                 </div>
@@ -681,7 +681,7 @@ const StatCard = ({ label, value, icon, color, subtitle }) => {
                 </div>
             </div>
             <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-800/50">
-                <p className="text-[10px] text-gray-400 font-bold tracking-widest leading-none">
+                <p className="text-app-micro text-gray-400 font-bold tracking-widest leading-none">
                     {subtitle}
                 </p>
             </div>
@@ -694,7 +694,7 @@ const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, ca
         onClick={() => navigate(`/admin/members/${member.id}`)}
         className="bg-white dark:bg-[#1e293b] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group flex flex-col items-center text-center relative overflow-hidden"
     >
-        <div className={`absolute top-6 right-6 px-4 py-1.5 rounded-xl text-[9px] font-black tracking-widest ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' : 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'}`}>
+        <div className={`absolute top-6 right-6 px-4 py-1.5 rounded-xl text-app-micro font-black tracking-widest ${member.status?.toLowerCase() === 'actif' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' : 'bg-brand-orange/10 dark:bg-brand-orange/20 text-brand-orange'}`}>
             {t(member.status?.toLowerCase()) || member.status || t('active')}
         </div>
 
@@ -708,25 +708,25 @@ const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, ca
         </div>
 
         <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1 group-hover:text-brand-primary transition-colors tracking-tight">{member.firstName} {member.lastName}</h3>
-        <p className="text-[11px] font-black text-gray-400 dark:text-gray-500 tracking-widest mb-6">{subtypeName || '-'}</p>
+        <p className="text-app-micro font-black text-gray-400 dark:text-gray-500 tracking-widest mb-6">{subtypeName || '-'}</p>
 
         <div className="grid grid-cols-2 gap-4 w-full mb-8">
             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl transition-all border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10">
-                <p className="text-[9px] text-gray-400 font-black tracking-widest mb-2">{t('age', 'Âge')}</p>
-                <p className="text-sm font-black text-gray-900 dark:text-white">{calculateAge(member.birthDate)} <span className="text-[10px] opacity-40">{t('years_uppercase', 'ANS')}</span></p>
+                <p className="text-app-micro text-gray-400 font-black tracking-widest mb-2">{t('age', 'Âge')}</p>
+                <p className="text-app-body font-black text-gray-900 dark:text-white">{calculateAge(member.birthDate)} <span className="text-app-micro opacity-40">{t('years_uppercase', 'ANS')}</span></p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl transition-all border border-transparent hover:border-brand-primary/10 dark:hover:border-white/10">
-                <p className="text-[9px] text-gray-400 font-black tracking-widest mb-2">{t('role', 'Rôle')}</p>
-                <p className="text-sm font-black text-gray-900 dark:text-white truncate">{Array.isArray(member.role) ? member.role[0] : member.role}</p>
+                <p className="text-app-micro text-gray-400 font-black tracking-widest mb-2">{t('role', 'Rôle')}</p>
+                <p className="text-app-body font-black text-gray-900 dark:text-white truncate">{Array.isArray(member.role) ? member.role[0] : member.role}</p>
             </div>
         </div>
 
         <div className="w-full space-y-3 mb-10">
-            <div className="flex items-center gap-3 text-[11px] font-bold text-gray-500 dark:text-gray-400 justify-center">
+            <div className="flex items-center gap-3 text-app-micro font-bold text-gray-500 dark:text-gray-400 justify-center">
                 <span className="w-8 h-8 flex items-center justify-center bg-gray-50 dark:bg-black/40 border border-gray-100 dark:border-white/5 shadow-stripe rounded-xl">📧</span>
                 <span className="truncate max-w-[150px] tracking-tighter">{member.email || t('no_email')}</span>
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-bold text-gray-500 justify-center">
+            <div className="flex items-center gap-3 text-app-micro font-bold text-gray-500 justify-center">
                 <span className="w-8 h-8 flex items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl">📱</span>
                 <span className="uppercase tracking-tight">{member.phone || t('no_number')}</span>
             </div>

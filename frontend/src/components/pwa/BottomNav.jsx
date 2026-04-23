@@ -46,7 +46,7 @@ const BottomNav = () => {
             ) : (
               <item.icon size={22} strokeWidth={isCurrentActive ? 2.5 : 2} />
             )}
-            <span className="text-[9px] font-bold text-center whitespace-nowrap">{item.label}</span>
+            <span className="text-[11px] font-bold text-center whitespace-nowrap">{item.label}</span>
           </NavLink>
         );
       })}

@@ -79,7 +79,7 @@ const WorshipDashboard = () => {
                         <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-3">
                             {t('worship_management', 'Gestion des Cultes')}
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 font-medium">
+                        <p className="text-app-meta text-gray-500 dark:text-gray-400 font-medium">
                             {t('worship_subtitle', 'Planifiez, préparez et collaborez sur les messages de culte.')}
                         </p>
                     </div>
@@ -105,7 +105,7 @@ const WorshipDashboard = () => {
                                     {st.icon}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-2">{st.label}</p>
+                                    <p className="text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-2">{st.label}</p>
                                     <p className="text-3xl font-black text-gray-900 dark:text-white">{st.value}</p>
                                 </div>
                             </div>
@@ -122,25 +122,25 @@ const WorshipDashboard = () => {
                             placeholder={t('search_service', 'Chercher un culte par thème...')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-white dark:bg-[#0B0F19] pl-14 pr-6 py-4 rounded-[2rem] text-sm font-semibold border-none focus:ring-4 focus:ring-brand-primary/20 transition-all shadow-sm"
+                            className="w-full bg-white dark:bg-[#0B0F19] pl-14 pr-6 py-4 rounded-[2rem] text-app-meta font-semibold border-none focus:ring-4 focus:ring-brand-primary/20 transition-all shadow-sm"
                         />
                     </div>
                     <div className="flex gap-2 p-1.5 bg-white dark:bg-[#0B0F19] rounded-[2rem] shadow-sm">
                         <button 
                             onClick={() => setFilter('upcoming')}
-                            className={`px-8 py-2.5 rounded-[1.5rem] text-sm font-bold transition-all ${filter === 'upcoming' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                            className={`px-8 py-2.5 rounded-[1.5rem] text-app-meta font-bold transition-all ${filter === 'upcoming' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
                         >
                             {t('upcoming', 'À venir')}
                         </button>
                         <button 
                             onClick={() => setFilter('past')}
-                            className={`px-8 py-2.5 rounded-[1.5rem] text-sm font-bold transition-all ${filter === 'past' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                            className={`px-8 py-2.5 rounded-[1.5rem] text-app-meta font-bold transition-all ${filter === 'past' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
                         >
                             {t('past', 'Passés')}
                         </button>
                         <button 
                             onClick={() => setFilter('stats')}
-                            className={`flex items-center gap-2 px-8 py-2.5 rounded-[1.5rem] text-sm font-bold transition-all ${filter === 'stats' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                            className={`flex items-center gap-2 px-8 py-2.5 rounded-[1.5rem] text-app-meta font-bold transition-all ${filter === 'stats' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
                         >
                             <BarChart3 size={16} /> {t('statistics', 'Statistiques')}
                         </button>
@@ -151,7 +151,7 @@ const WorshipDashboard = () => {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 animate-pulse">
                         <div className="w-16 h-16 border-4 border-brand-primary border-t-transparent rounded-full animate-spin mb-4" />
-                        <p className="text-gray-500 font-medium">{t('loading', 'Chargement...')}</p>
+                        <p className="text-app-meta text-gray-500 font-medium">{t('loading', 'Chargement...')}</p>
                     </div>
                 ) : filter === 'stats' ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in zoom-in-95 duration-500">
@@ -167,14 +167,14 @@ const WorshipDashboard = () => {
                                     const percentage = services.length > 0 ? Math.round((count / services.length) * 100) : 0;
                                     return (
                                         <div key={type} className="flex items-center gap-4">
-                                            <div className="w-24 text-sm font-bold text-gray-500 capitalize">{t(type, type)}</div>
+                                            <div className="w-24 text-app-meta font-bold text-gray-500 capitalize">{t(type, type)}</div>
                                             <div className="flex-1 h-3 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                                                 <div 
                                                     className={`h-full rounded-full ${type === 'normal' ? 'bg-blue-500' : type === 'special' ? 'bg-purple-500' : 'bg-brand-primary'}`} 
                                                     style={{ width: `${percentage}%` }}
                                                 ></div>
                                             </div>
-                                            <div className="w-12 text-right text-sm font-bold text-gray-900 dark:text-white">{percentage}%</div>
+                                            <div className="w-12 text-right text-app-meta font-bold text-gray-900 dark:text-white">{percentage}%</div>
                                         </div>
                                     );
                                 })}
@@ -192,7 +192,7 @@ const WorshipDashboard = () => {
                                     <div key={i} className="flex-1 bg-emerald-100 dark:bg-emerald-500/20 rounded-t-xl hover:bg-emerald-500 transition-colors" style={{ height: `${(val / 10) * 100}%` }}></div>
                                 ))}
                             </div>
-                            <p className="text-center text-sm font-medium text-gray-500">{t('monthly_overview', "Aperçu mensuel de planification de réunions et d'événements")}</p>
+                            <p className="text-center text-app-meta font-medium text-gray-500">{t('monthly_overview', "Aperçu mensuel de planification de réunions et d'événements")}</p>
                         </div>
                     </div>
                 ) : filteredServices.length === 0 ? (
@@ -201,8 +201,8 @@ const WorshipDashboard = () => {
                             <Activity size={28} className="text-gray-300" />
                         </div>
                         <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-1">{t('no_worship_found', 'Aucun culte trouvé')}</h3>
-                        <p className="text-sm text-gray-500 mb-6 max-w-sm">{t('no_worship_instructions', 'Commencez par créer votre premier culte pour planifier le programme et le message.')}</p>
-                        <button onClick={() => setShowModal(true)} className="px-6 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-white/10 rounded-xl font-semibold text-gray-700 dark:text-gray-200 hover:border-brand-primary/50 hover:shadow-sm transition-all text-sm">
+                        <p className="text-app-meta text-gray-500 mb-6 max-w-sm">{t('no_worship_instructions', 'Commencez par créer votre premier culte pour planifier le programme et le message.')}</p>
+                        <button onClick={() => setShowModal(true)} className="px-6 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-white/10 rounded-xl font-semibold text-gray-700 dark:text-gray-200 hover:border-brand-primary/50 hover:shadow-sm transition-all text-app-meta">
                             {t('create_first_worship', 'Créer un culte')}
                         </button>
                     </div>
@@ -223,7 +223,7 @@ const WorshipDashboard = () => {
                                         {service.type.charAt(0).toUpperCase() + service.type.slice(1)}
                                     </div>
                                     <div className="flex gap-2 text-gray-400">
-                                        {service.status === 'draft' && <span className="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] rounded-md font-bold uppercase tracking-wider">{t('draft', 'Brouillon')}</span>}
+                                        {service.status === 'draft' && <span className="px-2 py-1 bg-amber-50 text-amber-600 text-app-micro rounded-md font-bold uppercase tracking-wider">{t('draft', 'Brouillon')}</span>}
                                         <MoreVertical size={18} className="opacity-50 group-hover:opacity-100 transition-opacity hover:text-brand-primary" />
                                     </div>
                                 </div>
@@ -231,12 +231,12 @@ const WorshipDashboard = () => {
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-snug group-hover:text-brand-primary transition-colors line-clamp-2">
                                     {service.theme}
                                 </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 flex-1 line-clamp-2">
+                                <p className="text-app-meta text-gray-500 dark:text-gray-400 mb-6 flex-1 line-clamp-2">
                                     {service.description || "Aucune description fournie pour ce culte."}
                                 </p>
                                 
                                 <div className="flex justify-between items-center pt-4 border-t border-gray-50 dark:border-white/5 mt-auto">
-                                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 font-medium">
+                                    <div className="flex items-center gap-4 text-app-meta text-gray-600 dark:text-gray-400 font-medium">
                                         <div className="flex items-center gap-1.5">
                                             <Calendar size={15} className="text-gray-400" />
                                             <span>{new Date(service.date).toLocaleDateString()}</span>
@@ -264,11 +264,11 @@ const WorshipDashboard = () => {
                             </button>
                             <div className="p-10">
                                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{t('plan_new_worship', 'Planifier un culte')}</h2>
-                                <p className="text-gray-500 font-medium mb-10">{t('plan_worship_desc', 'Définissez le thème et les détails de base pour commencer.')}</p>
+                                <p className="text-app-meta text-gray-500 font-medium mb-10">{t('plan_worship_desc', 'Définissez le thème et les détails de base pour commencer.')}</p>
                                 
                                 <form onSubmit={handleCreateService} className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('theme', 'Thème du culte')}</label>
+                                        <label className="text-app-micro font-black uppercase tracking-widest text-gray-400">{t('theme', 'Thème du culte')}</label>
                                         <input 
                                             type="text" required
                                             value={formData.theme}
@@ -280,7 +280,7 @@ const WorshipDashboard = () => {
 
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('date', 'Date')}</label>
+                                            <label className="text-app-micro font-black uppercase tracking-widest text-gray-400">{t('date', 'Date')}</label>
                                             <input 
                                                 type="date" required
                                                 value={formData.date}
@@ -289,7 +289,7 @@ const WorshipDashboard = () => {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('time', 'Heure')}</label>
+                                            <label className="text-app-micro font-black uppercase tracking-widest text-gray-400">{t('time', 'Heure')}</label>
                                             <input 
                                                 type="time" required
                                                 value={formData.time}
@@ -300,7 +300,7 @@ const WorshipDashboard = () => {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('worship_type', 'Type de culte')}</label>
+                                        <label className="text-app-micro font-black uppercase tracking-widest text-gray-400">{t('worship_type', 'Type de culte')}</label>
                                         <select 
                                             value={formData.type}
                                             onChange={(e) => setFormData({...formData, type: e.target.value})}

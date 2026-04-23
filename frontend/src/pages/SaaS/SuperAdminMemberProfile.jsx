@@ -87,7 +87,7 @@ const SuperAdminMemberProfile = () => {
                     <h2 className="text-xl font-black tracking-tight dark:text-white">Profil utilisateur</h2>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 text-[10px] font-black rounded-lg">
+                    <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 text-app-micro font-black rounded-lg">
                         ID : {String(member.id || '').slice(0, 8)}
                     </span>
                 </div>
@@ -110,21 +110,21 @@ const SuperAdminMemberProfile = () => {
                                     )}
                                 </div>
                                 <h1 className="mt-6 text-2xl font-black text-center dark:text-white">{member.firstName} {member.lastName}</h1>
-                                <p className="text-[10px] text-gray-400 font-bold mt-1">Utilisateur plateforme</p>
+                                <p className="text-app-micro text-gray-400 font-bold mt-1">Utilisateur plateforme</p>
                             </div>
 
                             <div className="p-6 border-t border-gray-50 dark:border-gray-800 space-y-3">
-                                <h4 className="text-[10px] font-bold text-gray-400 mb-4 px-2">Affiliation institutionnelle</h4>
+                                <h4 className="text-app-micro font-bold text-gray-400 mb-4 px-2">Affiliation institutionnelle</h4>
                                 <div className="p-4 bg-gray-50 dark:bg-[#0f172a]/20 rounded-2xl border border-gray-100 dark:border-gray-800">
                                     <div className="flex items-center space-x-3 mb-3">
-                                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-[10px] font-black">
+                                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-app-micro font-black">
                                             {member.church?.name?.charAt(0)}
                                         </div>
-                                        <p className="text-xs font-black dark:text-white">{member.church?.name}</p>
+                                        <p className="text-app-meta font-black dark:text-white">{member.church?.name}</p>
                                     </div>
                                     <button
                                         onClick={() => navigate(`/super-admin/church/${member.church?.id}`)}
-                                        className="w-full py-2 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-2 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-app-micro font-black uppercase text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
                                     >
                                         Voir l'institution <ExternalLink size={10} />
                                     </button>
@@ -138,7 +138,7 @@ const SuperAdminMemberProfile = () => {
                             </div>
 
                             <div className="p-6 bg-gray-50/50 dark:bg-[#0f172a]/20 border-t border-gray-50 dark:border-gray-800">
-                                <button className="w-full py-4 bg-indigo-600 text-white rounded-3xl text-xs font-black shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all">
+                                <button className="w-full py-4 bg-indigo-600 text-white rounded-3xl text-app-micro font-black shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all">
                                     Accepter modifications
                                 </button>
                             </div>
@@ -151,13 +151,13 @@ const SuperAdminMemberProfile = () => {
 
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-gray-50 dark:border-gray-800">
                                 <div>
-                                    <p className="text-xs font-black text-indigo-600 dark:text-indigo-400 tracking-tight mb-1">Identité & rôle</p>
+                                    <p className="text-app-meta font-black text-indigo-600 dark:text-indigo-400 tracking-tight mb-1">Identité & rôle</p>
                                     <h2 className="text-4xl font-black text-gray-900 dark:text-white">{member.firstName} {member.lastName}</h2>
                                     <div className="flex items-center gap-2 mt-4">
-                                        <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-lg text-emerald-600 text-[10px] font-black">
+                                        <div className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-lg text-emerald-600 text-app-micro font-black">
                                             Statut : Actif
                                         </div>
-                                        <div className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg text-amber-600 text-[10px] font-black">
+                                        <div className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-lg text-amber-600 text-app-micro font-black">
                                             {roleLabels[safeRoleParse(member.role)] || safeRoleParse(member.role)}
                                         </div>
                                     </div>
@@ -178,8 +178,8 @@ const SuperAdminMemberProfile = () => {
                                     <div className="p-6 bg-gray-50/50 dark:bg-[#0f172a]/30 rounded-[32px] border border-gray-100 dark:border-gray-800 space-y-4">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-xs font-black dark:text-white">Double authentification</p>
-                                                <p className="text-[10px] text-gray-500 font-bold tracking-tight">Non activé par l'utilisateur</p>
+                                                <p className="text-app-meta font-black dark:text-white">Double authentification</p>
+                                                <p className="text-app-micro text-gray-500 font-bold tracking-tight">Non activé par l'utilisateur</p>
                                             </div>
                                             <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-300">
                                                 <ShieldCheck size={16} />
@@ -188,7 +188,7 @@ const SuperAdminMemberProfile = () => {
                                         {isGodAdmin && (
                                             <button
                                                 onClick={() => setShowPasswordModal(true)}
-                                                className="w-full py-3 bg-white dark:bg-gray-800 border-2 border-indigo-100 dark:border-gray-700 rounded-2xl text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:border-indigo-500 transition-all flex items-center justify-center gap-2"
+                                                className="w-full py-3 bg-white dark:bg-gray-800 border-2 border-indigo-100 dark:border-gray-700 rounded-2xl text-app-micro font-black text-indigo-600 dark:text-indigo-400 hover:border-indigo-500 transition-all flex items-center justify-center gap-2"
                                             >
                                                 <Key size={14} /> Réinitialiser le mot de passe
                                             </button>
@@ -214,22 +214,22 @@ const SuperAdminMemberProfile = () => {
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#0f172a]/80 backdrop-blur-md">
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-[#1e293b] rounded-[40px] w-full max-w-md p-10 shadow-2xl border border-gray-100 dark:border-gray-800">
                         <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 italic">Sécurisation compte</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 font-medium">Définissez un nouveau mot de passe sécurisé pour l'utilisateur.</p>
+                        <p className="text-app-meta text-gray-500 dark:text-gray-400 mb-8 font-medium">Définissez un nouveau mot de passe sécurisé pour l'utilisateur.</p>
 
                         <div className="space-y-6">
                             <div>
-                                <label className="text-[10px] font-black text-gray-400 mb-3 block px-1">Nouveau mot de passe (SHA-256)</label>
+                                <label className="text-app-micro font-black text-gray-400 mb-3 block px-1">Nouveau mot de passe (SHA-256)</label>
                                 <input
                                     type="password"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-[#0f172a] border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all"
+                                    className="w-full px-6 py-4 bg-gray-50 dark:bg-[#0f172a] border-none rounded-2xl text-app-meta font-bold focus:ring-2 focus:ring-indigo-500 transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
                             <div className="flex gap-4">
-                                <button onClick={() => setShowPasswordModal(false)} className="flex-1 py-4 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl font-black text-xs hover:bg-gray-100 transition-all">Annuler</button>
-                                <button onClick={() => handleUpdate({ password: newPassword })} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all">Valider</button>
+                                <button onClick={() => setShowPasswordModal(false)} className="flex-1 py-4 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl font-black text-app-micro hover:bg-gray-100 transition-all">Annuler</button>
+                                <button onClick={() => handleUpdate({ password: newPassword })} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-app-micro shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all">Valider</button>
                             </div>
                         </div>
                     </motion.div>
@@ -253,8 +253,8 @@ const DetailItem = ({ label, value, icon }) => (
             {icon}
         </div>
         <div>
-            <p className="text-[10px] font-bold text-gray-400 mb-0.5">{label}</p>
-            <p className="text-sm font-black dark:text-white">{value}</p>
+            <p className="text-app-micro font-bold text-gray-400 mb-0.5">{label}</p>
+            <p className="text-app-meta font-black dark:text-white">{value}</p>
         </div>
     </div>
 );
@@ -265,7 +265,7 @@ const SocialLink = ({ icon, label }) => (
             <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-[#0f172a] text-gray-400 group-hover:text-indigo-600 flex items-center justify-center transition-colors">
                 {icon}
             </div>
-            <span className="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">{label}</span>
+            <span className="text-app-meta font-bold text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">{label}</span>
         </div>
         <ExternalLink size={12} className="text-gray-300 opacity-0 group-hover:opacity-100 transition-all" />
     </div>
@@ -277,9 +277,9 @@ const ActivityLog = ({ icon, label, value, color }) => (
             <div className={`p-2 rounded-lg bg-gray-50 dark:bg-[#0f172a] ${color}`}>
                 {icon}
             </div>
-            <p className="text-[11px] font-black dark:text-white">{label}</p>
+            <p className="text-app-micro font-black dark:text-white">{label}</p>
         </div>
-        <span className="text-xs font-bold text-gray-400">{value}</span>
+        <span className="text-app-meta font-bold text-gray-400">{value}</span>
     </div>
 );
 

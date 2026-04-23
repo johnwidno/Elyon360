@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
 import api from '../../api/axios';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Calendar, BookOpen, Globe, Search, Clock,
   MapPin, Star, Bookmark, X, ChevronLeft, ChevronRight
@@ -8,6 +9,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Home = () => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [activeSegment, setActiveSegment] = useState('membre');
   const [events, setEvents] = useState([]);
@@ -76,14 +78,14 @@ const Home = () => {
       <div className="flex items-center gap-4 border-b border-slate-50 dark:border-slate-800 pb-1">
         <button
           onClick={() => setActiveSegment('membre')}
-          className={`text-[11px] font-bold transition-all ${activeSegment === 'membre' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+          className={`text-app-meta font-bold transition-all ${activeSegment === 'membre' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
         >
           Membre
         </button>
         <span className="text-slate-200 dark:text-slate-800 text-sm font-light">|</span>
         <button
           onClick={() => setActiveSegment('communaute')}
-          className={`text-[11px] font-bold transition-all ${activeSegment === 'communaute' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+          className={`text-app-meta font-bold transition-all ${activeSegment === 'communaute' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
         >
           Communauté
         </button>
@@ -95,7 +97,7 @@ const Home = () => {
         <input
           type="text"
           placeholder="Recherche"
-          className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-lg py-2 pl-10 pr-4 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-100 dark:focus:ring-slate-800"
+          className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-lg py-2 pl-10 pr-4 text-app-meta font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-100 dark:focus:ring-slate-800"
         />
       </div>
 
@@ -114,7 +116,7 @@ const Home = () => {
                 <div className="w-5 h-5 bg-slate-900 dark:bg-blue-600 rounded flex items-center justify-center text-white">
                   <BookOpen size={12} />
                 </div>
-                <h3 className="text-xs font-black text-slate-900 dark:text-white">Vie de foi et communauté</h3>
+                <h3 className="text-app-title font-black text-slate-900 dark:text-white">{t('faith_life_community', 'Vie de foi et communauté')}</h3>
               </div>
 
               <div className="flex gap-3 overflow-x-auto noscrollbar -mx-5 px-5 pb-1 scroll-smooth">
@@ -128,7 +130,7 @@ const Home = () => {
                     <img src={card.bg} alt={card.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                     <div className="absolute bottom-2 left-1.5 right-1.5">
-                      <span className="text-white font-bold text-[8px] leading-tight line-clamp-2">{card.title}</span>
+                      <span className="text-white font-bold text-app-micro leading-tight line-clamp-2">{card.title}</span>
                     </div>
                   </motion.div>
                 ))}
@@ -141,7 +143,7 @@ const Home = () => {
                 <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-600 dark:text-slate-400">
                   <Globe size={12} />
                 </div>
-                <h3 className="text-xs font-black text-slate-900 dark:text-white">Communications / Evenements</h3>
+                <h3 className="text-app-title font-black text-slate-900 dark:text-white">{t('communications_events', 'Communications / Evenements')}</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -155,22 +157,22 @@ const Home = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-0.5 px-1">
-                      <h4 className="text-xs font-black text-slate-900 dark:text-white leading-tight line-clamp-1">
+                      <h4 className="text-app-title font-black text-slate-900 dark:text-white leading-tight line-clamp-1">
                         {event.title}
                       </h4>
                       <div className="flex flex-col gap-0">
-                        <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[9px]">
+                        <div className="flex items-center gap-1.5 text-slate-400 font-bold text-app-meta">
                           <MapPin size={9} />
                           <span>{event.location || 'Temple principale'}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-400 font-bold text-[9px]">
+                        <div className="flex items-center gap-1.5 text-slate-400 font-bold text-app-meta">
                           <Clock size={9} />
                           <span>
                             {new Date(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}, 8:00 AM
                           </span>
                         </div>
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400 text-[9px] font-medium line-clamp-2 leading-tight mt-0.5">
+                      <p className="text-slate-500 dark:text-slate-400 text-app-meta font-medium line-clamp-2 leading-tight mt-0.5">
                         {event.description || "Description courte de l'événement."}
                       </p>
                     </div>
@@ -188,7 +190,7 @@ const Home = () => {
             className="flex flex-col gap-4 items-center justify-center py-10 grayscale opacity-20"
           >
             <Globe size={40} />
-            <p className="font-bold text-[10px]">Espace communauté bientôt disponible</p>
+            <p className="font-bold text-app-micro">Espace communauté bientôt disponible</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -223,7 +225,7 @@ const Home = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-white font-bold text-sm">{selectedStory.title}</span>
-                    <span className="text-white/50 text-[10px]">Il y a 2h</span>
+                    <span className="text-white/50 text-app-micro">Il y a 2h</span>
                   </div>
                 </div>
                 <button
@@ -245,7 +247,7 @@ const Home = () => {
                   <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl mx-auto flex items-center justify-center text-white">
                     <BookOpen size={40} />
                   </div>
-                  <p className="text-white text-xl font-medium leading-relaxed italic px-4">
+                  <p className="text-white text-app-title font-medium leading-relaxed italic px-4">
                     {selectedStory.content}
                   </p>
                 </div>

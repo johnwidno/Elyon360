@@ -12,14 +12,14 @@ const BiblePage = () => {
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Book size={120} />
         </div>
-        <div className="bg-white/20 self-start px-3 py-1 rounded-full text-[11px] font-black tracking-widest border border-white/20">
+        <div className="bg-white/20 self-start px-3 py-1 rounded-full text-[13px] font-black tracking-widest border border-white/20">
           Verset du jour
         </div>
         <p className="italic font-medium text-lg leading-relaxed z-10">
           "Car Dieu a tant aimé le monde qu'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu'il ait la vie éternelle."
         </p>
         <div className="flex items-center justify-between z-10">
-          <span className="font-black text-xs text-blue-200">Jean 3:16</span>
+          <span className="font-black text-sm text-blue-200">Jean 3:16</span>
           <div className="flex gap-2">
             <button className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"><Bookmark size={16} /></button>
             <button className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"><Headphones size={16} /></button>

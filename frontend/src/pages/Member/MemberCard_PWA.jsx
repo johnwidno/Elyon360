@@ -195,12 +195,12 @@ const MemberCard_PWA = () => {
 
             <div className="w-full space-y-4 pt-4">
               <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/20">
-                <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 leading-relaxed text-center">
+                <p className="text-[12px] font-bold text-blue-600 dark:text-blue-400 leading-relaxed text-center">
                   Cette carte est votre identifiant officiel au sein de la communauté. Vous pouvez la présenter lors des événements et services.
                 </p>
               </div>
               
-              <button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+              <button className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-black text-[12px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
                 <Download size={16} />
                 Télécharger ma carte
               </button>

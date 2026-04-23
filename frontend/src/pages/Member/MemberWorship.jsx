@@ -6,9 +6,11 @@ import {
   BookOpen, MessageCircle, Info, ArrowLeft, Send, Quote
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 const MemberWorship = () => {
+  const { t } = useLanguage();
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,8 +103,8 @@ const MemberWorship = () => {
             className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             <div className="col-span-full flex flex-col gap-1 mb-4">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Cultes & Événements</h2>
-              <p className="text-slate-500 font-medium text-base">Vivez les moments forts de l'église en direct ou en replay</p>
+              <h2 className="text-app-title font-black text-slate-900 tracking-tight">Cultes & Événements</h2>
+              <p className="text-slate-500 font-medium text-app-meta">Vivez les moments forts de l'église en direct ou en replay</p>
             </div>
 
             {services.map((s) => (
@@ -113,7 +115,7 @@ const MemberWorship = () => {
                 className="bg-white rounded-[2.5rem] border border-slate-100 p-6 shadow-sm flex items-center gap-6 group cursor-pointer hover:shadow-xl transition-all"
               >
                 <div className="w-16 h-16 bg-blue-50 rounded-[1.5rem] flex flex-col items-center justify-center text-blue-600 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-inner">
-                  <span className="text-[11px] font-black">
+                  <span className="text-app-micro font-black">
                     {new Date(s.date).toLocaleDateString('fr-FR', { month: 'short' })}
                   </span>
                   <span className="text-xl font-black leading-none">
@@ -121,8 +123,8 @@ const MemberWorship = () => {
                   </span>
                 </div>
                 <div className="flex-1 flex flex-col gap-1">
-                  <h4 className="font-black text-slate-900 text-lg leading-tight line-clamp-1">{s.theme}</h4>
-                  <div className="flex items-center gap-2 text-slate-400 text-xs font-bold tracking-wider">
+                  <h4 className="font-black text-slate-900 text-app-title leading-tight line-clamp-1">{s.theme}</h4>
+                  <div className="flex items-center gap-2 text-slate-400 text-app-micro font-bold tracking-wider">
                     <Music size={14} />
                     <span>Culte régulier</span>
                     <span className="opacity-30">•</span>
@@ -158,11 +160,11 @@ const MemberWorship = () => {
               </button>
 
               <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-2">
-                <div className="bg-blue-600 self-start px-3 py-1 rounded-full text-white text-[10px] font-black tracking-widest">
+                <div className="bg-blue-600 self-start px-3 py-1 rounded-full text-white text-app-micro font-black tracking-widest">
                   Culte en direct
                 </div>
-                <h3 className="text-2xl font-black text-white leading-tight">{selectedService.theme}</h3>
-                <div className="flex items-center gap-3 text-white/70 text-xs font-bold">
+                <h3 className="text-app-title font-black text-white leading-tight">{selectedService.theme}</h3>
+                 <div className="flex items-center gap-3 text-white/70 text-app-meta font-bold">
                   <div className="flex items-center gap-1">
                     <Calendar size={14} />
                     <span>{new Date(selectedService.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span>
@@ -181,7 +183,7 @@ const MemberWorship = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`flex-1 py-4 text-xs font-black tracking-widest transition-all relative ${activeTab === tab.toLowerCase() ? 'text-blue-600' : 'text-slate-400'}`}
+                  className={`flex-1 py-4 text-app-meta font-black tracking-widest transition-all relative ${activeTab === tab.toLowerCase() ? 'text-blue-600' : 'text-slate-400'}`}
                 >
                   {tab}
                   {activeTab === tab.toLowerCase() && (
@@ -196,12 +198,12 @@ const MemberWorship = () => {
               {activeTab === 'programme' && (
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-2">
-                    <h5 className="font-black text-slate-900 text-sm tracking-tight">Programme du jour</h5>
+                    <h5 className="font-black text-slate-900 text-app-meta tracking-tight">Programme du jour</h5>
                     <div className="h-1 w-12 bg-blue-600 rounded-full" />
                   </div>
                   <div className="bg-slate-50 rounded-[2rem] p-8 text-center flex flex-col items-center gap-4">
                     <PlayCircle size={48} className="text-blue-600" />
-                    <p className="text-slate-600 font-medium text-sm leading-relaxed">
+                    <p className="text-slate-600 font-medium text-app-body leading-relaxed">
                       Rejoignez l'expérience spirituelle complète en ouvrant la projection interactive.
                     </p>
                     <button className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black text-sm shadow-lg shadow-blue-200 active:scale-95 transition-transform">
@@ -216,8 +218,8 @@ const MemberWorship = () => {
                   {selectedService.sermon ? (
                     <>
                       <div className="flex flex-col gap-2">
-                        <h5 className="font-black text-slate-900 text-sm tracking-tight">Résumé du message</h5>
-                        <h6 className="font-bold text-blue-600 text-lg leading-tight">{selectedService.sermon.title}</h6>
+                        <h5 className="font-black text-slate-900 text-app-micro tracking-tight">Résumé du message</h5>
+                        <h6 className="font-bold text-blue-600 text-app-title leading-tight">{selectedService.sermon.title}</h6>
                       </div>
                       <div 
                         className="prose prose-slate prose-sm max-w-none text-slate-600 leading-relaxed font-medium"
@@ -227,7 +229,7 @@ const MemberWorship = () => {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 opacity-30 text-center gap-2">
                       <BookOpen size={48} />
-                      <p className="font-black text-xs">Aucun résumé disponible</p>
+                      <p className="font-black text-app-micro">Aucun résumé disponible</p>
                     </div>
                   )}
                 </div>
@@ -239,13 +241,13 @@ const MemberWorship = () => {
                     {comments.map((c) => (
                       <div key={c.id} className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-app-micro font-black text-slate-600">
                             {c.author?.firstName?.[0] || 'U'}
                           </div>
-                          <span className="font-black text-[11px] text-slate-900">{c.author?.firstName} {c.author?.lastName}</span>
-                          <span className="text-[10px] text-slate-400 font-bold ml-auto">{new Date(c.createdAt).toLocaleDateString()}</span>
+                          <span className="font-black text-app-meta text-slate-900">{c.author?.firstName} {c.author?.lastName}</span>
+                          <span className="text-app-micro text-slate-400 font-bold ml-auto">{new Date(c.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <p className="text-xs text-slate-600 font-medium">{c.content}</p>
+                        <p className="text-app-meta text-slate-600 font-medium">{c.content}</p>
                       </div>
                     ))}
                   </div>
@@ -257,7 +259,7 @@ const MemberWorship = () => {
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Laissez un message..."
-                      className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium px-2"
+                      className="flex-1 bg-transparent border-none focus:ring-0 text-base font-medium px-2"
                     />
                     <button 
                       onClick={handleAddComment}

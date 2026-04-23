@@ -10,6 +10,12 @@ module.exports = {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         jakarta: ['Plus Jakarta Sans', 'sans-serif'],
       },
+      fontSize: {
+        'app-micro': 'var(--font-size-micro)',
+        'app-meta': 'var(--font-size-meta)',
+        'app-body': 'var(--font-size-body)',
+        'app-title': 'var(--font-size-title)',
+      },
       colors: {
         // ─── BRAND DESIGN SYSTEM (référence: public homepage) ───────────────
         brand: {

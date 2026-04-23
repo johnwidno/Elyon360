@@ -30,7 +30,7 @@ function StatusBadge({ status }) {
     };
     const c = map[cfg.badgeColor] || map.gray;
     return (
-        <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border transition-all ${c}`}>
+        <span className={`text-app-micro font-black uppercase tracking-widest px-4 py-1.5 rounded-full border transition-all ${c}`}>
             {cfg.label}
         </span>
     );
@@ -135,11 +135,11 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                         placeholder={t('search_requests', 'Rechercher une demande...')}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-6 py-4 bg-white dark:bg-slate-800 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 text-[13px] font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all shadow-sm"
+                        className="w-full pl-12 pr-6 py-4 bg-white dark:bg-slate-800 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 text-app-meta font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all shadow-sm"
                     />
                 </div>
                 <button onClick={() => setShowForm(!showForm)}
-                    className={`flex items-center justify-center gap-3 px-8 py-4 rounded-[1.5rem] text-[12px] font-black uppercase tracking-widest text-white transition-all shadow-xl active:scale-95 ${showForm ? 'bg-slate-500 shadow-slate-500/20' : 'bg-indigo-600 shadow-indigo-600/20 hover:bg-indigo-700'}`}>
+                    className={`flex items-center justify-center gap-3 px-8 py-4 rounded-[1.5rem] text-app-meta font-black uppercase tracking-widest text-white transition-all shadow-xl active:scale-95 ${showForm ? 'bg-slate-500 shadow-slate-500/20' : 'bg-indigo-600 shadow-indigo-600/20 hover:bg-indigo-700'}`}>
                     {showForm ? <><X size={18} /> {t('cancel', 'Annuler')}</> : <><PlusCircle size={18} /> {t('new_request', 'Nouvelle demande')}</>}
                 </button>
             </div>
@@ -149,36 +149,36 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                 <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 p-8 sm:p-10 space-y-8 animate-in slide-in-from-top-4 fade-in duration-300 shadow-2xl shadow-indigo-500/10">
                     <div className="flex items-center gap-3">
                         <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
-                        <h3 className="font-black text-slate-900 dark:text-white text-xl tracking-tight">{t('new_request', 'Nouvelle demande')}</h3>
+                        <h3 className="font-black text-slate-900 dark:text-white text-app-title tracking-tight">{t('new_request', 'Nouvelle demande')}</h3>
                     </div>
                     
                     <form onSubmit={handleSubmit} className="space-y-10">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('title', 'Titre')}</label>
+                                <label className="block text-app-micro font-black uppercase tracking-widest text-slate-400 pl-1">{t('title', 'Titre')}</label>
                                 <input type="text" required value={formData.title}
                                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                                     placeholder="Ex: Demande de baptême"
-                                    className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-[14px] font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white" />
+                                    className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-app-meta font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white" />
                             </div>
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('type', 'Type')}</label>
+                                <label className="block text-app-micro font-black uppercase tracking-widest text-slate-400 pl-1">{t('type', 'Type')}</label>
                                 <select value={formData.requestType}
                                     onChange={e => setFormData({ ...formData, requestType: e.target.value })}
-                                    className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-[14px] font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white appearance-none">
+                                    className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-app-meta font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white appearance-none">
                                     {requestTypes.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
                                 </select>
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">{t('description', 'Description')}</label>
+                            <label className="block text-app-micro font-black uppercase tracking-widest text-slate-400 pl-1">{t('description', 'Description')}</label>
                             <textarea required value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Expliquez votre demande en détail..."
-                                rows={4} className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-[14px] font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white resize-none" />
+                                rows={4} className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-app-meta font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all dark:text-white resize-none" />
                         </div>
                         <button type="submit" disabled={submitting}
-                            className="w-full py-4 rounded-2xl text-[13px] font-black uppercase tracking-widest text-white flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 active:scale-95"
+                            className="w-full py-4 rounded-2xl text-app-meta font-black uppercase tracking-widest text-white flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 active:scale-95"
                         >
                             {submitting ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <><Send size={18} /> {t('send_request', 'Envoyer la demande')}</>}
                         </button>
@@ -192,7 +192,7 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                     <div className="w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200 dark:text-slate-700">
                         <FileText size={48} />
                     </div>
-                    <h4 className="text-slate-900 dark:text-white font-black text-xl mb-2">{t('no_requests', 'Aucune demande')}</h4>
+                    <h4 className="text-slate-900 dark:text-white font-black text-app-title mb-2">{t('no_requests', 'Aucune demande')}</h4>
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{t('no_requests_desc', 'Vous n\'avez pas encore effectué de demandes officielles.')}</p>
                 </div>
             ) : (
@@ -208,11 +208,11 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                                         <FileText size={20} />
                                     </div>
                                     <div>
-                                        <h4 className="text-[15px] font-black text-slate-900 dark:text-white leading-tight mb-1">{req.title || TYPE_LABELS[req.requestType] || req.requestType}</h4>
+                                        <h4 className="text-app-title font-black text-slate-900 dark:text-white leading-tight mb-1">{req.title || TYPE_LABELS[req.requestType] || req.requestType}</h4>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-3 py-1 rounded-full">{req.requestType}</span>
+                                            <span className="text-app-micro font-black uppercase tracking-widest text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-3 py-1 rounded-full">{req.requestType}</span>
                                             <span className="text-slate-300 dark:text-slate-600">•</span>
-                                            <span className="text-[11px] font-bold text-slate-400">
+                                            <span className="text-app-meta font-bold text-slate-400">
                                                 {req.createdAt ? new Date(req.createdAt).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
                                             </span>
                                         </div>
@@ -234,15 +234,15 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-5 h-px bg-slate-200 dark:bg-slate-700" />
-                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{t('request_details', 'Détails de la demande')}</p>
+                                            <p className="text-app-micro font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{t('request_details', 'Détails de la demande')}</p>
                                         </div>
                                         {req.status === 'non vue' ? (
                                             <textarea defaultValue={req.description}
                                                 onBlur={e => handleUpdateDescription(req.id, e.target.value)}
-                                                rows={4} className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-[14px] font-medium text-slate-700 dark:text-slate-300 resize-none outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400" />
+                                                rows={4} className="w-full px-6 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-slate-700 text-app-meta font-medium text-slate-700 dark:text-slate-300 resize-none outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400" />
                                         ) : (
                                             <div className="p-6 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                                <p className="text-slate-700 dark:text-slate-300 text-[14px] leading-relaxed italic">"{req.description || '—'}"</p>
+                                                <p className="text-slate-700 dark:text-slate-300 text-app-meta leading-relaxed italic">"{req.description || '—'}"</p>
                                             </div>
                                         )}
                                     </div>
@@ -254,7 +254,7 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                                                 <ShieldAlert size={20} />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">Note de l'administration</p>
+                                                <p className="text-app-micro font-black uppercase tracking-widest text-amber-600 mb-2">Note de l'administration</p>
                                                 <p className="text-amber-900 dark:text-amber-200 text-sm font-bold leading-relaxed">{req.internalNote}</p>
                                             </div>
                                         </div>
@@ -265,7 +265,7 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                                         <div className="space-y-6">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-5 h-px bg-slate-200 dark:bg-slate-700" />
-                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{t('history', 'Historique')}</p>
+                                                <p className="text-app-micro font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{t('history', 'Historique')}</p>
                                             </div>
                                             <div className="relative pl-6 space-y-8 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-slate-100 dark:before:bg-slate-700">
                                                 {req.history.map((h, i) => (
@@ -273,10 +273,10 @@ const MemberRequests = ({ renderMode = 'default' }) => {
                                                         <div className={`absolute -left-[24px] top-1.5 w-4 h-4 rounded-full border-4 border-white dark:border-slate-800 transition-all ${i === 0 ? 'bg-indigo-600 scale-125' : 'bg-slate-200'}`} />
                                                         <div className="flex-1">
                                                             <div className="flex items-center justify-between mb-1">
-                                                                <p className={`text-[13px] font-black uppercase tracking-tight ${i === 0 ? 'text-indigo-600' : 'text-slate-500'}`}>{STATUS[h.newStatus]?.label || h.newStatus}</p>
-                                                                <p className="text-[10px] font-bold text-slate-400">{h.createdAt ? new Date(h.createdAt).toLocaleDateString(locale) : ''}</p>
+                                                                <p className={`text-app-meta font-black uppercase tracking-tight ${i === 0 ? 'text-indigo-600' : 'text-slate-500'}`}>{STATUS[h.newStatus]?.label || h.newStatus}</p>
+                                                                <p className="text-app-micro font-bold text-slate-400">{h.createdAt ? new Date(h.createdAt).toLocaleDateString(locale) : ''}</p>
                                                             </div>
-                                                            {h.note && <p className="text-[12px] text-slate-500 dark:text-slate-400 italic mb-2">"{h.note}"</p>}
+                                                            {h.note && <p className="text-app-micro text-slate-500 dark:text-slate-400 italic mb-2">"{h.note}"</p>}
                                                         </div>
                                                     </div>
                                                 ))}

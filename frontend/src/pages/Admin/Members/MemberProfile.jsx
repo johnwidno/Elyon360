@@ -562,7 +562,7 @@ export default function MemberProfile() {
         <AdminLayout>
             <div className="bg-gradient-to-br from-brand-primary via-brand-deep to-brand-primary border-b border-white/5 px-8 pt-8 pb-10 transition-colors">
                 <div className="max-w-[1700px] mx-auto">
-                    <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-white/40 hover:text-white transition-all text-[11px] font-black tracking-widest mb-8 group">
+                    <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-white/40 hover:text-white transition-all text-app-micro font-black tracking-widest mb-8 group">
                         <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                         {t('back')}
                     </button>
@@ -606,20 +606,20 @@ export default function MemberProfile() {
                                 transition={{ delay: 0.4 }}
                                 className="space-y-2 flex-1 pb-4 lg:pb-0 text-center sm:text-left"
                             >
-                                <h3 className="text-[32px] lg:text-[44px] font-black text-white leading-none tracking-tight">{member?.firstName} {member?.lastName}</h3>
+                                <h3 className="text-3xl lg:text-4xl font-black text-white leading-none tracking-tight">{member?.firstName} {member?.lastName}</h3>
                                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-3">
                                     {member?.nickname && (
-                                        <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-black text-white/80 uppercase tracking-widest border border-white/10">
+                                        <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-app-micro font-black text-white/80 uppercase tracking-widest border border-white/10">
                                             {member.nickname}
                                         </span>
                                     )}
                                     {member?.gender && (
-                                        <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-[11px] font-black text-white/80 uppercase tracking-widest border border-white/10">
+                                        <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-app-micro font-black text-white/80 uppercase tracking-widest border border-white/10">
                                             {t(member.gender.toLowerCase())}
                                         </span>
                                     )}
                                     {member?.memberCode && (
-                                        <span className="px-3 py-1.5 bg-brand-orange text-white backdrop-blur-md rounded-full text-[11px] font-black uppercase tracking-widest border border-white/20 shadow-lg shadow-brand-orange/20">
+                                        <span className="px-3 py-1.5 bg-brand-orange text-white backdrop-blur-md rounded-full text-app-micro font-black uppercase tracking-widest border border-white/20 shadow-lg shadow-brand-orange/20">
                                             {member.memberCode}
                                         </span>
                                     )}
@@ -637,19 +637,19 @@ export default function MemberProfile() {
                                                 value={noteContent}
                                                 onChange={(e) => setNoteContent(e.target.value)}
                                                 placeholder={t('note_placeholder_summary', 'Entrez une note de synthèse...')}
-                                                className="w-full h-24 p-5 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl text-[13px] font-bold text-white placeholder:text-white/30 outline-none focus:ring-4 focus:ring-brand-orange/20 transition-all resize-none shadow-xl"
+                                                className="w-full h-24 p-5 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl text-app-meta font-bold text-white placeholder:text-white/30 outline-none focus:ring-4 focus:ring-brand-orange/20 transition-all resize-none shadow-xl"
                                             />
                                             <div className="flex gap-3 justify-end mt-4">
                                                 <button
                                                     onClick={() => { setIsNoteOpen(false); setNoteContent(member.notes || ''); }}
-                                                    className="px-6 py-2.5 text-[10px] font-black text-white/40 hover:text-brand-orange tracking-widest transition-colors uppercase"
+                                                    className="px-6 py-2.5 text-app-micro font-black text-white/40 hover:text-brand-orange tracking-widest transition-colors uppercase"
                                                 >
                                                     {t('cancel')}
                                                 </button>
                                                 <button
                                                     onClick={handleSaveSummaryNote}
                                                     disabled={savingNote}
-                                                    className="px-8 py-2.5 bg-brand-orange text-white rounded-xl text-[10px] font-black tracking-widest hover:bg-brand-orange/90 shadow-lg shadow-brand-orange/20 disabled:opacity-50 transition-all active:scale-95 uppercase"
+                                                    className="px-8 py-2.5 bg-brand-orange text-white rounded-xl text-app-micro font-black tracking-widest hover:bg-brand-orange/90 shadow-lg shadow-brand-orange/20 disabled:opacity-50 transition-all active:scale-95 uppercase"
                                                 >
                                                     {savingNote ? '...' : t('save')}
                                                 </button>
@@ -661,7 +661,7 @@ export default function MemberProfile() {
                                             animate={{ opacity: 1 }}
                                             className="group flex items-start gap-3"
                                         >
-                                            <p className="text-[14px] font-medium text-white/70 leading-relaxed border-l-4 border-brand-orange pl-4 py-1">
+                                            <p className="text-app-body font-medium text-white/70 leading-relaxed border-l-4 border-brand-orange pl-4 py-1">
                                                 {member.notes}
                                             </p>
                                             <button
@@ -674,9 +674,9 @@ export default function MemberProfile() {
                                     ) : (
                                         <button
                                             onClick={() => setIsNoteOpen(true)}
-                                            className="flex items-center gap-2 text-white/40 hover:text-white text-[11px] font-black uppercase tracking-widest transition-all pt-1 bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-full border border-white/10"
+                                            className="flex items-center gap-2 text-white/40 hover:text-white text-app-micro font-black uppercase tracking-widest transition-all pt-1 bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-full border border-white/10"
                                         >
-                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-orange text-white text-[10px] font-black">+</span>
+                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-orange text-white text-app-micro font-black">+</span>
                                             {t('add_summary_note', 'Ajouter un résumé')}
                                         </button>
                                     )}
@@ -692,29 +692,29 @@ export default function MemberProfile() {
                             className="relative z-20 text-center lg:text-right w-full lg:w-auto"
                         >
                             <h3 className="text-[11px] font-black text-gray-400 dark:text-white/30 mb-5 tracking-[0.2em] uppercase">{t('member_details', 'Détails du membre')}</h3>
-                            <div className="space-y-3 bg-white dark:bg-white/5 backdrop-blur-md p-6 rounded-[2rem] border border-gray-100 dark:border-white/10 shadow-xl dark:shadow-2xl">
-                                <p className="text-[13px] font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
-                                    <span className="text-gray-400 dark:text-white/40 text-[10px] font-black uppercase tracking-widest">{t('join_date', 'Date Adhésion')}</span>
+                            <div className="flex flex-col gap-4">
+                                <p className="text-app-meta font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
+                                    <span className="text-gray-400 dark:text-white/40 text-app-micro font-black uppercase tracking-widest">{t('join_date', 'Date Adhésion')}</span>
                                     <span className="font-black text-indigo-600 dark:text-indigo-200">{member.joinDate ? new Date(member.joinDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : '-'}</span>
                                 </p>
                                 <div className="h-px bg-gray-100 dark:bg-white/5 w-full"></div>
-                                <p className="text-[13px] font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
-                                    <span className="text-gray-400 dark:text-white/40 text-[10px] font-black uppercase tracking-widest">{t('status', 'Statut')}</span>
+                                <p className="text-app-meta font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
+                                    <span className="text-gray-400 dark:text-white/40 text-app-micro font-black uppercase tracking-widest">{t('status', 'Statut')}</span>
                                     <span className="flex items-center gap-2">
                                         <span className={`${member.status === 'Inactif' ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-500 dark:text-emerald-400'} font-black`}>{t(member.status?.toLowerCase()) || member.status || 'Actif'}</span>
                                         <span className="w-1 h-1 bg-gray-200 dark:bg-white/20 rounded-full"></span>
-                                        <span className="text-gray-400 dark:text-white/40 font-black text-[11px]">{member.statusChangeDate ? new Date(member.statusChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
+                                        <span className="text-gray-400 dark:text-white/40 font-black text-app-micro">{member.statusChangeDate ? new Date(member.statusChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
                                     </span>
                                 </p>
                                 <div className="h-px bg-white/5 w-full"></div>
-                                <p className="text-[13px] font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
-                                    <span className="text-gray-400 dark:text-white/40 text-[10px] font-black uppercase tracking-widest">{t('category', 'Catégorie')}</span>
+                                <p className="text-app-meta font-bold text-gray-800 dark:text-white flex flex-col lg:flex-row lg:justify-end items-center gap-1 lg:gap-3">
+                                    <span className="text-gray-400 dark:text-white/40 text-app-micro font-black uppercase tracking-widest">{t('category', 'Catégorie')}</span>
                                     <span className="flex items-center gap-2">
                                         <span className="text-brand-orange font-extrabold underline decoration-brand-orange/20 underline-offset-4">
                                             {member.category?.name || member.contactSubtype?.name || t(member.baptismalStatus?.toLowerCase()) || member.baptismalStatus || t('not_baptized')}
                                         </span>
                                         <span className="w-1 h-1 bg-gray-200 dark:bg-white/20 rounded-full"></span>
-                                        <span className="text-gray-400 dark:text-white/40 font-black text-[11px]">{member.categoryChangeDate ? new Date(member.categoryChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
+                                        <span className="text-gray-400 dark:text-white/40 font-black text-app-micro">{member.categoryChangeDate ? new Date(member.categoryChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
                                     </span>
                                 </p>
                             </div>
@@ -727,7 +727,7 @@ export default function MemberProfile() {
             <div className="px-8 mt-8">
                 <div className="max-w-[1700px] mx-auto">
                     <div className="flex items-center gap-2 flex-wrap bg-white dark:bg-[#0b1437] p-1.5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-premium relative z-30">
-                        <button className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                        <button className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-app-meta font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             onClick={() => setShowAddAlertModal(true)}
                         >
                             <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -740,7 +740,7 @@ export default function MemberProfile() {
 
                         <button
                             onClick={() => navigate(`/admin/members?edit=${member.id}`)}
-                            className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                            className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-app-meta font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                         >
                             <svg className="w-4 h-4 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -753,7 +753,7 @@ export default function MemberProfile() {
                         <div className="relative">
                             <button
                                 onClick={() => { setStatusDropdownOpen(!statusDropdownOpen); setTypeDropdownOpen(false); }}
-                                className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                                className="px-5 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-app-meta font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             >
                                 <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -769,7 +769,7 @@ export default function MemberProfile() {
                                             <button
                                                 key={s}
                                                 onClick={() => { setPendingStatus(s); setShowStatusModal(true); setStatusDropdownOpen(false); }}
-                                                className="w-full text-left px-4 py-2 text-[12px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+                                                className="w-full text-left px-4 py-2 text-app-meta font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
                                             >
                                                 {t(s.toLowerCase().replace(/ /g, '_')) || s}
                                             </button>
@@ -797,7 +797,7 @@ export default function MemberProfile() {
                                 <>
                                     <div className="fixed inset-0 z-[100]" onClick={() => setTypeDropdownOpen(false)} />
                                     <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#111c44] rounded-2xl shadow-3xl border border-gray-100 dark:border-white/10 py-3 z-[110] animate-in fade-in slide-in-from-top-1 max-h-[450px] overflow-y-auto noscrollbar">
-                                        <p className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-white/5 mb-2">{t('select_category', 'Sélectionner une catégorie')}</p>
+                                        <p className="px-4 py-2 text-app-micro font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-white/5 mb-2">{t('select_category', 'Sélectionner une catégorie')}</p>
 
                                         {memberCategories.length > 0 ? (
                                             memberCategories.map(mc => (
@@ -809,7 +809,7 @@ export default function MemberProfile() {
                                                         setShowCategoryModal(true);
                                                         setTypeDropdownOpen(false);
                                                     }}
-                                                    className={`w-full text-left px-4 py-2 text-[13px] font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-between ${member.memberCategoryId === mc.id ? 'text-indigo-600 bg-indigo-50/30' : 'text-gray-600 dark:text-gray-400'}`}
+                                                    className={`w-full text-left px-4 py-2 text-app-meta font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-between ${member.memberCategoryId === mc.id ? 'text-indigo-600 bg-indigo-50/30' : 'text-gray-600 dark:text-gray-400'}`}
                                                 >
                                                     {mc.name}
                                                     {member.memberCategoryId === mc.id && <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
@@ -826,7 +826,7 @@ export default function MemberProfile() {
                         <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-2"></div>
 
                         <button
-                            className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-[12px] font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
+                            className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg text-app-meta font-bold text-gray-700 dark:text-gray-300 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10 flex items-center gap-2 whitespace-nowrap"
                             onClick={() => console.log('Voir la carte du membre clicked')}
                         >
                             <svg className="w-4 h-4 text-brand-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -861,7 +861,7 @@ export default function MemberProfile() {
                         >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                 <div>
-                                    <h4 className="text-[12px] font-bold text-gray-400 mb-4">{t('personal_info', 'Personal info')}</h4>
+                                    <h4 className="text-app-meta font-bold text-gray-400 mb-4">{t('personal_info', 'Personal info')}</h4>
                                     <div className="space-y-2">
                                         <SummaryItem label={t('constituent_id', 'Membre ID')} value={member.memberCode} />
                                         <SummaryItem label={t('nif_cin_label', 'NIF / CIN')} value={member.nifCin || '-'} />
@@ -873,10 +873,10 @@ export default function MemberProfile() {
                                         <SummaryItem label={t('blood_group', 'Groupe Sanguin')} value={member.bloodGroup || '-'} />
                                         <SummaryItem label={t('join_date', "Date d'adhésion")} value={member.joinDate ? new Date(member.joinDate).toLocaleDateString() : null} />
                                     </div>
-                                    <button onClick={() => setShowPropertiesModal(true)} className="text-[12px] font-bold text-brand-primary mt-6 hover:underline">{t('view_member_properties', 'Voir propriétés du membre')}</button>
+                                    <button onClick={() => setShowPropertiesModal(true)} className="text-app-meta font-bold text-brand-primary mt-6 hover:underline">{t('view_member_properties', 'Voir propriétés du membre')}</button>
                                 </div>
                                 <div>
-                                    <h4 className="text-[12px] font-bold text-gray-400 mb-4">{t('name_formats', 'Name formats')}</h4>
+                                    <h4 className="text-app-meta font-bold text-gray-400 mb-4">{t('name_formats', 'Name formats')}</h4>
                                     <div className="space-y-2">
                                         <SummaryItem label={t('primary_addressee', 'Primary Addressee')} value={`${member.firstName} ${member.lastName}`} />
                                         <SummaryItem label={t('primary_salutation', 'Primary Salutation')} value={member.firstName} />
@@ -891,7 +891,7 @@ export default function MemberProfile() {
                             <div className="space-y-3">
                                 <div className="flex justify-end">
                                     <button onClick={() => { setNoteForm({ title: '', date: new Date().toISOString().split('T')[0], description: '' }); setEditingNoteId(null); setShowNoteModal(true); }}
-                                        className="text-[11px] font-bold text-brand-primary hover:underline flex items-center gap-1">
+                                        className="text-app-micro font-bold text-brand-primary hover:underline flex items-center gap-1">
                                         + {t('add_note', 'Ajouter une note')}
                                     </button>
                                 </div>

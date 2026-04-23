@@ -346,7 +346,7 @@ const PublicProjection = () => {
                 className="absolute inset-0 transition-all duration-1000"
                 style={{
                     ...(projectionBackground.type === 'image' 
-                        ? { backgroundImage: `url("${projectionBackground.value}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                        ? { backgroundImage: `url("\${projectionBackground.value}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
                         : { background: isBlackout ? '#000' : (projectionBackground.css || '#000') }
                     ),
                     opacity: isBlackout ? 0 : 1
@@ -355,16 +355,16 @@ const PublicProjection = () => {
             <div className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300" style={{ opacity: isBlackout ? 1 : (1 - bgOverlayOpacity) }} />
 
             {/* 3. Main Content Layer — 3-Tier Centered Architecture */}
-            <div className="relative h-full w-full flex flex-col items-center justify-between" style={{ transform: `scale(${globalZoom})`, transformOrigin: 'center center' }}>
+            <div className="relative h-full w-full flex flex-col items-center justify-between" style={{ transform: `scale(\${globalZoom})`, transformOrigin: 'center center' }}>
                 <AnimatePresence mode="wait">
                     {focusedContent ? (
                         <motion.div key="focus-mode" className="w-full h-full flex flex-col bg-transparent z-[8000] overflow-hidden" onDoubleClick={() => setFocusedContent(null)}>
                             {/* Focus Header (Compact) */}
                             <div className="w-full pt-2 sm:pt-4 pb-2 flex flex-col items-center flex-shrink-0 border-b border-white/5 bg-[#0B1120]/95 backdrop-blur-3xl relative z-50 shadow-2xl">
                                 <div className="font-black text-lg sm:text-2xl tracking-[0.4em] uppercase text-center flex flex-col items-center gap-1" style={{ color: projectionTextColor }}>
-                                    <span className="opacity-40 text-[10px] sm:text-xs tracking-[0.8em]" style={{ color: projectionTextColor }}>{toRoman(blocks.indexOf(focusedContent) + 1)}</span>
+                                    <span className="opacity-40 text-app-micro tracking-[0.8em]" style={{ color: projectionTextColor }}>{toRoman(blocks.indexOf(focusedContent) + 1)}</span>
                                     {t(focusedContent.label, focusedContent.label)}
-                                    {currentResponsable && <span className="text-[12px] sm:text-sm text-[#D4AF37] font-bold opacity-90 mt-1 tracking-[0.2em]">{currentResponsable}</span>}
+                                    {currentResponsable && <span className="text-app-meta sm:text-app-body text-[#D4AF37] font-bold opacity-90 mt-1 tracking-[0.2em]">{currentResponsable}</span>}
                                 </div>
                                 <div className="w-12 sm:w-24 h-0.5 sm:h-1 bg-[#D4AF37] mt-2 rounded-full opacity-60" />
                                 <button onClick={(e) => { e.stopPropagation(); setFocusedContent(null); setZoomedElementId(null); }} className="absolute right-6 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white transition-colors"><X size={20} /></button>
@@ -397,13 +397,13 @@ const PublicProjection = () => {
                                         const nextSlide = allSlides[safeIndex + 1];
                                         const prevSlide = allSlides[safeIndex - 1];
 
-                                        const nextLabel = focusedContent.type === 'song' ? (nextSlide?.songIndex !== slide?.songIndex ? `Suivant : ${nextSlide?.songTitle}` : 'Couplet Suivant') : (nextSlide ? 'Suivant' : 'Fin');
-                                        const prevLabel = focusedContent.type === 'song' ? (prevSlide?.songIndex !== slide?.songIndex ? `Précédent : ${prevSlide?.songTitle}` : 'Couplet Précédent') : (prevSlide ? 'Précédent' : 'Début');
+                                        const nextLabel = focusedContent.type === 'song' ? (nextSlide?.songIndex !== slide?.songIndex ? `Suivant : \${nextSlide?.songTitle}` : 'Couplet Suivant') : (nextSlide ? 'Suivant' : 'Fin');
+                                        const prevLabel = focusedContent.type === 'song' ? (prevSlide?.songIndex !== slide?.songIndex ? `Précédent : \${prevSlide?.songTitle}` : 'Couplet Précédent') : (prevSlide ? 'Précédent' : 'Début');
 
                                         return (
                                             <>
                                                 <motion.div 
-                                                    key={`${focusedContent.id}-${safeIndex}`} 
+                                                    key={`\${focusedContent.id}-\${safeIndex}`} 
                                                     initial={{ opacity: 0, scale: 0.95 }} 
                                                     animate={{ opacity: 1, scale: contentZoom }} 
                                                     exit={{ opacity: 0, scale: 1.05 }} 
@@ -433,13 +433,13 @@ const PublicProjection = () => {
 
                                                 {/* Focus Footer (Taskbar) */}
                                                 <div className="fixed bottom-0 left-0 right-0 h-[6vh] min-h-[50px] w-full bg-black/95 backdrop-blur-xl border-t border-white/5 z-50 flex items-center justify-between px-4 sm:px-8">
-                                                    <button onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.max(0, p - 1)); }} className={`text-white/40 hover:text-white uppercase font-black text-[10px] tracking-widest flex items-center gap-2 sm:gap-3 transition-all ${safeIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}><ChevronLeft size={18} /> <span className="hidden sm:inline">{prevLabel}</span></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.max(0, p - 1)); }} className={`text-white/40 hover:text-white uppercase font-black text-app-micro tracking-widest flex items-center gap-2 sm:gap-3 transition-all \${safeIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}><ChevronLeft size={18} /> <span className="hidden sm:inline">{prevLabel}</span></button>
                                                     
                                                     <div className="flex items-center gap-4 sm:gap-8 overflow-hidden px-2">
                                                         {currentResponsable && (
                                                             <div className="hidden sm:flex items-center gap-3 px-4 sm:px-6 border-r border-white/10 shrink-0">
                                                                 <Users size={14} className="text-[#D4AF37]" />
-                                                                <span className="text-[10px] sm:text-[11px] font-black text-[#D4AF37] uppercase tracking-widest">{currentResponsable}</span>
+                                                                <span className="text-app-micro font-black text-[#D4AF37] uppercase tracking-widest">{currentResponsable}</span>
                                                             </div>
                                                         )}
 
@@ -450,11 +450,11 @@ const PublicProjection = () => {
                                                         </div>
 
                                                         <div className="text-lg sm:text-2xl font-black tabular-nums tracking-widest" style={{ color: projectionTextColor, opacity: 0.6 }}>
-                                                            {safeIndex + 1} <span className="text-sm opacity-50 px-1">/</span> {allSlides.length}
+                                                            {safeIndex + 1} <span className="text-app-meta opacity-50 px-1">/</span> {allSlides.length}
                                                         </div>
                                                     </div>
 
-                                                    <button onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1)); }} className={`text-[#D4AF37] hover:text-[#D4AF37]/80 uppercase font-black text-[10px] tracking-widest flex items-center gap-2 sm:gap-3 transition-all ${safeIndex === allSlides.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}><span className="hidden sm:inline">{nextLabel}</span> <ChevronRight size={18} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); setMediaSlideIndex(p => Math.min(allSlides.length - 1, p + 1)); }} className={`text-[#D4AF37] hover:text-[#D4AF37]/80 uppercase font-black text-app-micro tracking-widest flex items-center gap-2 sm:gap-3 transition-all \${safeIndex === allSlides.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}><span className="hidden sm:inline">{nextLabel}</span> <ChevronRight size={18} /></button>
                                                 </div>
                                             </>
                                         );
@@ -482,13 +482,13 @@ const PublicProjection = () => {
                             <p className="font-bold uppercase tracking-[0.4em] opacity-60" style={{ fontSize: 'clamp(0.8rem, 2vw, 2rem)', color: projectionTextColor }}>{service?.date && new Date(service.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         </motion.div>
                     ) : (
-                        <motion.div key={`slide-${currentSlideIndex}`} {...currentVariant} className="w-full h-full flex flex-col justify-between overflow-hidden">
+                        <motion.div key={`slide-\${currentSlideIndex}`} {...currentVariant} className="w-full h-full flex flex-col justify-between overflow-hidden">
                             {/* Slide Header — PORTED FROM BUILDER */}
                             <div className="w-full pt-6 sm:pt-12 pb-4 sm:pb-6 flex flex-col items-center flex-shrink-0 border-b border-white/5 bg-[#0B1120]/50 backdrop-blur-md">
                                 <div className="font-black text-lg sm:text-3xl tracking-[0.4em] uppercase text-center flex flex-col items-center gap-1 sm:gap-2" style={{ color: projectionTextColor }}>
-                                    <span className="opacity-40 text-[10px] sm:text-sm tracking-[0.8em]" style={{ color: projectionTextColor }}>{toRoman(currentSlideIndex + 1)}</span>
+                                    <span className="opacity-40 text-app-micro sm:text-app-meta tracking-[0.8em]" style={{ color: projectionTextColor }}>{toRoman(currentSlideIndex + 1)}</span>
                                     <span className="px-4">{t(currentActiveBlock?.label, currentActiveBlock?.label)}</span>
-                                    {currentResponsable && <span className="text-[10px] sm:text-xs text-[#D4AF37] opacity-80 mt-1 tracking-widest whitespace-nowrap px-4 truncate max-w-xs">{currentResponsable}</span>}
+                                    {currentResponsable && <span className="text-app-micro sm:text-app-meta text-[#D4AF37] opacity-80 mt-1 tracking-widest whitespace-nowrap px-4 truncate max-w-xs">{currentResponsable}</span>}
                                 </div>
                                 <div className="w-12 sm:w-24 h-0.5 sm:h-1 bg-[#D4AF37] mt-3 sm:mt-4 rounded-full opacity-60" />
                             </div>
@@ -508,7 +508,7 @@ const PublicProjection = () => {
                                             
                                             {/* 1. BIBLE: Ref */}
                                             {block.type === 'reading' && (block.metadata?.passages || []).map((pass, pi) => (
-                                                <div key={`bible-${pi}`} className="text-center space-y-4 sm:space-y-10 animate-in fade-in duration-700 w-full px-4">
+                                                <div key={`bible-\${pi}`} className="text-center space-y-4 sm:space-y-10 animate-in fade-in duration-700 w-full px-4">
                                                     <h3 className="font-black drop-shadow-[0_10px_60px_rgba(52,211,153,0.35)] tracking-tighter" style={{ fontSize: 'clamp(2rem, 10vw, 9rem)', color: projectionTextColor }}>{pass.reference}</h3>
                                                     <p className="uppercase tracking-[0.3em] sm:tracking-[0.5em] font-bold opacity-15" style={{ fontSize: 'clamp(0.4rem, 1vw, 0.75rem)', color: projectionTextColor }}>Toucher pour lire le texte</p>
                                                 </div>
@@ -518,7 +518,7 @@ const PublicProjection = () => {
                                             {block.metadata?.songs && block.metadata.songs.length > 0 && (
                                                 <div className="w-full space-y-0 animate-in fade-in duration-700 max-h-[50vh] sm:max-h-[58vh] overflow-y-auto noscrollbar px-4">
                                                     {block.metadata.songs.map((song, si) => (
-                                                        <div key={`song-${si}`}>
+                                                        <div key={`song-\${si}`}>
                                                             <div className="py-4 sm:py-6 border-b border-white/5 last:border-0 hover:bg-white/5 transition-all text-center">
                                                                 <p className="font-bold drop-shadow-xl" style={{ fontSize: 'clamp(0.9rem, 3vw, 2.8rem)', letterSpacing: '0.02em', color: projectionTextColor }}>
                                                                     {[song.number, song.collection, song.title].filter(Boolean).join(' · ')}
@@ -533,7 +533,7 @@ const PublicProjection = () => {
                                             {(block.type === 'announcement' || block.type === 'offering' || block.metadata?.contents) && block.metadata?.contents && block.metadata.contents.length > 0 && (
                                                 <div className="w-full space-y-0 animate-in fade-in duration-700 max-h-[55vh] sm:max-h-[65vh] overflow-y-auto noscrollbar px-4">
                                                     {block.metadata.contents.map((item, ai) => (
-                                                        <div key={`ann-${ai}`}>
+                                                        <div key={`ann-\${ai}`}>
                                                             <div className="py-4 sm:py-6 border-b border-white/5 last:border-0 text-center flex flex-col items-center gap-2 sm:gap-3">
                                                                 <p className="font-bold drop-shadow-xl" style={{ fontSize: 'clamp(0.9rem, 3vw, 2.8rem)', letterSpacing: '0.02em', color: projectionTextColor }}>{item.content || item.title}</p>
                                                                 {item.description && <p className="italic opacity-70" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 1.8rem)', color: projectionTextColor }}>{item.description}</p>}
@@ -547,7 +547,7 @@ const PublicProjection = () => {
                                             {block.type !== 'announcement' && block.type !== 'offering' && block.type !== 'song' && block.type !== 'reading' && block.type !== 'sermon' && (
                                                 <div className="w-full flex flex-col items-center px-4">
                                                     {(block.metadata?.contents || []).map((item, ci) => (
-                                                        <div key={`gen-${ci}`} className="w-full flex flex-col items-center gap-4 sm:gap-6 mt-4 first:mt-0 animate-in zoom-in duration-1000">
+                                                        <div key={`gen-\${ci}`} className="w-full flex flex-col items-center gap-4 sm:gap-6 mt-4 first:mt-0 animate-in zoom-in duration-1000">
                                                             {((item.type === 'image' || item.type === 'video') && item.url) ? (
                                                                 <div className="relative">
                                                                     {item.type === 'image' ? (
@@ -596,14 +596,14 @@ const PublicProjection = () => {
                             {/* Slide Footer (Branding Layer) */}
                             <div className="h-[8vh] sm:h-[15vh] w-full" />
                             <div className="fixed bottom-0 left-0 right-0 h-[4vh] min-h-[40px] w-full bg-black/95 border-t border-white/5 flex items-center justify-between px-6 sm:px-8 z-50">
-                                <span className="text-[8px] sm:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] sm:tracking-[0.6em] truncate pr-4">ELYON 360</span>
+                                <span className="text-app-micro font-black text-white/20 uppercase tracking-[0.4em] sm:tracking-[0.6em] truncate pr-4">ELYON 360</span>
                                 {currentResponsable && (
                                     <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                                         <div className="h-3 w-px bg-white/10" />
-                                        <span className="text-[8px] sm:text-[10px] font-black text-[#D4AF37] uppercase tracking-widest truncate max-w-[100px] sm:max-w-none">{currentResponsable}</span>
+                                        <span className="text-app-micro font-black text-[#D4AF37] uppercase tracking-widest truncate max-w-[100px] sm:max-w-none">{currentResponsable}</span>
                                     </div>
                                 )}
-                                <span className="text-[8px] sm:text-[10px] font-black text-white/20 uppercase tracking-[0.4em] sm:tracking-[0.6em] text-right truncate pl-4">PROJECTION ENGINE</span>
+                                <span className="text-app-micro font-black text-white/20 uppercase tracking-[0.4em] sm:tracking-[0.6em] text-right truncate pl-4">PROJECTION ENGINE</span>
                             </div>
                         </motion.div>
                     )}
@@ -612,13 +612,13 @@ const PublicProjection = () => {
 
             {/* 4. PORTED PROFESSIONAL TOOLBAR — Adjusted for ALL devices including Mobile */}
             {!focusedContent && (
-                <div className={`fixed bottom-4 sm:bottom-6 inset-x-0 z-[9000] flex flex-col items-center gap-4 sm:gap-6 pointer-events-none transition-all duration-700 mx-2 sm:mx-0 ${isToolbarVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+                <div className={`fixed bottom-4 sm:bottom-6 inset-x-0 z-[9000] flex flex-col items-center gap-4 sm:gap-6 pointer-events-none transition-all duration-700 mx-2 sm:mx-0 \${isToolbarVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
                     <AnimatePresence>
                         {showBgSelector && (
                             <motion.div initial={{ y: 20, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 20, opacity: 0, scale: 0.95 }} className="pointer-events-auto absolute bottom-full mb-4 sm:mb-6 right-0 sm:right-12 bg-black/90 backdrop-blur-3xl p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 w-[240px] sm:w-[280px] shadow-4xl max-h-[60vh] sm:max-h-[70vh] overflow-y-auto noscrollbar">
                                 <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
                                     <div className="flex items-center justify-between bg-white/5 px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-white/10">
-                                        <span className="text-[8px] sm:text-[10px] text-gray-400 font-bold uppercase mr-2 truncate">Opacité</span>
+                                        <span className="text-app-micro text-gray-400 font-bold uppercase mr-2 truncate">Opacité</span>
                                         <input type="range" min="0" max="0.95" step="0.05" value={bgOverlayOpacity} onChange={e => setBgOverlayOpacity(parseFloat(e.target.value))} className="w-full h-1.5 accent-[#D4AF37]" />
                                     </div>
                                     <div className="px-1">
@@ -634,18 +634,18 @@ const PublicProjection = () => {
                                         }} />
                                         <label htmlFor="local-bg-upload" className="w-full flex items-center justify-center gap-2 py-2 sm:py-3 bg-white/5 hover:bg-white/10 border border-white/10 border-dashed rounded-xl cursor-pointer transition-colors">
                                             <ImageIcon size={12} className="text-[#D4AF37]" />
-                                            <span className="text-[8px] sm:text-[9px] text-gray-300 font-bold uppercase tracking-widest">Image locale</span>
+                                            <span className="text-app-micro text-gray-300 font-bold uppercase tracking-widest">Image locale</span>
                                         </label>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 sm:gap-3 px-1 pb-4">
                                     {[...localBackgrounds, ...bgTemplates].map(bg => (
-                                        <button key={bg.id} onClick={(e) => { e.stopPropagation(); setProjectionBackground(bg); setShowBgSelector(false); }} className={`group relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 ${projectionBackground.id === bg.id ? 'border-[#D4AF37] scale-105 z-10 shadow-2xl' : 'border-white/10 hover:border-white/30'}`}>
+                                        <button key={bg.id} onClick={(e) => { e.stopPropagation(); setProjectionBackground(bg); setShowBgSelector(false); }} className={`group relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 \${projectionBackground.id === bg.id ? 'border-[#D4AF37] scale-105 z-10 shadow-2xl' : 'border-white/10 hover:border-white/30'}`}>
                                             {bg.type === 'image' ? <img src={bg.value} className="w-full h-full object-cover" /> : <div className="w-full h-full" style={{ background: bg.css }} />}
                                             <div className="absolute inset-x-0 bottom-0 p-1 bg-gradient-to-t from-black/80 to-transparent">
-                                                <p className="text-[7px] sm:text-[8px] font-black text-white uppercase text-center truncate">{bg.label}</p>
+                                                <p className="text-app-micro font-black text-white uppercase text-center truncate">{bg.label}</p>
                                             </div>
-                                            {projectionBackground.id === bg.id && <div className="absolute top-1 right-1 w-3 h-3 sm:w-4 sm:h-4 bg-[#D4AF37] rounded-full flex items-center justify-center text-[7px] sm:text-[8px] text-black font-black">✓</div>}
+                                            {projectionBackground.id === bg.id && <div className="absolute top-1 right-1 w-3 h-3 sm:w-4 sm:h-4 bg-[#D4AF37] rounded-full flex items-center justify-center text-app-micro text-black font-black">✓</div>}
                                         </button>
                                     ))}
                                 </div>
@@ -659,7 +659,7 @@ const PublicProjection = () => {
                                     { id: 'zoom', icon: <Maximize size={14} />, label: 'Zoom' },
                                     { id: 'none', icon: <X size={14} />, label: 'Aucun' }
                                 ].map(t => (
-                                    <button key={t.id} onClick={() => { setActiveTransitionType(t.id); setShowTransitionDropdown(false); }} className={`w-full flex items-center justify-between px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-bold transition-all ${activeTransitionType === t.id ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                                    <button key={t.id} onClick={() => { setActiveTransitionType(t.id); setShowTransitionDropdown(false); }} className={`w-full flex items-center justify-between px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-app-micro font-bold transition-all \${activeTransitionType === t.id ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
                                         <span className="flex items-center gap-2 sm:gap-3 shrink-0">{t.icon} <span className="truncate">{t.label}</span></span>
                                         {activeTransitionType === t.id && <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full shrink-0 ml-2" />}
                                     </button>
@@ -670,7 +670,7 @@ const PublicProjection = () => {
                             <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="pointer-events-auto absolute bottom-full mb-3 sm:mb-4 left-0 sm:left-6 bg-zinc-900 border border-white/10 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-2xl min-w-[150px] sm:min-w-[180px] z-[8000]">
                                 <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
                                     {textColorPresets.map(color => (
-                                        <button key={color} onClick={() => { setProjectionTextColor(color); setShowTextColorSelector(false); }} className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-white/20 transition-transform hover:scale-125 ${projectionTextColor === color ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-900' : ''}`} style={{ backgroundColor: color }} />
+                                        <button key={color} onClick={() => { setProjectionTextColor(color); setShowTextColorSelector(false); }} className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-white/20 transition-transform hover:scale-125 \${projectionTextColor === color ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-zinc-900' : ''}`} style={{ backgroundColor: color }} />
                                     ))}
                                 </div>
                             </motion.div>
@@ -679,15 +679,15 @@ const PublicProjection = () => {
 
                     <div className="pointer-events-auto flex flex-nowrap items-center gap-1 p-1.5 sm:p-2 bg-black/95 backdrop-blur-3xl border border-white/10 rounded-2xl sm:rounded-full shadow-4xl overflow-x-auto noscrollbar max-w-full" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-1 px-2 sm:px-3 border-r border-white/10 shrink-0">
-                            <button onClick={(e) => { e.stopPropagation(); setShowTransitionDropdown(!showTransitionDropdown); }} className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-[9px] sm:text-[10px] font-black uppercase text-white transition-all border border-white/5">
+                            <button onClick={(e) => { e.stopPropagation(); setShowTransitionDropdown(!showTransitionDropdown); }} className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-app-micro font-black uppercase text-white transition-all border border-white/5">
                                 <Layers size={14} className="text-blue-400 shrink-0" />
                                 <span className="max-w-[40px] truncate">{activeTransitionType}</span>
-                                <ChevronUp size={10} className={`ml-1 shrink-0 transition-transform ${showTransitionDropdown ? 'rotate-180' : ''}`} />
+                                <ChevronUp size={10} className={`ml-1 shrink-0 transition-transform \${showTransitionDropdown ? 'rotate-180' : ''}`} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setShowTextColorSelector(!showTextColorSelector); }} className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-[9px] sm:text-[10px] font-black uppercase text-white transition-all border border-white/5">
+                            <button onClick={(e) => { e.stopPropagation(); setShowTextColorSelector(!showTextColorSelector); }} className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-app-micro font-black uppercase text-white transition-all border border-white/5">
                                 <PenTool size={14} className="shrink-0" style={{ color: projectionTextColor }} />
                                 <span className="hidden sm:inline">Texte</span>
-                                <ChevronUp size={10} className={`ml-1 shrink-0 transition-transform ${showTextColorSelector ? 'rotate-180' : ''}`} />
+                                <ChevronUp size={10} className={`ml-1 shrink-0 transition-transform \${showTextColorSelector ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
 
@@ -695,24 +695,24 @@ const PublicProjection = () => {
                             <button onClick={(e) => { e.stopPropagation(); setCurrentSlideIndex(prev => Math.max(prev - 1, -1)); }} className="p-1.5 sm:p-2.5 bg-white/5 hover:bg-white/20 rounded-lg sm:rounded-xl transition-all"><ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                             <div className="flex flex-col items-center min-w-[2.5rem] sm:min-w-[3rem]">
                                 <span className="text-[#D4AF37] font-black text-lg sm:text-xl leading-none">{currentSlideIndex === -1 ? '00' : (currentSlideIndex + 1).toString().padStart(2, '0')}</span>
-                                <span className="text-[7px] sm:text-[8px] text-zinc-500 font-black uppercase mt-0.5 tracking-widest hidden sm:inline text-center leading-none">Séquence</span>
+                                <span className="text-app-micro text-zinc-500 font-black uppercase mt-0.5 tracking-widest hidden sm:inline text-center leading-none">Séquence</span>
                             </div>
                             <button onClick={(e) => { e.stopPropagation(); setCurrentSlideIndex(prev => Math.min(prev + 1, blocks.length - 1)); }} className="p-1.5 sm:p-2.5 bg-[#D4AF37] hover:bg-[#B8962E] rounded-lg sm:rounded-xl text-white shadow-lg transition-all"><ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                         </div>
 
                         <div className="flex items-center gap-1.5 sm:gap-3 border-r border-white/10 px-3 sm:px-6 text-white shrink-0 min-w-0">
                             <button onClick={() => setGlobalZoom(prev => Math.max(0.2, prev - 0.1))} className="p-1 sm:p-2 hover:bg-white/10 rounded-lg text-gray-400 transition-all shrink-0"><ZoomOut className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
-                            <span className="text-[10px] sm:text-[12px] font-black tabular-nums min-w-[25px] sm:min-w-[35px] text-center">{Math.round(globalZoom * 100)}%</span>
+                            <span className="text-app-micro sm:text-app-meta font-black tabular-nums min-w-[25px] sm:min-w-[35px] text-center">{Math.round(globalZoom * 100)}%</span>
                             <button onClick={() => setGlobalZoom(prev => Math.min(4, prev + 0.1))} className="p-1 sm:p-2 hover:bg-white/10 rounded-lg text-gray-400 transition-all shrink-0"><ZoomIn className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
                         </div>
 
                         <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 border-r border-white/10 shrink-0">
-                            <button onClick={(e) => { e.stopPropagation(); setIsAutoPlaying(!isAutoPlaying); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isAutoPlaying ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white/5 text-gray-400'}`}>
+                            <button onClick={(e) => { e.stopPropagation(); setIsAutoPlaying(!isAutoPlaying); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all \${isAutoPlaying ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white/5 text-gray-400'}`}>
                                 {isAutoPlaying ? <Pause className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /> : <Play className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />}
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); setShowClock(!showClock); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showClock ? 'bg-[#D4AF37] text-white' : 'bg-white/5 text-gray-400'}`}><Clock className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
-                            <button onClick={(e) => { e.stopPropagation(); setShowBgSelector(!showBgSelector); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${showBgSelector ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400'}`}><ImageIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
-                            <button onClick={(e) => { e.stopPropagation(); setIsBlackout(!isBlackout); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all ${isBlackout ? 'bg-rose-500 text-white shadow-lg' : 'bg-white/5 text-gray-400'}`}><Monitor className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); setShowClock(!showClock); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all \${showClock ? 'bg-[#D4AF37] text-white' : 'bg-white/5 text-gray-400'}`}><Clock className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); setShowBgSelector(!showBgSelector); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all \${showBgSelector ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400'}`}><ImageIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); setIsBlackout(!isBlackout); }} className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl transition-all \${isBlackout ? 'bg-rose-500 text-white shadow-lg' : 'bg-white/5 text-gray-400'}`}><Monitor className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /></button>
                         </div>
 
                         <div className="px-2 sm:px-4 shrink-0">

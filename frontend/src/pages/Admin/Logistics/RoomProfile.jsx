@@ -226,14 +226,14 @@ const RoomProfile = () => {
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                                 {room.name}
                             </h1>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${['Libre', 'Active'].includes(room.status) ? 'bg-emerald-100 text-emerald-700' :
+                            <span className={`px-3 py-1 rounded-full text-app-micro font-bold uppercase tracking-wider ${['Libre', 'Active'].includes(room.status) ? 'bg-emerald-100 text-emerald-700' :
                                 room.status === 'Occupée' ? 'bg-amber-100 text-amber-700' :
                                     'bg-rose-100 text-rose-700'
                                 }`}>
                                 {room.status}
                             </span>
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400 pl-12">
+                        <p className="text-gray-500 dark:text-gray-400 pl-12 text-app-meta">
                             {room.building?.name} • {room.capacity} personnes • {room.type}
                         </p>
                     </div>
@@ -249,7 +249,7 @@ const RoomProfile = () => {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`px-6 py-2 rounded-[1.5rem] text-sm font-bold transition-all ${activeTab === tab
+                                    className={`px-6 py-2 rounded-[1.5rem] text-app-meta font-bold transition-all ${activeTab === tab
                                         ? 'bg-brand-primary text-white shadow-lg active:scale-95'
                                         : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
                                         }`}
@@ -266,42 +266,42 @@ const RoomProfile = () => {
                                 <div className="space-y-8 animate-fade-in">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div>
-                                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('general_info', 'Informations Générales')}</h3>
+                                            <h3 className="text-app-micro font-bold text-gray-400 uppercase tracking-widest mb-4">{t('general_info', 'Informations Générales')}</h3>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('room_code', 'Code Salle')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.code || t('na', 'N/A')}</div>
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('room_code', 'Code Salle')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">{room.code || t('na', 'N/A')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('building', 'Bâtiment')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.building?.name || t('na', 'N/A')}</div>
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('building', 'Bâtiment')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">{room.building?.name || t('na', 'N/A')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('floor', 'Étage')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.floor || t('na', 'N/A')}</div>
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('floor', 'Étage')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">{room.floor || t('na', 'N/A')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('surface', 'Surface')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.area ? `${room.area} m²` : t('na', 'N/A')}</div>
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('surface', 'Surface')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">{room.area ? `${room.area} m²` : t('na', 'N/A')}</div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('management_access', 'Gestion & Accès')}</h3>
+                                            <h3 className="text-app-micro font-bold text-gray-400 uppercase tracking-widest mb-4">{t('management_access', 'Gestion & Accès')}</h3>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('manager', 'Responsable')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('manager', 'Responsable')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">
                                                         {room.manager ? `${room.manager.firstName} ${room.manager.lastName}` : t('none', 'Aucun')}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('management_type', 'Type de gestion')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.managerType || t('standard', 'Standard')}</div>
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('management_type', 'Type de gestion')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">{room.managerType || t('standard', 'Standard')}</div>
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm text-gray-500">{t('pmr_access', 'Accès PMR')}</div>
-                                                    <div className="font-bold text-gray-900 dark:text-white">{room.pmrAccess ? t('yes', 'Oui') : t('no', 'Non')}</div>
+                                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black mb-1">{t('pmr_access', 'Accès PMR')}</div>
+                                                    <div className="font-bold text-gray-900 dark:text-white text-app-meta">{room.pmrAccess ? t('yes', 'Oui') : t('no', 'Non')}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -315,7 +315,7 @@ const RoomProfile = () => {
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('inventory_equipment', 'Inventaire & Équipements')}</h3>
                                         <button
                                             onClick={() => setShowEquipmentModal(true)}
-                                            className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg active:scale-95"
+                                            className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-app-micro rounded-2xl transition-all shadow-lg active:scale-95"
                                         >
                                             + {t('add', 'Ajouter')}
                                         </button>
@@ -325,9 +325,9 @@ const RoomProfile = () => {
                                         <table className="w-full">
                                             <thead>
                                                 <tr className="border-b border-gray-100 dark:border-white/5 text-left">
-                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('name', 'Nom')}</th>
-                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('quantity', 'Quantité')}</th>
-                                                    <th className="py-3 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('shared', 'Partagé')}</th>
+                                                    <th className="py-3 px-4 text-app-micro font-bold text-gray-400 uppercase tracking-wider">{t('name', 'Nom')}</th>
+                                                    <th className="py-3 px-4 text-app-micro font-bold text-gray-400 uppercase tracking-wider">{t('quantity', 'Quantité')}</th>
+                                                    <th className="py-3 px-4 text-app-micro font-bold text-gray-400 uppercase tracking-wider">{t('shared', 'Partagé')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -365,7 +365,7 @@ const RoomProfile = () => {
                                                                 <td className="py-3 px-4 text-gray-500">{quantity}</td>
                                                                 <td className="py-3 px-4">
                                                                     {shared !== null ? (
-                                                                        <span className={`px-2 py-1 rounded text-xs font-bold ${shared ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-100 text-gray-600'}`}>
+                                                                        <span className={`px-2 py-1 rounded text-app-micro font-bold ${shared ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-100 text-gray-600'}`}>
                                                                             {shared ? t('yes', 'Oui') : t('no', 'Non')}
                                                                         </span>
                                                                     ) : (
@@ -405,10 +405,10 @@ const RoomProfile = () => {
                                                     {schedules.map((s, idx) => (
                                                         <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                                                             <div>
-                                                                <div className="font-bold text-gray-900 dark:text-white">{s.day}</div>
-                                                                <div className="text-sm text-gray-500">{s.description || t('fixed_availability', 'Disponibilité fixe')}</div>
+                                                                <div className="font-bold text-gray-900 dark:text-white text-app-meta">{s.day}</div>
+                                                                <div className="text-app-micro text-gray-500 font-medium">{s.description || t('fixed_availability', 'Disponibilité fixe')}</div>
                                                             </div>
-                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-[10px] font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange shadow-sm border border-brand-primary/20 dark:border-white/10">
+                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-app-micro font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange shadow-sm border border-brand-primary/20 dark:border-white/10">
                                                                 {s.startTime} - {s.endTime}
                                                             </span>
                                                         </div>
@@ -437,12 +437,12 @@ const RoomProfile = () => {
                                                     return (
                                                         <div key={`group-${group.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-brand-primary/5 dark:bg-white/5 border border-brand-primary/10 dark:border-white/5">
                                                             <div>
-                                                                <div className="font-bold text-gray-900 dark:text-white">{group.name}</div>
-                                                                <div className="text-sm text-gray-500">
+                                                                <div className="font-bold text-gray-900 dark:text-white text-app-meta">{group.name}</div>
+                                                                <div className="text-app-micro text-gray-500 font-medium">
                                                                     {group.type ? (t(`group_type_${group.type}`) || group.type) : t('group', 'Groupe')} • {group.leaderName || t('no_manager', 'Sans responsable')}
                                                                 </div>
                                                             </div>
-                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-[10px] font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange shadow-sm border border-brand-primary/20 dark:border-white/10">
+                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-app-micro font-black uppercase tracking-widest text-brand-primary dark:text-brand-orange shadow-sm border border-brand-primary/20 dark:border-white/10">
                                                                 {scheduleDisplay}
                                                             </span>
                                                         </div>
@@ -465,10 +465,10 @@ const RoomProfile = () => {
                                                     return (
                                                         <div key={`ssc-${ssc.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50/50 dark:bg-white/5 border border-emerald-100 dark:border-white/5">
                                                             <div>
-                                                                <div className="font-bold text-gray-900 dark:text-white">{ssc.name}</div>
-                                                                <div className="text-sm text-gray-500">{t('sunday_school_class_desc', "Classe d'École du Dimanche")}</div>
+                                                                <div className="font-bold text-gray-900 dark:text-white text-app-meta">{ssc.name}</div>
+                                                                <div className="text-app-micro text-gray-500 font-medium">{t('sunday_school_class_desc', "Classe d'École du Dimanche")}</div>
                                                             </div>
-                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-sm border border-emerald-200 dark:border-white/10">
+                                                            <span className="px-3 py-1 rounded-lg bg-white dark:bg-white/10 text-app-micro font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 shadow-sm border border-emerald-200 dark:border-white/10">
                                                                 {scheduleDisplay}
                                                             </span>
                                                         </div>
@@ -488,12 +488,12 @@ const RoomProfile = () => {
                                                 {(room.reservations || []).map(res => (
                                                     <div key={`res-${res.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                                                         <div>
-                                                            <div className="font-bold text-gray-900 dark:text-white">{res.title}</div>
-                                                            <div className="text-sm text-gray-500">{new Date(res.startTime).toLocaleDateString()}</div>
+                                                            <div className="font-bold text-gray-900 dark:text-white text-app-meta">{res.title}</div>
+                                                            <div className="text-app-micro text-gray-500 font-medium">{new Date(res.startTime).toLocaleDateString()}</div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-sm font-bold text-gray-900 dark:text-white uppercase">{t('reservation', 'Réservation')}</div>
-                                                            <div className="text-xs text-gray-500">
+                                                            <div className="text-app-micro font-bold text-gray-900 dark:text-white uppercase tracking-widest">{t('reservation', 'Réservation')}</div>
+                                                            <div className="text-app-micro text-gray-500 font-medium">
                                                                 {new Date(res.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(res.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                             </div>
                                                         </div>
@@ -503,12 +503,12 @@ const RoomProfile = () => {
                                                 {(room.events || []).map(event => (
                                                     <div key={`event-${event.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-indigo-50/30 dark:bg-white/5 border border-indigo-100/50 dark:border-white/5">
                                                         <div>
-                                                            <div className="font-bold text-gray-900 dark:text-white">{event.title}</div>
-                                                            <div className="text-sm text-gray-500">{new Date(event.startDate).toLocaleDateString()}</div>
+                                                            <div className="font-bold text-gray-900 dark:text-white text-app-meta">{event.title}</div>
+                                                            <div className="text-app-micro text-gray-500 font-medium">{new Date(event.startDate).toLocaleDateString()}</div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-[10px] font-black text-brand-primary dark:text-brand-orange uppercase tracking-widest mb-1">{t('event', 'Événement')}</div>
-                                                            <div className="text-xs text-gray-500">
+                                                            <div className="text-app-micro font-black text-brand-primary dark:text-brand-orange uppercase tracking-widest mb-1">{t('event', 'Événement')}</div>
+                                                            <div className="text-app-micro text-gray-500 font-medium">
                                                                 {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                                 {event.endDate ? ` - ${new Date(event.endDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}
                                                             </div>
@@ -530,7 +530,7 @@ const RoomProfile = () => {
                         <div className="bg-gradient-to-br from-brand-primary to-brand-deep rounded-[2.5rem] p-8 text-white shadow-xl shadow-brand-primary/20 dark:shadow-none">
                             <h3 className="text-lg font-bold mb-2 opacity-90">{t('capacity', 'Capacité')}</h3>
                             <div className="text-5xl font-black mb-2">{room.capacity || 0}</div>
-                            <div className="text-sm opacity-75 uppercase tracking-widest font-black text-[10px]">{t('people_max', 'personnes maximum')}</div>
+                            <div className="text-app-micro opacity-75 uppercase tracking-widest font-black">{t('people_max', 'personnes maximum')}</div>
                         </div>
 
                         <div className="bg-white dark:bg-[#1A1A1A] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm p-8">
@@ -542,8 +542,8 @@ const RoomProfile = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{t('layout', 'Disposition')}</div>
-                                    <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">{room.layout || t('standard', 'Standard')}</div>
+                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black">{t('layout', 'Disposition')}</div>
+                                    <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-app-meta">{room.layout || t('standard', 'Standard')}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
@@ -553,8 +553,8 @@ const RoomProfile = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{t('condition', 'État')}</div>
-                                    <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">{room.condition || t('good', 'Bon')}</div>
+                                    <div className="text-app-micro text-gray-500 uppercase tracking-widest font-black">{t('condition', 'État')}</div>
+                                    <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-app-meta">{room.condition || t('good', 'Bon')}</div>
                                 </div>
                             </div>
                         </div>
@@ -566,7 +566,7 @@ const RoomProfile = () => {
                                 </h3>
 
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest mr-1">
+                                    <span className="text-app-micro font-black text-gray-400 uppercase tracking-widest mr-1">
                                         {t('download_label', 'télécharge :')}
                                     </span>
                                      {[
@@ -579,7 +579,7 @@ const RoomProfile = () => {
                                         <button
                                             key={range.id}
                                             onClick={() => handleExport(range.id)}
-                                            className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-transparent hover:border-brand-primary/30 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-primary transition-all active:scale-95 uppercase tracking-widest"
+                                            className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-transparent hover:border-brand-primary/30 rounded-xl text-app-micro font-black text-gray-500 hover:text-brand-primary transition-all active:scale-95 uppercase tracking-widest"
                                         >
                                             {t(range.label)}
                                         </button>
@@ -683,11 +683,11 @@ const RoomProfile = () => {
                                          <div key={date.toISOString()} className={`p-4 rounded-2xl border transition-all ${isToday ? 'bg-brand-primary/5 border-brand-primary/20 dark:bg-brand-primary/10 dark:border-brand-primary/20 shadow-sm' : 'border-gray-50 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}>
                                                 <div className="flex items-center justify-between mb-3">
                                                     <div className="flex items-center gap-2">
-                                                         <span className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">{dayNameFr}</span>
-                                                        <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">{date.toLocaleDateString([], { day: 'numeric', month: 'short' })}</span>
-                                                        {isToday && <span className="px-2 py-0.5 rounded-full bg-brand-primary text-[9px] font-black text-white uppercase tracking-widest">{t('today', "Aujourd'hui")}</span>}
+                                                         <span className="text-app-meta font-bold text-gray-900 dark:text-white uppercase tracking-wider">{dayNameFr}</span>
+                                                        <span className="text-app-micro text-gray-400 font-bold uppercase tracking-widest">{date.toLocaleDateString([], { day: 'numeric', month: 'short' })}</span>
+                                                        {isToday && <span className="px-2 py-0.5 rounded-full bg-brand-primary text-app-micro font-black text-white uppercase tracking-widest">{t('today', "Aujourd'hui")}</span>}
                                                     </div>
-                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${isOccupied ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                                    <span className={`px-2 py-0.5 rounded-full text-app-micro font-bold uppercase tracking-wider ${isOccupied ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                                         {isOccupied ? t('room_occupied', 'Occupée') : t('room_free', 'Libre')}
                                                     </span>
                                                 </div>
@@ -699,22 +699,22 @@ const RoomProfile = () => {
                                                                 <div className="flex items-center gap-2 overflow-hidden">
                                                                     <div className={`w-1 h-3 rounded-full shrink-0 ${act.type === 'fixed' ? 'bg-gray-400' : act.type === 'group' ? 'bg-indigo-400' : act.type === 'class' ? 'bg-emerald-400' : 'bg-violet-400'}`}></div>
                                                                     <div className="flex flex-col min-w-0">
-                                                                        <span className="text-[11px] text-gray-600 dark:text-gray-400 truncate font-bold leading-tight">{act.label}</span>
+                                                                        <span className="text-app-micro text-gray-600 dark:text-gray-400 truncate font-bold leading-tight">{act.label}</span>
                                                                         {act.description && (
-                                                                            <span className="text-[9px] text-gray-400 dark:text-gray-500 truncate italic leading-tight">
+                                                                            <span className="text-app-micro text-gray-400 dark:text-gray-500 truncate italic leading-tight">
                                                                                 {act.description.length > 40 ? act.description.substring(0, 40) + '...' : act.description}
                                                                             </span>
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                                <span className="text-[10px] font-mono font-bold text-gray-400 group-hover:text-indigo-500 transition-colors shrink-0">
+                                                                <span className="text-app-micro font-mono font-bold text-gray-400 group-hover:text-indigo-500 transition-colors shrink-0">
                                                                     {act.startTime}-{act.endTime}
                                                                 </span>
                                                             </div>
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <div className="text-[10px] text-gray-400 italic">{t('full_day_availability', 'Disponibilité totale toute la journée')}</div>
+                                                    <div className="text-app-micro text-gray-400 italic">{t('full_day_availability', 'Disponibilité totale toute la journée')}</div>
                                                 )}
                                             </div>
                                         );
@@ -732,30 +732,30 @@ const RoomProfile = () => {
                             <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6">{t('add_equipment', 'Ajouter un équipement')}</h3>
                             <form onSubmit={handleAddEquipment} className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('item_name', "Nom de l'article")}</label>
+                                    <label className="block text-app-micro font-bold text-gray-400 uppercase tracking-widest mb-2">{t('item_name', "Nom de l'article")}</label>
                                     <input
                                         type="text"
                                         required
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all text-app-meta"
                                         value={equipmentForm.name}
                                         onChange={e => setEquipmentForm({ ...equipmentForm, name: e.target.value })}
                                     />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('quantity', 'Quantité')}</label>
+                                        <label className="block text-app-micro font-bold text-gray-400 uppercase tracking-widest mb-2">{t('quantity', 'Quantité')}</label>
                                         <input
                                             type="number"
                                             min="1"
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all text-app-meta"
                                             value={equipmentForm.quantity}
                                             onChange={e => setEquipmentForm({ ...equipmentForm, quantity: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{t('shared', 'Partagé')}</label>
+                                        <label className="block text-app-micro font-bold text-gray-400 uppercase tracking-widest mb-2">{t('shared', 'Partagé')}</label>
                                         <select
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-100 dark:border-white/5 focus:ring-2 focus:ring-brand-primary outline-none transition-all text-app-meta"
                                             value={equipmentForm.isShared}
                                             onChange={e => setEquipmentForm({ ...equipmentForm, isShared: e.target.value === 'true' })}
                                         >
@@ -767,14 +767,14 @@ const RoomProfile = () => {
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         type="submit"
-                                        className="flex-1 py-4 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg active:scale-95"
+                                        className="flex-1 py-4 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-app-micro rounded-2xl transition-all shadow-lg active:scale-95"
                                     >
                                         {t('add', 'Ajouter')}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowEquipmentModal(false)}
-                                        className="px-6 py-4 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-black uppercase tracking-widest text-[11px] rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all font-title"
+                                        className="px-6 py-4 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 font-black uppercase tracking-widest text-app-micro rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all font-title"
                                     >
                                         {t('cancel', 'Annuler')}
                                     </button>

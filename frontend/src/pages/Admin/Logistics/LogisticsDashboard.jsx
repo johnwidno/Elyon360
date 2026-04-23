@@ -103,8 +103,8 @@ export default function LogisticsDashboard() {
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" opacity={0.3} />
-                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+                                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 10 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 10 }} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#1a1f4d', border: 'none', borderRadius: '12px', color: '#fff' }}
                                         itemStyle={{ color: '#fff' }}
@@ -178,12 +178,12 @@ export default function LogisticsDashboard() {
                             {/* Center Text */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <span className="text-3xl font-black text-gray-900 dark:text-white">{totalRooms}</span>
-                                <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t('rooms')}</span>
+                                <span className="text-app-micro text-gray-400 font-bold uppercase tracking-widest">{t('rooms', 'Salles')}</span>
                             </div>
                         </div>
                         <div className="mt-4 space-y-2">
                             {pieData.map((entry, index) => (
-                                <div key={index} className="flex items-center justify-between text-sm">
+                                <div key={index} className="flex items-center justify-between text-app-meta">
                                     <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                                         <span className="text-gray-600 dark:text-gray-400">{entry.name}</span>
@@ -238,7 +238,7 @@ function KPICard({ title, value, icon, color }) {
                         {icons[icon]}
                     </svg>
                 </div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{title}</span>
+                <span className="text-app-micro font-bold text-gray-400 uppercase tracking-widest">{title}</span>
             </div>
             <div className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                 {value ?? 0}
@@ -255,7 +255,7 @@ function AlertCard({ title, count, type, desc }) {
                 <div className="w-2 h-2 rounded-full bg-gray-300"></div>
                 <h4 className="font-bold text-gray-500">{title}</h4>
             </div>
-            <p className="text-xs text-gray-400">{t('no_alerts_detected', 'Aucune alerte détectée.')}</p>
+            <p className="text-app-meta text-gray-400">{t('no_alerts_detected', 'Aucune alerte détectée.')}</p>
         </div>
     );
 
@@ -278,7 +278,7 @@ function AlertCard({ title, count, type, desc }) {
                 </h4>
                 <span className={`text-2xl font-black ${textClass}`}>{count}</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium relative z-10">{desc}</p>
+            <p className="text-app-meta text-gray-500 dark:text-gray-400 font-medium relative z-10">{desc}</p>
         </div>
     );
 }
@@ -288,7 +288,7 @@ function ProgressBar({ label, value, total, color }) {
 
     return (
         <div>
-            <div className="flex justify-between text-xs mb-1">
+            <div className="flex justify-between text-app-meta mb-1">
                 <span className="font-bold text-gray-600 dark:text-gray-400">{label}</span>
                 <span className="font-bold text-gray-900 dark:text-white">{value} ({percentage}%)</span>
             </div>

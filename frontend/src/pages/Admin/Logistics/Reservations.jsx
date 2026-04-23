@@ -85,19 +85,19 @@ const Reservations = () => {
                     <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                         {t('reservations', 'Planning')} <span className="text-brand-primary dark:text-brand-orange">& {t('bookings', 'Réservations')}</span>
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium text-app-meta">
                         {t('reservations_desc', 'Gérez l\'occupation de vos salles et espaces.')}
                     </p>
                 </div>
                 <div className="flex gap-3">
                     <button
                         onClick={() => setView('add')}
-                        className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-2xl transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                        className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-app-micro rounded-2xl transition-all shadow-lg active:scale-95 flex items-center gap-2"
                     >
                         <FaPlus /> {t('new_reservation', 'Nouvelle Réservation')}
                     </button>
                     {view !== 'list' && (
-                        <button onClick={() => setView('list')} className="px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest text-[11px] rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+                        <button onClick={() => setView('list')} className="px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest text-app-micro rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
                             {t('cancel', 'Annuler')}
                         </button>
                     )}
@@ -109,13 +109,13 @@ const Reservations = () => {
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('book_room', 'Réserver une Salle')}</h2>
                     <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('activity_title', "Titre de l'activité")}</label>
-                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
+                            <label className="block text-app-micro font-bold text-gray-700 dark:text-gray-300 mb-2">{t('activity_title', "Titre de l'activité")}</label>
+                            <input type="text" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-app-meta"
                                 value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('room', 'Salle')}</label>
-                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
+                            <label className="block text-app-micro font-bold text-gray-700 dark:text-gray-300 mb-2">{t('room', 'Salle')}</label>
+                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-app-meta"
                                 value={form.roomId} onChange={e => setForm({ ...form, roomId: e.target.value })} required>
                                 <option value="">{t('choose_dot', 'Choisir...')}</option>
                                 {rooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -123,19 +123,19 @@ const Reservations = () => {
                         </div>
                         <div className="flex gap-4">
                             <div className="w-1/2">
-                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('start', 'Début')}</label>
-                                <input type="datetime-local" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
+                                <label className="block text-app-micro font-bold text-gray-700 dark:text-gray-300 mb-2">{t('start', 'Début')}</label>
+                                <input type="datetime-local" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-app-meta"
                                     value={form.startTime} onChange={e => setForm({ ...form, startTime: e.target.value })} required />
                             </div>
                             <div className="w-1/2">
-                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('end', 'Fin')}</label>
-                                <input type="datetime-local" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
+                                <label className="block text-app-micro font-bold text-gray-700 dark:text-gray-300 mb-2">{t('end', 'Fin')}</label>
+                                <input type="datetime-local" className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-app-meta"
                                     value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} required />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('activity_type', "Type d'activité")}</label>
-                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all"
+                            <label className="block text-app-micro font-bold text-gray-700 dark:text-gray-300 mb-2">{t('activity_type', "Type d'activité")}</label>
+                            <select className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all text-app-meta"
                                 value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
                                 <option value="Reunion">{t('meeting', 'Réunion')}</option>
                                 <option value="Repetition">{t('rehearsal', 'Répétition')}</option>
@@ -145,11 +145,11 @@ const Reservations = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('notes', 'Notes')}</label>
-                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all h-24 resize-none"
+                            <label className="block text-app-micro font-bold text-gray-700 dark:text-gray-300 mb-2">{t('notes', 'Notes')}</label>
+                            <textarea className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 outline-none transition-all h-24 resize-none text-app-meta"
                                 value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
                         </div>
-                        <button type="submit" className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-[11px] rounded-xl transition-all active:scale-95">{t('confirm', 'Confirmer')}</button>
+                        <button type="submit" className="px-6 py-3 bg-brand-primary hover:bg-brand-deep text-white font-black uppercase tracking-widest text-app-micro rounded-xl transition-all active:scale-95">{t('confirm', 'Confirmer')}</button>
                     </form>
                 </div>
             )}
@@ -164,17 +164,17 @@ const Reservations = () => {
                         <div key={res.id} className="bg-white dark:bg-[#1A1A1A] p-6 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all group relative border-l-4 border-l-brand-primary overflow-hidden">
                             <div className="flex justify-between items-start mb-4">
                                 <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-brand-primary transition-colors">{res.title}</h3>
-                                <span className="text-[10px] font-black uppercase tracking-widest bg-brand-primary/5 text-brand-primary dark:text-brand-orange px-2 py-1 rounded-lg">{res.type}</span>
+                                <span className="text-app-micro font-black uppercase tracking-widest bg-brand-primary/5 text-brand-primary dark:text-brand-orange px-2 py-1 rounded-lg">{res.type}</span>
                             </div>
                             <div className="space-y-3">
-                                <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm">
+                                <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2 text-app-meta">
                                     <FaCalendarAlt className="text-brand-primary/40" /> {res.room?.name || 'Salle inconnue'}
                                 </p>
-                                <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm">
+                                <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2 text-app-meta">
                                     <FaClock className="text-brand-primary/40" /> {formatDate(res.startTime)} - {formatDate(res.endTime)}
                                 </p>
                             </div>
-                            <div className="mt-6 pt-4 border-t border-gray-50 dark:border-white/5 text-[11px] text-gray-400 uppercase tracking-widest font-bold">
+                            <div className="mt-6 pt-4 border-t border-gray-50 dark:border-white/5 text-app-micro text-gray-400 uppercase tracking-widest font-bold">
                                 {t('organized_by', 'Organisé par')}: <span className="text-gray-900 dark:text-white">{res.organizer?.firstName || t('unknown', 'Inconnu')}</span>
                             </div>
                         </div>

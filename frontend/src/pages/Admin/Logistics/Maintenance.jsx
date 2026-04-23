@@ -140,7 +140,7 @@ export default function Maintenance() {
             'cancelled': t('cancelled', 'Annulé')
         };
         return (
-            <span className={`px-2 py-1 rounded-full text-xs font-bold ${styles[status] || 'bg-gray-100'}`}>
+            <span className={`px-2 py-1 rounded-full text-app-micro font-bold ${styles[status] || 'bg-gray-100'}`}>
                 {labels[status] || status}
             </span>
         );
@@ -153,13 +153,13 @@ export default function Maintenance() {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                         {t('maintenance', 'Maintenance & Actions')}
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2 text-app-meta">
                         {t('maintenance_desc', 'Gérez les réparations et les demandes d\'intervention.')}
                     </p>
                 </div>
                 <button
                     onClick={handleCreate}
-                    className="bg-brand-primary hover:bg-brand-deep text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg transition-all active:scale-95 flex items-center gap-2"
+                    className="bg-brand-primary hover:bg-brand-deep text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-app-micro shadow-lg transition-all active:scale-95 flex items-center gap-2"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                     {t('new_request', 'Nouvelle Demande')}
@@ -172,12 +172,12 @@ export default function Maintenance() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
-                                <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('entity', 'Élément')}</th>
-                                <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('description', 'Description')}</th>
-                                <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('by', 'Signalé par')}</th>
-                                <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('assigned_to', 'Assigné à')}</th>
-                                <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('status', 'Statut')}</th>
-                                <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">{t('actions', 'Actions')}</th>
+                                <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('entity', 'Élément')}</th>
+                                <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('description', 'Description')}</th>
+                                <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('by', 'Signalé par')}</th>
+                                <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('assigned_to', 'Assigné à')}</th>
+                                <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('status', 'Statut')}</th>
+                                <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider text-right">{t('actions', 'Actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -188,22 +188,22 @@ export default function Maintenance() {
                                             {log.entityType === 'room' ? t('room', 'Salle') : t('material', 'Matériel')} #{log.entityId}
                                         </div>
                                     </td>
-                                    <td className="p-6 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate" title={log.description}>
+                                    <td className="p-6 text-app-meta text-gray-600 dark:text-gray-400 max-w-xs truncate" title={log.description}>
                                         {log.description}
                                     </td>
-                                    <td className="p-6 text-sm">
+                                    <td className="p-6 text-app-meta">
                                         {log.reporter ? `${log.reporter.firstName} ${log.reporter.lastName}` : '-'}
                                     </td>
-                                    <td className="p-6 text-sm">
+                                    <td className="p-6 text-app-meta">
                                         {log.assignee ? (
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-[10px] font-black text-brand-primary">
+                                                <div className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-app-micro font-black text-brand-primary">
                                                     {log.assignee.firstName[0]}
                                                 </div>
-                                                <span className="text-gray-900 dark:text-white font-medium">{log.assignee.firstName}</span>
+                                                <span className="text-gray-900 dark:text-white font-medium text-app-meta">{log.assignee.firstName}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400 italic text-xs">{t('unassigned', 'Non assigné')}</span>
+                                            <span className="text-gray-400 italic text-app-meta">{t('unassigned', 'Non assigné')}</span>
                                         )}
                                     </td>
                                     <td className="p-6">
@@ -253,22 +253,22 @@ export default function Maintenance() {
                             {/* Entity Selection */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('type')}</label>
+                                    <label className="block text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('type')}</label>
                                     <select
                                         value={formData.entityType}
                                         onChange={(e) => setFormData({ ...formData, entityType: e.target.value })}
-                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-app-meta focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                     >
                                         <option value="room">{t('room', 'Salle')}</option>
                                         <option value="inventory_item">{t('item', 'Matériel')}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('item', 'Élément')}</label>
+                                    <label className="block text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('item', 'Élément')}</label>
                                     <select
                                         value={formData.entityId}
                                         onChange={(e) => setFormData({ ...formData, entityId: e.target.value })}
-                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                                        className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-app-meta focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                         required
                                     >
                                         <option value="">{t('select_dot', 'Sélectionner...')}</option>
@@ -284,11 +284,11 @@ export default function Maintenance() {
 
                             {/* Description */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('description')}</label>
+                                <label className="block text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('description')}</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all h-32 resize-none"
+                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-app-meta focus:ring-2 focus:ring-brand-primary outline-none transition-all h-32 resize-none"
                                     placeholder={t('describe_problem', 'Décrivez le problème...')}
                                     required
                                 />
@@ -296,11 +296,11 @@ export default function Maintenance() {
 
                             {/* Assignee */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('assign_to', 'Assigner à')}</label>
+                                <label className="block text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('assign_to', 'Assigner à')}</label>
                                 <select
                                     value={formData.assignedTo}
                                     onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none transition-all"
+                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-app-meta focus:ring-2 focus:ring-brand-primary outline-none transition-all"
                                 >
                                     <option value="">Non assigné</option>
                                     {users.map(u => (
@@ -310,10 +310,10 @@ export default function Maintenance() {
                             </div>
 
                             <div className="flex gap-4 pt-4">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest text-[11px] hover:bg-gray-200 transition-colors">
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-6 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest text-app-micro hover:bg-gray-200 transition-colors">
                                     {t('cancel', 'Annuler')}
                                 </button>
-                                <button type="submit" className="flex-1 px-6 py-3 rounded-xl bg-brand-primary text-white font-black uppercase tracking-widest text-[11px] hover:bg-brand-deep shadow-lg active:scale-95 transition-all">
+                                <button type="submit" className="flex-1 px-6 py-3 rounded-xl bg-brand-primary text-white font-black uppercase tracking-widest text-app-micro hover:bg-brand-deep shadow-lg active:scale-95 transition-all">
                                     {t('save', 'Enregistrer')}
                                 </button>
                             </div>

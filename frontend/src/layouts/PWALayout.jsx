@@ -63,8 +63,8 @@ const PWALayout = () => {
               >
                 <div className="flex justify-between items-start mb-8">
                   <div className="space-y-0.5">
-                    <p className="text-[10px] font-light text-slate-400 tracking-widest uppercase">Elyon 360</p>
-                    <h2 className="text-[12px] font-black text-slate-900 dark:text-white leading-tight">
+                    <p className="text-app-micro font-light text-slate-400 tracking-widest uppercase">Elyon 360</p>
+                    <h2 className="text-app-body font-black text-slate-900 dark:text-white leading-tight">
                       {user?.church?.name ? user.church.name.charAt(0).toUpperCase() + user.church.name.slice(1).toLowerCase() : 'Eglise de Dieu'}
                       <span className="ml-1 opacity-40 font-medium">({user?.church?.acronym || 'SIGLE'})</span>
                     </h2>
@@ -79,7 +79,7 @@ const PWALayout = () => {
                       onClick={() => { navigate(item.path); setIsMenuOpen(false); }}
                       className="w-full text-left py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between group"
                     >
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                      <span className="text-base font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                         {item.label}
                       </span>
                     </button>
@@ -121,7 +121,7 @@ const PWALayout = () => {
                                 setIsMenuOpen(false);
                               }
                             }}
-                            className="text-sm font-bold text-slate-900 dark:text-white opacity-80 flex items-center justify-end gap-2 w-full"
+                            className="text-base font-bold text-slate-900 dark:text-white opacity-80 flex items-center justify-end gap-2 w-full"
                           >
                             Mon espace
                             {hasMultipleRoles && (
@@ -147,7 +147,7 @@ const PWALayout = () => {
                                     <button
                                       key={i}
                                       onClick={() => { navigate(path); setIsMenuOpen(false); setIsEspaceOpen(false); }}
-                                      className="block w-full text-right text-[11px] font-black text-blue-600 hover:text-blue-700"
+                                      className="block w-full text-right text-app-meta font-black text-blue-600 hover:text-blue-700"
                                     >
                                       {label}
                                     </button>
@@ -164,7 +164,7 @@ const PWALayout = () => {
                   <div className="border-b border-slate-50 dark:border-slate-800 pb-2">
                     <button
                       onClick={() => { navigate('/settings'); setIsMenuOpen(false); }}
-                      className="text-sm font-bold text-slate-900 dark:text-white opacity-80"
+                      className="text-base font-bold text-slate-900 dark:text-white opacity-80"
                     >
                       Paramètres
                     </button>
@@ -173,7 +173,7 @@ const PWALayout = () => {
                   <div className="pb-2">
                     <button
                       onClick={() => { logout(); setIsMenuOpen(false); }}
-                      className="text-sm font-bold text-rose-500 opacity-80"
+                      className="text-base font-bold text-rose-500 opacity-80"
                     >
                       Quitter
                     </button>

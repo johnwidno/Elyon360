@@ -224,10 +224,10 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
-                                <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('member_growth', 'Croissance Membres')}</h3>
-                                <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('last_12_months', 'Évolution sur les 12 derniers mois')}</p>
+                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('member_growth', 'Croissance Membres')}</h3>
+                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('last_12_months', 'Évolution sur les 12 derniers mois')}</p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black uppercase tracking-widest">
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('members', 'Membres')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('visitors', 'Visiteurs')}</span>
                             </div>
@@ -259,8 +259,8 @@ const AdminDashboard = () => {
                     {/* Right Events List */}
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('upcoming_events', 'Événements à Venir')}</h3>
-                            <button className="text-[10px] font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_all', 'Voir Plus')} →</button>
+                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('upcoming_events', 'Événements à Venir')}</h3>
+                            <button className="text-app-micro font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_all', 'Voir Plus')} →</button>
                         </div>
                         <div className="flex-1 space-y-6">
                             {eventsData.map((evt, idx) => (
@@ -270,12 +270,12 @@ const AdminDashboard = () => {
                                     className="flex items-start gap-5 group cursor-pointer"
                                 >
                                     <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 dark:bg-white/5 flex flex-col items-center justify-center shrink-0 border border-brand-primary/10 dark:border-white/5 transition-colors group-hover:bg-brand-primary group-hover:text-white shadow-sm">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter leading-none transition-colors group-hover:text-brand-light">{evt.date.split(' ')[1]}</span>
-                                        <span className="text-[18px] font-black leading-none mt-1 transition-colors">{evt.date.split(' ')[0]}</span>
+                                        <span className="text-app-micro font-black uppercase tracking-tighter leading-none transition-colors group-hover:text-brand-light">{evt.date.split(' ')[1]}</span>
+                                        <span className="text-app-title font-black leading-none mt-1 transition-colors">{evt.date.split(' ')[0]}</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-[14px] font-black text-gray-900 dark:text-gray-100 group-hover:text-brand-primary dark:group-hover:text-brand-orange transition-colors">{evt.title}</h4>
-                                        <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1.5 flex items-center gap-2">
+                                        <h4 className="text-app-body font-black text-gray-900 dark:text-gray-100 group-hover:text-brand-primary dark:group-hover:text-brand-orange transition-colors">{evt.title}</h4>
+                                        <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1.5 flex items-center gap-2">
                                             <Clock size={12} className="text-brand-orange/50" /> {evt.time} &nbsp;&bull;&nbsp; {evt.loc}
                                         </p>
                                     </div>
@@ -291,10 +291,10 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
-                                <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('financial_income', 'Revenus Financiers')}</h3>
-                                <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('income_desc', 'Dîmes, offrandes et dons par mois')}</p>
+                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('financial_income', 'Revenus Financiers')}</h3>
+                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('income_desc', 'Dîmes, offrandes et dons par mois')}</p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black uppercase tracking-widest">
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('tithes', 'Dîmes')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('offerings', 'Offrandes')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('donations', 'Dons')}</span>
@@ -318,8 +318,8 @@ const AdminDashboard = () => {
                     {/* Donut Chart */}
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="mb-4">
-                            <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('distribution_dept', 'Répartition par Département')}</h3>
-                            <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('active_members_ministry', 'Membres actifs par ministère')}</p>
+                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('distribution_dept', 'Répartition par Département')}</h3>
+                            <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('active_members_ministry', 'Membres actifs par ministère')}</p>
                         </div>
                         <div className="flex-1 relative flex items-center justify-center py-4">
                             <ResponsiveContainer width="100%" height={220}>
@@ -338,9 +338,9 @@ const AdminDashboard = () => {
                                 <div key={idx} className="flex justify-between items-center group cursor-default">
                                     <div className="flex items-center gap-2.5">
                                         <span className="w-2.5 h-2.5 rounded-full transition-transform group-hover:scale-125" style={{ backgroundColor: entry.color }}></span>
-                                        <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tighter">{entry.name}</span>
+                                        <span className="text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tighter">{entry.name}</span>
                                     </div>
-                                    <span className="text-[13px] font-black text-gray-900 dark:text-white">{entry.value}%</span>
+                                    <span className="text-app-meta font-black text-gray-900 dark:text-white">{entry.value}%</span>
                                 </div>
                             ))}
                         </div>
@@ -353,10 +353,10 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
-                                <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('weekly_presence', 'Présences Hebdomadaires')}</h3>
-                                <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('weekly_desc', 'Culte, école du dimanche et prière')}</p>
+                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('weekly_presence', 'Présences Hebdomadaires')}</h3>
+                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('weekly_desc', 'Culte, école du dimanche et prière')}</p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black uppercase tracking-widest">
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('service', 'Culte')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('school', 'École')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('prayer', 'Prière')}</span>
@@ -380,8 +380,8 @@ const AdminDashboard = () => {
                     {/* Activite Recente */}
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('recent_activity', 'Activité Récente')}</h3>
-                            <button className="text-[10px] font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_history', 'Voir Historique')}</button>
+                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('recent_activity', 'Activité Récente')}</h3>
+                            <button className="text-app-micro font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_history', 'Voir Historique')}</button>
                         </div>
                         <div className="flex-1 space-y-5">
                             {activiteData.map((act, idx) => (
@@ -395,17 +395,17 @@ const AdminDashboard = () => {
                                             {act.icon}
                                         </div>
                                         <div>
-                                            <h4 className="text-[13px] font-black text-gray-900 dark:text-gray-100 group-hover:text-brand-primary dark:group-hover:text-brand-orange transition-colors">{act.title}</h4>
-                                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-tight">{act.desc}</p>
+                                            <h4 className="text-app-meta font-black text-gray-900 dark:text-gray-100 group-hover:text-brand-primary dark:group-hover:text-brand-orange transition-colors">{act.title}</h4>
+                                            <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-tight">{act.desc}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         {act.amount ? (
-                                            <div className="text-[12px] font-black text-emerald-500">{act.amount}</div>
+                                            <div className="text-app-meta font-black text-emerald-500">{act.amount}</div>
                                         ) : (
-                                            <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{act.date}</div>
+                                            <div className="text-app-micro font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{act.date}</div>
                                         )}
-                                        {act.amount && <div className="text-[9px] font-bold text-gray-400 dark:text-gray-500 mt-0.5">{act.date}</div>}
+                                        {act.amount && <div className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-0.5">{act.date}</div>}
                                     </div>
                                 </motion.div>
                             ))}
@@ -416,8 +416,8 @@ const AdminDashboard = () => {
                 {/* 5. Derniers Membres Table */}
                 <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2.5rem] shadow-premium overflow-hidden">
                     <div className="p-8 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-black/10">
-                        <h3 className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('last_members_added', 'Derniers Membres Ajoutés')}</h3>
-                        <button onClick={() => navigate('/admin/members')} className="text-[10px] font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('more_members', 'Plus de Membres')} →</button>
+                        <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('last_members_added', 'Derniers Membres Ajoutés')}</h3>
+                        <button onClick={() => navigate('/admin/members')} className="text-app-micro font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('more_members', 'Plus de Membres')} →</button>
                     </div>
                     <div className="overflow-x-auto noscrollbar">
                         <table className="w-full">
@@ -426,20 +426,20 @@ const AdminDashboard = () => {
                                     <tr key={member.id} className="hover:bg-brand-primary/5 dark:hover:bg-white/5 cursor-pointer transition-all group" onClick={() => navigate(`/admin/members/${member.id}`)}>
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-11 h-11 rounded-[14px] bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange flex items-center justify-center font-black text-[14px] shadow-sm group-hover:scale-105 transition-transform">
+                                                <div className="w-11 h-11 rounded-[14px] bg-brand-primary/10 dark:bg-brand-primary/30 text-brand-primary dark:text-brand-orange flex items-center justify-center font-black text-app-body shadow-sm group-hover:scale-105 transition-transform">
                                                     {member.firstName?.[0]}{member.lastName?.[0]}
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-gray-900 dark:text-white text-[14px] group-hover:text-brand-primary transition-colors uppercase tracking-tight">{member.firstName} {member.lastName}</div>
-                                                    <div className="text-[11px] text-gray-400 dark:text-gray-500 font-bold mt-1 tracking-tight">{member.email || member.phone || 'Sans Contact'}</div>
+                                                    <div className="font-black text-gray-900 dark:text-white text-app-body group-hover:text-brand-primary transition-colors uppercase tracking-tight">{member.firstName} {member.lastName}</div>
+                                                    <div className="text-app-micro text-gray-400 dark:text-gray-500 font-bold mt-1 tracking-tight">{member.email || member.phone || 'Sans Contact'}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hidden sm:table-cell">
+                                        <td className="px-8 py-5 text-app-micro font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hidden sm:table-cell">
                                             {member.subtype?.name || 'Général'}
                                         </td>
                                         <td className="px-8 py-5 text-right">
-                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase ${member.status === 'Actif' || member.status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'}`}>
+                                            <span className={`px-4 py-1.5 rounded-full text-app-micro font-black tracking-widest uppercase ${member.status === 'Actif' || member.status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'}`}>
                                                 {t(member.status?.toLowerCase()) || member.status || 'Actif'}
                                             </span>
                                         </td>
@@ -468,7 +468,7 @@ const KpiCard = ({ title, value, trend, trendLabel, icon, iconColor, iconBg, tre
         className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-6 shadow-premium relative overflow-hidden flex flex-col justify-between h-[150px] group transition-all"
     >
         <div className="flex justify-between items-start z-10">
-            <h4 className="text-[10px] font-black tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase">{title}</h4>
+            <h4 className="text-app-micro font-black tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase">{title}</h4>
             <div className={`w-10 h-10 rounded-2xl ${iconBg} ${iconColor} flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-6 mt-1`}>
                 {icon}
             </div>
@@ -476,8 +476,8 @@ const KpiCard = ({ title, value, trend, trendLabel, icon, iconColor, iconBg, tre
         <div className="z-10">
             <h2 className="text-[32px] font-black text-gray-900 dark:text-white leading-none mb-3 tracking-tighter">{value}</h2>
             <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-black px-2 py-1 rounded-lg ${trendColor === 'text-emerald-400' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'} uppercase tracking-widest`}>{trend}</span>
-                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">{trendLabel}</span>
+                <span className={`text-app-micro font-black px-2 py-1 rounded-lg ${trendColor === 'text-emerald-400' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'} uppercase tracking-widest`}>{trend}</span>
+                <span className="text-app-micro font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">{trendLabel}</span>
             </div>
         </div>
         {/* Subtle background decoration */}

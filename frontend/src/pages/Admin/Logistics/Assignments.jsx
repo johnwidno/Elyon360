@@ -60,7 +60,7 @@ export default function Assignments() {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                         {t('assignments', 'Responsables & Affectations')}
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">
+                    <p className="text-app-meta text-gray-500 dark:text-gray-400 mt-2">
                         {t('assignments_desc', 'Gérez les responsables des salles et des équipements.')}
                     </p>
                 </div>
@@ -70,10 +70,10 @@ export default function Assignments() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
-                            <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('room', 'Salle')}</th>
-                            <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('capacity', 'Capacité')}</th>
-                            <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('current_manager', 'Responsable Actuel')}</th>
-                            <th className="p-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">{t('actions', 'Actions')}</th>
+                            <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('room', 'Salle')}</th>
+                            <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('capacity', 'Capacité')}</th>
+                            <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider">{t('current_manager', 'Responsable Actuel')}</th>
+                            <th className="p-6 text-app-micro font-bold text-gray-500 uppercase tracking-wider text-right">{t('actions', 'Actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -82,25 +82,25 @@ export default function Assignments() {
                             return (
                                 <tr key={room.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                     <td className="p-6 font-bold text-gray-900 dark:text-white">{room.name}</td>
-                                    <td className="p-6 text-sm text-gray-500">{room.capacity} {t('pers', 'pers.')}</td>
+                                    <td className="p-6 text-app-meta text-gray-500">{room.capacity} {t('pers', 'pers.')}</td>
                                     <td className="p-6">
                                         {manager ? (
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-black text-[10px] uppercase tracking-widest">
+                                                <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-black text-app-micro uppercase tracking-widest">
                                                     {manager.firstName[0]}
                                                 </div>
-                                                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                <div className="text-app-meta font-medium text-gray-900 dark:text-white">
                                                     {manager.firstName} {manager.lastName}
                                                 </div>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400 text-sm italic">{t('unassigned', 'Non assigné')}</span>
+                                            <span className="text-gray-400 text-app-meta italic">{t('unassigned', 'Non assigné')}</span>
                                         )}
                                     </td>
                                     <td className="p-6 text-right">
                                         <button
                                             onClick={() => handleAssign(room)}
-                                            className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-brand-primary/10 hover:text-brand-primary text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 transition-colors"
+                                            className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-brand-primary/10 hover:text-brand-primary text-app-micro font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 transition-colors"
                                         >
                                             {t('change', 'Changer')}
                                         </button>
@@ -118,15 +118,15 @@ export default function Assignments() {
                     <div className="bg-white dark:bg-[#1A1A1A] rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('assign_manager', 'Assigner un Responsable')}</h3>
-                            <p className="text-xs text-gray-500 mt-1">{t('for_room', 'Pour la salle')} <span className="font-bold">{selectedRoom?.name}</span></p>
+                            <p className="text-app-meta text-gray-500 mt-1">{t('for_room', 'Pour la salle')} <span className="font-bold">{selectedRoom?.name}</span></p>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('manager', 'Responsable')}</label>
+                                <label className="block text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{t('manager', 'Responsable')}</label>
                                 <select
                                     value={assignmentData.managerId}
                                     onChange={(e) => setAssignmentData({ managerId: e.target.value })}
-                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-primary outline-none"
+                                    className="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-app-meta focus:ring-2 focus:ring-brand-primary outline-none"
                                 >
                                     <option value="">-- {t('no_manager_option', 'Aucun Responsable')} --</option>
                                     {users.map(u => (
@@ -135,8 +135,8 @@ export default function Assignments() {
                                 </select>
                             </div>
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-[11px] font-black uppercase tracking-widest transition-colors">{t('cancel', 'Annuler')}</button>
-                                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-[11px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">{t('save', 'Enregistrer')}</button>
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-app-micro font-black uppercase tracking-widest transition-colors">{t('cancel', 'Annuler')}</button>
+                                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-app-micro font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">{t('save', 'Enregistrer')}</button>
                             </div>
                         </form>
                     </div>

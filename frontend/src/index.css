@@ -11,20 +11,33 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-size-micro: 11px;
+  --font-size-meta: 13px;
+  --font-size-body: 16px;
+  --font-size-title: 18px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --font-size-micro: 12px;
+    --font-size-meta: 14px;
+    --font-size-body: 16px;
+    --font-size-title: 20px;
+  }
+}
+
 body,
 input,
 button,
 textarea,
 select {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 14px;
+  font-size: var(--font-size-body);
 }
 
-@media (min-width: 768px) {
-  body, input, button, textarea, select {
-    font-size: 15px;
-  }
-}
+
+/* Desktop override handled via CSS variables above */
 
 body {
   margin: 0;

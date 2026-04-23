@@ -11,13 +11,13 @@ const TopBar = ({ title, onMenuClick }) => {
     <header className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 z-50 flex items-center transition-all px-6">
       <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-sm font-black text-slate-900 dark:text-white tracking-tight uppercase">Elyon360</h1>
+          <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Elyon360</h1>
           
           <div className="h-4 w-[1px] bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
           
           <button 
             onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
-            className="text-[10px] font-black text-slate-900 dark:text-slate-400 hidden sm:block"
+            className="text-[12px] font-black text-slate-900 dark:text-slate-400 hidden sm:block"
           >
             <span className="uppercase">FR/EN</span>
           </button>
@@ -26,7 +26,7 @@ const TopBar = ({ title, onMenuClick }) => {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
-            className="text-[10px] font-black text-slate-900 dark:text-slate-400 sm:hidden pr-2 border-r border-slate-50 dark:border-slate-800 mr-1"
+            className="text-[12px] font-black text-slate-900 dark:text-slate-400 sm:hidden pr-2 border-r border-slate-50 dark:border-slate-800 mr-1"
           >
             <span className="uppercase">FR/EN</span>
           </button>

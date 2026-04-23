@@ -406,7 +406,7 @@ export default function Settings() {
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black transition-colors">
                 <div className="flex flex-col items-center">
                     <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-gray-500 dark:text-gray-400 font-semibold animate-pulse text-[11px]">{t('loading_config')}</p>
+                    <p className="text-gray-500 dark:text-gray-400 font-semibold animate-pulse text-app-micro">{t('loading_config')}</p>
                 </div>
             </div>
         );
@@ -416,8 +416,8 @@ export default function Settings() {
         <div className="max-w-4xl mx-auto pb-32 pt-10 px-4">
             <header className="mb-14 flex flex-col md:flex-row justify-between items-center md:items-end gap-6 text-center md:text-left animate-fade-in">
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-none tracking-tight transition-colors">{t('settings')}</h1>
-                    <p className="text-gray-400 dark:text-gray-500 font-semibold text-[13px] flex items-center justify-center md:justify-start transition-colors">
+                    <h1 className="text-app-title font-bold text-gray-900 dark:text-white leading-none tracking-tight transition-colors">{t('settings')}</h1>
+                    <p className="text-gray-400 dark:text-gray-500 font-semibold text-app-meta flex items-center justify-center md:justify-start transition-colors">
                         <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2.5"></span>
                         {t('global_config_desc')}
                     </p>
@@ -432,7 +432,7 @@ export default function Settings() {
                             }
                         }}
                         disabled={!church.setupCompleted}
-                        className={`px-8 py-3.5 rounded-xl text-[13px] font-semibold transition-all shadow-lg active:scale-95 ${church.setupCompleted
+                        className={`px-8 py-3.5 rounded-xl text-app-meta font-semibold transition-all shadow-lg active:scale-95 ${church.setupCompleted
                             ? 'bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer'
                             : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600 cursor-not-allowed shadow-none'
                             }`}
@@ -465,12 +465,12 @@ export default function Settings() {
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('church_name')} <span className="text-red-500">*</span></label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('church_name')} <span className="text-red-500">*</span></label>
                                 <div className={`flex items-center bg-gray-50 dark:bg-black/20 border ${errors.name ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} focus-within:border-indigo-500 focus-within:bg-white dark:focus-within:bg-black transition-all rounded-xl shadow-sm overflow-hidden`}>
-                                    <span className="pl-4 text-gray-400 font-semibold text-xs italic opacity-40">{t('name_hint', 'Name')}</span>
+                                    <span className="pl-4 text-gray-400 font-semibold text-app-micro italic opacity-40">{t('name_hint', 'Name')}</span>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.name || ''}
                                         onChange={(e) => {
                                             setChurch({ ...church, name: e.target.value });
@@ -480,11 +480,11 @@ export default function Settings() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('acronym_label')} <span className="text-red-500">*</span></label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('acronym_label')} <span className="text-red-500">*</span></label>
                                 <div className={`flex items-center bg-gray-50 dark:bg-black/20 border ${errors.acronym ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} focus-within:border-indigo-500 focus-within:bg-white dark:focus-within:bg-black transition-all rounded-xl shadow-sm overflow-hidden`}>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.acronym || ''}
                                         onChange={(e) => {
                                             setChurch({ ...church, acronym: e.target.value.toUpperCase() });
@@ -495,11 +495,11 @@ export default function Settings() {
                             </div>
 
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-2.5">{t('pastor_name_label', 'Nom du Pasteur')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 mb-2.5">{t('pastor_name_label', 'Nom du Pasteur')}</label>
                                 <div className="flex items-center bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 focus-within:border-indigo-500 focus-within:bg-white dark:focus-within:bg-black transition-all rounded-xl shadow-sm overflow-hidden">
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         placeholder="Ex: Rev. Jean Baptiste"
                                         value={church.pastorName || ''}
                                         onChange={(e) => setChurch({ ...church, pastorName: e.target.value })}
@@ -508,11 +508,11 @@ export default function Settings() {
                             </div>
 
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-2.5">{t('church_email_label', 'Email de l\'église')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 mb-2.5">{t('church_email_label', 'Email de l\'église')}</label>
                                 <div className="flex items-center bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 focus-within:border-indigo-500 focus-within:bg-white dark:focus-within:bg-black transition-all rounded-xl shadow-sm overflow-hidden">
                                     <input
                                         type="email"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         placeholder="eglise@exemple.com"
                                         value={church.churchEmail || ''}
                                         onChange={(e) => setChurch({ ...church, churchEmail: e.target.value })}
@@ -520,36 +520,36 @@ export default function Settings() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('subdomain_label')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('subdomain_label')}</label>
                                 <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-transparent rounded-xl shadow-sm overflow-hidden opacity-70 cursor-not-allowed transition-colors">
-                                    <span className="pl-4 text-gray-500 font-semibold text-xs italic">{t('url_hint', 'URL')}</span>
+                                    <span className="pl-4 text-gray-500 font-semibold text-app-micro italic">{t('url_hint', 'URL')}</span>
                                     <input
                                         type="text"
                                         readOnly
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold text-gray-500 dark:text-gray-400 cursor-not-allowed"
                                         value={`${church.subdomain}.elyonsys360.com`}
                                     />
                                     <span className="pr-4">🔒</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('owner_email_label')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('owner_email_label')}</label>
                                 <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-transparent rounded-xl shadow-sm overflow-hidden opacity-70 cursor-not-allowed transition-colors">
-                                    <span className="pl-4 text-gray-500 font-semibold text-xs italic">@</span>
+                                    <span className="pl-4 text-gray-500 font-semibold text-app-micro italic">@</span>
                                     <input
                                         type="email"
                                         readOnly
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold text-gray-500 dark:text-gray-400 cursor-not-allowed"
                                         value={church.contactEmail || ''}
                                     />
                                     <span className="pr-4">🔒</span>
                                 </div>
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('description_who_we_are')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('description_who_we_are')}</label>
                                 <textarea
                                     rows="4"
-                                    className="w-full bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold text-gray-800 dark:text-white resize-none"
+                                    className="w-full bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold text-gray-800 dark:text-white resize-none"
                                     value={church.description || ''}
                                     onChange={(e) => setChurch({ ...church, description: e.target.value })}
                                 ></textarea>
@@ -568,7 +568,7 @@ export default function Settings() {
                         <div className="space-y-8 mt-2">
                             {/* Church Logo Upload */}
                             <div>
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('church_logo_label', 'Logo de l\'église')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('church_logo_label', 'Logo de l\'église')}</label>
                                 <div className="flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
                                     <div className="w-32 h-32 rounded-3xl bg-gray-50 dark:bg-black/20 border-2 border-dashed border-gray-200 dark:border-white/10 flex items-center justify-center overflow-hidden relative group/logo shadow-sm shrink-0">
                                         {church.logoUrl ? (
@@ -583,7 +583,7 @@ export default function Settings() {
                                                     onClick={() => handleImageRemove('logoUrl')}
                                                     className="absolute inset-0 bg-red-600/60 text-white opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center"
                                                 >
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">{t('remove', 'Supprimer')}</span>
+                                                    <span className="text-app-micro font-black uppercase tracking-widest">{t('remove', 'Supprimer')}</span>
                                                 </button>
                                             </>
                                         ) : (
@@ -595,11 +595,11 @@ export default function Settings() {
                                             <input
                                                 type="text"
                                                 placeholder={t('logo_url_placeholder', 'URL du logo')}
-                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-medium dark:text-white"
+                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-app-meta font-medium dark:text-white"
                                                 value={church.logoUrl || ''}
                                                 onChange={(e) => setChurch({ ...church, logoUrl: e.target.value })}
                                             />
-                                            <label className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl text-[12px] font-semibold hover:bg-indigo-700 cursor-pointer transition-all active:scale-95 flex items-center shadow-lg whitespace-nowrap">
+                                            <label className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl text-app-micro font-semibold hover:bg-indigo-700 cursor-pointer transition-all active:scale-95 flex items-center shadow-lg whitespace-nowrap">
                                                 <span>{t('upload')}</span>
                                                 <input
                                                     type="file"
@@ -609,7 +609,7 @@ export default function Settings() {
                                                 />
                                             </label>
                                         </div>
-                                        <p className="text-[11px] text-gray-400 font-semibold transition-colors">{t('logo_hint', 'Format carré recommandé pour un meilleur affichage.')}</p>
+                                        <p className="text-app-micro text-gray-400 font-semibold transition-colors">{t('logo_hint', 'Format carré recommandé pour un meilleur affichage.')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -617,18 +617,18 @@ export default function Settings() {
                             <div className="h-px bg-gray-100 dark:bg-white/5 w-full"></div>
 
                             <div>
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('hero_image_label')}</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('hero_image_label')}</label>
                                 <div className="flex flex-col md:flex-row gap-6">
                                     <div className="flex-1 space-y-4">
                                         <div className="flex gap-4">
                                             <input
                                                 type="text"
                                                 placeholder={t('hero_image_placeholder')}
-                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-medium dark:text-white"
+                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 transition-all outline-none text-app-meta font-medium dark:text-white"
                                                 value={church.heroImageUrl || ''}
                                                 onChange={(e) => setChurch({ ...church, heroImageUrl: e.target.value })}
                                             />
-                                            <label className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl text-[12px] font-semibold hover:bg-indigo-700 cursor-pointer transition-all active:scale-95 flex items-center shadow-lg">
+                                            <label className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl text-app-micro font-semibold hover:bg-indigo-700 cursor-pointer transition-all active:scale-95 flex items-center shadow-lg">
                                                 <span>{t('upload')}</span>
                                                 <input
                                                     type="file"
@@ -638,20 +638,20 @@ export default function Settings() {
                                                 />
                                             </label>
                                         </div>
-                                        <p className="text-[11px] text-gray-400 font-semibold transition-colors">{t('hero_image_hint')}</p>
+                                        <p className="text-app-micro text-gray-400 font-semibold transition-colors">{t('hero_image_hint')}</p>
                                     </div>
                                     {church.heroImageUrl && (
                                         <div className="flex flex-col gap-4">
                                             <div className="w-full md:w-48 h-32 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 shadow-lg flex-shrink-0 group relative transition-colors">
                                                 <img src={church.heroImageUrl.startsWith('http') ? church.heroImageUrl : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${church.heroImageUrl}`} alt="Hero Preview" className="w-full h-full object-cover" />
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <span className="text-[10px] text-white font-semibold transition-colors">{t('current_preview')}</span>
+                                                    <span className="text-app-micro text-white font-semibold transition-colors">{t('current_preview')}</span>
                                                 </div>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={() => handleImageRemove('heroImageUrl')}
-                                                className="text-[11px] font-semibold text-red-500 hover:text-red-700 transition-colors flex items-center justify-center gap-2"
+                                                className="text-app-micro font-semibold text-red-500 hover:text-red-700 transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <span>✕ {t('remove_image')}</span>
                                             </button>
@@ -663,11 +663,11 @@ export default function Settings() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-6">
                                     <div className="group">
-                                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5 transition-colors">{t('mission_title_label')} <span className="text-red-500">*</span></label>
+                                        <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5 transition-colors">{t('mission_title_label')} <span className="text-red-500">*</span></label>
                                         <input
                                             type="text"
                                             placeholder={t('mission_title_placeholder')}
-                                            className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.missionTitle ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm`}
+                                            className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.missionTitle ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm`}
                                             value={church.missionTitle || ''}
                                             onChange={(e) => {
                                                 setChurch({ ...church, missionTitle: e.target.value });
@@ -676,10 +676,10 @@ export default function Settings() {
                                         />
                                     </div>
                                     <div className="group">
-                                        <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('mission_desc_label')} <span className="text-red-500">*</span></label>
+                                        <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('mission_desc_label')} <span className="text-red-500">*</span></label>
                                         <textarea
                                             rows="4"
-                                            className={`w-full p-6 bg-white dark:bg-black/20 border ${errors.mission ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm leading-relaxed resize-none`}
+                                            className={`w-full p-6 bg-white dark:bg-black/20 border ${errors.mission ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm leading-relaxed resize-none`}
                                             value={church.mission || ''}
                                             onChange={(e) => {
                                                 setChurch({ ...church, mission: e.target.value });
@@ -688,16 +688,16 @@ export default function Settings() {
                                         ></textarea>
                                     </div>
                                     <div className="space-y-4">
-                                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2 transition-colors">{t('mission_bg_image')}</label>
+                                        <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2 transition-colors">{t('mission_bg_image')}</label>
                                         <div className="flex gap-3">
                                             <input
                                                 type="text"
                                                 placeholder={t('hero_image_placeholder')}
-                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 text-sm font-medium dark:text-white transition-all shadow-sm"
+                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 text-app-meta font-medium dark:text-white transition-all shadow-sm"
                                                 value={church.missionImageUrl || ''}
                                                 onChange={(e) => setChurch({ ...church, missionImageUrl: e.target.value })}
                                             />
-                                            <label className="bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 px-4 py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white cursor-pointer transition-all flex items-center shadow-sm">
+                                            <label className="bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 px-4 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white cursor-pointer transition-all flex items-center shadow-sm">
                                                 <span>{t('upload_short', 'UP')}</span>
                                                 <input
                                                     type="file"
@@ -724,11 +724,11 @@ export default function Settings() {
 
                                 <div className="space-y-6">
                                     <div className="group">
-                                        <label className="block text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5 transition-colors">{t('vision_title_label')} <span className="text-red-500">*</span></label>
+                                        <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5 transition-colors">{t('vision_title_label')} <span className="text-red-500">*</span></label>
                                         <input
                                             type="text"
                                             placeholder={t('vision_title_placeholder')}
-                                            className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.visionTitle ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm`}
+                                            className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.visionTitle ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm`}
                                             value={church.visionTitle || ''}
                                             onChange={(e) => {
                                                 setChurch({ ...church, visionTitle: e.target.value });
@@ -737,10 +737,10 @@ export default function Settings() {
                                         />
                                     </div>
                                     <div className="group">
-                                        <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('vision_desc_label')} <span className="text-red-500">*</span></label>
+                                        <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('vision_desc_label')} <span className="text-red-500">*</span></label>
                                         <textarea
                                             rows="4"
-                                            className={`w-full p-6 bg-white dark:bg-black/20 border ${errors.vision ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm leading-relaxed resize-none`}
+                                            className={`w-full p-6 bg-white dark:bg-black/20 border ${errors.vision ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm leading-relaxed resize-none`}
                                             value={church.vision || ''}
                                             onChange={(e) => {
                                                 setChurch({ ...church, vision: e.target.value });
@@ -749,16 +749,16 @@ export default function Settings() {
                                         ></textarea>
                                     </div>
                                     <div className="space-y-4">
-                                        <label className="block text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors mb-2">{t('vision_bg_image')}</label>
+                                        <label className="block text-app-micro font-semibold text-gray-400 dark:text-gray-500 transition-colors mb-2">{t('vision_bg_image')}</label>
                                         <div className="flex gap-3">
                                             <input
                                                 type="text"
                                                 placeholder={t('hero_image_placeholder')}
-                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 text-sm font-medium dark:text-white transition-all shadow-sm"
+                                                className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 text-app-meta font-medium dark:text-white transition-all shadow-sm"
                                                 value={church.visionImageUrl || ''}
                                                 onChange={(e) => setChurch({ ...church, visionImageUrl: e.target.value })}
                                             />
-                                            <label className="bg-indigo-600 text-white px-6 py-3.5 rounded-xl text-[12px] font-semibold hover:bg-indigo-700 cursor-pointer transition-all flex items-center shadow-lg">
+                                            <label className="bg-indigo-600 text-white px-6 py-3.5 rounded-xl text-app-micro font-semibold hover:bg-indigo-700 cursor-pointer transition-all flex items-center shadow-lg">
                                                 <span>{t('upload')}</span>
                                                 <input
                                                     type="file"
@@ -788,10 +788,10 @@ export default function Settings() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div className="space-y-6">
                                         <div className="group">
-                                            <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('our_values')} <span className="text-red-500">*</span></label>
+                                            <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">{t('our_values')} <span className="text-red-500">*</span></label>
                                             <textarea
                                                 rows="4"
-                                                className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.values ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm resize-none leading-relaxed`}
+                                                className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.values ? 'border-red-500' : 'border-gray-100 dark:border-white/10'} rounded-xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm resize-none leading-relaxed`}
                                                 placeholder={t('values_placeholder')}
                                                 value={church.values || ''}
                                                 onChange={(e) => {
@@ -801,16 +801,16 @@ export default function Settings() {
                                             ></textarea>
                                         </div>
                                         <div className="space-y-4">
-                                            <label className="block text-[11px] font-semibold text-gray-400 dark:text-gray-500 transition-colors mb-2">{t('values_image')}</label>
+                                            <label className="block text-app-micro font-semibold text-gray-400 dark:text-gray-500 transition-colors mb-2">{t('values_image')}</label>
                                             <div className="flex gap-3">
                                                 <input
                                                     type="text"
                                                     placeholder={t('hero_image_placeholder')}
-                                                    className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 text-sm font-medium dark:text-white transition-all shadow-sm"
+                                                    className="flex-1 bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-xl focus:border-indigo-500 text-app-meta font-medium dark:text-white transition-all shadow-sm"
                                                     value={church.valuesImageUrl || ''}
                                                     onChange={(e) => setChurch({ ...church, valuesImageUrl: e.target.value })}
                                                 />
-                                                <label className="bg-indigo-600 text-white px-6 py-3.5 rounded-xl text-[12px] font-semibold hover:bg-indigo-700 cursor-pointer transition-all flex items-center shadow-lg">
+                                                <label className="bg-indigo-600 text-white px-6 py-3.5 rounded-xl text-app-micro font-semibold hover:bg-indigo-700 cursor-pointer transition-all flex items-center shadow-lg">
                                                     <span>{t('upload')}</span>
                                                     <input
                                                         type="file"
@@ -835,8 +835,8 @@ export default function Settings() {
                                         </div>
                                         <div className="flex flex-col justify-center bg-indigo-50/30 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-white/5 transition-colors">
                                             <div className="text-3xl mb-4">💎</div>
-                                            <h4 className="text-[13px] font-bold text-indigo-900 dark:text-indigo-400 uppercase tracking-tight mb-2">{t('design_tip')}</h4>
-                                            <p className="text-[11px] text-indigo-700/70 dark:text-indigo-500 font-semibold leading-relaxed">
+                                            <h4 className="text-app-meta font-bold text-indigo-900 dark:text-indigo-400 uppercase tracking-tight mb-2">{t('design_tip')}</h4>
+                                            <p className="text-app-micro text-indigo-700/70 dark:text-indigo-500 font-semibold leading-relaxed">
                                                 {t('values_image_tip')}
                                             </p>
                                         </div>
@@ -888,75 +888,75 @@ export default function Settings() {
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">Facebook</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">Facebook</label>
                                 <div className="flex items-center bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-2xl focus-within:border-blue-500 transition-all shadow-sm">
-                                    <span className="pl-4 text-blue-500 font-bold text-xs opacity-50">/</span>
+                                    <span className="pl-4 text-blue-500 font-bold text-app-micro opacity-50">/</span>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.socialLinks?.facebook || ''}
                                         onChange={(e) => setChurch({ ...church, socialLinks: { ...church.socialLinks, facebook: e.target.value } })}
                                     />
                                 </div>
                             </div>
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">YouTube</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">YouTube</label>
                                 <div className="flex items-center bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-2xl focus-within:border-red-500 transition-all shadow-sm">
-                                    <span className="pl-4 text-red-500 font-bold text-xs opacity-50">/</span>
+                                    <span className="pl-4 text-red-500 font-bold text-app-micro opacity-50">/</span>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.socialLinks?.youtube || ''}
                                         onChange={(e) => setChurch({ ...church, socialLinks: { ...church.socialLinks, youtube: e.target.value } })}
                                     />
                                 </div>
                             </div>
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">Instagram</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">Instagram</label>
                                 <div className="flex items-center bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-2xl focus-within:border-pink-500 transition-all shadow-sm">
-                                    <span className="pl-4 text-pink-500 font-bold text-xs opacity-50">/</span>
+                                    <span className="pl-4 text-pink-500 font-bold text-app-micro opacity-50">/</span>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.socialLinks?.instagram || ''}
                                         onChange={(e) => setChurch({ ...church, socialLinks: { ...church.socialLinks, instagram: e.target.value } })}
                                     />
                                 </div>
                             </div>
                             <div className="group">
-                                <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">WhatsApp</label>
+                                <label className="block text-app-micro font-semibold text-gray-500 dark:text-gray-400 transition-colors mb-2.5">WhatsApp</label>
                                 <div className="flex items-center bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-2xl focus-within:border-green-500 transition-all shadow-sm">
-                                    <span className="pl-4 text-green-500 font-bold text-xs opacity-50">+</span>
+                                    <span className="pl-4 text-green-500 font-bold text-app-micro opacity-50">+</span>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.socialLinks?.whatsapp || ''}
                                         onChange={(e) => setChurch({ ...church, socialLinks: { ...church.socialLinks, whatsapp: e.target.value } })}
                                     />
                                 </div>
                             </div>
                             <div className="group md:col-span-1">
-                                <label className="block text-[11px] font-semibold text-indigo-400 transition-colors mb-2.5 group-focus-within:text-indigo-600 transition-colors">{t('platform_name') || 'Nom de la Plateforme (Ex: YouTube, Facebook)'}</label>
+                                <label className="block text-app-micro font-semibold text-indigo-400 transition-colors mb-2.5 group-focus-within:text-indigo-600 transition-colors">{t('platform_name') || 'Nom de la Plateforme (Ex: YouTube, Facebook)'}</label>
                                 <div className="flex items-center bg-indigo-50/30 dark:bg-indigo-900/10 border border-indigo-100 dark:border-white/5 rounded-2xl focus-within:border-indigo-500 transition-all shadow-sm">
-                                    <span className="pl-4 text-indigo-500 font-bold text-xs opacity-50">📱</span>
+                                    <span className="pl-4 text-indigo-500 font-bold text-app-micro opacity-50">📱</span>
                                     <input
                                         type="text"
                                         placeholder={t('platform_name_placeholder')}
-                                        className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                        className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                         value={church.socialLinks?.liveServicePlatform || ''}
                                         onChange={(e) => setChurch({ ...church, socialLinks: { ...church.socialLinks, liveServicePlatform: e.target.value } })}
                                     />
                                 </div>
                             </div>
                             <div className="group md:col-span-2">
-                                <label className="block text-xs font-black text-indigo-400 uppercase tracking-widest mb-2.5 group-focus-within:text-indigo-600 transition-colors">{t('live_service_link_label')}</label>
+                                <label className="block text-app-micro font-black text-indigo-400 uppercase tracking-widest mb-2.5 group-focus-within:text-indigo-600 transition-colors">{t('live_service_link_label')}</label>
                                 <div className="flex items-center gap-2">
                                     <div className="flex-1 flex items-center bg-indigo-50/30 dark:bg-indigo-900/10 border border-indigo-100 dark:border-white/5 rounded-2xl focus-within:border-indigo-500 transition-all shadow-sm overflow-hidden">
-                                        <span className="pl-4 text-indigo-500 font-bold text-xs opacity-50">🔗</span>
+                                        <span className="pl-4 text-indigo-500 font-bold text-app-micro opacity-50">🔗</span>
                                         <input
                                             type="text"
                                             placeholder={t('url_placeholder')}
-                                            className="w-full p-4 bg-transparent outline-none text-sm font-semibold dark:text-white"
+                                            className="w-full p-4 bg-transparent outline-none text-app-meta font-semibold dark:text-white"
                                             value={church.socialLinks?.liveServiceUrl || ''}
                                             onChange={(e) => setChurch({ ...church, socialLinks: { ...church.socialLinks, liveServiceUrl: e.target.value } })}
                                         />
@@ -967,7 +967,7 @@ export default function Settings() {
                                                     navigator.clipboard.writeText(church.socialLinks.liveServiceUrl);
                                                     setAlert({ show: true, message: t('link_copied'), type: 'success' });
                                                 }}
-                                                className="pr-4 text-indigo-500 hover:text-indigo-700 font-bold text-xs transition-colors"
+                                                className="pr-4 text-indigo-500 hover:text-indigo-700 font-bold text-app-micro transition-colors"
                                                 title={t('copy')}
                                             >
                                                 {t('copy')}
@@ -987,12 +987,12 @@ export default function Settings() {
                                                 setAlert({ show: true, message: t('paste_error'), type: 'error' });
                                             }
                                         }}
-                                        className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm"
+                                        className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 p-4 rounded-2xl text-app-micro font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all shadow-sm"
                                     >
                                         {t('paste')}
                                     </button>
                                 </div>
-                                <p className="mt-2 text-[10px] text-gray-400 font-medium italic">{t('live_link_hint')}</p>
+                                <p className="mt-2 text-app-micro text-gray-400 font-medium italic">{t('live_link_hint')}</p>
                             </div>
                         </div>
                     </AccordionSection>
@@ -1023,11 +1023,11 @@ export default function Settings() {
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                             <div className="md:col-span-2">
-                                <label className="block text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('full_address')} <span className="text-red-500">*</span></label>
+                                <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('full_address')} <span className="text-red-500">*</span></label>
                                 <input
                                     type="text"
                                     placeholder={t('address_placeholder_miracles')}
-                                    className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.address ? 'border-red-500' : 'border-gray-50 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm`}
+                                    className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.address ? 'border-red-500' : 'border-gray-50 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm`}
                                     value={church.address || ''}
                                     onChange={(e) => {
                                         setChurch({ ...church, address: e.target.value });
@@ -1036,11 +1036,11 @@ export default function Settings() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('city')} <span className="text-red-500">*</span></label>
+                                <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('city')} <span className="text-red-500">*</span></label>
                                 <input
                                     type="text"
                                     placeholder={t('city_placeholder_pap')}
-                                    className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.city ? 'border-red-500' : 'border-gray-50 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-sm font-semibold dark:text-white shadow-sm`}
+                                    className={`w-full p-4 bg-white dark:bg-black/20 border ${errors.city ? 'border-red-500' : 'border-gray-50 dark:border-white/10'} rounded-2xl focus:border-indigo-500 transition-all outline-none text-app-meta font-semibold dark:text-white shadow-sm`}
                                     value={church.city || ''}
                                     onChange={(e) => {
                                         setChurch({ ...church, city: e.target.value });
@@ -1049,19 +1049,19 @@ export default function Settings() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('contact_email')}</label>
+                                <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('contact_email')}</label>
                                 <input
                                     type="email"
-                                    className="w-full bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-2xl focus:border-indigo-500 text-sm font-semibold dark:text-white"
+                                    className="w-full bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-2xl focus:border-indigo-500 text-app-meta font-semibold dark:text-white"
                                     value={church.contactEmail || ''}
                                     onChange={(e) => setChurch({ ...church, contactEmail: e.target.value })}
                                 />
                             </div>
                             <div className="md:col-span-2">
-                                <label className="block text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('phone')}</label>
+                                <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-2.5">{t('phone')}</label>
                                 <input
                                     type="text"
-                                    className="w-full bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-2xl focus:border-indigo-500 text-sm font-semibold dark:text-white"
+                                    className="w-full bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 p-4 rounded-2xl focus:border-indigo-500 text-app-meta font-semibold dark:text-white"
                                     value={church.contactPhone || ''}
                                     onChange={(e) => setChurch({ ...church, contactPhone: e.target.value })}
                                 />
@@ -1073,7 +1073,7 @@ export default function Settings() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 dark:shadow-none transition-all active:scale-95 disabled:bg-gray-200 dark:disabled:bg-white/5"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl text-app-micro font-black uppercase tracking-widest shadow-lg shadow-indigo-100 dark:shadow-none transition-all active:scale-95 disabled:bg-gray-200 dark:disabled:bg-white/5"
                         >
                             {saving ? t('saving') : t('save_section')}
                         </button>
@@ -1103,7 +1103,7 @@ export default function Settings() {
                             <div className="flex flex-wrap gap-3">
                                 {church.supportedCurrencies?.map((curr, idx) => (
                                     <div key={idx} className="group relative flex items-center bg-white py-3 pl-5 pr-3 rounded-2xl border-2 border-gray-50 shadow-sm hover:border-indigo-200 transition-all">
-                                        <span className="text-gray-900 dark:text-white font-black text-sm tracking-widest transition-colors">{curr}</span>
+                                        <span className="text-gray-900 dark:text-white font-black text-app-meta tracking-widest transition-colors">{curr}</span>
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -1133,7 +1133,7 @@ export default function Settings() {
                                             type="text"
                                             id="newCurrency"
                                             placeholder={t('currency_code_placeholder')}
-                                            className="w-full bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-green-500 outline-none text-sm font-black tracking-[0.2em] uppercase placeholder:font-medium placeholder:tracking-normal dark:text-white shadow-sm transition-all"
+                                            className="w-full bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-green-500 outline-none text-app-meta font-black tracking-[0.2em] uppercase placeholder:font-medium placeholder:tracking-normal dark:text-white shadow-sm transition-all"
                                         />
                                     </div>
                                     <button
@@ -1146,7 +1146,7 @@ export default function Settings() {
                                                 input.value = '';
                                             }
                                         }}
-                                        className="bg-green-600 text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-green-700 shadow-xl shadow-green-200 dark:shadow-none active:scale-95 transition-all"
+                                        className="bg-green-600 text-white px-10 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-green-700 shadow-xl shadow-green-200 dark:shadow-none active:scale-95 transition-all"
                                     >
                                         {t('add_currency')}
                                     </button>
@@ -1169,7 +1169,7 @@ export default function Settings() {
                                     const isMandatory = ['offrande', 'dime', 'don_special', 'promesse'].includes(typ.toLowerCase());
                                     return (
                                         <div key={idx} className={`flex items-center py-3 pl-5 pr-3 rounded-2xl border transition-all ${isMandatory ? 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 opacity-60' : 'bg-white dark:bg-green-900/20 border-green-50 dark:border-green-900/30 hover:border-green-200 shadow-sm'}`}>
-                                            <span className={`text-[11px] font-black uppercase tracking-widest ${isMandatory ? 'text-gray-400' : 'text-green-700 dark:text-green-400'}`}>{typ}</span>
+                                            <span className={`text-app-micro font-black uppercase tracking-widest ${isMandatory ? 'text-gray-400' : 'text-green-700 dark:text-green-400'}`}>{typ}</span>
                                             {!isMandatory && (
                                                 <button
                                                     type="button"
@@ -1190,7 +1190,7 @@ export default function Settings() {
                                         type="text"
                                         id="newDonationType"
                                         placeholder={t('donation_category_placeholder')}
-                                        className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-green-500 outline-none text-sm font-medium dark:text-white shadow-sm transition-all"
+                                        className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-green-500 outline-none text-app-meta font-medium dark:text-white shadow-sm transition-all"
                                     />
                                     <button
                                         type="button"
@@ -1202,7 +1202,7 @@ export default function Settings() {
                                                 input.value = '';
                                             }
                                         }}
-                                        className="bg-green-600 text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-green-700 shadow-xl shadow-green-100 dark:shadow-none active:scale-95 transition-all"
+                                        className="bg-green-600 text-white px-10 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-green-700 shadow-xl shadow-green-100 dark:shadow-none active:scale-95 transition-all"
                                     >
                                         {t('new_type')}
                                     </button>
@@ -1226,7 +1226,7 @@ export default function Settings() {
                                     const isMandatory = ['CASH', 'VIREMENT', 'CHEQUE', 'CARTE DE CREDIT'].includes(typ.toUpperCase());
                                     return (
                                         <div key={idx} className={`flex items-center py-3 pl-5 pr-3 rounded-2xl border transition-all ${isMandatory ? 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 opacity-60' : 'bg-white dark:bg-blue-900/20 border-blue-50 dark:border-blue-900/30 hover:border-blue-200 shadow-sm'}`}>
-                                            <span className={`text-[11px] font-black uppercase tracking-widest ${isMandatory ? 'text-gray-400' : 'text-blue-700 dark:text-blue-400'}`}>{typ}</span>
+                                            <span className={`text-app-micro font-black uppercase tracking-widest ${isMandatory ? 'text-gray-400' : 'text-blue-700 dark:text-blue-400'}`}>{typ}</span>
                                             {!isMandatory && (
                                                 <button
                                                     type="button"
@@ -1247,7 +1247,7 @@ export default function Settings() {
                                         type="text"
                                         id="newPaymentMethod"
                                         placeholder={t('payment_method_placeholder')}
-                                        className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-blue-500 outline-none text-sm font-medium dark:text-white shadow-sm transition-all"
+                                        className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-blue-500 outline-none text-app-meta font-medium dark:text-white shadow-sm transition-all"
                                     />
                                     <button
                                         type="button"
@@ -1259,7 +1259,7 @@ export default function Settings() {
                                                 input.value = '';
                                             }
                                         }}
-                                        className="bg-blue-600 text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-100 dark:shadow-none active:scale-95 transition-all"
+                                        className="bg-blue-600 text-white px-10 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-100 dark:shadow-none active:scale-95 transition-all"
                                     >
                                         {t('new_method')}
                                     </button>
@@ -1272,7 +1272,7 @@ export default function Settings() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-100 dark:shadow-none transition-all active:scale-95 disabled:bg-gray-200 dark:disabled:bg-white/5"
+                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-2xl text-app-micro font-black uppercase tracking-widest shadow-lg shadow-green-100 dark:shadow-none transition-all active:scale-95 disabled:bg-gray-200 dark:disabled:bg-white/5"
                         >
                             {saving ? t('saving') : t('save_section')}
                         </button>
@@ -1297,7 +1297,7 @@ export default function Settings() {
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <h4 className="text-lg font-black text-gray-900 dark:text-white italic tracking-tight transition-colors">{role.name}</h4>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest transition-colors">
+                                            <p className="text-app-micro text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest transition-colors">
                                                 {role.permissions?.length || 0} {t('permissions_granted')}
                                             </p>
                                         </div>
@@ -1311,7 +1311,7 @@ export default function Settings() {
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {role.permissions?.map(p => (
-                                            <span key={p} className="text-[9px] font-black uppercase tracking-tighter bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full border border-orange-100/50 dark:border-orange-900/30 transition-colors">
+                                            <span key={p} className="text-app-micro font-black uppercase tracking-tighter bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full border border-orange-100/50 dark:border-orange-900/30 transition-colors">
                                                 {availablePermissions.find(ap => ap.id === p)?.name || p}
                                             </span>
                                         ))}
@@ -1325,7 +1325,7 @@ export default function Settings() {
                                 className="border-4 border-dashed border-orange-100 dark:border-white/10 rounded-[2rem] p-8 flex flex-col items-center justify-center text-orange-300 dark:text-orange-900/40 hover:border-orange-300 dark:hover:border-orange-800 hover:text-orange-500 dark:hover:text-orange-700 transition-all group"
                             >
                                 <span className="text-4xl mb-2 group-hover:scale-125 transition-transform">➕</span>
-                                <span className="text-xs font-black uppercase tracking-[0.2em]">{t('new_role')}</span>
+                                <span className="text-app-micro font-black uppercase tracking-[0.2em]">{t('new_role')}</span>
                             </button>
                         </div>
 
@@ -1344,7 +1344,7 @@ export default function Settings() {
 
                                 <div className="space-y-8">
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-4 transition-colors">{t('role_name_label')}</label>
+                                        <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-4 transition-colors">{t('role_name_label')}</label>
                                         <input
                                             type="text"
                                             value={newRole.name}
@@ -1355,7 +1355,7 @@ export default function Settings() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-6 transition-colors">{t('permissions_access')}</label>
+                                        <label className="block text-app-micro font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-6 transition-colors">{t('permissions_access')}</label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                             {availablePermissions.map((perm) => (
                                                 <button
@@ -1368,7 +1368,7 @@ export default function Settings() {
                                                         }`}
                                                 >
                                                     <span className="text-xl">{perm.icon}</span>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-left leading-tight">{perm.name}</span>
+                                                    <span className="text-app-micro font-black uppercase tracking-widest text-left leading-tight">{perm.name}</span>
                                                 </button>
                                             ))}
                                         </div>
@@ -1378,7 +1378,7 @@ export default function Settings() {
                                         <button
                                             type="button"
                                             onClick={handleCreateRole}
-                                            className="w-full md:w-auto bg-gray-900 dark:bg-indigo-600 text-white px-12 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black dark:hover:bg-indigo-700 transition-all shadow-2xl active:scale-95"
+                                            className="w-full md:w-auto bg-gray-900 dark:bg-indigo-600 text-white px-12 py-5 rounded-2xl text-app-micro font-black uppercase tracking-[0.3em] hover:bg-black dark:hover:bg-indigo-700 transition-all shadow-2xl active:scale-95"
                                         >
                                             {t('save_role')}
                                         </button>
@@ -1402,14 +1402,14 @@ export default function Settings() {
                     <div className="space-y-10 py-4">
                         {/* Manage Types */}
                         <div className="bg-purple-50/30 dark:bg-purple-900/10 p-8 rounded-[2.5rem] border border-purple-100 dark:border-purple-900/30 transition-colors">
-                            <h3 className="text-sm font-black text-purple-900 dark:text-purple-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                            <h3 className="text-app-meta font-black text-purple-900 dark:text-purple-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                                 <span className="w-8 h-8 bg-white dark:bg-black/20 rounded-xl flex items-center justify-center shadow-sm dark:text-white transition-colors">1</span>
                                 {t('global_types')}
                             </h3>
                             <div className="flex flex-wrap gap-3 mb-8">
                                 {contactTypes.map(type => (
                                     <div key={type.id} className={`flex items-center bg-white dark:bg-black/20 border transition-all rounded-2xl shadow-sm ${type.isSystem ? 'opacity-60 grayscale-[0.5] border-gray-100 dark:border-white/5' : 'border-purple-50 dark:border-white/10 hover:border-purple-200 dark:hover:border-purple-800'}`}>
-                                        <span className="text-[11px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 px-5 transition-colors">{type.name}</span>
+                                        <span className="text-app-micro font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 px-5 transition-colors">{type.name}</span>
                                         {!type.isSystem && (
                                             <button
                                                 type="button"
@@ -1426,14 +1426,14 @@ export default function Settings() {
                                 <input
                                     type="text"
                                     placeholder={t('new_type_placeholder')}
-                                    className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-purple-500 outline-none text-sm font-medium dark:text-white transition-all shadow-sm"
+                                    className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-purple-500 outline-none text-app-meta font-medium dark:text-white transition-all shadow-sm"
                                     value={newContactType}
                                     onChange={(e) => setNewContactType(e.target.value)}
                                 />
                                 <button
                                     type="button"
                                     onClick={handleAddContactType}
-                                    className="bg-purple-600 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 transition-all active:scale-95 shadow-lg shadow-purple-100 dark:shadow-none"
+                                    className="bg-purple-600 text-white px-8 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-purple-700 transition-all active:scale-95 shadow-lg shadow-purple-100 dark:shadow-none"
                                 >
                                     {t('add')}
                                 </button>
@@ -1442,7 +1442,7 @@ export default function Settings() {
 
                         {/* Manage Sub-types */}
                         <div className="bg-white dark:bg-black/20 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 transition-colors">
-                            <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                            <h3 className="text-app-meta font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                                 <span className="w-8 h-8 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center shadow-sm dark:text-gray-400 transition-colors">2</span>
                                 {t('contact_subtypes')}
                             </h3>
@@ -1450,13 +1450,13 @@ export default function Settings() {
                             <div className="space-y-6">
                                 {contactTypes.map(type => (
                                     <div key={type.id} className="border-l-4 border-purple-200 pl-6 pb-2">
-                                        <h4 className="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] mb-4 bg-purple-50/50 inline-block px-3 py-1 rounded-full">
+                                        <h4 className="text-app-micro font-black text-purple-400 uppercase tracking-[0.2em] mb-4 bg-purple-50/50 inline-block px-3 py-1 rounded-full">
                                             {type.name}
                                         </h4>
                                         <div className="flex flex-wrap gap-2">
                                             {contactSubtypes.filter(s => s.contactTypeId === type.id).map(subtype => (
                                                 <div key={subtype.id} className="group flex items-center bg-gray-50 dark:bg-white/5 py-2 pl-4 pr-2 rounded-xl border border-gray-100 dark:border-white/5 hover:bg-white dark:hover:bg-black hover:border-purple-100 dark:hover:border-purple-900/30 transition-all">
-                                                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 group-hover:text-purple-600 transition-colors">{subtype.name}</span>
+                                                    <span className="text-app-micro font-bold text-gray-600 dark:text-gray-400 group-hover:text-purple-600 transition-colors">{subtype.name}</span>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleDeleteContactSubtype(subtype.id)}
@@ -1467,7 +1467,7 @@ export default function Settings() {
                                                 </div>
                                             ))}
                                             {contactSubtypes.filter(s => s.contactTypeId === type.id).length === 0 && (
-                                                <span className="text-[10px] text-gray-300 dark:text-gray-600 italic font-medium transition-colors">{t('no_subtypes_defined')}</span>
+                                                <span className="text-app-micro text-gray-300 dark:text-gray-600 italic font-medium transition-colors">{t('no_subtypes_defined')}</span>
                                             )}
                                         </div>
                                     </div>
@@ -1475,10 +1475,10 @@ export default function Settings() {
                             </div>
 
                             <div className="mt-10 p-6 bg-gray-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-100 dark:border-white/10 transition-colors">
-                                <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 transition-colors">{t('add_subtype')}</p>
+                                <p className="text-app-micro font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 transition-colors">{t('add_subtype')}</p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <select
-                                        className="bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-purple-500 outline-none text-sm font-semibold text-gray-700 dark:text-gray-300 transition-all"
+                                        className="bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-purple-500 outline-none text-app-meta font-semibold text-gray-700 dark:text-gray-300 transition-all"
                                         value={newContactSubtype.contactTypeId}
                                         onChange={(e) => setNewContactSubtype({ ...newContactSubtype, contactTypeId: e.target.value })}
                                     >
@@ -1489,14 +1489,14 @@ export default function Settings() {
                                         <input
                                             type="text"
                                             placeholder={t('subtype_name_placeholder')}
-                                            className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-purple-500 outline-none text-sm font-medium dark:text-white transition-all shadow-sm"
+                                            className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-purple-500 outline-none text-app-meta font-medium dark:text-white transition-all shadow-sm"
                                             value={newContactSubtype.name}
                                             onChange={(e) => setNewContactSubtype({ ...newContactSubtype, name: e.target.value })}
                                         />
                                         <button
                                             type="button"
                                             onClick={handleAddContactSubtype}
-                                            className="bg-gray-900 dark:bg-indigo-600 text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black dark:hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-gray-200 dark:shadow-none"
+                                            className="bg-gray-900 dark:bg-indigo-600 text-white px-6 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-black dark:hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-gray-200 dark:shadow-none"
                                         >
                                             {t('ok')}
                                         </button>
@@ -1519,11 +1519,11 @@ export default function Settings() {
                 >
                     <div className="space-y-6 py-4">
                         <div className="bg-indigo-50/30 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30">
-                            <h3 className="text-sm font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-widest mb-6">{t('available_types', 'Types disponibles')}</h3>
+                            <h3 className="text-app-meta font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-widest mb-6">{t('available_types', 'Types disponibles')}</h3>
                             <div className="flex flex-wrap gap-3 mb-8">
                                 {eventTypes.map(type => (
                                     <div key={type.id} className="flex items-center bg-white dark:bg-black/20 border border-indigo-50 dark:border-white/10 rounded-2xl shadow-sm px-4 py-2">
-                                        <span className="text-[11px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 mr-3">{type.name}</span>
+                                        <span className="text-app-micro font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 mr-3">{type.name}</span>
                                         <button
                                             type="button"
                                             onClick={() => handleDeleteEventType(type.id)}
@@ -1538,14 +1538,14 @@ export default function Settings() {
                                 <input
                                     type="text"
                                     placeholder={t('new_event_type_placeholder', 'Nouveau type (ex: Retraite)')}
-                                    className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-indigo-500 outline-none text-sm font-medium dark:text-white transition-all shadow-sm"
+                                    className="flex-1 bg-white dark:bg-black/20 border-2 border-transparent p-4 rounded-2xl focus:border-indigo-500 outline-none text-app-meta font-medium dark:text-white transition-all shadow-sm"
                                     value={newEventType}
                                     onChange={(e) => setNewEventType(e.target.value)}
                                 />
                                 <button
                                     type="button"
                                     onClick={handleAddEventType}
-                                    className="bg-indigo-600 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 dark:shadow-none"
+                                    className="bg-indigo-600 text-white px-8 py-4 rounded-2xl text-app-micro font-black uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 dark:shadow-none"
                                 >
                                     {t('add')}
                                 </button>
@@ -1561,7 +1561,7 @@ export default function Settings() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className={`flex items-center gap-4 px-12 py-5 rounded-xl font-semibold text-[13px] transition-all relative overflow-hidden ${saving ? 'bg-indigo-600 cursor-not-allowed opacity-80' : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'}`}
+                            className={`flex items-center gap-4 px-12 py-5 rounded-xl font-semibold text-app-meta transition-all relative overflow-hidden ${saving ? 'bg-indigo-600 cursor-not-allowed opacity-80' : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'}`}
                         >
                             <span className="relative z-10">{saving ? t('saving') : t('save_all_settings')}</span>
                             {!saving && (
@@ -1571,7 +1571,7 @@ export default function Settings() {
                             )}
                         </button>
                     </div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest animate-pulse transition-colors">{t('success')} ⚡</p>
+                    <p className="text-app-micro text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest animate-pulse transition-colors">{t('success')} ⚡</p>
                 </div>
 
             </form>
@@ -1610,7 +1610,7 @@ const MasterAccordion = ({ id, title, subtitle, icon, color, children, isOpen, o
                 </div>
                 <div>
                     <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight transition-colors">{title}</h2>
-                    <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1 opacity-70 transition-colors uppercase">{subtitle}</p>
+                    <p className="text-app-micro font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1 opacity-70 transition-colors uppercase">{subtitle}</p>
                 </div>
             </div>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-indigo-600 text-white rotate-180' : 'bg-gray-100 dark:bg-white/5 text-gray-400'}`}>
@@ -1637,8 +1637,8 @@ const AccordionSection = ({ id, title, icon, description, children, isOpen, onTo
                     {icon}
                 </div>
                 <div>
-                    <h3 className={`font-black text-[11px] uppercase tracking-widest transition-colors ${isOpen ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>{title}</h3>
-                    {description && <p className="text-[10px] text-gray-400 dark:text-gray-600 uppercase tracking-widest font-black mt-1 opacity-60">{description}</p>}
+                    <h3 className={`font-black text-app-micro uppercase tracking-widest transition-colors ${isOpen ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>{title}</h3>
+                    {description && <p className="text-app-micro text-gray-400 dark:text-gray-600 uppercase tracking-widest font-black mt-1 opacity-60">{description}</p>}
                 </div>
             </div>
             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'rotate-180 text-indigo-600' : 'text-gray-300 grayscale'}`}>
@@ -1676,13 +1676,13 @@ const JsonField = ({ label, description, value, onChange }) => {
         <div className="mt-2 space-y-4">
             <div className="bg-indigo-50/50 p-4 border border-indigo-100 rounded-2xl flex items-start gap-3">
                 <span className="text-xl">💡</span>
-                <p className="text-[11px] font-bold text-indigo-700 leading-relaxed uppercase tracking-tighter">
+                <p className="text-app-micro font-bold text-indigo-700 leading-relaxed uppercase tracking-tighter">
                     {description}
                 </p>
             </div>
             <textarea
                 rows="6"
-                className="w-full bg-gray-900 text-indigo-300 p-6 rounded-3xl font-mono text-[11px] focus:ring-4 focus:ring-indigo-100 outline-none shadow-2xl leading-relaxed"
+                className="w-full bg-gray-900 text-indigo-300 p-6 rounded-3xl font-mono text-app-micro focus:ring-4 focus:ring-indigo-100 outline-none shadow-2xl leading-relaxed"
                 value={localValue}
                 onChange={handleLocalChange}
             ></textarea>

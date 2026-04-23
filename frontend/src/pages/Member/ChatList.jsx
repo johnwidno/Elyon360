@@ -29,7 +29,7 @@ const ChatList = () => {
           <input 
             type="text" 
             placeholder="Rechercher une conversation..."
-            className="w-full bg-slate-100 border-none rounded-2xl py-4 pl-12 pr-6 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+            className="w-full bg-slate-100 border-none rounded-2xl py-4 pl-12 pr-6 text-base font-medium focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
           />
         </div>
 
@@ -37,13 +37,13 @@ const ChatList = () => {
         <div className="flex bg-slate-100 p-1 rounded-2xl h-12">
           <button 
             onClick={() => setActiveTab('chats')}
-            className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-black transition-all ${activeTab === 'chats' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
+            className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-app-body font-black transition-all ${activeTab === 'chats' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
           >
             <MessageCircle size={16} /> Discussions
           </button>
           <button 
             onClick={() => setActiveTab('groups')}
-            className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-xs font-black transition-all ${activeTab === 'groups' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
+            className={`flex-1 rounded-xl flex items-center justify-center gap-2 text-app-body font-black transition-all ${activeTab === 'groups' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
           >
             <Users size={16} /> Groupes
           </button>
@@ -64,13 +64,13 @@ const ChatList = () => {
               </div>
               <div className="flex-1 flex flex-col gap-0.5 min-w-0">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-black text-slate-900 text-sm truncate pr-2">{chat.name}</h4>
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0">{chat.time}</span>
+                  <h4 className="font-black text-slate-900 text-app-title truncate pr-2">{chat.name}</h4>
+                  <span className="text-app-meta font-bold text-slate-400 shrink-0">{chat.time}</span>
                 </div>
-                <p className="text-xs text-slate-500 font-medium truncate pr-4">{chat.lastMsg}</p>
+                <p className="text-app-body text-slate-500 font-medium truncate pr-4">{chat.lastMsg}</p>
               </div>
               {chat.unread > 0 && (
-                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-lg shadow-blue-200 shrink-0">
+                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-app-micro font-black text-white shadow-lg shadow-blue-200 shrink-0">
                   {chat.unread}
                 </div>
               )}

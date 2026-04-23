@@ -49,7 +49,7 @@ const MemberDonations_PWA = () => {
           <button onClick={handleBack} className="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl">
             <ChevronLeft size={20} />
           </button>
-          <h1 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">Dons & Dîmes</h1>
+          <h1 className="text-app-meta font-black uppercase tracking-widest text-slate-900 dark:text-white">Dons & Dîmes</h1>
           <div className="w-10"></div>
         </div>
 
@@ -61,7 +61,7 @@ const MemberDonations_PWA = () => {
             >
               <div className="space-y-2">
                 <h2 className="text-xl font-black text-slate-900 dark:text-white">Quel type de don souhaitez-vous faire ?</h2>
-                <p className="text-slate-400 text-sm font-medium">Votre générosité soutient nos missions.</p>
+                <p className="text-slate-400 text-app-body font-medium">Votre générosité soutient nos missions.</p>
               </div>
 
               <div className="space-y-4">
@@ -76,7 +76,7 @@ const MemberDonations_PWA = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-black text-slate-900 dark:text-white text-base">{type.label}</h3>
-                      <p className="text-slate-400 text-[11px] font-medium leading-relaxed">{type.desc}</p>
+                      <p className="text-slate-400 text-app-meta font-medium leading-relaxed">{type.desc}</p>
                     </div>
                     <ArrowRight size={18} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                   </button>
@@ -92,7 +92,7 @@ const MemberDonations_PWA = () => {
             >
               <div className="space-y-2">
                 <h2 className="text-xl font-black text-slate-900 dark:text-white">Entrez le montant</h2>
-                <p className="text-slate-400 text-sm font-medium">Pour : <span className="text-blue-600 font-bold">{selectedType?.label}</span></p>
+                <p className="text-slate-400 text-app-body font-medium">Pour : <span className="text-blue-600 font-bold">{selectedType?.label}</span></p>
               </div>
 
               <div className="relative">
@@ -117,7 +117,7 @@ const MemberDonations_PWA = () => {
                     ${val}
                   </button>
                 ))}
-                <button className="col-span-2 py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-500/20" onClick={handleNext}>Continuer</button>
+                <button className="col-span-2 py-4 bg-blue-600 text-white rounded-2xl font-black text-app-meta uppercase tracking-widest shadow-xl shadow-blue-500/20" onClick={handleNext}>Continuer</button>
               </div>
             </motion.div>
           )}
@@ -129,7 +129,7 @@ const MemberDonations_PWA = () => {
             >
               <div className="space-y-2">
                 <h2 className="text-xl font-black text-slate-900 dark:text-white">Mode de paiement</h2>
-                <p className="text-slate-400 text-sm font-medium">Montant : <span className="text-blue-600 font-bold">${amount}</span></p>
+                <p className="text-slate-400 text-app-body font-medium">Montant : <span className="text-blue-600 font-bold">${amount}</span></p>
               </div>
 
               <div className="space-y-3">
@@ -143,8 +143,8 @@ const MemberDonations_PWA = () => {
                       <method.icon className={method.color} size={24} />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-black text-slate-900 dark:text-white text-sm">{method.label}</h3>
-                      <p className="text-slate-400 text-[10px] font-medium">{method.desc}</p>
+                      <h3 className="font-black text-slate-900 dark:text-white text-app-body">{method.label}</h3>
+                      <p className="text-slate-400 text-app-meta font-medium">{method.desc}</p>
                     </div>
                   </button>
                 ))}
@@ -162,7 +162,7 @@ const MemberDonations_PWA = () => {
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white">Merci pour votre don !</h2>
-                <p className="text-slate-400 text-sm font-medium max-w-xs mx-auto">
+                <p className="text-slate-400 text-app-body font-medium max-w-xs mx-auto">
                   Votre contribution de <span className="text-emerald-600 font-bold">${amount}</span> a été reçue avec gratitude.
                 </p>
               </div>
@@ -178,7 +178,7 @@ const MemberDonations_PWA = () => {
 
         <div className="pt-8 border-t border-slate-50 dark:border-slate-800 flex items-center justify-center gap-2 opacity-30">
           <ShieldCheck size={16} className="text-slate-400" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Paiement 100% sécurisé</span>
+          <span className="text-app-meta font-bold text-slate-400 uppercase tracking-widest">Paiement 100% sécurisé</span>
         </div>
 
       </div>

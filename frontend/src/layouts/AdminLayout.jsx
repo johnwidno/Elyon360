@@ -224,8 +224,8 @@ const AdminLayout = ({ children }) => {
                                 </div>
                             )}
                             <div className="overflow-hidden">
-                                <p className="text-[10px] font-bold text-brand-primary dark:text-brand-orange tracking-wider mb-0.5">{t('elyonsys_360', 'ELYONSYS 360')}</p>
-                                <h1 className="font-bold text-lg tracking-tight text-gray-900 dark:text-white truncate">
+                                <p className="text-app-micro font-bold text-brand-primary dark:text-brand-orange tracking-wider mb-0.5">{t('elyonsys_360', 'ELYONSYS 360')}</p>
+                                <h1 className="font-bold text-app-title tracking-tight text-gray-900 dark:text-white truncate">
                                     {user?.churchAcronym || 'EDM'}
                                 </h1>
                             </div>
@@ -263,7 +263,7 @@ const AdminLayout = ({ children }) => {
                                                 <div className={`${isActive ? 'text-brand-primary dark:text-brand-orange' : 'text-gray-400 dark:text-gray-600 group-hover:text-brand-primary'} transition-colors`}>
                                                     {item.icon}
                                                 </div>
-                                                <span className={`${!sidebarOpen && 'lg:hidden'} ml-3.5 text-sm`}>{item.name}</span>
+                                                <span className={`${!sidebarOpen && 'lg:hidden'} ml-3.5 text-app-meta`}>{item.name}</span>
                                             </div>
                                             {(sidebarOpen || (window.innerWidth < 1024)) && (
                                                 <svg className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-orange' : 'text-gray-300 dark:text-gray-700'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -281,7 +281,7 @@ const AdminLayout = ({ children }) => {
                                                             <Link
                                                                 to={child.href}
                                                                 onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
-                                                                className={`flex items-center px-6 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ${isChildActive
+                                                                className={`flex items-center px-6 py-2.5 rounded-xl text-app-meta font-medium transition-all duration-300 ${isChildActive
                                                                     ? 'text-brand-primary dark:text-white bg-brand-primary/5 dark:bg-white/10 border border-brand-primary/10 dark:border-white/5 shadow-sm'
                                                                     : 'text-gray-500 dark:text-gray-400 hover:text-brand-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
                                                                     }`}
@@ -310,7 +310,7 @@ const AdminLayout = ({ children }) => {
                                         <div className={`${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-600 group-hover:text-brand-primary'} transition-colors`}>
                                             {item.icon}
                                         </div>
-                                        <span className={`${!sidebarOpen && 'lg:hidden'} ml-4 text-[14px] tracking-tight`}>{item.name}</span>
+                                        <span className={`${!sidebarOpen && 'lg:hidden'} ml-4 text-app-body tracking-tight`}>{item.name}</span>
                                     </Link>
                                 </li>
                             );
@@ -325,7 +325,7 @@ const AdminLayout = ({ children }) => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                         </div>
-                        <span className={`${!sidebarOpen && 'lg:hidden'} ml-4 font-bold text-[13px] tracking-tight`}>{t('logout', 'Déconnexion')}</span>
+                        <span className={`${!sidebarOpen && 'lg:hidden'} ml-4 font-bold text-app-meta tracking-tight`}>{t('logout', 'Déconnexion')}</span>
                     </button>
                 </div>
             </aside>
@@ -341,7 +341,7 @@ const AdminLayout = ({ children }) => {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
                                 </svg>
                             </button>
-                            <h2 className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] hidden sm:block">
+                            <h2 className="text-app-micro font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] hidden sm:block">
                                 {t('admin')} <span className="mx-2 text-gray-300 dark:text-white/10">|</span> <span className="text-gray-900 dark:text-white">{location.pathname.split('/').pop()?.replace(/-/g, ' ') || 'dashboard'}</span>
                             </h2>
                         </div>
@@ -359,30 +359,30 @@ const AdminLayout = ({ children }) => {
                                     placeholder={t('search_member', 'Rechercher...')}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 pr-4 py-2.5 w-40 lg:w-72 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 rounded-xl lg:rounded-2xl text-[13px] font-medium focus:ring-4 focus:ring-brand-primary/10 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
+                                    className="pl-10 pr-4 py-2.5 w-40 lg:w-72 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 rounded-xl lg:rounded-2xl text-app-meta font-medium focus:ring-4 focus:ring-brand-primary/10 text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 outline-none shadow-sm"
                                 />
 
                                 {/* Search Results Dropdown */}
                                 {searchQuery.trim() && (
                                     <div className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-[#1A1D2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 z-[100] max-h-[400px] overflow-y-auto noscrollbar overflow-x-hidden">
                                         <div className="p-4 border-b border-gray-50 dark:border-white/5 bg-gray-50/50 dark:bg-black/20">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('member_results', 'Résultats')}</p>
+                                            <p className="text-app-micro font-black text-gray-400 uppercase tracking-widest">{t('member_results', 'Résultats')}</p>
                                         </div>
                                         {searchResults.length === 0 && !isSearching ? (
-                                            <div className="p-6 text-center text-gray-400 dark:text-gray-500 text-xs italic">{t('no_member_found', 'Aucun résultat')}</div>
+                                            <div className="p-6 text-center text-gray-400 dark:text-gray-500 text-app-micro italic">{t('no_member_found', 'Aucun résultat')}</div>
                                         ) : (
                                             <div className="p-2">
                                                 {searchResults.map(m => (
                                                     <div key={m.id} className="p-3 hover:bg-indigo-50 dark:hover:bg-white/5 rounded-xl transition-all cursor-pointer flex items-center gap-4 group/item"
                                                         onClick={() => { navigate(`/admin/members/${m.id}`); setSearchQuery(''); }}>
-                                                        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-brand-primary/10 dark:bg-brand-primary/20 flex items-center justify-center text-brand-primary dark:text-brand-orange text-xs font-black">
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-brand-primary/10 dark:bg-brand-primary/20 flex items-center justify-center text-brand-primary dark:text-brand-orange text-app-micro font-black">
                                                             {m.photo ? <img src={m.photo.startsWith('http') ? m.photo : `${process.env.REACT_APP_API_URL || ''}/uploads/${m.photo}`} className="w-full h-full object-cover" /> : (m.firstName?.[0] || 'M')}
                                                         </div>
                                                         <div className="min-w-0 flex-1 text-left">
-                                                            <p className="text-[13px] font-bold text-gray-900 dark:text-white group-hover/item:text-brand-primary dark:group-hover/item:text-brand-orange transition-colors truncate">
+                                                            <p className="text-app-meta font-bold text-gray-900 dark:text-white group-hover/item:text-brand-primary dark:group-hover/item:text-brand-orange transition-colors truncate">
                                                                 {m.firstName} {m.lastName}
                                                             </p>
-                                                            <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium truncate capitalize">{m.status || (m.type?.name) || 'Membre'}</p>
+                                                            <p className="text-app-micro text-gray-400 dark:text-gray-500 font-medium truncate capitalize">{m.status || (m.type?.name) || 'Membre'}</p>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -394,16 +394,16 @@ const AdminLayout = ({ children }) => {
 
                             {/* Language Toggle */}
                             <div className="flex items-center p-1 bg-gray-50 dark:bg-black/20 border border-transparent dark:border-white/5 rounded-xl lg:rounded-2xl">
-                                <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-[10px] font-black transition-all ${lang === 'FR' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
-                                <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-[10px] font-black transition-all ${lang === 'EN' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
+                                <button onClick={() => lang !== 'FR' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-app-micro font-black transition-all ${lang === 'FR' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>FR</button>
+                                <button onClick={() => lang !== 'EN' && toggleLang()} className={`px-2.5 lg:px-4 py-1.5 rounded-lg lg:rounded-xl text-app-micro font-black transition-all ${lang === 'EN' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-400'}`}>EN</button>
                             </div>
 
                             <DarkModeToggle />
 
                             <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/admin/settings')}>
                                 <div className="text-right hidden sm:block">
-                                    <div className="text-[13px] font-black text-gray-900 dark:text-white tracking-tight leading-none group-hover:text-brand-primary transition-colors mb-1">{user?.firstName || 'Admin'}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{user?.role?.[0] || 'ADMIN'}</div>
+                                    <div className="text-app-meta font-black text-gray-900 dark:text-white tracking-tight leading-none group-hover:text-brand-primary transition-colors mb-1">{user?.firstName || 'Admin'}</div>
+                                    <div className="text-app-micro font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{user?.role?.[0] || 'ADMIN'}</div>
                                 </div>
                                 <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl bg-brand-primary/10 dark:bg-brand-primary/20 border-2 border-transparent dark:border-white/5 group-hover:border-brand-orange/30 flex items-center justify-center text-brand-primary dark:text-brand-orange font-black text-lg shadow-sm transition-all group-hover:scale-105">
                                     {user?.firstName ? user.firstName[0] : 'A'}
@@ -420,12 +420,12 @@ const AdminLayout = ({ children }) => {
                             <div className="bg-white dark:bg-[#080808] rounded-[3rem] lg:rounded-[4rem] shadow-2xl border border-transparent dark:border-white/5 p-8 lg:p-20 max-w-2xl w-full text-center animate-scale-in transition-colors">
                                 <div className="text-5xl lg:text-7xl mb-8 lg:mb-12 bg-gray-50 dark:bg-black w-24 h-24 lg:w-32 lg:h-32 flex items-center justify-center rounded-[2rem] lg:rounded-[2.5rem] mx-auto scale-110 shadow-sm border border-transparent dark:border-white/5">🏗️</div>
                                 <h2 className="text-2xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-4 lg:mb-6 leading-none transition-colors uppercase">{t('configuration_required', 'Configuration Requise')}</h2>
-                                <p className="text-gray-400 dark:text-gray-500 font-bold tracking-wide leading-loose mb-10 lg:mb-14 text-xs lg:text-sm transition-colors">
+                                <p className="text-gray-400 dark:text-gray-500 font-bold tracking-wide leading-loose mb-10 lg:mb-14 text-app-meta lg:text-app-body transition-colors">
                                     {t('setup_msg', 'Votre compte nécessite une configuration initiale pour accéder à toutes les fonctionnalités.')}
                                 </p>
                                 <Link
                                     to="/admin/settings"
-                                    className="block w-full bg-brand-primary text-white font-black text-[12px] lg:text-[14px] tracking-widest uppercase py-5 lg:py-6 rounded-2xl lg:rounded-3xl hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/20 active:scale-95"
+                                    className="block w-full bg-brand-primary text-white font-black text-app-meta lg:text-app-body tracking-widest uppercase py-5 lg:py-6 rounded-2xl lg:rounded-[2rem] hover:bg-brand-deep transition-all shadow-xl shadow-brand-primary/20 active:scale-95"
                                 >
                                     {t('setup_btn', 'Commencer la configuration')}
                                 </Link>

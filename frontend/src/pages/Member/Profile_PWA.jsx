@@ -210,15 +210,15 @@ const Profile_PWA = () => {
           {/* User Basic Info */}
           <div className="flex-1 space-y-2 pt-1 md:pt-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
+              <span className="inline-flex items-center gap-1 text-app-micro font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
                 <CheckCircle2 size={10} />
                 Membre : Actif
               </span>
             </div>
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-none">
+            <h1 className="text-app-title font-black text-slate-900 dark:text-white leading-none">
               {profile?.firstName} {profile?.lastName}
             </h1>
-            <p className="text-[11px] font-medium text-slate-400">
+            <p className="text-app-meta font-medium text-slate-400">
               @{profile?.nickname || profile?.firstName?.toLowerCase()}
             </p>
           </div>
@@ -236,7 +236,7 @@ const Profile_PWA = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-4 text-[10px] font-black tracking-widest border-b-2 transition-all ${
+              className={`py-4 text-app-meta font-black tracking-widest border-b-2 transition-all ${
                 activeTab === tab.id 
                 ? 'border-blue-600 text-blue-600' 
                 : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
@@ -250,7 +250,7 @@ const Profile_PWA = () => {
              {/* Smaller Plus Button on Desktop */}
              <button 
                 onClick={() => setShowCreatePost(true)} 
-                className="hidden md:flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"
+                className="hidden md:flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-app-micro font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"
              >
                 <Plus size={14} />
                 Publier
@@ -270,12 +270,12 @@ const Profile_PWA = () => {
                             {profile?.photo && <img src={getImageUrl(profile.photo)} className="w-full h-full object-cover" alt="" />}
                         </div>
                         <div>
-                            <h4 className="text-xs font-black text-slate-900 dark:text-white leading-none">{profile?.firstName}</h4>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{new Date(post.createdAt).toLocaleDateString()}</span>
+                            <h4 className="text-app-title font-black text-slate-900 dark:text-white leading-none">{profile?.firstName}</h4>
+                            <span className="text-app-micro font-bold text-slate-400 uppercase tracking-widest">{new Date(post.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                   </div>
-                  <p className="text-xs font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{post.content}</p>
+                  <p className="text-app-body font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{post.content}</p>
                 </div>
             ))}
         </div>
@@ -297,7 +297,7 @@ const Profile_PWA = () => {
               
               {/* Header */}
               <div className="flex justify-between items-center mb-10">
-                <h1 className="text-2xl font-black text-slate-900 dark:text-white">Edition du profil</h1>
+                <h1 className="text-app-title font-black text-slate-900 dark:text-white">Edition du profil</h1>
                 <button onClick={() => setIsEditing(false)} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl"><X size={20} /></button>
               </div>
 
@@ -305,17 +305,17 @@ const Profile_PWA = () => {
                 
                 {/* 1. Infos personnelles */}
                 <div className="space-y-6">
-                  <h3 className="text-[11px] font-black text-blue-600 border-b border-slate-50 pb-2">Infos personnelles</h3>
+                  <h3 className="text-app-title font-black text-blue-600 border-b border-slate-50 pb-2">Infos personnelles</h3>
                   
                   {/* Read only info with labels for clarity */}
                   <div className="space-y-4 opacity-60">
-                    <input readOnly value={formData.firstName} className="w-full bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Prénom" />
-                    <input readOnly value={formData.lastName} className="w-full bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Nom" />
+                    <input readOnly value={formData.firstName} className="w-full bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Prénom" />
+                    <input readOnly value={formData.lastName} className="w-full bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Nom" />
                   </div>
 
-                  <input value={formData.nickname || ''} onChange={e => setFormData({...formData, nickname: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none outline-none focus:ring-2 ring-blue-500/20" placeholder="Surnom" />
+                  <input value={formData.nickname || ''} onChange={e => setFormData({...formData, nickname: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none outline-none focus:ring-2 ring-blue-500/20" placeholder="Surnom" />
 
-                  <select value={formData.maritalStatus || ''} onChange={e => setFormData({...formData, maritalStatus: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none outline-none appearance-none">
+                  <select value={formData.maritalStatus || ''} onChange={e => setFormData({...formData, maritalStatus: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none outline-none appearance-none">
                     <option value="">État civil...</option>
                     <option value="Célibataire">Célibataire</option>
                     <option value="Marié">Marié(e)</option>
@@ -343,13 +343,13 @@ const Profile_PWA = () => {
                     </div>
                   )}
 
-                  <textarea rows={4} value={formData.bio || ''} onChange={e => setFormData({...formData, bio: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none resize-none" placeholder="Parlez-nous de vous (Bio)..." />
+                  <textarea rows={4} value={formData.bio || ''} onChange={e => setFormData({...formData, bio: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none resize-none" placeholder="Parlez-nous de vous (Bio)..." />
 
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Groupe sanguin</h4>
+                    <h4 className="text-app-micro font-black text-slate-400 uppercase tracking-widest ml-1">Groupe sanguin</h4>
                     <div className="grid grid-cols-4 gap-2">
                       {BLOOD_GROUPS.map(bg => (
-                        <button key={bg} type="button" onClick={() => setFormData({...formData, bloodGroup: bg})} className={`py-3 rounded-xl text-xs font-black transition-all ${formData.bloodGroup === bg ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
+                        <button key={bg} type="button" onClick={() => setFormData({...formData, bloodGroup: bg})} className={`py-3 rounded-xl text-app-meta font-black transition-all ${formData.bloodGroup === bg ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
                           {bg}
                         </button>
                       ))}
@@ -359,14 +359,14 @@ const Profile_PWA = () => {
 
                 {/* 2. Contact et coordonnées */}
                 <div className="space-y-6">
-                  <h3 className="text-[11px] font-black text-blue-600 border-b border-slate-50 pb-2">Contact et coordonnées</h3>
+                  <h3 className="text-app-title font-black text-blue-600 border-b border-slate-50 pb-2">Contact et coordonnées</h3>
                   
-                  <input type="email" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Email" />
-                  <input value={formData.phone || ''} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Téléphone principal *" />
-                  <input value={formData.secondaryPhone || ''} onChange={e => setFormData({...formData, secondaryPhone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Téléphone secondaire" />
+                  <input type="email" value={formData.email || ''} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Email" />
+                  <input value={formData.phone || ''} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Téléphone principal *" />
+                  <input value={formData.secondaryPhone || ''} onChange={e => setFormData({...formData, secondaryPhone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Téléphone secondaire" />
 
                   <div className="space-y-4 pt-4">
-                    <select value={formData.country || ''} onChange={e => setFormData({...formData, country: e.target.value, department: '', city: ''})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none appearance-none">
+                    <select value={formData.country || ''} onChange={e => setFormData({...formData, country: e.target.value, department: '', city: ''})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none appearance-none">
                       <option value="">Pays...</option>
                       <option value="Haiti">Haïti</option>
                       <option value="USA">USA</option>
@@ -375,50 +375,50 @@ const Profile_PWA = () => {
                     </select>
 
                     {formData.country === 'Haiti' ? (
-                      <select value={formData.department || ''} onChange={e => setFormData({...formData, department: e.target.value, city: ''})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none appearance-none">
+                      <select value={formData.department || ''} onChange={e => setFormData({...formData, department: e.target.value, city: ''})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none appearance-none">
                         <option value="">Département...</option>
                         {Object.keys(HAITI_DEPARTMENTS).map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
                     ) : (
-                      <input value={formData.department || ''} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="State / Province" />
+                      <input value={formData.department || ''} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="State / Province" />
                     )}
 
                     {(formData.country === 'Haiti' && formData.department) ? (
-                      <select value={formData.city || ''} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none appearance-none">
+                      <select value={formData.city || ''} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none appearance-none">
                         <option value="">Ville...</option>
                         {HAITI_DEPARTMENTS[formData.department].map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     ) : (
-                      <input value={formData.city || ''} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Ville" />
+                      <input value={formData.city || ''} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Ville" />
                     )}
 
-                    <input value={formData.address || ''} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Ligne d'adresse (Ex: #2, rue Lamarre)" />
+                    <input value={formData.address || ''} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Ligne d'adresse (Ex: #2, rue Lamarre)" />
                   </div>
                 </div>
 
                 {/* 3. Coordonnées professionnelles */}
                 <div className="space-y-6">
-                  <h3 className="text-[11px] font-black text-blue-600 border-b border-slate-50 pb-2">Coordonnées professionnelles</h3>
+                  <h3 className="text-app-title font-black text-blue-600 border-b border-slate-50 pb-2">Coordonnées professionnelles</h3>
                   <div className="space-y-4">
-                    <input value={formData.workAddress || ''} onChange={e => setFormData({...formData, workAddress: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Lieu de travail" />
-                    <input value={formData.workPhone || ''} onChange={e => setFormData({...formData, workPhone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Téléphone bureau" />
-                    <input value={formData.workEmail || ''} onChange={e => setFormData({...formData, workEmail: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Email professionnel" />
+                    <input value={formData.workAddress || ''} onChange={e => setFormData({...formData, workAddress: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Lieu de travail" />
+                    <input value={formData.workPhone || ''} onChange={e => setFormData({...formData, workPhone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Téléphone bureau" />
+                    <input value={formData.workEmail || ''} onChange={e => setFormData({...formData, workEmail: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Email professionnel" />
                   </div>
                 </div>
 
                 {/* 4. Coordonnées d'urgence */}
                 <div className="space-y-6">
-                  <h3 className="text-[11px] font-black text-rose-600 border-b border-slate-50 pb-2">Coordonnées d'urgence</h3>
+                  <h3 className="text-app-title font-black text-rose-600 border-b border-slate-50 pb-2">Coordonnées d'urgence</h3>
                   <div className="space-y-4">
-                    <input value={formData.emergencyContact || ''} onChange={e => setFormData({...formData, emergencyContact: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Nom du contact d'urgence" />
-                    <input value={formData.emergencyPhone || ''} onChange={e => setFormData({...formData, emergencyPhone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-sm font-bold border-none" placeholder="Téléphone d'urgence" />
+                    <input value={formData.emergencyContact || ''} onChange={e => setFormData({...formData, emergencyContact: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Nom du contact d'urgence" />
+                    <input value={formData.emergencyPhone || ''} onChange={e => setFormData({...formData, emergencyPhone: e.target.value})} className="w-full bg-slate-100 dark:bg-slate-900 rounded-2xl p-4 text-app-meta font-bold border-none" placeholder="Téléphone d'urgence" />
                   </div>
                 </div>
 
                 {/* 5. Education */}
                 <div className="space-y-6">
                   <div className="flex justify-between items-center border-b border-slate-50 pb-2">
-                    <h3 className="text-[11px] font-black text-blue-600">Education</h3>
+                    <h3 className="text-app-title font-black text-blue-600">Education</h3>
                     <button type="button" onClick={addEducation} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all">
                       <Plus size={16} />
                     </button>
@@ -429,11 +429,11 @@ const Profile_PWA = () => {
                       <div key={idx} className="space-y-4 p-5 bg-slate-50/50 dark:bg-slate-900/50 rounded-3xl relative">
                         <button type="button" onClick={() => removeEducation(idx)} className="absolute top-4 right-4 text-rose-400 hover:text-rose-600 transition-colors"><Trash2 size={16} /></button>
                         
-                        <input value={edu.institution} onChange={e => updateEducation(idx, 'institution', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-sm font-bold border-none shadow-sm" placeholder="Institution" />
-                        <input value={edu.domain} onChange={e => updateEducation(idx, 'domain', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-sm font-bold border-none shadow-sm" placeholder="Domaine" />
-                        <input value={edu.specialty} onChange={e => updateEducation(idx, 'specialty', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-sm font-bold border-none shadow-sm" placeholder="Spécialité" />
-                        <input type="date" value={edu.startDate} onChange={e => updateEducation(idx, 'startDate', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-xs font-bold border-none shadow-sm" />
-                        <input type="date" value={edu.endDate} onChange={e => updateEducation(idx, 'endDate', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-xs font-bold border-none shadow-sm" />
+                        <input value={edu.institution} onChange={e => updateEducation(idx, 'institution', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-app-meta font-bold border-none shadow-sm" placeholder="Institution" />
+                        <input value={edu.domain} onChange={e => updateEducation(idx, 'domain', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-app-meta font-bold border-none shadow-sm" placeholder="Domaine" />
+                        <input value={edu.specialty} onChange={e => updateEducation(idx, 'specialty', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-app-meta font-bold border-none shadow-sm" placeholder="Spécialité" />
+                        <input type="date" value={edu.startDate} onChange={e => updateEducation(idx, 'startDate', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-app-meta font-bold border-none shadow-sm" />
+                        <input type="date" value={edu.endDate} onChange={e => updateEducation(idx, 'endDate', e.target.value)} className="w-full bg-white dark:bg-slate-800 rounded-xl p-3 text-app-meta font-bold border-none shadow-sm" />
                       </div>
                     ))}
                   </div>
@@ -458,9 +458,9 @@ const Profile_PWA = () => {
             className="fixed inset-0 z-[250] bg-white dark:bg-slate-900 p-6 flex flex-col"
           >
             <div className="flex justify-between items-center mb-8">
-              <button onClick={() => setShowCreatePost(false)} className="text-slate-400 font-bold text-xs uppercase">Annuler</button>
-              <h2 className="text-sm font-black uppercase text-slate-900 dark:text-white tracking-widest">Partager</h2>
-              <button onClick={handleCreatePost} className="px-6 py-2 bg-blue-600 text-white rounded-full text-[10px] font-black uppercase disabled:opacity-50" disabled={isPosting || !newPostContent.trim()}>
+              <button onClick={() => setShowCreatePost(false)} className="text-slate-400 font-bold text-app-meta uppercase">Annuler</button>
+              <h2 className="text-app-meta font-black uppercase text-slate-900 dark:text-white tracking-widest">Partager</h2>
+              <button onClick={handleCreatePost} className="px-6 py-2 bg-blue-600 text-white rounded-full text-app-micro font-black uppercase disabled:opacity-50" disabled={isPosting || !newPostContent.trim()}>
                 {isPosting ? '...' : 'Publier'}
               </button>
             </div>
