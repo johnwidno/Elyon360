@@ -80,32 +80,37 @@ const Home = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-white dark:bg-slate-900 min-h-screen transition-colors">
-      {/* Tabs - SMALLER FONT */}
-      <div className="flex items-center gap-4 border-b border-slate-50 dark:border-slate-800 pb-1">
-        <button
-          onClick={() => setActiveSegment('membre')}
-          className={`text-app-meta font-bold transition-all ${activeSegment === 'membre' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
-        >
-          Membre
-        </button>
-        <span className="text-slate-200 dark:text-slate-800 text-sm font-light">|</span>
-        <button
-          onClick={() => setActiveSegment('communaute')}
-          className={`text-app-meta font-bold transition-all ${activeSegment === 'communaute' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
-        >
-          Communauté
-        </button>
-      </div>
+    <div className="flex flex-col gap-6 md:gap-10 p-5 md:p-12 bg-white dark:bg-slate-900 min-h-screen transition-colors max-w-screen-2xl mx-auto relative">
+      
+      {/* Header Row for Desktop */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-slate-50 dark:border-slate-800 pb-4 md:pb-8">
+        {/* Tabs */}
+        <div className="flex items-center gap-8">
+          <button
+            onClick={() => setActiveSegment('membre')}
+            className={`text-app-body md:text-xl font-black transition-all relative ${activeSegment === 'membre' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+          >
+            Membre
+            {activeSegment === 'membre' && <motion.div layoutId="tab-active" className="absolute -bottom-4 md:-bottom-8 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-full" />}
+          </button>
+          <button
+            onClick={() => setActiveSegment('communaute')}
+            className={`text-app-body md:text-xl font-black transition-all relative ${activeSegment === 'communaute' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+          >
+            Communauté
+            {activeSegment === 'communaute' && <motion.div layoutId="tab-active" className="absolute -bottom-4 md:-bottom-8 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-full" />}
+          </button>
+        </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-        <input
-          type="text"
-          placeholder="Recherche"
-          className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-lg py-2 pl-10 pr-4 text-app-meta font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-100 dark:focus:ring-slate-800"
-        />
+        {/* Search Bar */}
+        <div className="relative w-full md:w-80 lg:w-96">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+          <input
+            type="text"
+            placeholder="Recherche"
+            className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-app-body font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-800 shadow-sm"
+          />
+        </div>
       </div>
 
       <AnimatePresence mode="wait">
@@ -123,21 +128,21 @@ const Home = () => {
                 <div className="w-5 h-5 bg-slate-900 dark:bg-blue-600 rounded flex items-center justify-center text-white">
                   <BookOpen size={12} />
                 </div>
-                <h3 className="text-app-title font-black text-slate-900 dark:text-white">{t('faith_life_community', 'Vie de foi et communauté')}</h3>
+                 <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('faith_life_community', 'Vie de foi et communauté')}</h3>
               </div>
 
-              <div className="flex gap-3 overflow-x-auto noscrollbar -mx-5 px-5 pb-1 scroll-smooth">
+              <div className="flex gap-3 md:gap-6 overflow-x-auto md:overflow-visible md:flex-wrap noscrollbar -mx-5 px-5 pb-2 scroll-smooth md:mx-0 md:px-0">
                 {featureCards.map((card) => (
                   <motion.div
                     key={card.id}
                     whileTap={{ scale: 0.92 }}
                     onClick={() => setSelectedStory(card)}
-                    className="flex-shrink-0 w-[75px] h-[110px] rounded-xl relative overflow-hidden shadow-md cursor-pointer group border border-slate-100 dark:border-slate-800"
+                    className="flex-shrink-0 w-[110px] h-[165px] md:w-[180px] md:h-[260px] rounded-2xl md:rounded-3xl relative overflow-hidden shadow-md md:shadow-xl cursor-pointer group border border-slate-100 dark:border-slate-800"
                   >
                     <img src={card.bg} alt={card.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 left-1.5 right-1.5">
-                      <span className="text-white font-bold text-app-micro leading-tight line-clamp-2">{card.title}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-2.5 right-2.5 md:bottom-6 md:left-5 md:right-5">
+                      <span className="text-white font-black text-app-meta md:text-xl leading-tight line-clamp-2 shadow-sm">{card.title}</span>
                     </div>
                   </motion.div>
                 ))}
@@ -150,37 +155,39 @@ const Home = () => {
                 <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-600 dark:text-slate-400">
                   <Globe size={12} />
                 </div>
-                <h3 className="text-app-title font-black text-slate-900 dark:text-white">{t('communications_events', 'Communications / Evenements')}</h3>
+                 <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('communications_events', 'Communications / Evenements')}</h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                 {events.map((event) => (
-                  <div key={event.id} className="flex flex-col gap-2">
-                    <div className="relative h-40 rounded-2xl overflow-hidden shadow-sm group">
+                  <div key={event.id} className="flex flex-col gap-4 bg-white dark:bg-slate-800/50 md:p-3 md:rounded-3xl md:hover:shadow-2xl md:hover:shadow-slate-200/50 dark:md:hover:shadow-none transition-all duration-300">
+                    <div className="relative h-40 md:h-56 rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-sm group">
                       <img
                         src={getImageUrl(event.imageUrl) || 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=800'}
                         alt={event.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                     </div>
-                    <div className="flex flex-col gap-0.5 px-1">
-                      <h4 className="text-app-title font-black text-slate-900 dark:text-white leading-tight line-clamp-1">
+                    <div className="flex flex-col gap-1 px-1">
+                      <h4 className="text-lg font-black text-slate-900 dark:text-white leading-tight line-clamp-1 tracking-tight">
                         {event.title}
                       </h4>
-                      <div className="flex flex-col gap-0">
-                        <div className="flex items-center gap-1.5 text-slate-400 font-bold text-app-meta">
-                          <MapPin size={12} />
-                          <span>{event.location || 'Temple principale'}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-bold text-app-meta">
+                          <MapPin size={14} className="text-blue-600 dark:text-blue-400" />
+                          <span>{event.location || 'Temple Principal'}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-400 font-bold text-app-meta">
-                          <Clock size={12} />
+                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-bold text-app-meta">
+                          <Clock size={14} className="text-blue-600 dark:text-blue-400" />
                           <span>
-                            {new Date(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}, 8:00 AM
+                            {event.date && !isNaN(new Date(event.date)) 
+                              ? new Date(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+                              : 'À venir'}, 8:00 AM
                           </span>
                         </div>
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400 text-app-meta font-medium line-clamp-2 leading-tight mt-0.5">
-                        {event.description || "Description courte de l'événement."}
+                      <p className="text-slate-600 dark:text-slate-400 text-app-meta font-medium line-clamp-3 leading-relaxed mt-1">
+                        {event.description || "Rejoignez-nous pour cet événement exceptionnel de notre communauté."}
                       </p>
                     </div>
                   </div>
