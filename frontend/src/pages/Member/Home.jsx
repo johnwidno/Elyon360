@@ -62,6 +62,13 @@ const Home = () => {
       bg: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=400',
       content: 'Dernières nouvelles de nos groupes de prière et activités sociales. La vie de l\'église au quotidien.'
     },
+
+    {
+      id: 'communaut',
+      title: 'De la communauté',
+      bg: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=400',
+      content: 'Dernières nouvelles de nos groupes de prière et activités sociales. La vie de l\'église au quotidien.'
+    },
   ];
 
   if (loading) {
@@ -162,11 +169,11 @@ const Home = () => {
                       </h4>
                       <div className="flex flex-col gap-0">
                         <div className="flex items-center gap-1.5 text-slate-400 font-bold text-app-meta">
-                          <MapPin size={9} />
+                          <MapPin size={12} />
                           <span>{event.location || 'Temple principale'}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-slate-400 font-bold text-app-meta">
-                          <Clock size={9} />
+                          <Clock size={12} />
                           <span>
                             {new Date(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}, 8:00 AM
                           </span>
