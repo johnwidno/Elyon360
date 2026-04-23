@@ -3,8 +3,11 @@ import api from '../../api/axios';
 import worshipService from '../../api/worshipService';
 import { 
   Music, Calendar, MapPin, ChevronRight, PlayCircle, 
-  BookOpen, MessageCircle, Info, ArrowLeft, Send, Quote
+  BookOpen, MessageCircle, Info, ArrowLeft, Send, Quote,
+  Printer, X, Download
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
@@ -18,6 +21,7 @@ const MemberWorship = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showIframe, setShowIframe] = useState(false);
 
   useEffect(() => {
     fetchServices();
@@ -76,8 +80,47 @@ const MemberWorship = () => {
     }
   };
 
+  const generatePDF = () => {
+    if (!selectedService) return;
+    
+    const doc = jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.text("PROGRAMME DU CULTE", pageWidth / 2, 20, { align: 'center' });
+    
+    doc.setFontSize(14);
+    doc.text(selectedService.theme || "Culte Régulier", pageWidth / 2, 30, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.text(`Date: ${new Date(selectedService.date).toLocaleDateString()}`, 20, 45);
+    doc.text(`Heure: ${selectedService.time || '08:00'}`, 20, 50);
+    doc.text(`Lieu: ${selectedService.location || 'Eglise Centrale'}`, 20, 55);
+
+    // Program Steps
+    if (selectedService.blocks && selectedService.blocks.length > 0) {
+      const body = selectedService.blocks.map((b, i) => [
+        i + 1,
+        b.label || b.type.toUpperCase(),
+        b.metadata?.verses || b.metadata?.songTitle || '-'
+      ]);
+
+      autoTable(doc, {
+        startY: 65,
+        head: [['#', 'Séquence', 'Détails']],
+        body: body,
+        theme: 'striped',
+        headStyles: { fillColor: [30, 27, 75] }
+      });
+    }
+
+    doc.save(`Programme_Culte_${selectedService.id}.pdf`);
+    toast.success('PDF généré !');
+  };
+
   const getImageUrl = (path) => {
-    if (!path) return 'https://images.unsplash.com/photo-1438032005730-c77930810965?auto=format&fit=crop&q=80&w=800';
+    if (!path) return 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&q=80&w=1200';
     if (path.startsWith('http')) return path;
     const baseUrl = api.defaults.baseURL.replace('/api', '');
     return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
@@ -143,8 +186,8 @@ const MemberWorship = () => {
             exit={{ opacity: 0, x: 50 }}
             className="flex flex-col"
           >
-            {/* Detail Banner */}
-            <div className="relative h-64 overflow-hidden">
+            {/* Detail Banner - Adjusted for Full Screen Feel */}
+            <div className="relative h-52 md:h-80 overflow-hidden">
               <img 
                 src={getImageUrl(selectedService.imageUrl)} 
                 alt={selectedService.theme} 
@@ -177,13 +220,13 @@ const MemberWorship = () => {
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-slate-100 bg-white sticky top-20 z-20">
+            {/* Tabs - Compact */}
+            <div className="flex border-b border-slate-100 bg-white sticky top-16 z-20">
               {['Programme', 'Message', 'Commentaires'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`flex-1 py-4 text-app-meta font-black tracking-widest transition-all relative ${activeTab === tab.toLowerCase() ? 'text-blue-600' : 'text-slate-400'}`}
+                  className={`flex-1 py-3 text-[12px] font-black tracking-widest transition-all relative ${activeTab === tab.toLowerCase() ? 'text-blue-600' : 'text-slate-400'}`}
                 >
                   {tab}
                   {activeTab === tab.toLowerCase() && (
@@ -193,22 +236,67 @@ const MemberWorship = () => {
               ))}
             </div>
 
-            {/* Tab Content */}
-            <div className="p-6 pb-24">
+            {/* Tab Content - Reduced padding */}
+            <div className="p-4 pb-24">
               {activeTab === 'programme' && (
-                <div className="flex flex-col gap-6">
-                  <div className="flex flex-col gap-2">
-                    <h5 className="font-black text-slate-900 text-app-meta tracking-tight">Programme du jour</h5>
-                    <div className="h-1 w-12 bg-blue-600 rounded-full" />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <h5 className="font-black text-slate-900 text-app-micro tracking-tight uppercase">Programme & Projection</h5>
+                    <div className="h-1 w-8 bg-blue-600 rounded-full" />
                   </div>
-                  <div className="bg-slate-50 rounded-[2rem] p-8 text-center flex flex-col items-center gap-4">
-                    <PlayCircle size={48} className="text-blue-600" />
-                    <p className="text-slate-600 font-medium text-app-body leading-relaxed">
-                      Rejoignez l'expérience spirituelle complète en ouvrant la projection interactive.
-                    </p>
-                    <button className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black text-sm shadow-lg shadow-blue-200 active:scale-95 transition-transform">
-                      Lancer la projection
-                    </button>
+
+                  <div className="bg-slate-50 rounded-[1.5rem] p-5 text-center flex flex-col items-center gap-4 border border-slate-100 shadow-sm">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm">
+                      <PlayCircle size={28} />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <p className="text-slate-900 font-black text-sm leading-tight">
+                        Expérience Interactive
+                      </p>
+                      <p className="text-slate-500 font-medium text-[11px] leading-snug px-2">
+                        Suivez le culte en temps réel sur votre écran.
+                      </p>
+                    </div>
+
+                    <div className="w-full space-y-2">
+                      <button 
+                        onClick={() => setShowIframe(true)}
+                        className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-slate-900/10"
+                      >
+                         <PlayCircle size={16} />
+                         Lancer la projection
+                      </button>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <button 
+                          onClick={() => {
+                            const url = `${window.location.origin}/public/worship/${selectedService.id}`;
+                            navigator.clipboard.writeText(url);
+                            toast.success('Lien copié !');
+                          }}
+                          className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 py-3 rounded-xl font-black text-[9px] uppercase tracking-wider active:scale-95 transition-all hover:bg-slate-50"
+                        >
+                          <Send size={14} />
+                          Partager
+                        </button>
+
+                        <button 
+                          onClick={generatePDF}
+                          className="flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-3 rounded-xl font-black text-[9px] uppercase tracking-wider active:scale-95 transition-all border border-blue-100"
+                        >
+                          <Printer size={14} />
+                          PDF
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100/50 flex gap-3">
+                     <Info className="text-blue-600 shrink-0" size={16} />
+                     <p className="text-[10px] font-medium text-blue-800 leading-tight">
+                        Lien de partage accessible à tous, sans compte requis.
+                     </p>
                   </div>
                 </div>
               )}
@@ -271,6 +359,38 @@ const MemberWorship = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Iframe Overlay */}
+      <AnimatePresence>
+        {showIframe && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-[100] bg-white flex flex-col"
+          >
+            <div className="h-16 border-b border-slate-100 px-6 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0">
+               <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Mode Projection</span>
+                  <h4 className="text-app-meta font-black text-slate-900">{selectedService?.theme}</h4>
+               </div>
+               <button 
+                onClick={() => setShowIframe(false)}
+                className="w-10 h-10 bg-slate-100 text-slate-900 rounded-full flex items-center justify-center hover:bg-slate-200 active:scale-90 transition-all"
+               >
+                 <X size={20} />
+               </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+               <iframe 
+                src={`${window.location.origin}/public/worship/${selectedService?.id}`} 
+                className="w-full h-full border-none"
+                title="Worship Projection"
+               />
             </div>
           </motion.div>
         )}

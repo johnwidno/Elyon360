@@ -27,6 +27,16 @@ self.addEventListener('fetch', event => {
   // Only cache GET requests
   if (event.request.method !== 'GET') return;
 
+  // SPA Navigation handling: For any navigation request, serve index.html
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('/index.html');
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -34,9 +44,11 @@ self.addEventListener('fetch', event => {
         if (response) {
           // If it's a static asset, return from cache but fetch in background to update (Stale-while-revalidate)
           const fetchPromise = fetch(event.request).then(networkResponse => {
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, networkResponse.clone());
-            });
+            if (networkResponse && networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, networkResponse.clone());
+              });
+            }
             return networkResponse;
           }).catch(() => {
             // Silently fail if offline
