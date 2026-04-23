@@ -61,9 +61,17 @@ import Assignments from "./pages/Admin/Logistics/Assignments";
 import PublicMemberProfile from "./pages/Member/Profile";
 import Suspended from "./pages/Public/Suspended";
 import FirstPasswordChangeModal from "./components/FirstPasswordChangeModal";
+import PublicProjection from "./pages/Public/Worship/PublicProjection";
+import PWALayout from "./layouts/PWALayout";
+import BiblePage from "./pages/Member/BiblePage";
+import ChatList from "./pages/Member/ChatList";
+import Profile_PWA from "./pages/Member/Profile_PWA";
+import MemberWorshipPWA from "./pages/Member/MemberWorship";
+import MemberDonations_PWA from "./pages/Member/MemberDonations_PWA";
+import MemberCard_PWA from "./pages/Member/MemberCard_PWA";
 import WorshipDashboard from "./pages/Admin/Worship/WorshipDashboard";
 import WorshipBuilder from "./pages/Admin/Worship/WorshipBuilder";
-import PublicProjection from "./pages/Public/Worship/PublicProjection";
+import { Heart } from "lucide-react";
 
 
 
@@ -433,14 +441,21 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/member/*"
-              element={
-                <ProtectedRoute role="member">
-                  <MemberHome />
-                </ProtectedRoute>
-              }
-            />
+
+            {/* Member PWA Routes */}
+            <Route path="/member" element={
+              <ProtectedRoute role="member">
+                <PWALayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<MemberHome />} />
+              <Route path="bible" element={<BiblePage />} />
+              <Route path="worship" element={<MemberWorshipPWA />} />
+              <Route path="donations" element={<MemberDonations_PWA />} />
+              <Route path="member-card" element={<MemberCard_PWA />} />
+              <Route path="chat" element={<ChatList />} />
+              <Route path="profile" element={<Profile_PWA />} />
+            </Route>
           </Routes>
         </Router>
       </LanguageProvider>

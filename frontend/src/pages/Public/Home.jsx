@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PublicLayout from '../../layouts/PublicLayout';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -17,13 +17,22 @@ import {
     Headphones,
     RefreshCw,
     CheckCircle2,
-    Sparkles
+    Sparkles,
+    Smartphone,
+    Download,
+    Share2
 } from 'lucide-react';
+import { usePWA } from '../../hooks/usePWA';
+
 
 const Home = () => {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const isDark = theme === 'dark';
+    const { isInstallable, isStandalone, isIOS, installApp } = usePWA();
+    const [isInstalling, setIsInstalling] = useState(false);
+
+    const showInstallButton = (isInstallable || isIOS) && !isStandalone;
 
     const features = [
         { icon: Users, titleKey: 'feat_1_title', descKey: 'feat_1_desc' },
@@ -91,6 +100,18 @@ const Home = () => {
                         <Link to="/login" className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full border-2 border-white/20 text-white font-bold text-sm sm:text-base hover:bg-white/5 transition-all text-center">
                             {t('hero_login')}
                         </Link>
+                        
+                        <button 
+                            onClick={async () => {
+                                if (!isIOS) setIsInstalling(true);
+                                await installApp();
+                                setIsInstalling(false);
+                            }}
+                            className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full bg-[#ea762a]/10 backdrop-blur-md border border-[#ea762a]/30 text-white font-bold text-sm sm:text-base hover:bg-[#ea762a]/20 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-2xl"
+                        >
+                            <Download size={18} className="text-[#ea762a]" />
+                            <span>{isInstalling ? 'Installation...' : 'Download l\'Application'}</span>
+                        </button>
                     </motion.div>
                 </div>
 

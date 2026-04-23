@@ -2,14 +2,19 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Menu, X, Moon, Sun, UserCircle, Home, MessageCircle, Info, PlusCircle } from 'lucide-react';
+import { Menu, X, Moon, Sun, UserCircle, Home, MessageCircle, Info, PlusCircle, Download, Smartphone, Share2 } from 'lucide-react';
 import { useState } from 'react';
+import { usePWA } from '../hooks/usePWA';
+
 
 const PublicLayout = ({ children }) => {
     const { theme, toggleTheme } = useTheme();
     const { lang, toggleLang, t } = useLanguage();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const isDark = theme === 'dark';
+    const { isInstallable, isStandalone, isIOS, installApp } = usePWA();
+    const [isInstalling, setIsInstalling] = useState(false);
+
 
     const navLinks = [
         { label: t('nav_home'), to: '/' },
@@ -52,6 +57,17 @@ const PublicLayout = ({ children }) => {
                                     {link.label}
                                 </Link>
                             ))}
+                            <button 
+                                onClick={async () => {
+                                    if (!isIOS) setIsInstalling(true);
+                                    await installApp();
+                                    setIsInstalling(false);
+                                }}
+                                className={`flex items-center gap-2 text-[15px] font-bold transition-all hover:text-[#ea762a] animate-pulse-subtle ${isDark ? 'text-[#ea762a]' : 'text-[#ea762a]'}`}
+                            >
+                                <Download size={16} />
+                                <span>Download App</span>
+                            </button>
                         </nav>
 
                         {/* === Desktop Right Actions === */}
@@ -130,6 +146,18 @@ const PublicLayout = ({ children }) => {
                                     {link.label}
                                 </Link>
                             ))}
+                            <button 
+                                onClick={async () => {
+                                    setSidebarOpen(false);
+                                    if (!isIOS) setIsInstalling(true);
+                                    await installApp();
+                                    setIsInstalling(false);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[15px] font-bold text-[#ea762a] hover:bg-white/10 transition-all"
+                            >
+                                <Download size={18} />
+                                <span>Download App</span>
+                            </button>
                         </nav>
 
                         {/* Action buttons */}
@@ -197,6 +225,18 @@ const PublicLayout = ({ children }) => {
                         <MessageCircle className="w-[22px] h-[22px]" />
                         <span className="text-[10px] font-bold uppercase tracking-tighter">Contact</span>
                     </Link>
+
+                    <button 
+                        onClick={async () => {
+                            if (!isIOS) setIsInstalling(true);
+                            await installApp();
+                            setIsInstalling(false);
+                        }}
+                        className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all active:scale-90 ${isDark ? 'text-[#ea762a]' : 'text-[#ea762a]'}`}
+                    >
+                        <Download className="w-[22px] h-[22px]" />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">App</span>
+                    </button>
                 </div>
             </nav>
         </div>

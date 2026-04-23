@@ -17,23 +17,54 @@ button,
 textarea,
 select {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  body, input, button, textarea, select {
+    font-size: 15px;
+  }
 }
 
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-content-smoothing: grayscale;
-  background-color: #F8FAFC;
-  color: #1E293B;
+  background-color: #F8FAFC; 
+  color: #0F172A;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all hover:bg-blue-700 active:scale-95 shadow-sm;
+    @apply bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold transition-all hover:bg-blue-700 active:scale-95 shadow-sm;
   }
 
-  .card {
-    @apply bg-white rounded-[1.5rem] border border-gray-100 shadow-sm p-6 transition-all hover:shadow-md;
+  /* PWA Layout Utilities */
+  .app-shell {
+    @apply min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-start transition-colors;
+  }
+
+  .app-container {
+    @apply w-full min-h-screen bg-white dark:bg-slate-900 relative flex flex-col transition-colors;
+  }
+
+  @media (min-width: 1024px) {
+    .app-container {
+      @apply bg-slate-50 dark:bg-slate-950;
+    }
+  }
+
+  .main-content {
+    @apply flex-1 overflow-y-auto noscrollbar mx-auto w-full;
+    padding-top: 64px; 
+    padding-bottom: 90px;
+  }
+
+  @media (min-width: 1024px) {
+    .main-content {
+      padding-top: 80px;
+    }
   }
 }
 
