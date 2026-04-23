@@ -81,6 +81,21 @@ body {
   }
 }
 
+@layer utilities {
+  .text-app-micro { font-size: var(--font-size-micro); }
+  .text-app-meta { font-size: var(--font-size-meta); }
+  .text-app-body { font-size: var(--font-size-body); }
+  .text-app-title { font-size: var(--font-size-title); }
+  
+  .noscrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .noscrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

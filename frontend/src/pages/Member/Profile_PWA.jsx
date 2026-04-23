@@ -282,7 +282,7 @@ const Profile_PWA = () => {
                 </h1>
 
                 {profile?.bio && (
-                  <p className="text-sm italic font-medium text-slate-900 dark:text-white max-w-xl text-justify">
+                  <p className="text-app-meta italic font-medium text-slate-900 dark:text-white max-w-xl text-justify">
                     {profile.bio}
                   </p>
                 )}
@@ -314,7 +314,7 @@ const Profile_PWA = () => {
 
               {/* Status Badge Moved Right */}
               <div className="hidden md:flex md:justify-end">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+                <span className="inline-flex items-center gap-1.5 text-app-micro font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
                   <CheckCircle2 size={12} />
                   Membre : Actif
                 </span>
@@ -335,7 +335,7 @@ const Profile_PWA = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-4 text-base font-black tracking-widest border-b-2 transition-all ${activeTab === tab.id
+              className={`py-4 text-app-body font-black tracking-widest border-b-2 transition-all ${activeTab === tab.id
                   ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
                   : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                 }`}

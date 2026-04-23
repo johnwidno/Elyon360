@@ -186,8 +186,8 @@ const MemberWorship = () => {
             exit={{ opacity: 0, x: 50 }}
             className="flex flex-col"
           >
-            {/* Detail Banner - Adjusted for Full Screen Feel */}
-            <div className="relative h-52 md:h-80 overflow-hidden">
+            {/* Detail Banner - Increased for Immersive Feel */}
+            <div className="relative h-64 md:h-96 overflow-hidden">
               <img 
                 src={getImageUrl(selectedService.imageUrl)} 
                 alt={selectedService.theme} 
@@ -226,7 +226,7 @@ const MemberWorship = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`flex-1 py-3 text-[12px] font-black tracking-widest transition-all relative ${activeTab === tab.toLowerCase() ? 'text-blue-600' : 'text-slate-400'}`}
+                  className={`flex-1 py-3 text-app-micro font-black tracking-widest transition-all relative ${activeTab === tab.toLowerCase() ? 'text-blue-600' : 'text-slate-400'}`}
                 >
                   {tab}
                   {activeTab === tab.toLowerCase() && (
