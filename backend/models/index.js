@@ -98,6 +98,7 @@ db.SundaySchoolMonitor = require("./SundaySchoolMonitor.js")(sequelize, Sequeliz
 db.SundaySchoolMember = require("./SundaySchoolMember.js")(sequelize, Sequelize);
 const SundaySchoolReport = require("./SundaySchoolReport.js")(sequelize, Sequelize);
 db.SundaySchoolReport = SundaySchoolReport;
+db.SundaySchoolComment = require("./SundaySchoolComment.js")(sequelize, Sequelize);
 
 // Logistics Models
 db.Building = require("./Building.js")(sequelize, Sequelize);
@@ -246,6 +247,10 @@ db.SundaySchoolReport.hasMany(db.SundaySchoolAttendance, { foreignKey: "reportId
 db.User.belongsToMany(db.SundaySchool, { through: db.SundaySchoolMember, foreignKey: 'userId', as: 'sundaySchoolClasses' });
 db.SundaySchool.belongsToMany(db.User, { through: db.SundaySchoolMember, foreignKey: 'sundaySchoolId', as: 'classMembers' });
 
+// Direct associations for junction models to allow direct queries with includes
+db.SundaySchoolMember.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+db.SundaySchoolMember.belongsTo(db.SundaySchool, { foreignKey: 'sundaySchoolId', as: 'sunday_school' });
+
 db.Church.hasMany(db.SundaySchoolMonitor, { foreignKey: "churchId", as: "sundaySchoolMonitors" });
 db.SundaySchoolMonitor.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 db.SundaySchoolMonitor.belongsTo(db.User, { foreignKey: "userId", as: "user" });
@@ -256,6 +261,11 @@ db.Church.hasMany(db.SundaySchoolReport, { foreignKey: "churchId", as: "sundaySc
 db.SundaySchoolReport.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 db.SundaySchoolReport.belongsTo(db.SundaySchool, { foreignKey: "classId", as: "class" });
 db.SundaySchoolReport.belongsTo(db.User, { foreignKey: "submittedById", as: "submittedBy" });
+
+db.SundaySchoolReport.hasMany(db.SundaySchoolComment, { foreignKey: "reportId", as: "comments" });
+db.SundaySchoolComment.belongsTo(db.SundaySchoolReport, { foreignKey: "reportId", as: "report" });
+db.SundaySchoolComment.belongsTo(db.User, { foreignKey: "authorId", as: "author" });
+db.User.hasMany(db.SundaySchoolComment, { foreignKey: "authorId", as: "sundaySchoolComments" });
 
 // Inventory Associations
 db.Church.hasMany(db.InventoryItem, { foreignKey: "churchId", as: "inventory" });
@@ -338,6 +348,10 @@ db.User.belongsTo(db.MemberCategory, { foreignKey: "memberCategoryId", as: "cate
 
 db.MemberCategory.hasMany(db.SundaySchool, { foreignKey: "memberCategoryId", as: "sundaySchoolClasses" });
 db.SundaySchool.belongsTo(db.MemberCategory, { foreignKey: "memberCategoryId", as: "admissionCategory" });
+
+// SundaySchool ↔ ContactSubtype (for Contact Classification criterion)
+db.ContactSubtype.hasMany(db.SundaySchool, { foreignKey: "contactSubtypeId", as: "targetedClasses" });
+db.SundaySchool.belongsTo(db.ContactSubtype, { foreignKey: "contactSubtypeId", as: "targetSubtype" });
 
 // MemberAlert Associations
 db.Church.hasMany(db.MemberAlert, { foreignKey: "churchId", as: "memberAlerts" });

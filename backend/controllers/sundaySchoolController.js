@@ -29,6 +29,93 @@ const calculateAge = (birthDate) => {
 };
 
 // Internal function to assign a member to dynamic classes
+// Helper to check if a member matches a class's criteria
+const matchesCriteria = (user, cls, age) => {
+    // 1. Age criteria
+    if (cls.minAge !== null) {
+        if (age === null || age < cls.minAge) return false;
+    }
+    if (cls.maxAge !== null) {
+        if (age === null || age > cls.maxAge) return false;
+    }
+
+    // 2. Marital criteria
+    if (cls.maritalStatus && cls.maritalStatus !== 'any') {
+        const userMarital = (user.maritalStatus || '').toLowerCase();
+        const maritalMatches = {
+            'single': ['célibataire', 'single', 'non marié', 'unmarried', 'celibataire'],
+            'married': ['marié', 'mariée', 'marié(e)', 'married', 'époux', 'épouse'],
+            'widowed': ['veuf', 'veuve', 'widowed', 'widow', 'widower'],
+            'divorced': ['divorcé', 'divorcée', 'divorced', 'divorcé(e)']
+        };
+
+        const acceptedStatuses = maritalMatches[cls.maritalStatus] || [];
+        if (!acceptedStatuses.some(status => userMarital.includes(status))) {
+            return false;
+        }
+    }
+
+    // 3. Category / Classification criteria (Unified System)
+    // We check both memberCategoryId and contactSubtypeId to be safe, 
+    // as the UI might have switched between them.
+    if (cls.contactSubtypeId && user.subtypeId !== cls.contactSubtypeId) {
+        return false;
+    } 
+
+    if (cls.memberCategoryId && user.memberCategoryId !== cls.memberCategoryId) {
+        // Double check subtypeId as well since they were unified
+        if (user.subtypeId !== cls.memberCategoryId) {
+            return false;
+        }
+    } 
+    
+    // 4. Baptismal Status
+    if (cls.baptismalStatus && cls.baptismalStatus !== 'any') {
+        const userBaptism = (user.baptismalStatus || '').toLowerCase();
+        
+        if (cls.baptismalStatus === 'baptized') {
+            if (!['baptized', 'baptisé', 'baptisée'].includes(userBaptism)) return false;
+        } else if (cls.baptismalStatus === 'not_baptized') {
+            const nonBaptizedCategories = ['not_baptized', 'non baptisé', 'non baptisée', 'candidate', 'candidat', 'adherent', 'adhérent', 'affiliated', 'affilié', 'child', 'enfant', 'other', 'autre'];
+            if (!nonBaptizedCategories.includes(userBaptism)) return false;
+        } else {
+            const normalizedCriteria = cls.baptismalStatus.toLowerCase();
+            const specificMatches = {
+                'candidate': ['candidate', 'candidat', 'candidat au baptême'],
+                'adherent': ['adherent', 'adhérent'],
+                'affiliated': ['affiliated', 'affilié'],
+                'child': ['child', 'enfant'],
+                'other': ['other', 'autre'],
+                'transferred': ['transferred', 'transféré']
+            };
+            const accepted = specificMatches[normalizedCriteria] || [normalizedCriteria];
+            if (!accepted.includes(userBaptism)) return false;
+        }
+    }
+
+    // 5. Gender criteria
+    if (cls.gender && cls.gender !== 'any') {
+        const userGender = (user.gender || '').toLowerCase();
+        if (cls.gender === 'male') {
+            if (!['masculin', 'male', 'garçon', 'homme', 'm'].includes(userGender)) return false;
+        } else if (cls.gender === 'female') {
+            if (!['féminin', 'female', 'fille', 'femme', 'f'].includes(userGender)) return false;
+        }
+    }
+
+    // 6. Member Status criteria
+    if (cls.memberStatus && cls.memberStatus !== 'any') {
+        const userStatus = (user.status || '').toLowerCase();
+        if (userStatus !== cls.memberStatus.toLowerCase()) return false;
+    }
+
+    return true;
+};
+
+// Internal engine: fully re-evaluates all dynamic classes for a given member.
+// - Enforces MAX 1 active class per member.
+// - If manual assignment exists, auto-engine bows out.
+// - If matches multiple classes, the MOST SPECIFIC class is chosen.
 const assignMemberToClassesInternal = async (userId, churchId) => {
     try {
         const user = await db.User.findByPk(userId);
@@ -36,148 +123,183 @@ const assignMemberToClassesInternal = async (userId, churchId) => {
 
         const age = calculateAge(user.birthDate);
 
-        // Normalize User Data for matching
-        const userGender = (user.gender || '').toLowerCase();
-        const userMarital = (user.maritalStatus || '').toLowerCase();
-        const userBaptism = (user.baptismalStatus || '').toLowerCase();
-
-        // Find all dynamic classes for this church
-        const classes = await db.SundaySchool.findAll({
+        // Fetch ALL dynamic classes for this church to evaluate criteria
+        const allDynamicClasses = await db.SundaySchool.findAll({
             where: { churchId, isDynamic: true }
         });
 
-        const classesToJoin = [];
+        // Fetch ALL current active assignments for this member
+        const allCurrentAssignments = await db.SundaySchoolMember.findAll({
+            where: { userId, level: 'Actuel' },
+            include: [{ model: db.SundaySchool, as: 'sunday_school' }]
+        });
 
-        for (const cls of classes) {
-            let match = true;
-
-            // 1. Age criteria
-            if (cls.minAge !== null && age !== null && age < cls.minAge) match = false;
-            if (cls.maxAge !== null && age !== null && age > cls.maxAge) match = false;
-
-            // 2. Marital criteria
-            if (cls.maritalStatus !== 'any') {
-                const maritalMatches = {
-                    'single': ['célibataire', 'single', 'non marié', 'unmarried', 'celibataire'],
-                    'married': ['marié', 'mariée', 'marié(e)', 'married', 'époux', 'épouse'],
-                    'widowed': ['veuf', 'veuve', 'widowed', 'widow', 'widower'],
-                    'divorced': ['divorcé', 'divorcée', 'divorced', 'divorcé(e)']
-                };
-
-                const acceptedStatuses = maritalMatches[cls.maritalStatus] || [];
-                // Use .some() to check if userMarital contains any of the accepted statuses
-                if (!acceptedStatuses.some(status => userMarital.includes(status))) {
-                    match = false;
+        // 1. Validate Existing Assignments against Criteria
+        // If a member is in a DYNAMIC class, they MUST match its criteria.
+        // Even if it was a manual assignment to a dynamic class, we enforce coherence.
+        for (const assignment of allCurrentAssignments) {
+            const cls = assignment.sunday_school;
+            if (cls && cls.isDynamic) {
+                const matches = matchesCriteria(user, cls, age);
+                if (!matches) {
+                    console.log(`[SundaySchool] ARCHIVING incoherent assignment for member ${userId} in class ${cls.id} (${cls.name}).`);
+                    await assignment.update({ level: 'non-actuel', leftAt: new Date() });
                 }
-            }
-
-            // 3. Baptismal / Category criteria
-            // IMPORTANT: Use subtypeId (ContactSubtype) as this is where member classification is actually stored
-            if (cls.memberCategoryId && user.subtypeId !== cls.memberCategoryId) {
-                match = false;
-            } else if (cls.baptismalStatus !== 'any') {
-                // LEGACY Matcher (Keep for compatibility until all classes are migrated)
-                if (cls.baptismalStatus === 'baptized') {
-                    // MUST be explicitly baptized
-                    if (!['baptized', 'baptisé', 'baptisée'].includes(userBaptism)) match = false;
-                } else if (cls.baptismalStatus === 'not_baptized') {
-                    // MUST NOT be baptized
-                    if (['baptized', 'baptisé', 'baptisée'].includes(userBaptism)) match = false;
-
-                    // Further check: if the class is for "not_baptized" specifically, 
-                    // exclude those who don't match the statutory profile
-                    const nonBaptizedCategories = ['not_baptized', 'non baptisé', 'non baptisée', 'candidate', 'candidat', 'candidat au baptême', 'adherent', 'adhérent', 'transferred', 'transféré', 'affiliated', 'affilié', 'child', 'enfant', 'other', 'autre'];
-                    if (!nonBaptizedCategories.includes(userBaptism)) match = false;
-                } else {
-                    // Specific category match
-                    if (userBaptism !== cls.baptismalStatus) {
-                        const normalizedCriteria = cls.baptismalStatus.toLowerCase();
-                        if (normalizedCriteria === 'candidate' && !['candidate', 'candidat', 'candidat au baptême'].includes(userBaptism)) match = false;
-                        else if (normalizedCriteria === 'adherent' && !['adherent', 'adhérent'].includes(userBaptism)) match = false;
-                        else if (normalizedCriteria === 'affiliated' && !['affiliated', 'affilié'].includes(userBaptism)) match = false;
-                        else if (normalizedCriteria === 'child' && !['child', 'enfant'].includes(userBaptism)) match = false;
-                        else if (normalizedCriteria === 'other' && !['other', 'autre'].includes(userBaptism)) match = false;
-                        else if (normalizedCriteria === 'transferred' && !['transferred', 'transféré'].includes(userBaptism)) match = false;
-                        else if (![normalizedCriteria].includes(userBaptism)) match = false;
-                    }
-                }
-            }
-
-            // 4. Gender criteria
-            if (cls.gender !== 'any') {
-                if (cls.gender === 'male') {
-                    if (!['masculin', 'male', 'garçon', 'homme', 'm'].includes(userGender)) match = false;
-                } else if (cls.gender === 'female') {
-                    if (!['féminin', 'female', 'fille', 'femme', 'f'].includes(userGender)) match = false;
-                }
-            }
-
-            // 5. Member Status criteria
-            if (cls.memberStatus && cls.memberStatus !== 'any') {
-                const userStatus = (user.status || '').toLowerCase();
-                const targetStatus = cls.memberStatus.toLowerCase();
-                if (userStatus !== targetStatus) match = false;
-            }
-
-            if (match) {
-                classesToJoin.push(cls.id);
-                break; // USER REQUIREMENT: A member can only belong to ONE class at a time
             }
         }
 
-        // Limit to 1 active assignment
-        const finalToJoin = classesToJoin.slice(0, 1);
-
-        // Find all currently active assignments (manual or automatic)
-        const currentActiveAssignments = await db.SundaySchoolMember.findAll({
+        // Re-fetch active assignments after cleanup
+        const activeAssignments = await db.SundaySchoolMember.findAll({
             where: { userId, level: 'Actuel' }
         });
 
-        const activeClassIds = currentActiveAssignments.map(a => a.sundaySchoolId);
-
-        // Members to demote: those who are currently active but shouldn't be (either they don't match or we found a new preferred one)
-        const toDemote = activeClassIds.filter(id => !finalToJoin.includes(id));
-
-        if (toDemote.length > 0) {
-            console.log(`[SundaySchool] Demoting member ${userId} from classes: ${toDemote.join(', ')}`);
-            await db.SundaySchoolMember.update(
-                { level: 'non-actuel', leftAt: new Date() },
-                {
-                    where: {
-                        userId,
-                        sundaySchoolId: { [db.Sequelize.Op.in]: toDemote },
-                        level: 'Actuel'
-                    }
-                }
-            );
-        }
-
-        // Add or Reactivate the target class
-        if (finalToJoin.length > 0) {
-            const targetClassId = finalToJoin[0];
-            const existingAssignment = await db.SundaySchoolMember.findOne({
-                where: { userId, sundaySchoolId: targetClassId }
-            });
-
-            if (existingAssignment) {
-                if (existingAssignment.level !== 'Actuel') {
-                    console.log(`[SundaySchool] Reactivating member ${userId} for class: ${targetClassId}`);
-                    await existingAssignment.update({ level: 'Actuel', leftAt: null, assignmentType: 'automatic' });
-                }
-            } else {
-                console.log(`[SundaySchool] Adding member ${userId} to new class: ${targetClassId}`);
-                await db.SundaySchoolMember.create({
-                    userId,
-                    sundaySchoolId: targetClassId,
-                    level: 'Actuel',
-                    assignmentType: 'automatic',
-                    joinedAt: new Date()
-                });
+        // 2. Enforce "Max 1 Active Class" rule
+        // If they have manual assignments, they take priority.
+        const manualAssignments = activeAssignments.filter(a => a.assignmentType === 'manual');
+        
+        if (manualAssignments.length > 1) {
+            // If somehow they have multiple manual ones, keep only the latest
+            for (let i = 0; i < manualAssignments.length - 1; i++) {
+                await manualAssignments[i].update({ level: 'non-actuel', leftAt: new Date() });
             }
         }
 
-    } catch (error) {
-        console.error("Auto-Assignment Error:", error);
+        const hasManualAssignment = manualAssignments.length > 0;
+        let bestClass = null;
+
+        if (!hasManualAssignment) {
+            // Evaluate all dynamic classes
+            const matchingClasses = allDynamicClasses.filter(cls => matchesCriteria(user, cls, age));
+
+            if (matchingClasses.length > 0) {
+                // Score them to pick the MOST SPECIFIC class
+                const getStrictnessScore = (cls) => {
+                    let score = 0;
+                    if (cls.contactSubtypeId) score += 10;
+                    if (cls.memberCategoryId) score += 10;
+                    if (cls.baptismalStatus && cls.baptismalStatus !== 'any') score += 8;
+                    if (cls.maritalStatus && cls.maritalStatus !== 'any') score += 5;
+                    if (cls.minAge !== null || cls.maxAge !== null) score += 3;
+                    if (cls.gender && cls.gender !== 'any') score += 2;
+                    if (cls.memberStatus && cls.memberStatus !== 'any') score += 1;
+                    return score;
+                };
+
+                matchingClasses.sort((a, b) => getStrictnessScore(b) - getStrictnessScore(a));
+                bestClass = matchingClasses[0];
+            }
+
+            // Archive any automatic assignments that are not the best class
+            const autoAssignments = activeAssignments.filter(a => a.assignmentType === 'automatic');
+            for (const assignment of autoAssignments) {
+                if (!bestClass || assignment.sundaySchoolId !== bestClass.id) {
+                    console.log(`[SundaySchool] Archiving member ${userId} from auto-class ${assignment.sundaySchoolId} (Not best fit).`);
+                    await assignment.update({ level: 'non-actuel', leftAt: new Date() });
+                }
+            }
+
+            // 3. Add to the single BEST qualifying class if not already there
+            if (bestClass) {
+                const existingAssignment = await db.SundaySchoolMember.findOne({
+                    where: { userId, sundaySchoolId: bestClass.id }
+                });
+
+                if (!existingAssignment || existingAssignment.level !== 'Actuel') {
+                    if (!existingAssignment) {
+                        console.log(`[SundaySchool] Auto-assigning member ${userId} to BEST class ${bestClass.id} (${bestClass.name})`);
+                        await db.SundaySchoolMember.create({
+                            userId,
+                            sundaySchoolId: bestClass.id,
+                            level: 'Actuel',
+                            assignmentType: 'automatic',
+                            joinedAt: new Date()
+                        });
+                    } else {
+                        console.log(`[SundaySchool] Re-activating member ${userId} in BEST class ${bestClass.id}`);
+                        await existingAssignment.update({ 
+                            level: 'Actuel', 
+                            leftAt: null, 
+                            assignmentType: 'automatic', 
+                            joinedAt: new Date() 
+                        });
+                    }
+                }
+            }
+        } else {
+            // If they HAVE a manual assignment, ensure they aren't also in an automatic one
+            const autoAssignments = activeAssignments.filter(a => a.assignmentType === 'automatic');
+            for (const assignment of autoAssignments) {
+                console.log(`[SundaySchool] Removing auto-assignment for member ${userId} because a manual one exists.`);
+                await assignment.update({ level: 'non-actuel', leftAt: new Date() });
+            }
+        }
+    } catch (err) {
+        console.error(`[SundaySchool] Error evaluating dynamic classes for member ${userId}:`, err);
+    }
+};
+
+exports.getMyClasses = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const churchId = req.church.id;
+
+        // Fetch classes where user is a member (current or past)
+        const memberAssignments = await db.SundaySchoolMember.findAll({
+            where: { userId },
+            include: [{
+                model: db.SundaySchool,
+                as: 'sunday_school',
+                where: { churchId },
+                include: [
+                    { model: db.MemberCategory, as: 'admissionCategory', attributes: ['name'] },
+                    { 
+                        association: 'monitors', 
+                        include: [{ association: 'user', attributes: ['id', 'firstName', 'lastName'] }]
+                    },
+                    {
+                        association: 'classMembers',
+                        attributes: ['id'],
+                        through: { attributes: ['level'], as: 'sunday_school_member' }
+                    }
+                ]
+            }]
+        });
+
+        // Fetch classes where user is a monitor
+        const monitorAssignments = await db.SundaySchoolMonitor.findAll({
+            where: { userId, churchId },
+            include: [{
+                model: db.SundaySchool,
+                as: 'class',
+                include: [
+                    { model: db.MemberCategory, as: 'admissionCategory', attributes: ['name'] },
+                    {
+                        association: 'classMembers',
+                        attributes: ['id'],
+                        through: { attributes: ['level'], as: 'sunday_school_member' }
+                    }
+                ]
+            }]
+        });
+
+        const currentClasses = memberAssignments
+            .filter(a => a.level === 'Actuel')
+            .map(a => a.sunday_school);
+
+        const pastClasses = memberAssignments
+            .filter(a => a.level === 'non-actuel')
+            .map(a => a.sunday_school);
+
+        const monitorClasses = monitorAssignments.map(a => a.class);
+
+        res.json({
+            current: currentClasses,
+            past: pastClasses,
+            monitor: monitorClasses
+        });
+    } catch (err) {
+        console.error("getMyClasses error:", err);
+        res.status(500).json({ message: "Erreur lors de la récupération de vos classes." });
     }
 };
 
@@ -206,17 +328,21 @@ exports.getClasses = async (req, res) => {
 exports.getClassById = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user.id;
+        const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
+        
+        // 1. Fetch the class
         const cls = await db.SundaySchool.findOne({
             where: { id, churchId: req.church.id },
             include: [
                 { model: db.Church, as: 'church', attributes: ['name'] },
                 {
                     association: 'monitors',
-                    include: [{ association: 'user', attributes: ['id', 'firstName', 'lastName'] }]
+                    include: [{ association: 'user', attributes: ['id', 'firstName', 'lastName', 'photo'] }]
                 },
                 {
                     association: 'classMembers',
-                    attributes: ['id', 'firstName', 'lastName', 'memberCode', 'birthDate', 'gender', 'maritalStatus', 'role', 'status', 'email', 'phone', 'baptismalStatus', 'subtypeId', 'memberCategoryId'],
+                    attributes: ['id', 'firstName', 'lastName', 'memberCode', 'birthDate', 'gender', 'maritalStatus', 'role', 'status', 'email', 'phone', 'baptismalStatus', 'subtypeId', 'memberCategoryId', 'photo'],
                     through: {
                         attributes: ['status', 'level', 'assignmentType', 'joinedAt', 'leftAt'],
                         as: 'sunday_school_member'
@@ -226,13 +352,54 @@ exports.getClassById = async (req, res) => {
                         { model: db.MemberCategory, as: 'category', attributes: ['name'] }
                     ]
                 },
-                { model: db.MemberCategory, as: 'admissionCategory', attributes: ['name'] }
+                { model: db.MemberCategory, as: 'admissionCategory', attributes: ['name'] },
+                { model: db.Room, as: 'room', attributes: ['id', 'name'] }
             ]
         });
+
         if (!cls) return res.status(404).json({ message: "Classe non trouvée." });
+
+        // 2. Access Control & Data Filtering
+        // Check if user is Admin or Global Monitor or specific Monitor of this class
+        const isAdmin = userRoles.includes('admin') || userRoles.includes('super_admin') || userRoles.includes('superaduser');
+        const isClassMonitor = cls.monitors?.some(m => m.userId === userId);
+        
+        // Check if user has global 'sunday-school' permission
+        let hasGlobalPerm = false;
+        const rolesInDb = await db.Role.findAll({ where: { name: userRoles, churchId: req.user.churchId } });
+        const allPermissions = rolesInDb.reduce((acc, r) => acc.concat(r.permissions || []), []);
+        if (allPermissions.includes('sunday-school')) hasGlobalPerm = true;
+
+        const isAuthorizedStaff = isAdmin || hasGlobalPerm || isClassMonitor;
+
+        // If user is a student (enrolled in the class, current or past)
+        const isStudent = cls.classMembers?.some(m => m.id === userId);
+
+        if (!isAuthorizedStaff && !isStudent) {
+            return res.status(403).json({ message: "Vous n'êtes pas autorisé à accéder aux détails de cette classe." });
+        }
+
+        // 3. Filter sensitive data if user is ONLY a student
+        if (!isAuthorizedStaff && isStudent) {
+            // Remove sensitive fields from other members
+            cls.classMembers = cls.classMembers.map(member => {
+                const plainMember = member.get({ clone: true });
+                // If it's the user's own profile, keep it. Otherwise, hide sensitive info.
+                if (member.id !== userId) {
+                    delete plainMember.email;
+                    delete plainMember.phone;
+                    delete plainMember.birthDate;
+                    delete plainMember.memberCode;
+                    delete plainMember.nifCin;
+                }
+                return plainMember;
+            });
+        }
+
         res.json(cls);
     } catch (err) {
-        res.status(500).json({ message: "Erreur serveur." });
+        console.error("getClassById error:", err);
+        res.status(500).json({ message: "Erreur serveur lors de la récupération des détails." });
     }
 };
 
@@ -413,14 +580,15 @@ exports.updateClass = async (req, res) => {
             }
         }
 
-        // Refresh auto-assignments
+        // Trigger auto-assignment for all members if dynamic or changed
         const users = await db.User.findAll({ where: { churchId: req.church.id } });
         for (const user of users) {
             await assignMemberToClassesInternal(user.id, req.church.id);
         }
 
         await transaction.commit();
-        res.json({ message: "Classe mise à jour." });
+        const updatedClass = await db.SundaySchool.findByPk(id);
+        res.json(updatedClass);
     } catch (err) {
         await transaction.rollback();
         console.error("Update class error:", err);
@@ -768,19 +936,62 @@ exports.submitReport = async (req, res) => {
 exports.getReports = async (req, res) => {
     try {
         const { classId } = req.query;
+        const userId = req.user.id;
+        const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
+
+        // 1. Check permissions
+        const isAdmin = userRoles.includes('admin') || userRoles.includes('super_admin') || userRoles.includes('superaduser');
+        
+        let hasGlobalPerm = false;
+        const rolesInDb = await db.Role.findAll({ where: { name: userRoles, churchId: req.user.churchId } });
+        const allPermissions = rolesInDb.reduce((acc, r) => acc.concat(r.permissions || []), []);
+        if (allPermissions.includes('sunday-school')) hasGlobalPerm = true;
+
+        const isAuthorizedStaff = isAdmin || hasGlobalPerm;
+
         let where = { churchId: req.church.id };
-        if (classId) where.classId = classId;
+
+        // 2. Filter logic
+        if (!isAuthorizedStaff) {
+            // If regular member, they MUST specify a classId, and they MUST be a member of that class
+            if (!classId) {
+                return res.status(403).json({ message: "Vous devez spécifier une classe pour consulter les rapports." });
+            }
+
+            // Check if user is a member of this specific class
+            const isMember = await db.SundaySchoolMember.findOne({
+                where: { userId, sundaySchoolId: classId }
+            });
+            const isMonitor = await db.SundaySchoolMonitor.findOne({
+                where: { userId, classId, churchId: req.church.id }
+            });
+
+            if (!isMember && !isMonitor) {
+                return res.status(403).json({ message: "Vous n'avez pas accès aux rapports de cette classe." });
+            }
+            
+            where.classId = classId;
+        } else {
+            // Admin/Staff can filter by classId or see all
+            if (classId) where.classId = classId;
+        }
 
         const reports = await db.SundaySchoolReport.findAll({
             where,
             include: [
                 { model: db.SundaySchool, as: 'class', attributes: ['name'] },
-                { model: db.User, as: 'submittedBy', attributes: ['firstName', 'lastName'] }
+                { model: db.User, as: 'submittedBy', attributes: ['firstName', 'lastName'] },
+                { 
+                    model: db.SundaySchoolComment, 
+                    as: 'comments',
+                    include: [{ model: db.User, as: 'author', attributes: ['firstName', 'lastName', 'photo'] }]
+                }
             ],
             order: [['date', 'DESC'], ['createdAt', 'DESC']]
         });
         res.json(reports);
     } catch (err) {
+        console.error("getReports error:", err);
         res.status(500).json({ message: "Erreur lors de la récupération des rapports." });
     }
 };
@@ -792,7 +1003,12 @@ exports.getReportById = async (req, res) => {
             where: { id, churchId: req.church.id },
             include: [
                 { model: db.SundaySchool, as: 'class', attributes: ['name'] },
-                { model: db.User, as: 'submittedBy', attributes: ['firstName', 'lastName'] }
+                { model: db.User, as: 'submittedBy', attributes: ['firstName', 'lastName'] },
+                { 
+                    model: db.SundaySchoolComment, 
+                    as: 'comments',
+                    include: [{ model: db.User, as: 'author', attributes: ['firstName', 'lastName', 'photo'] }]
+                }
             ]
         });
 
@@ -1283,7 +1499,71 @@ exports.getMyClassReports = async (req, res) => {
     }
 };
 
+exports.addReportComment = async (req, res) => {
+    try {
+        const { reportId } = req.params;
+        const { content } = req.body;
+        const authorId = req.user.id;
+        const churchId = req.church.id;
+
+        if (!content) return res.status(400).json({ message: "Le commentaire ne peut pas être vide." });
+
+        const report = await db.SundaySchoolReport.findOne({
+            where: { id: reportId, churchId }
+        });
+        if (!report) return res.status(404).json({ message: "Rapport non trouvé." });
+
+        // Check if user is member or monitor of the class
+        const isMember = await db.SundaySchoolMember.findOne({
+            where: { userId: authorId, sundaySchoolId: report.classId, level: 'Actuel' }
+        });
+        const isMonitor = await db.SundaySchoolMonitor.findOne({
+            where: { userId: authorId, classId: report.classId, churchId }
+        });
+
+        if (!isMember && !isMonitor) {
+            return res.status(403).json({ message: "Vous n'êtes pas autorisé à commenter ce rapport." });
+        }
+
+        const comment = await db.SundaySchoolComment.create({
+            reportId,
+            authorId,
+            content
+        });
+
+        const commentWithAuthor = await db.SundaySchoolComment.findByPk(comment.id, {
+            include: [{ model: db.User, as: 'author', attributes: ['firstName', 'lastName', 'photo'] }]
+        });
+
+        res.status(201).json(commentWithAuthor);
+    } catch (err) {
+        console.error("addReportComment error:", err);
+        res.status(500).json({ message: "Erreur lors de l'ajout du commentaire." });
+    }
+};
+
 // Wrapper for auto-assignment to be called from other controllers (e.g., User update)
 exports.assignMemberToClasses = async (userId, churchId) => {
     return await assignMemberToClassesInternal(userId, churchId);
+};
+
+// Admin endpoint: Re-evaluate ALL members of the church against dynamic class criteria
+exports.syncAllAutoAssignments = async (req, res) => {
+    try {
+        const churchId = req.church.id;
+        const users = await db.User.findAll({ where: { churchId }, attributes: ['id'] });
+
+        console.log(`[SundaySchool] Starting full sync for ${users.length} members in church ${churchId}`);
+        let processed = 0;
+        for (const user of users) {
+            await assignMemberToClassesInternal(user.id, churchId);
+            processed++;
+        }
+
+        console.log(`[SundaySchool] Full sync complete: ${processed} members processed.`);
+        res.json({ message: `Synchronisation terminée: ${processed} membres évalués.`, processed });
+    } catch (err) {
+        console.error("syncAllAutoAssignments error:", err);
+        res.status(500).json({ message: "Erreur lors de la synchronisation." });
+    }
 };

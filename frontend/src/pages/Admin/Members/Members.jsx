@@ -552,6 +552,7 @@ export default function Members() {
                                         getMessageModal={() => setMessageModal({ isOpen: true, recipient: member, mode: 'individual' })}
                                         calculateAge={calculateAge}
                                         subtypeName={subtypes.find(s => s.id === member.subtypeId)?.name}
+                                        memberCategories={memberCategories}
                                     />
                                 ))}
                             </div>
@@ -689,7 +690,7 @@ const StatCard = ({ label, value, icon, color, subtitle }) => {
     );
 };
 
-const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, calculateAge, subtypeName }) => (
+const MemberCard = ({ member, t, navigate, onEdit, onDelete, getMessageModal, calculateAge, subtypeName, memberCategories = [] }) => (
     <div
         onClick={() => navigate(`/admin/members/${member.id}`)}
         className="bg-white dark:bg-[#1e293b] rounded-[2.5rem] p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group flex flex-col items-center text-center relative overflow-hidden"

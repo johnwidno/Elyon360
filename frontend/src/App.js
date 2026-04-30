@@ -69,6 +69,7 @@ import Profile_PWA from "./pages/Member/Profile_PWA";
 import MemberWorshipPWA from "./pages/Member/MemberWorship";
 import MemberDonations_PWA from "./pages/Member/MemberDonations_PWA";
 import MemberCard_PWA from "./pages/Member/MemberCard_PWA";
+import SundaySchool_PWA from "./pages/Member/SundaySchool";
 import WorshipDashboard from "./pages/Admin/Worship/WorshipDashboard";
 import WorshipBuilder from "./pages/Admin/Worship/WorshipBuilder";
 import { Heart } from "lucide-react";
@@ -453,6 +454,7 @@ function App() {
               <Route path="worship" element={<MemberWorshipPWA />} />
               <Route path="donations" element={<MemberDonations_PWA />} />
               <Route path="member-card" element={<MemberCard_PWA />} />
+              <Route path="sunday-school" element={<SundaySchool_PWA />} />
               <Route path="chat" element={<ChatList />} />
               <Route path="profile" element={<Profile_PWA />} />
             </Route>

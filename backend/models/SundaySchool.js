@@ -52,6 +52,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: true
         },
+        // Contact Classification (ContactSubtype) criterion
+        contactSubtypeId: {
+            type: Sequelize.INTEGER,
+            allowNull: true
+        },
         // Room Reservation for Recurring Classes
         roomId: {
             type: Sequelize.INTEGER,

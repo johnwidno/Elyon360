@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, MessageSquare, Users, BookOpen, HandHeart, CreditCard, UserPlus, FileText } from 'lucide-react';
+import { X, Calendar, MessageSquare, Users, BookOpen, HandHeart, CreditCard, UserPlus, FileText, ChevronRight } from 'lucide-react';
 import { useAuth } from '../auth/AuthProvider';
 import TopBar from '../components/pwa/TopBar';
 import BottomNav from '../components/pwa/BottomNav';
@@ -26,14 +26,14 @@ const PWALayout = () => {
   const [isEspaceOpen, setIsEspaceOpen] = React.useState(false);
 
   const menuItems = [
-    { label: 'Evénements à venir', path: '/events' },
-    { label: 'Demandes', path: '/requests' },
-    { label: 'Communauté', path: '/community' },
-    { label: 'Classe Dominicale', path: '/sunday-school' },
-    { label: 'Sainte Sène', path: '/communion' },
-    { label: 'Dons / Dimes', path: '/member/donations' },
-    { label: 'Joindre un groupes', path: '/groups' },
-    { label: 'Ma carte Membre', path: '/member/member-card' }
+    { label: 'Evénements à venir', path: '/events', icon: <Calendar size={18} /> },
+    { label: 'Demandes', path: '/requests', icon: <FileText size={18} /> },
+    { label: 'Communauté', path: '/community', icon: <Users size={18} /> },
+    { label: 'Ecole Dominicale', path: '/member/sunday-school', icon: <BookOpen size={18} /> },
+    { label: 'Sainte Sène', path: '/communion', icon: <HandHeart size={18} /> },
+    { label: 'Dons / Dimes', path: '/member/donations', icon: <CreditCard size={18} /> },
+    { label: 'Joindre un groupes', path: '/groups', icon: <UserPlus size={18} /> },
+    { label: 'Ma carte Membre', path: '/member/member-card', icon: <CreditCard size={18} /> }
   ];
 
   return (
@@ -77,11 +77,15 @@ const PWALayout = () => {
                     <button
                       key={i}
                       onClick={() => { navigate(item.path); setIsMenuOpen(false); }}
-                      className="w-full text-left py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between group"
+                      className="w-full text-left py-4 border-b border-slate-50 dark:border-slate-800 flex items-center gap-4 group"
                     >
-                      <span className="text-base font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 transition-all">
+                        {item.icon}
+                      </div>
+                      <span className="text-base font-bold text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                         {item.label}
                       </span>
+                      <ChevronRight size={16} className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-all" />
                     </button>
                   ))}
                 </div>

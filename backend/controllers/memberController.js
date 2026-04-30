@@ -342,17 +342,9 @@ exports.updateMember = async (req, res) => {
         if (statusChangeDate !== undefined) member.statusChangeDate = safeDate(statusChangeDate);
         if (req.body.categoryChangeDate !== undefined) member.categoryChangeDate = safeDate(req.body.categoryChangeDate);
 
-        // Handle Subtype Update (Always log history if subtypeId is provided)
+        // Handle Subtype Update
         if (subtypeId !== undefined) {
             member.subtypeId = subtypeId || null;
-
-            await db.CategoryHistory.create({
-                userId: member.id,
-                subtypeId: member.subtypeId,
-                changeDate: safeDate(req.body.categoryChangeDate) || new Date(),
-                changedById: req.user?.id,
-                notes: req.body.historyNotes || "Category update"
-            });
         }
 
         if (baptismalStatus !== undefined) member.baptismalStatus = baptismalStatus;
@@ -553,6 +545,9 @@ exports.updateProfile = async (req, res) => {
 
         console.log(`[DEBUG] Final UpdateData for User ${user.id}:`, JSON.stringify(updateData, null, 2));
         await user.update(updateData);
+
+        // Refresh Sunday School auto-assignments after profile change
+        await sundaySchoolController.assignMemberToClasses(user.id, user.churchId);
 
         // Handle Spouse Relationship Update
         if (req.body.spouseId) {

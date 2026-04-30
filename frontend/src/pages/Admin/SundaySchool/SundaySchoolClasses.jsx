@@ -21,6 +21,7 @@ export default function SundaySchoolClasses() {
     const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { } });
     const [memberCategories, setMemberCategories] = useState([]);
     const [members, setMembers] = useState([]);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [rooms, setRooms] = useState([]);
 
     const [form, setForm] = useState({
@@ -37,7 +38,8 @@ export default function SundaySchoolClasses() {
         monitorId: '',
         monitorRole: 'monitor',
         roomId: '',
-        recurringSchedule: { day: '', startTime: '', endTime: '', description: '' }
+        recurringSchedule: { day: '', startTime: '', endTime: '', description: '' },
+        contactSubtypeId: ''
     });
 
     const fetchClasses = async () => {
@@ -51,14 +53,38 @@ export default function SundaySchoolClasses() {
         }
     };
 
+    const handleSync = async () => {
+        setIsSyncing(true);
+        try {
+            const res = await api.post('/sunday-school/sync-auto-assignments');
+            setAlertMessage({ 
+                show: true, 
+                title: t('success'), 
+                message: res.data.message || t('sync_success', 'Synchronisation terminée avec succès'), 
+                type: 'success' 
+            });
+            fetchClasses();
+        } catch (error) {
+            console.error("Sync error:", error);
+            setAlertMessage({ 
+                show: true, 
+                title: t('error'), 
+                message: t('sync_error', 'Erreur lors de la synchronisation'), 
+                type: 'error' 
+            });
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     useEffect(() => {
         fetchClasses();
 
         const fetchData = async () => {
             try {
-                // Fetch member-categories (NOT contact subtypes) — the sunday_schools FK points to member_categories
+                // Fetch contact subtypes to use for class criteria, matching the unified category system
                 const [catsRes, membersRes, roomsRes] = await Promise.all([
-                    api.get('/member-categories'),
+                    api.get('/contacts/classification/subtypes'),
                     api.get('/members'),
                     api.get('/logistics/rooms')
                 ]);
@@ -147,7 +173,8 @@ export default function SundaySchoolClasses() {
                 isDynamic: true,
                 monitorId: '',
                 monitorRole: 'monitor',
-                recurringSchedule: { day: '', startTime: '', endTime: '', description: '' }
+                recurringSchedule: { day: '', startTime: '', endTime: '', description: '' },
+                contactSubtypeId: ''
             });
         } catch (error) {
             console.error("Submit error:", error);
@@ -170,6 +197,7 @@ export default function SundaySchoolClasses() {
             maritalStatus: cls.maritalStatus,
             baptismalStatus: cls.baptismalStatus,
             memberCategoryId: cls.memberCategoryId || '',
+            contactSubtypeId: cls.contactSubtypeId || '',
             gender: cls.gender,
             memberStatus: cls.memberStatus || 'any',
             isDynamic: cls.isDynamic,
@@ -210,6 +238,7 @@ export default function SundaySchoolClasses() {
             maritalStatus: 'any',
             baptismalStatus: 'any',
             memberCategoryId: '',
+            contactSubtypeId: '',
             gender: 'any',
             activeOnly: false,
             isDynamic: true
@@ -227,6 +256,7 @@ export default function SundaySchoolClasses() {
             maritalStatus: 'any',
             baptismalStatus: 'any',
             memberCategoryId: '',
+            contactSubtypeId: '',
             gender: 'any',
             activeOnly: false,
             isDynamic: true,
@@ -250,13 +280,29 @@ export default function SundaySchoolClasses() {
                         {t('classes_management_desc', 'Gérez les classes et leurs critères d\'éligibilité.')}
                     </p>
                 </div>
-                <button
-                    onClick={() => { resetForm(); setShowModal(true); }}
-                    className="shrink-0 bg-indigo-600 text-white px-8 py-3.5 rounded-2xl hover:bg-indigo-700 transition active:scale-95 flex items-center gap-3 shadow-xl shadow-indigo-100 dark:shadow-none font-black text-[11px] uppercase tracking-widest"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
-                    {t('new_class')}
-                </button>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleSync}
+                        disabled={isSyncing}
+                        className={`shrink-0 flex items-center gap-3 px-6 py-3.5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-lg ${
+                            isSyncing 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white dark:bg-[#1A1A1A] text-indigo-600 border border-indigo-100 dark:border-white/5 hover:bg-gray-50'
+                        }`}
+                    >
+                        <svg className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+                        </svg>
+                        {isSyncing ? t('syncing', 'Sync...') : t('sync_now', 'Synchroniser')}
+                    </button>
+                    <button
+                        onClick={() => { resetForm(); setShowModal(true); }}
+                        className="shrink-0 bg-indigo-600 text-white px-8 py-3.5 rounded-2xl hover:bg-indigo-700 transition active:scale-95 flex items-center gap-3 shadow-xl shadow-indigo-100 dark:shadow-none font-black text-[11px] uppercase tracking-widest"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                        {t('new_class')}
+                    </button>
+                </div>
             </div>
 
             {/* Row 2: Controls Cluster (Toggle, Search, Date, Excel) - Forced Single Row for LG+ */}
@@ -369,9 +415,9 @@ export default function SundaySchoolClasses() {
                                                     {t(cls.maritalStatus)}
                                                 </span>
                                             )}
-                                            {(cls.memberCategoryId || (cls.baptismalStatus !== 'any' && !cls.memberCategoryId)) && (
+                                            {(cls.memberCategoryId || cls.contactSubtypeId || (cls.baptismalStatus !== 'any' && !cls.memberCategoryId && !cls.contactSubtypeId)) && (
                                                 <span className="text-[9px] bg-blue-50 dark:bg-blue-900/10 text-blue-500 px-2 py-0.5 rounded uppercase font-bold">
-                                                    {cls.admissionCategory?.name || (cls.baptismalStatus !== 'any' ? t(cls.baptismalStatus) : t('category'))}
+                                                    {cls.admissionCategory?.name || cls.contactSubtype?.name || (cls.baptismalStatus !== 'any' ? t(cls.baptismalStatus) : t('category'))}
                                                 </span>
                                             )}
                                             {cls.memberStatus !== 'any' && (
@@ -423,7 +469,10 @@ export default function SundaySchoolClasses() {
                                             {cls.memberCategoryId && (
                                                 <span className="text-[9px] bg-blue-50 dark:bg-blue-900/10 text-blue-500 px-2 py-0.5 rounded uppercase font-bold">{cls.admissionCategory?.name || t('category')}</span>
                                             )}
-                                            {cls.baptismalStatus !== 'any' && !cls.memberCategoryId && (
+                                            {cls.contactSubtypeId && (
+                                                <span className="text-[9px] bg-blue-50 dark:bg-blue-900/10 text-blue-500 px-2 py-0.5 rounded uppercase font-bold">{cls.contactSubtype?.name || t('category')}</span>
+                                            )}
+                                            {cls.baptismalStatus !== 'any' && !cls.memberCategoryId && !cls.contactSubtypeId && (
                                                 <span className="text-[9px] bg-blue-50 dark:bg-blue-900/10 text-blue-500 px-2 py-0.5 rounded uppercase font-bold">{t(cls.baptismalStatus)}</span>
                                             )}
                                             {cls.maritalStatus !== 'any' && (
@@ -432,7 +481,7 @@ export default function SundaySchoolClasses() {
                                             {cls.memberStatus && cls.memberStatus !== 'any' && (
                                                 <span className="text-[9px] bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 px-2 py-0.5 rounded uppercase font-bold">{cls.memberStatus}</span>
                                             )}
-                                            {cls.gender === 'any' && cls.baptismalStatus === 'any' && cls.maritalStatus === 'any' && cls.memberStatus === 'any' && !cls.memberCategoryId && (
+                                            {cls.gender === 'any' && cls.baptismalStatus === 'any' && cls.maritalStatus === 'any' && cls.memberStatus === 'any' && !cls.memberCategoryId && !cls.contactSubtypeId && (
                                                 <span className="text-[9px] text-gray-400 uppercase font-medium">—</span>
                                             )}
                                         </div>
@@ -498,8 +547,8 @@ export default function SundaySchoolClasses() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('category_statutory', 'Classification du Contact')}</label>
-                                        <select value={form.memberCategoryId} onChange={e => setForm({ ...form, memberCategoryId: e.target.value })}
+                                        <label className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{t('category', 'Catégorie (Classification)')}</label>
+                                        <select value={form.contactSubtypeId || form.memberCategoryId} onChange={e => setForm({ ...form, contactSubtypeId: e.target.value, memberCategoryId: '' })}
                                             className="w-full bg-gray-50 dark:bg-black border border-transparent dark:border-white/5 rounded-2xl px-6 py-4 text-[15px] outline-none focus:border-indigo-500/50">
                                             <option value="">{t('any', 'Peu importe')}</option>
                                             {memberCategories.map(cat => (

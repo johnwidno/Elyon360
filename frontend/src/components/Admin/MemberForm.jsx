@@ -467,7 +467,14 @@ const MemberForm = ({ isOpen, onClose, onSuccess, editId = null, initialData = n
                                         ))}
                                     </div>
                                 </div>
-                                <FormSelect label={`${t('category', 'Catégorie')} *`} name="subtypeId" value={formData.subtypeId} onChange={handleChange} required options={subtypes.map(s => ({ value: s.id, label: s.name }))} />
+                                <FormSelect 
+                                    label={`${t('category', 'Catégorie')} *`} 
+                                    name="subtypeId" 
+                                    value={formData.subtypeId} 
+                                    onChange={handleChange} 
+                                    required 
+                                    options={subtypes.map(s => ({ value: s.id, label: s.name }))} 
+                                />
                                 <FormSelect label={t('status')} name="status" value={formData.status} onChange={handleChange} options={[
                                     { value: 'Actif', label: t('active') },
                                     { value: 'Inactif', label: t('inactive') },

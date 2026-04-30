@@ -6,3 +6,175 @@
    -> FOUND: Jean Kemy 
 [2026-04-23T17:23:11.473Z] getMemberById - ID: 9, ChurchID: 4
    -> FOUND: Jean Kemy 
+[2026-04-27T12:54:45.046Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T12:54:46.444Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:04:20.377Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:04:21.177Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:05:12.316Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:05:13.968Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:05:48.954Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:05:50.063Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:06:28.071Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:06:29.316Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:12:36.360Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T13:12:37.304Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T13:17:23.477Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:17:24.388Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:17:41.112Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:18:27.391Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:18:28.746Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:18:38.993Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:22:04.284Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:22:05.758Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T13:22:41.110Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:46:37.709Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:46:39.032Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:49:40.253Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:49:41.287Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:49:50.954Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:49:52.356Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:51:17.819Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T16:51:18.993Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-27T17:36:19.500Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:36:20.225Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:36:33.395Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:36:53.460Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:36:54.527Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:37:38.326Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:37:39.216Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-27T17:38:08.177Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-29T02:46:22.175Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:46:23.377Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:46:44.843Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:46:46.003Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:48:46.146Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:48:56.352Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:48:57.245Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:50:16.912Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:50:17.767Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:50:55.867Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T02:50:57.105Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T12:25:17.457Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T12:25:18.585Z] getMemberById - ID: 6, ChurchID: 4
+   -> FOUND: pierre Mary
+[2026-04-29T12:34:18.551Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: DORCY
+[2026-04-29T12:34:23.585Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: DORCY
+[2026-04-29T12:34:44.743Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-29T12:34:45.868Z] getMemberById - ID: 7, ChurchID: 4
+   -> FOUND: Loomie
+[2026-04-29T13:56:39.275Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T13:56:40.544Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:58:26.866Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:58:28.195Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:58:43.774Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:58:53.783Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:58:54.434Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:59:31.256Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:59:32.388Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:59:39.751Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T20:59:40.449Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T21:04:30.309Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-29T21:04:30.966Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-30T14:58:57.307Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-30T14:58:58.124Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-30T14:59:37.006Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-30T14:59:38.007Z] getMemberById - ID: 9, ChurchID: 4
+   -> FOUND: Jean Kemy 
+[2026-04-30T15:03:25.068Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-30T15:03:25.791Z] getMemberById - ID: 8, ChurchID: 4
+   -> FOUND: Mike 
+[2026-04-30T15:05:16.119Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:05:17.253Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:06:31.224Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:06:32.224Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:07:29.757Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:07:39.024Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:07:39.770Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:20:04.664Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: DORCY
+[2026-04-30T15:20:09.893Z] getMemberById - ID: 5, ChurchID: 4
+   -> FOUND: DORCY
+[2026-04-30T15:27:15.591Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:27:16.355Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:27:43.892Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson
+[2026-04-30T15:27:44.944Z] getMemberById - ID: 11, ChurchID: 4
+   -> FOUND: Galenson

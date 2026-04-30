@@ -711,7 +711,7 @@ export default function MemberProfile() {
                                     <span className="text-gray-400 dark:text-white/40 text-app-micro font-black uppercase tracking-widest">{t('category', 'Catégorie')}</span>
                                     <span className="flex items-center gap-2">
                                         <span className="text-brand-orange font-extrabold underline decoration-brand-orange/20 underline-offset-4">
-                                            {member.category?.name || member.contactSubtype?.name || t(member.baptismalStatus?.toLowerCase()) || member.baptismalStatus || t('not_baptized')}
+                                            {member.contactSubtype?.name || '-'}
                                         </span>
                                         <span className="w-1 h-1 bg-gray-200 dark:bg-white/20 rounded-full"></span>
                                         <span className="text-gray-400 dark:text-white/40 font-black text-app-micro">{member.categoryChangeDate ? new Date(member.categoryChangeDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US') : new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
@@ -798,21 +798,20 @@ export default function MemberProfile() {
                                     <div className="fixed inset-0 z-[100]" onClick={() => setTypeDropdownOpen(false)} />
                                     <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#111c44] rounded-2xl shadow-3xl border border-gray-100 dark:border-white/10 py-3 z-[110] animate-in fade-in slide-in-from-top-1 max-h-[450px] overflow-y-auto noscrollbar">
                                         <p className="px-4 py-2 text-app-micro font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-white/5 mb-2">{t('select_category', 'Sélectionner une catégorie')}</p>
-
-                                        {memberCategories.length > 0 ? (
-                                            memberCategories.map(mc => (
-                                                <button key={mc.id}
+                                        {allSubtypes.length > 0 ? (
+                                            allSubtypes.map(st => (
+                                                <button key={st.id}
                                                     onClick={() => {
-                                                        setPendingMemberCategoryId(mc.id);
-                                                        setPendingCategory(mc); // Use pendingCategory for name display in modal
+                                                        setPendingCategory(st);
+                                                        setPendingMemberCategoryId(null);
                                                         setPendingBaptismalStatus(null);
                                                         setShowCategoryModal(true);
                                                         setTypeDropdownOpen(false);
                                                     }}
-                                                    className={`w-full text-left px-4 py-2 text-app-meta font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-between ${member.memberCategoryId === mc.id ? 'text-indigo-600 bg-indigo-50/30' : 'text-gray-600 dark:text-gray-400'}`}
+                                                    className={`w-full text-left px-4 py-2 text-app-meta font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-between ${member.subtypeId === st.id ? 'text-emerald-600 bg-emerald-50/30' : 'text-gray-600 dark:text-gray-400'}`}
                                                 >
-                                                    {mc.name}
-                                                    {member.memberCategoryId === mc.id && <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                                                    {st.name}
+                                                    {member.subtypeId === st.id && <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                                                 </button>
                                             ))
                                         ) : (
@@ -822,6 +821,7 @@ export default function MemberProfile() {
                                 </>
                             )}
                         </div>
+
 
                         <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-2"></div>
 
