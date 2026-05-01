@@ -806,23 +806,26 @@ exports.getPublicMemberProfile = async (req, res) => {
     try {
         const { id } = req.params;
         const member = await db.User.findByPk(id, {
-            attributes: ['id', 'firstName', 'lastName', 'photo', 'email', 'phone', 'notes', 'status', 'createdAt', 'role', 'city', 'country', 'address', 'nickname', 'joinDate', 'facebookUrl', 'linkedinUrl', 'instagramUrl', 'tiktokUrl', 'websiteUrl'],
+            attributes: { exclude: ['password'] },
             include: [
-                { model: db.Church, as: 'church', attributes: ['name', 'acronym', 'logoUrl'] },
-                { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] }
+                { model: db.Church, as: 'church', attributes: ['name', 'acronym', 'logoUrl', 'subdomain', 'contactEmail', 'churchEmail', 'contactPhone', 'address', 'pastorName'] },
+                { model: db.ContactSubtype, as: 'contactSubtype', attributes: ['name'] },
+                { model: db.Group, as: 'memberGroups', attributes: ['id', 'name', 'type', 'description'] },
+                {
+                    model: db.SundaySchool,
+                    as: 'sundaySchoolClasses',
+                    attributes: ['id', 'name', 'description'],
+                    through: {
+                        attributes: ['status', 'level', 'joinedAt'],
+                        as: 'membership'
+                    }
+                }
             ]
         });
 
         if (!member) return res.status(404).json({ message: "Member not found" });
 
-        // Get limited posts
-        const posts = await db.CommunityPost.findAll({
-            where: { authorId: id },
-            order: [['createdAt', 'DESC']],
-            limit: 5
-        });
-
-        res.json({ member, posts });
+        res.json(member);
     } catch (err) {
         console.error("Error fetching public profile:", err);
         res.status(500).json({ message: "Server error" });

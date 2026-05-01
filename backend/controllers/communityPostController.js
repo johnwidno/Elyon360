@@ -156,3 +156,22 @@ exports.updatePost = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la mise à jour du post.', error: error.message });
     }
 };
+
+exports.getPostsByUser = async (req, res) => {
+    try {
+        ensureAssociations();
+        const { userId } = req.params;
+        const posts = await db.CommunityPost.findAll({
+            where: { authorId: userId },
+            include: [
+                { model: db.User, as: 'author', attributes: ['id', 'firstName', 'lastName', 'photo', 'role'] },
+                { model: db.ContactSubtype, as: 'targetSubtype', attributes: ['name'] }
+            ],
+            order: [['createdAt', 'DESC']],
+        });
+        res.status(200).json(posts);
+    } catch (error) {
+        console.error('getPostsByUser error:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des posts.' });
+    }
+};

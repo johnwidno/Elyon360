@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthProvider';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../api/axios';
 import {
   Settings, Edit3, MapPin, Grid, MessageSquare,
   Heart, Share2, LogOut, Camera, Globe, Send,
   Plus, Search, Bell, Mail, MoreVertical, X,
-  CheckCircle2, Trash2, UserPlus
+  CheckCircle2, Trash2, UserPlus, ChevronLeft, Phone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
@@ -54,6 +54,7 @@ const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const Profile_PWA = () => {
   const { t } = useLanguage();
   const { user, logout, updateUser } = useAuth();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +67,9 @@ const Profile_PWA = () => {
   const [postType, setPostType] = useState('general');
   const [postImage, setPostImage] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
+
+  const isOwnProfile = !id || id === user.id.toString();
 
   // Search state for spouse
   const [spouseSearch, setSpouseSearch] = useState('');
@@ -74,14 +78,20 @@ const Profile_PWA = () => {
 
   useEffect(() => {
     fetchProfile();
-    fetchPosts();
-  }, []);
+  }, [id]);
+
+  useEffect(() => {
+    if (profile) {
+      fetchPosts();
+    }
+  }, [profile]);
 
   const fetchProfile = async () => {
     try {
-      const response = await api.get('/members/profile');
+      setLoading(true);
+      const endpoint = isOwnProfile ? '/members/profile' : `/members/public-profile/${id}`;
+      const response = await api.get(endpoint);
       const data = response.data;
-      // Parse education if it's a string
       if (typeof data.education === 'string') {
         try {
           data.education = JSON.parse(data.education);
@@ -101,7 +111,8 @@ const Profile_PWA = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await api.get('/community-posts');
+      const targetUserId = isOwnProfile ? user.id : profile.id;
+      const response = await api.get(`/community-posts/user/${targetUserId}`);
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -160,11 +171,11 @@ const Profile_PWA = () => {
 
       toast.success('Profil mis à jour');
       setIsEditing(false);
-      
+
       // Update global auth state so changes (like photo) reflect in Navbar
       const updatedProfile = await api.get('/members/profile');
       updateUser(updatedProfile.data);
-      
+
       setProfile(updatedProfile.data);
       setFormData(updatedProfile.data);
     } catch (error) {
@@ -173,7 +184,7 @@ const Profile_PWA = () => {
     }
   };
 
-  const handleCreatePost = async () => {
+  const handleSavePost = async () => {
     if (!newPostContent.trim()) return toast.error('Le contenu est vide');
     setIsPosting(true);
     try {
@@ -184,16 +195,41 @@ const Profile_PWA = () => {
         data.append('image', postImage);
       }
 
-      await api.post('/community-posts', data);
-      toast.success(postType === 'temoignage' ? 'Témoignage publié !' : 'Publication partagée !');
+      if (editingPost) {
+        await api.put(`/community-posts/${editingPost.id}`, data);
+        toast.success('Publication mise à jour !');
+      } else {
+        await api.post('/community-posts', data);
+        toast.success(postType === 'temoignage' ? 'Témoignage publié !' : 'Publication partagée !');
+      }
+
       setNewPostContent('');
       setPostImage(null);
       setShowCreatePost(false);
+      setEditingPost(null);
       fetchPosts();
     } catch (error) {
       toast.error('Erreur lors de la publication');
     } finally {
       setIsPosting(false);
+    }
+  };
+
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setNewPostContent(post.content);
+    setPostType(post.type || 'general');
+    setShowCreatePost(true);
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Voulez-vous vraiment supprimer cette publication ?')) return;
+    try {
+      await api.delete(`/community-posts/${postId}`);
+      toast.success('Publication supprimée');
+      fetchPosts();
+    } catch (error) {
+      toast.error('Erreur lors de la suppression');
     }
   };
 
@@ -236,162 +272,227 @@ const Profile_PWA = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 pb-24 transition-colors duration-300">
 
-      {/* ── Cover Image Section (Simplified) ── */}
-      <div className="relative h-24 md:h-32 w-full group overflow-hidden">
-        {profile?.coverPic ? (
+      {/* ── Cover Image Section ── */}
+      <div className="relative h-24 md:h-32 w-full group overflow-hidden bg-slate-100 dark:bg-slate-900">
+        {profile?.coverPic && (
           <img src={getImageUrl(profile.coverPic)} className="w-full h-full object-cover" alt="Cover" />
-        ) : (
-          <div className="w-full h-full bg-slate-50 dark:bg-slate-900" />
         )}
         <div className="absolute inset-0 bg-black/5" />
+        
+        {/* Back Button for Public View */}
+        {!isOwnProfile && (
+          <button 
+            onClick={() => navigate(-1)}
+            className="absolute top-4 left-4 w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white active:scale-90 transition-all z-20"
+          >
+            <ChevronLeft size={24} />
+          </button>
+        )}
       </div>
 
       {/* ── Profile Header ── */}
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12 -mt-10 md:-mt-12 relative z-10 pt-4 md:pt-8">
-        <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8">
-
-          {/* Photo Section & Mobile Status */}
-          <div className="relative w-full md:w-auto flex items-end md:items-start justify-between md:justify-start gap-4">
+      <div className="max-w-[1200px] mx-auto px-6 relative z-10 -mt-12">
+        <div className="flex flex-col gap-4">
+          
+          {/* Photo & Status Row */}
+          <div className="flex items-end justify-between w-full">
             <div className="relative">
-              <div className="w-28 h-28 md:w-44 md:h-44 rounded-full border-[4px] md:border-[6px] border-white dark:border-slate-950 shadow-xl overflow-hidden bg-white">
+              <div className="w-28 h-28 md:w-40 md:h-40 rounded-full border-4 border-white dark:border-slate-950 shadow-2xl overflow-hidden bg-white">
                 {profile?.photo ? (
                   <img src={getImageUrl(profile.photo)} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl font-black text-slate-200">
+                  <div className="w-full h-full flex items-center justify-center text-3xl font-black text-slate-200">
                     {profile?.firstName?.[0]}
                   </div>
                 )}
               </div>
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="absolute bottom-0 right-0 p-2 bg-slate-950 text-white rounded-full border-2 border-white dark:border-slate-950 shadow-lg active:scale-90 transition-all hover:bg-black"
-              >
-                <Edit3 size={14} />
-              </button>
+              {isOwnProfile && (
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="absolute bottom-1 right-1 p-2.5 bg-slate-950 text-white rounded-full border-2 border-white dark:border-slate-950 shadow-lg active:scale-90 transition-all"
+                >
+                  <Edit3 size={16} />
+                </button>
+              )}
             </div>
 
-            {/* Status Badge - Fixed Right on Mobile Only */}
-            <div className="flex md:hidden mb-4">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-500/20 shadow-sm uppercase tracking-wider">
-                <CheckCircle2 size={10} />
-                Actif
+            <div className="pb-2">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20 shadow-sm uppercase tracking-wider h-fit">
+                <CheckCircle2 size={12} className="fill-emerald-600/10" />
+                {profile?.status || 'ACTIF'}
               </span>
             </div>
           </div>
 
-          {/* User Basic Info */}
-          <div className="flex-1 pt-2 md:pt-10">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div className="space-y-2">
-                <h1 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white leading-tight">
-                  {profile?.firstName} {profile?.lastName}
-                </h1>
+          {/* Name & Bio */}
+          <div className="space-y-1">
+            <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">
+              {profile?.firstName} {profile?.lastName}
+            </h1>
+            {profile?.bio && (
+              <p className="text-[15px] italic font-medium text-slate-600 dark:text-slate-400 leading-tight">
+                {profile.bio}
+              </p>
+            )}
+          </div>
 
-                {profile?.bio && (
-                  <p className="text-app-meta italic font-medium text-slate-900 dark:text-white max-w-xl text-justify">
-                    {profile.bio}
-                  </p>
-                )}
-
-                <div className="flex flex-col gap-y-2 pt-1">
-                  {/* Location */}
-                  {(profile?.city || profile?.department || profile?.country) && (
-                    <div className="flex items-center gap-1.5 text-app-meta md:text-[15px] text-slate-900 dark:text-white">
-                      <MapPin size={14} className="text-blue-600" />
-                      <span>
-                        {[profile?.city, profile?.department, profile?.country].filter(Boolean).join(', ')}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Church Name in Sentence Case */}
-                  {profile?.church?.name && (
-                    <div className="flex items-center gap-1.5 text-app-meta md:text-[15px] text-slate-900 dark:text-white">
-                      <Globe size={14} className="text-blue-600" />
-                      <span className="first-letter:uppercase">
-                        {profile.church.name.toLowerCase()}
-                      </span>
-                    </div>
-                  )}
-                  
-
-                </div>
-              </div>
-
-              {/* Status Badge Moved Right */}
-              <div className="hidden md:flex md:justify-end">
-                <span className="inline-flex items-center gap-1.5 text-app-micro font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-                  <CheckCircle2 size={12} />
-                  Membre : Actif
+          {/* Location & Church */}
+          <div className="space-y-1.5 pt-1">
+            {(profile?.city || profile?.department || profile?.country) && (
+              <div className="flex items-center gap-2 text-[14px] font-medium text-blue-600">
+                <MapPin size={16} />
+                <span>
+                  {[profile?.city, profile?.department, profile?.country].filter(Boolean).join(', ')}
                 </span>
               </div>
-            </div>
+            )}
+            {profile?.church?.name && (
+              <div className="flex items-center gap-2 text-[14px] font-medium text-blue-600">
+                <Globe size={16} />
+                <span className="first-letter:uppercase">
+                  {profile.church.name.toLowerCase()}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ── Tabs Section (Don removed from Mobile) ── */}
-      <div className="mt-8 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-900 sticky top-0 z-30">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 flex items-center gap-6">
+      {/* ── Tabs Section ── */}
+      <div className="mt-8 border-b border-slate-100 dark:border-slate-900 sticky top-0 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl z-30">
+        <div className="max-w-[1200px] mx-auto px-6 flex items-center gap-8 overflow-x-auto no-scrollbar">
           {[
             { id: 'tous', label: 'Tous' },
             { id: 'publications', label: 'Publications' },
-            { id: 'temoignages', label: 'Temoignages' }
+            { id: 'temoignages', label: 'Temoignages' },
+            { id: 'infos', label: 'Infos' }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-4 text-app-body font-black tracking-widest border-b-2 transition-all ${activeTab === tab.id
-                  ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
-                  : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+              className={`py-4 text-[16px] font-black tracking-widest border-b-[3px] transition-all whitespace-nowrap ${activeTab === tab.id
+                  ? 'border-slate-950 dark:border-white text-slate-950 dark:text-white'
+                  : 'border-transparent text-slate-300 hover:text-slate-500'
                 }`}
             >
               {tab.label}
             </button>
           ))}
-
-          <div className="ml-auto flex items-center gap-3">
-            {/* Smaller Plus Button on Desktop */}
-            <button
-              onClick={() => setShowCreatePost(true)}
-              className="hidden md:flex items-center gap-2 bg-slate-950 text-white px-4 py-2 rounded-xl text-app-micro font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all hover:bg-black"
-            >
-              <Plus size={14} />
-              Publier
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* ── Feed Section ── */}
-      <div className="max-w-[1200px] mx-auto px-4 md:px-12 py-4">
-        <div className="grid grid-cols-1 gap-6">
-          {filteredPosts.map((post) => (
-            <div key={post.id} className="bg-slate-50/50 dark:bg-slate-900/30 rounded-[2rem] p-5 space-y-4 border border-transparent">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white overflow-hidden shadow-sm">
-                    {profile?.photo && <img src={getImageUrl(profile.photo)} className="w-full h-full object-cover" alt="" />}
+      {/* ── Main Content Section ── */}
+      <div className="max-w-[1200px] mx-auto px-6 py-6">
+        {activeTab === 'infos' ? (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Basic Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800">
+                <h3 className="text-app-meta font-black text-blue-600 uppercase tracking-widest mb-6">Détails</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-3 border-b border-slate-200/50 dark:border-slate-800/50">
+                    <span className="text-app-micro font-bold text-slate-400 uppercase">Surnom</span>
+                    <span className="text-app-meta font-black text-slate-900 dark:text-white">{profile?.nickname || '---'}</span>
                   </div>
-                  <div>
-                    <h4 className="text-app-title font-black text-slate-900 dark:text-white leading-none">{profile?.firstName}</h4>
-                    <span className="text-app-micro font-bold text-slate-400 uppercase tracking-widest">{new Date(post.createdAt).toLocaleDateString()}</span>
+                  <div className="flex justify-between items-center py-3 border-b border-slate-200/50 dark:border-slate-800/50">
+                    <span className="text-app-micro font-bold text-slate-400 uppercase">État Civil</span>
+                    <span className="text-app-meta font-black text-slate-900 dark:text-white">{profile?.maritalStatus || '---'}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-3 border-b border-slate-200/50 dark:border-slate-800/50">
+                    <span className="text-app-micro font-bold text-slate-400 uppercase">Groupe Sanguin</span>
+                    <span className="text-app-meta font-black text-slate-900 dark:text-white">{profile?.bloodGroup || '---'}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-3">
+                    <span className="text-app-micro font-bold text-slate-400 uppercase">Membre depuis</span>
+                    <span className="text-app-meta font-black text-slate-900 dark:text-white">{profile?.joinDate ? new Date(profile.joinDate).toLocaleDateString() : '---'}</span>
                   </div>
                 </div>
               </div>
-              <p className="text-app-body font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{post.content}</p>
+
+              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800">
+                <h3 className="text-app-meta font-black text-blue-600 uppercase tracking-widest mb-6">Contact</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4 py-3 border-b border-slate-200/50 dark:border-slate-800/50">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600"><Mail size={18} /></div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Email</p>
+                      <p className="text-app-meta font-black text-slate-900 dark:text-white">{profile?.email || '---'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 py-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600"><Phone size={18} /></div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Téléphone</p>
+                      <p className="text-app-meta font-black text-slate-900 dark:text-white">{profile?.phone || '---'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
+
+            {/* Education */}
+            {profile?.education?.length > 0 && (
+              <div className="bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800">
+                <h3 className="text-app-meta font-black text-blue-600 uppercase tracking-widest mb-6">Formation & Études</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {profile.education.map((edu, i) => (
+                    <div key={i} className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                      <h4 className="text-app-meta font-black text-slate-900 dark:text-white mb-1">{edu.institution}</h4>
+                      <p className="text-xs font-bold text-blue-600 mb-2">{edu.domain} {edu.specialty && `• ${edu.specialty}`}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase">
+                        {edu.startDate ? new Date(edu.startDate).getFullYear() : ''} - {edu.endDate ? new Date(edu.endDate).getFullYear() : 'Présent'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            {filteredPosts.map((post) => (
+              <div key={post.id} className="bg-slate-50/50 dark:bg-slate-900/30 rounded-[2rem] p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-white overflow-hidden shadow-sm">
+                      {profile?.photo && <img src={getImageUrl(profile.photo)} className="w-full h-full object-cover" alt="" />}
+                    </div>
+                    <div>
+                      <h4 className="text-app-title font-black text-slate-900 dark:text-white leading-none">{profile?.firstName}</h4>
+                      <span className="text-app-micro font-bold text-slate-400 uppercase tracking-widest">{new Date(post.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  {isOwnProfile && (
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleEditPost(post)} className="text-slate-300 hover:text-blue-500 transition-colors p-2"><Edit3 size={16} /></button>
+                      <button onClick={() => handleDeletePost(post.id)} className="text-slate-300 hover:text-rose-500 transition-colors p-2"><Trash2 size={16} /></button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-app-body font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{post.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ── Small Floating Plus Button ── */}
-      <button
-        onClick={() => setShowCreatePost(true)}
-        className="fixed bottom-24 right-6 w-12 h-12 bg-slate-950 text-white rounded-full flex items-center justify-center shadow-xl z-50 active:scale-90 transition-all md:hidden"
-      >
-        <Plus size={20} />
-      </button>
+      {/* ── Floating Action Buttons ── */}
+      {isOwnProfile ? (
+        <button
+          onClick={() => setShowCreatePost(true)}
+          className="fixed bottom-24 right-6 w-14 h-14 bg-slate-950 text-white rounded-full flex items-center justify-center shadow-2xl z-50 active:scale-90 transition-all md:hidden"
+        >
+          <Plus size={24} />
+        </button>
+      ) : (
+        <button
+          onClick={() => navigate(`/member/chat?userId=${profile?.id}`)}
+          className="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl z-50 active:scale-90 transition-all md:hidden"
+        >
+          <Send size={24} className="ml-1" />
+        </button>
+      )}
 
       {/* ── Edit Profile Overhaul Modal ── */}
       <AnimatePresence>
@@ -609,14 +710,14 @@ const Profile_PWA = () => {
       <AnimatePresence>
         {showCreatePost && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowCreatePost(false)}
-              className="absolute inset-0 bg-slate-950/60 backdrop-blur-md" 
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
             />
-            <motion.div 
-              initial={{ opacity: 0, y: '100%', scale: 0.95 }} 
-              animate={{ opacity: 1, y: 0, scale: 1 }} 
+            <motion.div
+              initial={{ opacity: 0, y: '100%', scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: '100%', scale: 0.95 }}
               className="relative w-full h-full md:h-auto md:max-w-2xl bg-white dark:bg-slate-900 md:rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden"
             >
@@ -624,55 +725,57 @@ const Profile_PWA = () => {
               <div className="flex justify-between items-center px-8 py-6 border-b border-slate-50 dark:border-slate-800">
                 <button onClick={() => setShowCreatePost(false)} className="text-slate-400 font-bold text-xs uppercase tracking-widest">Fermer</button>
                 <div className="flex items-center gap-2">
-                   <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
-                      <Plus size={16} />
-                   </div>
-                   <h2 className="text-sm font-black uppercase text-slate-900 dark:text-white tracking-widest">Partager</h2>
+                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
+                    <Plus size={16} />
+                  </div>
+                  <h2 className="text-sm font-black uppercase text-slate-900 dark:text-white tracking-widest">
+                    {editingPost ? 'Modifier' : 'Partager'}
+                  </h2>
                 </div>
-                <button 
-                  onClick={handleCreatePost} 
-                  className="px-6 py-2 bg-slate-950 text-white rounded-full text-xs font-black uppercase tracking-widest disabled:opacity-30 shadow-lg shadow-slate-950/20" 
+                <button
+                  onClick={handleSavePost}
+                  className="px-6 py-2 bg-slate-950 text-white rounded-full text-xs font-black uppercase tracking-widest disabled:opacity-30 shadow-lg shadow-slate-950/20"
                   disabled={isPosting || !newPostContent.trim()}
                 >
-                  {isPosting ? '...' : 'Publier'}
+                  {isPosting ? '...' : (editingPost ? 'Sauver' : 'Publier')}
                 </button>
               </div>
 
               {/* Type Selection */}
               <div className="flex gap-2 p-4 bg-slate-50 dark:bg-slate-950/50">
-                 <button 
-                    onClick={() => setPostType('general')}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all ${postType === 'general' ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-sm' : 'text-slate-400'}`}
-                 >
-                    Publication
-                 </button>
-                 <button 
-                    onClick={() => setPostType('temoignage')}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all ${postType === 'temoignage' ? 'bg-white dark:bg-slate-800 text-emerald-600 shadow-sm' : 'text-slate-400'}`}
-                 >
-                    Témoignage
-                 </button>
+                <button
+                  onClick={() => setPostType('general')}
+                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all ${postType === 'general' ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-sm' : 'text-slate-400'}`}
+                >
+                  Publication
+                </button>
+                <button
+                  onClick={() => setPostType('temoignage')}
+                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all ${postType === 'temoignage' ? 'bg-white dark:bg-slate-800 text-emerald-600 shadow-sm' : 'text-slate-400'}`}
+                >
+                  Témoignage
+                </button>
               </div>
 
               {/* Content */}
               <div className="flex-1 p-8">
-                <textarea 
-                  autoFocus 
-                  value={newPostContent} 
-                  onChange={(e) => setNewPostContent(e.target.value)} 
-                  placeholder={postType === 'temoignage' ? "Racontez votre témoignage..." : "Que voulez-vous partager ?"} 
-                  className="w-full h-full bg-transparent border-none text-xl font-medium outline-none resize-none text-slate-700 dark:text-slate-200" 
+                <textarea
+                  autoFocus
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                  placeholder={postType === 'temoignage' ? "Racontez votre témoignage..." : "Que voulez-vous partager ?"}
+                  className="w-full h-full bg-transparent border-none text-xl font-medium outline-none resize-none text-slate-700 dark:text-slate-200"
                 />
               </div>
 
               {/* Toolbar */}
               <div className="px-8 py-6 border-t border-slate-50 dark:border-slate-800 flex items-center gap-4">
-                 <button className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-slate-200 transition-all">
-                    <Edit3 size={20} />
-                 </button>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    Votre publication sera visible par toute la communauté.
-                 </p>
+                <button className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-slate-200 transition-all">
+                  <Edit3 size={20} />
+                </button>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  Votre publication sera visible par toute la communauté.
+                </p>
               </div>
             </motion.div>
           </div>

@@ -459,6 +459,7 @@ function App() {
               <Route path="events/:id" element={<EventDetails_PWA />} />
               <Route path="chat" element={<ChatList />} />
               <Route path="profile" element={<Profile_PWA />} />
+              <Route path="profile/:id" element={<Profile_PWA />} />
             </Route>
           </Routes>
         </Router>

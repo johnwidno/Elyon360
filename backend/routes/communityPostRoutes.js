@@ -9,5 +9,6 @@ router.get('/', protect, communityPostController.getPosts);
 router.post('/', protect, upload.single('image'), communityPostController.createPost);
 router.put('/:id', protect, upload.single('image'), communityPostController.updatePost);
 router.delete('/:id', protect, communityPostController.deletePost);
+router.get('/user/:userId', protect, communityPostController.getPostsByUser);
 
 module.exports = router;

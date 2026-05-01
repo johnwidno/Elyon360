@@ -18,6 +18,10 @@ const Home = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState({ members: [], events: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -32,6 +36,43 @@ const Home = () => {
     };
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim().length > 1) {
+        handleSearch(searchQuery);
+      } else {
+        setSearchResults({ members: [], events: [] });
+        setShowResults(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearch = async (query) => {
+    setIsSearching(true);
+    setShowResults(true);
+    try {
+      // 1. Search Members from API
+      const memberRes = await api.get(`/members/global-search?q=${query}`);
+      
+      // 2. Search Events locally (already fetched)
+      const filteredEvents = events.filter(e => 
+        e.title.toLowerCase().includes(query.toLowerCase()) || 
+        (e.description && e.description.toLowerCase().includes(query.toLowerCase()))
+      );
+
+      setSearchResults({
+        members: memberRes.data || [],
+        events: filteredEvents
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const getImageUrl = (path) => {
     if (!path) return null;
@@ -102,14 +143,114 @@ const Home = () => {
         </button>
       </div>
 
+      {/* Search Backdrop */}
+      {showResults && (
+        <div 
+          className="fixed inset-0 z-[90]" 
+          onClick={() => setShowResults(false)}
+        />
+      )}
+
       {/* Search Bar */}
-      <div className="relative w-full md:w-64 lg:w-80">
+      <div className="relative w-full md:w-64 lg:w-80 z-[100]">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
         <input
           type="text"
-          placeholder="Recherche"
-          className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-xl py-2.5 md:py-3 pl-11 pr-4 text-app-meta font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-800 shadow-sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onFocus={() => searchQuery.trim().length > 1 && setShowResults(true)}
+          placeholder="Recherche membre, événement..."
+          className="w-full bg-slate-50/50 dark:bg-slate-800/50 border-none rounded-xl py-2.5 md:py-3 pl-11 pr-4 text-app-meta font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-800 shadow-sm transition-all"
         />
+        
+        {/* Search Results Dropdown */}
+        <AnimatePresence>
+          {showResults && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-[100] max-h-[60vh] overflow-y-auto noscrollbar"
+            >
+              <div className="p-4 flex flex-col gap-6">
+                
+                {/* Events Section */}
+                {(searchResults.events.length > 0 || isSearching) && (
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Événements</h4>
+                    {isSearching ? (
+                      <div className="p-2 text-xs text-slate-400">Recherche...</div>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        {searchResults.events.map(event => (
+                          <button 
+                            key={event.id}
+                            onClick={() => {
+                              navigate(`/member/events/${event.id}`);
+                              setShowResults(false);
+                            }}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 shrink-0">
+                              <Calendar size={18} />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{event.title}</span>
+                              <span className="text-[10px] text-slate-500 font-medium">{new Date(event.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Members Section */}
+                {(searchResults.members.length > 0 || isSearching) && (
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Membres</h4>
+                    {isSearching ? (
+                      <div className="p-2 text-xs text-slate-400">Recherche...</div>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        {searchResults.members.map(member => (
+                          <button 
+                            key={member.id}
+                            onClick={() => {
+                              navigate(`/member/profile/${member.id}`);
+                              setShowResults(false);
+                            }}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
+                          >
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0">
+                              {member.photo ? (
+                                <img src={getImageUrl(member.photo)} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] font-black bg-slate-200 text-slate-500">
+                                  {member.firstName[0]}{member.lastName[0]}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{member.firstName} {member.lastName}</span>
+                              <span className="text-[10px] text-slate-500 font-medium truncate">{member.church?.name || 'Membre'}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!isSearching && searchResults.members.length === 0 && searchResults.events.length === 0 && searchQuery.length > 1 && (
+                  <div className="p-4 text-center text-sm text-slate-400">
+                    Aucun résultat pour "{searchQuery}"
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
