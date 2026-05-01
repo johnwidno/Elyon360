@@ -53,7 +53,7 @@ const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const Profile_PWA = () => {
   const { t } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -160,7 +160,13 @@ const Profile_PWA = () => {
 
       toast.success('Profil mis à jour');
       setIsEditing(false);
-      fetchProfile();
+      
+      // Update global auth state so changes (like photo) reflect in Navbar
+      const updatedProfile = await api.get('/members/profile');
+      updateUser(updatedProfile.data);
+      
+      setProfile(updatedProfile.data);
+      setFormData(updatedProfile.data);
     } catch (error) {
       console.error(error);
       toast.error('Erreur lors de la mise à jour');

@@ -1,14 +1,35 @@
 import React from 'react';
 import { Home as HomeIcon, Activity, FileText, Megaphone, Heart, UserCircle, Moon } from 'lucide-react';
+import { useAuth } from '../../auth/AuthProvider';
+import api from '../../api/axios';
 
 const MemberBottomNav = ({ activeTab, onTabClick, isDark }) => {
+    const { user } = useAuth();
+
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = api.defaults.baseURL.replace('/api', '');
+        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    };
+
     const navItems = [
         { id: 'dashboard', icon: <HomeIcon size={28} />, path: '/member' },
         { id: 'activity', icon: <Activity size={28} />, path: '/member' },
         { id: 'requests', icon: <FileText size={28} />, path: '/member' },
         { id: 'news', icon: <Megaphone size={28} />, path: '/member' },
         { id: 'donations', icon: <Heart size={28} />, path: '/member' },
-        { id: 'profile', icon: <UserCircle size={28} />, path: '#' }
+        { 
+            id: 'profile', 
+            icon: user?.photo ? (
+                <div className={`w-8 h-8 rounded-full overflow-hidden border-2 ${activeTab === 'profile' ? 'border-[#4318FF]' : 'border-transparent'}`}>
+                    <img src={getImageUrl(user.photo)} alt="Profil" className="w-full h-full object-cover" />
+                </div>
+            ) : (
+                <UserCircle size={28} />
+            ), 
+            path: '#' 
+        }
     ];
 
     return (

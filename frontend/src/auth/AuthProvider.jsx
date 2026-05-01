@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import { jwtDecode } from 'jwt-decode'
+import api from '../api/axios'
 
 export const AuthContext = createContext(null)
 
@@ -8,24 +9,37 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        const storedUser = localStorage.getItem('user')
+        const initAuth = async () => {
+            const token = localStorage.getItem('token')
+            const storedUser = localStorage.getItem('user')
 
-        if (token) {
-            try {
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser))
-                } else {
-                    const decoded = jwtDecode(token)
-                    setUser(decoded)
+            if (token) {
+                try {
+                    // Start with stored user for speed
+                    if (storedUser) {
+                        setUser(JSON.parse(storedUser))
+                    } else {
+                        setUser(jwtDecode(token))
+                    }
+
+                    // Then fetch fresh data from API to get photo, church info, etc.
+                    try {
+                        const response = await api.get('/members/profile')
+                        const fullUser = response.data
+                        localStorage.setItem('user', JSON.stringify(fullUser))
+                        setUser(fullUser)
+                    } catch (apiErr) {
+                        console.error('Failed to refresh user profile:', apiErr)
+                    }
+                } catch (err) {
+                    console.error('Auth initialization error:', err)
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('user')
                 }
-            } catch (err) {
-                console.error('Invalid token')
-                localStorage.removeItem('token')
-                localStorage.removeItem('user')
             }
+            setLoading(false)
         }
-        setLoading(false)
+        initAuth()
     }, [])
 
     const login = (token) => {

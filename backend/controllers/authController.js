@@ -100,6 +100,7 @@ exports.login = async (req, res) => {
                 role: user.role,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                photo: user.photo,
                 permissions, // NEW
                 mustChangePassword: user.mustChangePassword,
                 churchName: user.church ? user.church.name : null,

@@ -10,9 +10,9 @@ const BottomNav = () => {
 
   const getImageUrl = (path) => {
     if (!path) return null;
-    if (path.startsWith('http')) return path;
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
     const baseUrl = api.defaults.baseURL.replace('/api', '');
-    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    return `${baseUrl}/${path.replace(/\\/g, '/').replace(/^\/+/, '')}`;
   };
 
   const navItems = [
@@ -39,14 +39,18 @@ const BottomNav = () => {
               ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-400'}
             `}
           >
-            {item.label === 'Profil' && user?.photo ? (
-              <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${isCurrentActive ? 'border-slate-900 dark:border-white' : 'border-transparent'}`}>
-                <img src={getImageUrl(user.photo)} alt="Profil" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <item.icon size={22} strokeWidth={isCurrentActive ? 2.5 : 2} />
+            {({ isActive }) => (
+              <>
+                {item.to === '/member/profile' && user?.photo ? (
+                  <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${isActive ? 'border-slate-900 dark:border-white' : 'border-transparent'}`}>
+                    <img src={getImageUrl(user.photo)} alt="Profil" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                )}
+                <span className="text-[11px] font-bold text-center whitespace-nowrap">{item.label}</span>
+              </>
             )}
-            <span className="text-[11px] font-bold text-center whitespace-nowrap">{item.label}</span>
           </NavLink>
         );
       })}
