@@ -478,21 +478,23 @@ const Profile_PWA = () => {
       </div>
 
       {/* ── Floating Action Buttons ── */}
-      {isOwnProfile ? (
+      <div className="fixed bottom-24 right-6 flex flex-col gap-3 z-50 md:hidden">
+        {!isOwnProfile && (
+          <button
+            onClick={() => navigate(`/member/chat?userId=${profile?.id}`)}
+            className="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all"
+          >
+            <Send size={24} className="ml-1" />
+          </button>
+        )}
+        
         <button
           onClick={() => setShowCreatePost(true)}
-          className="fixed bottom-24 right-6 w-14 h-14 bg-slate-950 text-white rounded-full flex items-center justify-center shadow-2xl z-50 active:scale-90 transition-all md:hidden"
+          className="w-14 h-14 bg-slate-950 text-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all"
         >
           <Plus size={24} />
         </button>
-      ) : (
-        <button
-          onClick={() => navigate(`/member/chat?userId=${profile?.id}`)}
-          className="fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-2xl z-50 active:scale-90 transition-all md:hidden"
-        >
-          <Send size={24} className="ml-1" />
-        </button>
-      )}
+      </div>
 
       {/* ── Edit Profile Overhaul Modal ── */}
       <AnimatePresence>
