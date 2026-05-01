@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../auth/AuthProvider';
 import api from '../../api/axios';
@@ -12,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Home = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeSegment, setActiveSegment] = useState('membre');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -179,7 +181,11 @@ const Home = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                 {events.map((event) => (
-                  <div key={event.id} className="flex flex-col gap-4 bg-white dark:bg-slate-800/50 md:p-3 md:rounded-3xl md:hover:shadow-2xl md:hover:shadow-slate-200/50 dark:md:hover:shadow-none transition-all duration-300">
+                  <div 
+                    key={event.id} 
+                    onClick={() => navigate(`/member/events/${event.id}`)}
+                    className="flex flex-col gap-4 bg-white dark:bg-slate-800/50 md:p-3 md:rounded-3xl md:hover:shadow-2xl md:hover:shadow-slate-200/50 dark:md:hover:shadow-none transition-all duration-300 cursor-pointer active:scale-[0.98]"
+                  >
                     <div className="relative h-40 md:h-56 rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-sm group">
                       <img
                         src={getImageUrl(event.imageUrl) || 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=800'}
