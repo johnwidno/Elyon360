@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthProvider';
 import api from '../../api/axios';
@@ -205,8 +206,12 @@ const Home = () => {
 
     try {
       setIsSubmitting(true);
-      const res = await api.post('statuses/upload_test', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const res = await axios.post(`${window.location.protocol}//${window.location.hostname}:5000/api/statuses/upload`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'X-Tenant-ID': localStorage.getItem('tenantId') || ''
+        }
       });
       setStatusForm({ ...statusForm, imageUrl: res.data.imageUrl });
     } catch (err) {
