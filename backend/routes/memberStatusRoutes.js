@@ -40,4 +40,13 @@ router.delete('/:id', protect, authorize('admin'), memberStatusController.delete
 // Update status (Admin only)
 router.put('/:id', protect, authorize('admin'), memberStatusController.updateStatus);
 
+router.get('/db-check', async (req, res) => {
+    try {
+        const count = await MemberStatus.count();
+        res.json({ tableExists: true, count });
+    } catch (error) {
+        res.status(500).json({ tableExists: false, error: error.message });
+    }
+});
+
 module.exports = router;

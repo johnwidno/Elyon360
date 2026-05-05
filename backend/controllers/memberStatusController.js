@@ -38,19 +38,7 @@ exports.getStatuses = async (req, res) => {
         const now = new Date();
 
         const statuses = await MemberStatus.findAll({
-            where: {
-                churchId,
-                expiresAt: {
-                    [Op.gt]: now
-                }
-            },
-            include: [
-                {
-                    model: User,
-                    as: 'admin',
-                    attributes: ['id', 'firstName', 'lastName', 'photo']
-                }
-            ],
+            where: { churchId },
             order: [['createdAt', 'DESC']]
         });
 
