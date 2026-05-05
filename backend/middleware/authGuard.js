@@ -36,8 +36,11 @@ exports.protect = async (req, res, next) => {
 
 exports.authorize = (...roles) => {
     return (req, res, next) => {
-        const userRoles = Array.isArray(req.user.role) ? req.user.role : [req.user.role];
-        const hasRole = roles.some(r => userRoles.includes(r));
+        const userRoles = Array.isArray(req.user.role) 
+            ? req.user.role.map(r => r.toLowerCase()) 
+            : [req.user.role.toLowerCase()];
+        
+        const hasRole = roles.some(r => userRoles.includes(r.toLowerCase()));
         if (!hasRole) {
             return res.status(403).json({
                 message: `Vos rôles (${userRoles.join(', ')}) ne sont pas autorisés à accéder à cette route.`

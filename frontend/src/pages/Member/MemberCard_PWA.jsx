@@ -95,12 +95,17 @@ const MemberCard_PWA = () => {
       let val = field.label || '';
       const safeReplace = (str, pattern, replacement) => str.replace(new RegExp(pattern, 'g'), replacement || '');
       
+      const toSentenceCase = (str) => {
+        if (!str) return '';
+        return str.toLowerCase().replace(/(^\s*\w|[\.\!\?]\s*\w)/g, c => c.toUpperCase());
+      };
+
       val = safeReplace(val, '{member.fullName}', `${user.firstName} ${user.lastName}`);
       val = safeReplace(val, '{member.firstName}', user.firstName);
       val = safeReplace(val, '{member.lastName}', user.lastName);
       val = safeReplace(val, '{member.id}', cardData?.cardNumber || user.id);
       val = safeReplace(val, '{member.code}', user.memberCode || '-');
-      val = safeReplace(val, '{church.name}', user?.church?.name || 'Église');
+      val = safeReplace(val, '{church.name}', user?.church?.name ? toSentenceCase(user.church.name) : 'Église');
       val = safeReplace(val, '{church.acronym}', user?.church?.acronym || 'SIGLE');
 
       return (

@@ -67,7 +67,10 @@ const memberCardRoutes = require('./routes/memberCardRoutes');
 const cardTemplateRoutes = require('./routes/cardTemplateRoutes');
 const searchBuilderRoutes = require('./routes/searchBuilderRoutes');
 const worshipRoutes = require('./routes/worshipRoutes');
+const memberStatusRoutes = require('./routes/memberStatusRoutes');
 
+app.use('/api/statuses', memberStatusRoutes);
+app.post('/api/statuses/upload_test', (req, res) => res.json({ message: 'Direct route works' }));
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // NEW ROUTE

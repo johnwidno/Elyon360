@@ -12,41 +12,52 @@ export const AuthProvider = ({ children }) => {
         const initAuth = async () => {
             const token = localStorage.getItem('token')
             const storedUser = localStorage.getItem('user')
-
             if (token) {
+                console.log("AuthInit: Token found, decoding...");
                 try {
-                    // Start with stored user for speed
-                    if (storedUser) {
-                        setUser(JSON.parse(storedUser))
-                    } else {
-                        setUser(jwtDecode(token))
-                    }
+                    const decoded = jwtDecode(token)
+                    console.log("AuthInit: Token decoded", decoded);
+                    setUser(decoded)
 
-                    // Then fetch fresh data from API to get photo, church info, etc.
                     try {
+                        console.log("AuthInit: Fetching full profile...");
                         const response = await api.get('/members/profile')
                         const fullUser = response.data
+                        console.log("AuthInit: Profile fetched", fullUser);
                         localStorage.setItem('user', JSON.stringify(fullUser))
                         setUser(fullUser)
-                    } catch (apiErr) {
-                        console.error('Failed to refresh user profile:', apiErr)
+                    } catch (err) {
+                        console.error('AuthInit: Profile fetch error:', err)
                     }
                 } catch (err) {
-                    console.error('Auth initialization error:', err)
+                    console.error('AuthInit: JWT Decode error:', err)
                     localStorage.removeItem('token')
-                    localStorage.removeItem('user')
                 }
+            } else {
+                console.log("AuthInit: No token found");
             }
             setLoading(false)
+            console.log("AuthInit: Finished, loading set to false");
         }
         initAuth()
     }, [])
 
-    const login = (token) => {
+    const login = async (token) => {
         localStorage.setItem('token', token)
         const decoded = jwtDecode(token)
-        localStorage.setItem('user', JSON.stringify(decoded))
         setUser(decoded)
+        
+        try {
+            // Force token in headers immediately for this request
+            const response = await api.get('/members/profile', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            const fullUser = response.data
+            localStorage.setItem('user', JSON.stringify(fullUser))
+            setUser(fullUser)
+        } catch (err) {
+            console.error('Failed to fetch full profile on login:', err)
+        }
     }
 
     const logout = () => {
@@ -64,9 +75,20 @@ export const AuthProvider = ({ children }) => {
         });
     }
 
+    console.log("AuthProvider: Rendering, loading =", loading, "user =", user?.email);
     return (
         <AuthContext.Provider value={{ user, login, logout, updateUser }}>
-            {!loading && children}
+            {loading ? (
+                <div className="fixed inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-950 z-[9999]">
+                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="mt-6 flex flex-col items-center gap-1">
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Elyon360</h2>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] animate-pulse">Initialisation sécurisée</p>
+                    </div>
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     )
 }

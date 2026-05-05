@@ -1,8 +1,14 @@
 import axios from 'axios';
 
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const isLocalhost = 
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' || 
+    window.location.hostname.startsWith('192.168.') || 
+    window.location.hostname.startsWith('10.') || 
+    window.location.hostname.endsWith('.local');
+
 const backendURL = isLocalhost
-    ? 'http://localhost:5000/api'
+    ? `http://${window.location.hostname}:5000/api`
     : 'https://elyonsyst360.onrender.com/api';
 
 const api = axios.create({
@@ -18,25 +24,29 @@ api.interceptors.request.use(
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log(`Axios Interceptor: Attaching token to ${config.method.toUpperCase()} ${config.url}`);
 
-            // TENTANT SIMULATION (Localhost)
-            // Si nou sou localhost, nou pa gen sous-domèn nan URL la.
-            // Nou dwe voye subdomain lan nan header pou backend la konnen ki legliz n ap jere.
             try {
-                // Decode token pou jwenn subdomain
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+                const parts = token.split('.');
+                if (parts.length === 3) {
+                    const base64Url = parts[1];
+                    // Correct padding for atob
+                    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    while (base64.length % 4) {
+                        base64 += '=';
+                    }
+                    
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
 
-                const decoded = JSON.parse(jsonPayload);
-                if (decoded.church_subdomain) {
-                    config.headers['X-Tenant-ID'] = decoded.church_subdomain;
+                    const decoded = JSON.parse(jsonPayload);
+                    const tenantId = decoded.churchSubdomain || decoded.church_subdomain || decoded.churchId;
+                    if (tenantId) {
+                        config.headers['X-Tenant-ID'] = tenantId;
+                    }
                 }
             } catch (e) {
-                // Ignore decoding error
+                console.error('Axios Interceptor Token Decode Error:', e);
             }
         }
         return config;

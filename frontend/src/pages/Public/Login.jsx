@@ -36,7 +36,7 @@ const Login = ({ subdomain }) => {
             console.log("Attempting login with:", email);
             const response = await api.post('/auth/login', { email, password });
             const { token } = response.data;
-            login(token);
+            await login(token);
             const decoded = jwtDecode(token);
             console.log("Login success, user:", decoded);
             const roles = Array.isArray(decoded.role) ? decoded.role : [decoded.role];

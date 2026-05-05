@@ -7,6 +7,10 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 let sequelize;
 
+console.log("--- DB CONNECTION INFO ---");
+console.log("DB_HOST:", process.env.DB_HOST || "Using DATABASE_URL");
+console.log("DB_NAME:", process.env.DB_NAME);
+
 if (process.env.DATABASE_URL) {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
@@ -26,7 +30,7 @@ if (process.env.DATABASE_URL) {
   });
 }
 else {
-  // Local configuration using individual DB_ variables
+  // Local or Cloud configuration using individual DB_ variables
   sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
@@ -36,6 +40,12 @@ else {
       port: process.env.DB_PORT || 5432,
       dialect: "postgres",
       logging: false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      },
       pool: {
         max: 5,
         min: 0,
@@ -83,6 +93,7 @@ db.ServiceBlock = require("./ServiceBlock.js")(sequelize, Sequelize);
 db.SermonMessage = require("./SermonMessage.js")(sequelize, Sequelize);
 db.MessageComment = require("./MessageComment.js")(sequelize, Sequelize);
 db.Song = require("./Song.js")(sequelize, Sequelize);
+db.MemberStatus = require("./MemberStatus.js")(sequelize, Sequelize);
 
 db.Expense = require("./Expense.js")(sequelize, Sequelize);
 db.BankAccount = require("./BankAccount.js")(sequelize, Sequelize);
@@ -493,5 +504,11 @@ db.MessageComment.belongsTo(db.MessageComment, { foreignKey: "parentId", as: "pa
 
 db.Church.hasMany(db.Song, { foreignKey: "churchId", as: "songs" });
 db.Song.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
+
+// Member Status Associations
+db.Church.hasMany(db.MemberStatus, { foreignKey: "churchId", as: "statuses" });
+db.MemberStatus.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
+db.User.hasMany(db.MemberStatus, { foreignKey: "adminId", as: "statuses" });
+db.MemberStatus.belongsTo(db.User, { foreignKey: "adminId", as: "admin" });
 
 module.exports = db;

@@ -75,17 +75,24 @@ const tenantMiddleware = async (req, res, next) => {
 
     // 3. Search for the Church
     try {
-        console.log(`[TenantMiddleware] Searching for Church with identifier: "${subdomain}"`);
+        let church;
+        
+        // Si c'est un nombre, on cherche par ID directement
+        if (!isNaN(subdomain) && !isNaN(parseInt(subdomain))) {
+            church = await db.Church.findByPk(parseInt(subdomain));
+        }
 
-        // Priority 1: Subdomain or Custom Domain (Strict)
-        let church = await db.Church.findOne({
-            where: {
-                [db.Sequelize.Op.or]: [
-                    { subdomain: subdomain },
-                    { customDomain: subdomain }
-                ]
-            }
-        });
+        // Si non trouvé par ID, on cherche par subdomain ou custom domain
+        if (!church) {
+            church = await db.Church.findOne({
+                where: {
+                    [db.Sequelize.Op.or]: [
+                        { subdomain: subdomain },
+                        { customDomain: subdomain }
+                    ]
+                }
+            });
+        }
 
         // Priority 2: Acronym fallback (ONLY if not found by subdomain and in strict format)
         if (!church) {

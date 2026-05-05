@@ -1,7 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React from 'react';
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from "./context/ThemeContext";
-import { LanguageProvider } from "./context/LanguageContext";
 import Home from "./pages/Public/Home";
 import Login from "./pages/Public/Login";
 import About from "./pages/Public/About";
@@ -77,6 +76,38 @@ import { Heart } from "lucide-react";
 
 
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-10 bg-red-50 text-red-900 min-h-screen">
+          <h1 className="text-2xl font-black mb-4">Oups ! Une erreur est survenue.</h1>
+          <pre className="bg-red-100 p-4 rounded-xl overflow-auto text-sm">
+            {this.state.error?.toString()}
+          </pre>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-6 px-6 py-3 bg-red-600 text-white rounded-xl font-bold"
+          >
+            Recharger la page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   // Subdomain detection logic
   const hostname = window.location.hostname;
@@ -109,353 +140,349 @@ function App() {
   }
 
   console.log("App Routing - Detected Subdomain:", subdomain);
-
+  console.log("App Rendering...");
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <Router>
-          <Toaster position="top-right" />
-          <FirstPasswordChangeModal />
-          <Routes>
-            {/* Routes Publiques */}
-            <Route path="/" element={subdomain ? <ChurchPublicHome subdomain={subdomain} /> : <Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/events" element={<PublicEvents />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login subdomain={subdomain} />} />
-            <Route path="/register-church" element={<ChurchRegister />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-            <Route path="/public/register/:token" element={<PublicActivityRegistration />} />
-            <Route path="/public/event/register/:token" element={<PublicEventRegistration />} />
-            <Route path="/public/worship/:id" element={<PublicProjection />} />
-            <Route path="/suspended" element={<Suspended />} />
+    <ErrorBoundary>
+      <Toaster position="top-right" />
+      <FirstPasswordChangeModal />
+        <Routes>
+          {/* Routes Publiques */}
+          <Route path="/" element={subdomain ? <ChurchPublicHome subdomain={subdomain} /> : <Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/events" element={<PublicEvents />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login subdomain={subdomain} />} />
+          <Route path="/register-church" element={<ChurchRegister />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+          <Route path="/public/register/:token" element={<PublicActivityRegistration />} />
+          <Route path="/public/event/register/:token" element={<PublicEventRegistration />} />
+          <Route path="/public/worship/:id" element={<PublicProjection />} />
+          <Route path="/suspended" element={<Suspended />} />
 
 
-            {/* Routes Protégées (Super Admin) */}
-            <Route path="/super-admin" element={
-              <ProtectedRoute role="super_admin">
-                <SuperAdminDashboard />
+          {/* Routes Protégées (Super Admin) */}
+          <Route path="/super-admin" element={
+            <ProtectedRoute role="super_admin">
+              <SuperAdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/super-admin/church/:id" element={
+            <ProtectedRoute role="super_admin">
+              <ChurchDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/super-admin/member/:id" element={
+            <ProtectedRoute role="super_admin">
+              <SuperAdminMemberProfile />
+            </ProtectedRoute>
+          } />
+
+          {/* Routes Protégées (Admin Église) */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminHome />
               </ProtectedRoute>
-            } />
-            <Route path="/super-admin/church/:id" element={
-              <ProtectedRoute role="super_admin">
-                <ChurchDetails />
+            }
+          />
+          <Route
+            path="/admin/debug"
+            element={
+              <ProtectedRoute>
+                <DebugDashboard />
               </ProtectedRoute>
-            } />
-            <Route path="/super-admin/member/:id" element={
-              <ProtectedRoute role="super_admin">
-                <SuperAdminMemberProfile />
+            }
+          />
+          <Route
+            path="/admin/contacts"
+            element={
+              <ProtectedRoute permission="members">
+                <ContactsOverview />
               </ProtectedRoute>
-            } />
-
-            {/* Routes Protégées (Admin Église) */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminHome />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/debug"
-              element={
-                <ProtectedRoute>
-                  <DebugDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/contacts"
-              element={
-                <ProtectedRoute permission="members">
-                  <ContactsOverview />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/members"
-              element={
-                <ProtectedRoute permission="members">
-                  <Members />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/birthdays"
-              element={
-                <ProtectedRoute permission="members">
-                  <Birthdays />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/members/:id"
-              element={
-                <ProtectedRoute permission="members">
-                  <MemberProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/visitors"
-              element={
-                <ProtectedRoute permission="members">
-                  <Visitors />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/organizations"
-              element={
-                <ProtectedRoute permission="members">
-                  <Organizations />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/organizations/:id"
-              element={
-                <ProtectedRoute permission="members">
-                  <OrganizationProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/events"
-              element={
-                <ProtectedRoute permission="events">
-                  <Events />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/groups"
-              element={
-                <ProtectedRoute permission="groups">
-                  <Groups />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/groups/:id"
-              element={
-                <ProtectedRoute permission="groups">
-                  <GroupDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/settings"
-              element={
-                <ProtectedRoute permission="settings">
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/services/cards"
-              element={
-                <ProtectedRoute permission="services">
-                  <CardTemplatesManager />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/services/search-builder"
-              element={
-                <ProtectedRoute permission="services">
-                  <AdvancedSearchBuilder />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/services/requests"
-              element={
-                <ProtectedRoute permission="services">
-                  <MemberRequestsManager />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/finances"
-              element={
-                <ProtectedRoute permission="finances">
-                  <Finances />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/expenses"
-              element={
-                <ProtectedRoute permission="finances">
-                  <Expenses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/budgets"
-              element={
-                <ProtectedRoute permission="finances">
-                  <Budgets />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/finances/accounts"
-              element={
-                <ProtectedRoute permission="finances">
-                  <Accounts />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/worship"
-              element={
-                <ProtectedRoute permission="worship">
-                  <WorshipDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/worship/builder/:id"
-              element={
-                <ProtectedRoute permission="worship">
-                  <WorshipBuilder />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/sunday-school"
-              element={
-                <ProtectedRoute permission="sunday-school">
-                  <SundaySchoolOverview />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/sunday-school/classes"
-              element={
-                <ProtectedRoute permission="sunday-school">
-                  <SundaySchoolClasses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/sunday-school/classes/:id"
-              element={
-                <ProtectedRoute permission="sunday-school">
-                  <SundaySchoolClassDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/sunday-school/monitors"
-              element={
-                <ProtectedRoute permission="sunday-school">
-                  <SundaySchoolMonitors />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/inventory"
-              element={
-                <ProtectedRoute permission="inventory">
-                  <Inventory />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/ceremonies"
-              element={
-                <ProtectedRoute permission="ceremonies">
-                  <Ceremonies />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Logistics Routes */}
-            <Route
-              path="/admin/logistics"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <LogisticsDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/logistics/spaces"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <Spaces />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/logistics/rooms/:id"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <RoomProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/logistics/resources"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <Resources />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/logistics/reservations"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <Reservations />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/logistics/maintenance"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <Maintenance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/logistics/assignments"
-              element={
-                <ProtectedRoute permission="logistics">
-                  <Assignments />
-                </ProtectedRoute>
-              }
-            />
-
-
-            {/* Member PWA Routes */}
-            <Route path="/member" element={
-              <ProtectedRoute role="member">
-                <PWALayout />
+            }
+          />
+          <Route
+            path="/admin/members"
+            element={
+              <ProtectedRoute permission="members">
+                <Members />
               </ProtectedRoute>
-            }>
-              <Route index element={<MemberHome />} />
-              <Route path="bible" element={<BiblePage />} />
-              <Route path="worship" element={<MemberWorshipPWA />} />
-              <Route path="donations" element={<MemberDonations_PWA />} />
-              <Route path="member-card" element={<MemberCard_PWA />} />
-              <Route path="sunday-school" element={<SundaySchool_PWA />} />
-              <Route path="events/:id" element={<EventDetails_PWA />} />
-              <Route path="chat" element={<ChatList />} />
-              <Route path="profile" element={<Profile_PWA />} />
-              <Route path="profile/:id" element={<Profile_PWA />} />
-            </Route>
-          </Routes>
-        </Router>
-      </LanguageProvider>
-    </ThemeProvider>
+            }
+          />
+          <Route
+            path="/admin/birthdays"
+            element={
+              <ProtectedRoute permission="members">
+                <Birthdays />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/members/:id"
+            element={
+              <ProtectedRoute permission="members">
+                <MemberProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/visitors"
+            element={
+              <ProtectedRoute permission="members">
+                <Visitors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/organizations"
+            element={
+              <ProtectedRoute permission="members">
+                <Organizations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/organizations/:id"
+            element={
+              <ProtectedRoute permission="members">
+                <OrganizationProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/events"
+            element={
+              <ProtectedRoute permission="events">
+                <Events />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/groups"
+            element={
+              <ProtectedRoute permission="groups">
+                <Groups />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/groups/:id"
+            element={
+              <ProtectedRoute permission="groups">
+                <GroupDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute permission="settings">
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/cards"
+            element={
+              <ProtectedRoute permission="services">
+                <CardTemplatesManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/search-builder"
+            element={
+              <ProtectedRoute permission="services">
+                <AdvancedSearchBuilder />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/requests"
+            element={
+              <ProtectedRoute permission="services">
+                <MemberRequestsManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/finances"
+            element={
+              <ProtectedRoute permission="finances">
+                <Finances />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/expenses"
+            element={
+              <ProtectedRoute permission="finances">
+                <Expenses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/budgets"
+            element={
+              <ProtectedRoute permission="finances">
+                <Budgets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/finances/accounts"
+            element={
+              <ProtectedRoute permission="finances">
+                <Accounts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/worship"
+            element={
+              <ProtectedRoute permission="worship">
+                <WorshipDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/worship/builder/:id"
+            element={
+              <ProtectedRoute permission="worship">
+                <WorshipBuilder />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sunday-school"
+            element={
+              <ProtectedRoute permission="sunday-school">
+                <SundaySchoolOverview />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sunday-school/classes"
+            element={
+              <ProtectedRoute permission="sunday-school">
+                <SundaySchoolClasses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sunday-school/classes/:id"
+            element={
+              <ProtectedRoute permission="sunday-school">
+                <SundaySchoolClassDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sunday-school/monitors"
+            element={
+              <ProtectedRoute permission="sunday-school">
+                <SundaySchoolMonitors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/inventory"
+            element={
+              <ProtectedRoute permission="inventory">
+                <Inventory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/ceremonies"
+            element={
+              <ProtectedRoute permission="ceremonies">
+                <Ceremonies />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Logistics Routes */}
+          <Route
+            path="/admin/logistics"
+            element={
+              <ProtectedRoute permission="logistics">
+                <LogisticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/spaces"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Spaces />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/rooms/:id"
+            element={
+              <ProtectedRoute permission="logistics">
+                <RoomProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/resources"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Resources />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/reservations"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Reservations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/maintenance"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Maintenance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logistics/assignments"
+            element={
+              <ProtectedRoute permission="logistics">
+                <Assignments />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* Member PWA Routes */}
+          <Route path="/member" element={
+            <ProtectedRoute role="member">
+              <PWALayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<MemberHome />} />
+            <Route path="bible" element={<BiblePage />} />
+            <Route path="worship" element={<MemberWorshipPWA />} />
+            <Route path="donations" element={<MemberDonations_PWA />} />
+            <Route path="member-card" element={<MemberCard_PWA />} />
+            <Route path="sunday-school" element={<SundaySchool_PWA />} />
+            <Route path="events/:id" element={<EventDetails_PWA />} />
+            <Route path="chat" element={<ChatList />} />
+            <Route path="profile" element={<Profile_PWA />} />
+            <Route path="profile/:id" element={<Profile_PWA />} />
+          </Route>
+        </Routes>
+    </ErrorBoundary>
   );
 }
 

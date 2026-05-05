@@ -178,3 +178,7 @@
    -> FOUND: Galenson
 [2026-04-30T15:27:44.944Z] getMemberById - ID: 11, ChurchID: 4
    -> FOUND: Galenson
+[2026-05-05T11:21:12.444Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-05T11:21:12.903Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
