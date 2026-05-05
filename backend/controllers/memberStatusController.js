@@ -23,8 +23,12 @@ exports.createStatus = async (req, res) => {
 
         res.status(201).json(status);
     } catch (error) {
-        console.error('Error creating status:', error);
-        res.status(500).json({ message: 'Error creating status', error: error.message });
+        console.error('CRITICAL ERROR creating status:', error);
+        res.status(500).json({ 
+            message: 'Error creating status', 
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
+        });
     }
 };
 
@@ -52,8 +56,12 @@ exports.getStatuses = async (req, res) => {
 
         res.json(statuses);
     } catch (error) {
-        console.error('Error fetching statuses:', error);
-        res.status(500).json({ message: 'Error fetching statuses', error: error.message });
+        console.error('CRITICAL ERROR fetching statuses:', error);
+        res.status(500).json({ 
+            message: 'Error fetching statuses', 
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 

@@ -32,8 +32,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/api/statuses', memberStatusRoutes);
-app.post('/api/test-upload', (req, res) => res.json({ message: 'Test success' }));
 app.use(tenantMiddleware); // APPLY GLOBALLY
 
 // Routes
@@ -72,6 +70,7 @@ const searchBuilderRoutes = require('./routes/searchBuilderRoutes');
 const worshipRoutes = require('./routes/worshipRoutes');
 
 
+app.use('/api/statuses', memberStatusRoutes);
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // NEW ROUTE
@@ -120,7 +119,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 const seedDB = require('./maintenance/scripts/seed_db');
 
-db.sequelize.sync({ alter: false })
+db.sequelize.sync({ alter: true })
     .then(async () => {
         console.log('Base de données synchronisée.');
         
