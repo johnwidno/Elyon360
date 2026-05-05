@@ -8,11 +8,13 @@ const isLocalhost =
     window.location.hostname.endsWith('.local');
 
 const backendURL = isLocalhost
-    ? `http://${window.location.hostname}:5000/api`
-    : 'https://elyonsyst360.onrender.com/api';
+    ? `http://${window.location.hostname}:5000/api/`
+    : 'https://elyonsyst360.onrender.com/api/';
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || backendURL,
+    baseURL: (process.env.REACT_APP_API_URL || backendURL).endsWith('/') 
+        ? (process.env.REACT_APP_API_URL || backendURL) 
+        : `${(process.env.REACT_APP_API_URL || backendURL)}/`,
     headers: {
         'Content-Type': 'application/json',
     },
