@@ -298,7 +298,20 @@ const Home = () => {
                     <motion.button
                       key="add-status-card"
                       whileTap={{ scale: 0.92 }}
-                      onClick={() => setShowAddStatus(true)}
+                      onClick={() => {
+                        setStatusForm({
+                          id: null,
+                          type: 'verset',
+                          content: '',
+                          imageUrl: '',
+                          styleConfig: {
+                            bgColor: colorPresets[0],
+                            textColor: '#ffffff',
+                            fontFamily: 'font-sans'
+                          }
+                        });
+                        setShowAddStatus(true);
+                      }}
                       className="flex-shrink-0 flex flex-col items-center justify-center w-[110px] h-[165px] md:w-[180px] md:h-[260px] lg:w-[200px] lg:h-[300px] rounded-2xl md:rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-100 transition-all gap-3 group"
                     >
                       <div className="w-10 h-10 rounded-full bg-blue-600 shadow-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">

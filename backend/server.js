@@ -10,6 +10,7 @@ const db = require('./models');
 
 const app = express();
 const tenantMiddleware = require('./middleware/tenant'); // IMPORT
+const memberStatusRoutes = require('./routes/memberStatusRoutes');
 
 // Middleware
 app.use(cors({
@@ -31,6 +32,8 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/api/statuses', memberStatusRoutes);
+app.post('/api/test-upload', (req, res) => res.json({ message: 'Test success' }));
 app.use(tenantMiddleware); // APPLY GLOBALLY
 
 // Routes
@@ -67,9 +70,8 @@ const memberCardRoutes = require('./routes/memberCardRoutes');
 const cardTemplateRoutes = require('./routes/cardTemplateRoutes');
 const searchBuilderRoutes = require('./routes/searchBuilderRoutes');
 const worshipRoutes = require('./routes/worshipRoutes');
-const memberStatusRoutes = require('./routes/memberStatusRoutes');
 
-app.use('/api/statuses', memberStatusRoutes);
+
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); // NEW ROUTE
