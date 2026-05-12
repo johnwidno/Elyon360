@@ -182,3 +182,7 @@
    -> FOUND: DORCY
 [2026-05-05T11:21:12.903Z] getMemberById - ID: 3, ChurchID: 2
    -> FOUND: DORCY
+[2026-05-12T20:47:38.734Z] getMemberById - ID: 2, ChurchID: 2
+   -> FOUND: Admin
+[2026-05-12T20:47:39.104Z] getMemberById - ID: 2, ChurchID: 2
+   -> FOUND: Admin
