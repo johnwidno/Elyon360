@@ -14,7 +14,7 @@ const generateMemberCode = (user, church) => {
     // Church acronym (e.g., EEG)
     const acronym = (church.acronym || '').toUpperCase();
 
-    return `${initials}${year}${id}${acronym}`;
+    return `${initials}-${year}-${id}-${acronym}`;
 };
 
 module.exports = {

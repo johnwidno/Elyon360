@@ -186,3 +186,49 @@
    -> FOUND: Admin
 [2026-05-12T20:47:39.104Z] getMemberById - ID: 2, ChurchID: 2
    -> FOUND: Admin
+[2026-05-13T11:53:18.084Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T11:53:18.588Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T11:58:21.984Z] getMemberById - ID: 2, ChurchID: 2
+   -> FOUND: Admin
+[2026-05-13T11:58:22.530Z] getMemberById - ID: 2, ChurchID: 2
+   -> FOUND: Admin
+[2026-05-13T13:28:42.410Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:28:43.019Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:46:51.575Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:46:52.692Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:48:10.322Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:48:10.826Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:53:39.989Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:53:41.189Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:53:51.013Z] getMemberById - ID: 3, ChurchID: 2
+   -> FOUND: DORCY
+[2026-05-13T13:54:58.259Z] getMemberById - ID: 2, ChurchID: 2
+   -> FOUND: Admin
+[2026-05-13T13:54:59.022Z] getMemberById - ID: 2, ChurchID: 2
+   -> FOUND: Admin
+[2026-05-13T14:57:53.132Z] getMemberById - ID: 8, ChurchID: 2
+   -> FOUND: john widno
+[2026-05-13T14:57:53.656Z] getMemberById - ID: 8, ChurchID: 2
+   -> FOUND: john widno
+[2026-05-13T15:43:43.904Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T15:43:44.348Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T15:43:54.384Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T15:43:54.990Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T15:47:02.300Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy
+[2026-05-13T15:47:03.336Z] getMemberById - ID: 7, ChurchID: 2
+   -> FOUND: Winson Dorcy

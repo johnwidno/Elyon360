@@ -181,7 +181,7 @@ const AdminDashboard = () => {
                 {/* 1. KPIs Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <KpiCard
-                        title={t('total_members_kpi', 'TOTAL MEMBRES')}
+                        title={t('total_members_kpi', 'Total membres')}
                         value={stats.members.toLocaleString()}
                         trend="+12.5%" trendLabel={t('current_month', 'Mois en cours')}
                         icon={<Users size={18} />}
@@ -190,16 +190,16 @@ const AdminDashboard = () => {
                         variants={itemVariants}
                     />
                     <KpiCard
-                        title={t('active_members_kpi', 'MEMBRES ACTIFS')}
+                        title={t('active_members_kpi', 'Membres actifs')}
                         value={stats.activeMembers.toLocaleString()}
-                        trend="+4.2%" trendLabel={t('members_in_good_standing', 'Membres en Règle')}
+                        trend="+4.2%" trendLabel={t('members_in_good_standing', 'Membres en règle')}
                         icon={<UserCheck size={18} />}
                         iconColor="text-emerald-400" iconBg="bg-emerald-900/30"
                         trendColor="text-emerald-400"
                         variants={itemVariants}
                     />
                     <KpiCard
-                        title={t('new_registrations_kpi', 'NOUVEAUX INSCRITS')}
+                        title={t('new_registrations_kpi', 'Nouveaux inscrits')}
                         value="47"
                         trend="+16%" trendLabel={t('this_month', 'Ce mois')}
                         icon={<UserPlus size={18} />}
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
                         variants={itemVariants}
                     />
                     <KpiCard
-                        title={t('pending_kpi', 'EN ATTENTE')}
+                        title={t('pending_kpi', 'En attente')}
                         value="12"
                         trend="-2" trendLabel={t('newly_arrived', 'Nouveaux arrivés')}
                         icon={<Clock size={18} />}
@@ -224,10 +224,10 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
-                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('member_growth', 'Croissance Membres')}</h3>
-                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('last_12_months', 'Évolution sur les 12 derniers mois')}</p>
+                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('member_growth', 'Croissance membres')}</h3>
+                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 tracking-widest">{t('last_12_months', 'Évolution sur les 12 derniers mois')}</p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black tracking-widest">
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('members', 'Membres')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('visitors', 'Visiteurs')}</span>
                             </div>
@@ -259,8 +259,8 @@ const AdminDashboard = () => {
                     {/* Right Events List */}
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('upcoming_events', 'Événements à Venir')}</h3>
-                            <button className="text-app-micro font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_all', 'Voir Plus')} →</button>
+                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('upcoming_events', 'Événements à venir')}</h3>
+                            <button className="text-app-micro font-black text-brand-orange hover:opacity-80 tracking-widest">{t('view_all', 'Voir plus')} →</button>
                         </div>
                         <div className="flex-1 space-y-6">
                             {eventsData.map((evt, idx) => (
@@ -291,10 +291,10 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
-                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('financial_income', 'Revenus Financiers')}</h3>
-                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('income_desc', 'Dîmes, offrandes et dons par mois')}</p>
+                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('financial_income', 'Revenus financiers')}</h3>
+                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 tracking-widest">{t('income_desc', 'Dîmes, offrandes et dons par mois')}</p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black tracking-widest">
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('tithes', 'Dîmes')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('offerings', 'Offrandes')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('donations', 'Dons')}</span>
@@ -318,8 +318,8 @@ const AdminDashboard = () => {
                     {/* Donut Chart */}
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="mb-4">
-                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('distribution_dept', 'Répartition par Département')}</h3>
-                            <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('active_members_ministry', 'Membres actifs par ministère')}</p>
+                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('distribution_dept', 'Répartition par département')}</h3>
+                            <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 tracking-widest">{t('active_members_ministry', 'Membres actifs par ministère')}</p>
                         </div>
                         <div className="flex-1 relative flex items-center justify-center py-4">
                             <ResponsiveContainer width="100%" height={220}>
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
                                 <div key={idx} className="flex justify-between items-center group cursor-default">
                                     <div className="flex items-center gap-2.5">
                                         <span className="w-2.5 h-2.5 rounded-full transition-transform group-hover:scale-125" style={{ backgroundColor: entry.color }}></span>
-                                        <span className="text-app-micro font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tighter">{entry.name}</span>
+                                        <span className="text-app-micro font-bold text-gray-500 dark:text-gray-400 tracking-tighter">{entry.name}</span>
                                     </div>
                                     <span className="text-app-meta font-black text-gray-900 dark:text-white">{entry.value}%</span>
                                 </div>
@@ -353,10 +353,10 @@ const AdminDashboard = () => {
                     <motion.div variants={itemVariants} className="lg:col-span-2 bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
-                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('weekly_presence', 'Présences Hebdomadaires')}</h3>
-                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('weekly_desc', 'Culte, école du dimanche et prière')}</p>
+                                <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('weekly_presence', 'Présences hebdomadaires')}</h3>
+                                <p className="text-app-micro font-bold text-gray-400 dark:text-gray-500 mt-1 tracking-widest">{t('weekly_desc', 'Culte, école du dimanche et prière')}</p>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-4 text-app-micro font-black tracking-widest">
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span> {t('service', 'Culte')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> {t('school', 'École')}</span>
                                 <span className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-brand-orange"></span> {t('prayer', 'Prière')}</span>
@@ -380,8 +380,8 @@ const AdminDashboard = () => {
                     {/* Activite Recente */}
                     <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-premium flex flex-col">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('recent_activity', 'Activité Récente')}</h3>
-                            <button className="text-app-micro font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('view_history', 'Voir Historique')}</button>
+                            <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('recent_activity', 'Activité récente')}</h3>
+                            <button className="text-app-micro font-black text-brand-orange hover:opacity-80 tracking-widest">{t('view_history', 'Voir historique')}</button>
                         </div>
                         <div className="flex-1 space-y-5">
                             {activiteData.map((act, idx) => (
@@ -416,8 +416,8 @@ const AdminDashboard = () => {
                 {/* 5. Derniers Membres Table */}
                 <motion.div variants={itemVariants} className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2.5rem] shadow-premium overflow-hidden">
                     <div className="p-8 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/30 dark:bg-black/10">
-                        <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight uppercase">{t('last_members_added', 'Derniers Membres Ajoutés')}</h3>
-                        <button onClick={() => navigate('/admin/members')} className="text-app-micro font-black text-brand-orange hover:opacity-80 uppercase tracking-widest">{t('more_members', 'Plus de Membres')} →</button>
+                        <h3 className="text-app-body font-black text-gray-900 dark:text-white tracking-tight">{t('last_members_added', 'Derniers membres ajoutés')}</h3>
+                        <button onClick={() => navigate('/admin/members')} className="text-app-micro font-black text-brand-orange hover:opacity-80 tracking-widest">{t('more_members', 'Plus de membres')} →</button>
                     </div>
                     <div className="overflow-x-auto noscrollbar">
                         <table className="w-full">
@@ -430,16 +430,16 @@ const AdminDashboard = () => {
                                                     {member.firstName?.[0]}{member.lastName?.[0]}
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-gray-900 dark:text-white text-app-body group-hover:text-brand-primary transition-colors uppercase tracking-tight">{member.firstName} {member.lastName}</div>
-                                                    <div className="text-app-micro text-gray-400 dark:text-gray-500 font-bold mt-1 tracking-tight">{member.email || member.phone || 'Sans Contact'}</div>
+                                                    <div className="font-black text-gray-900 dark:text-white text-app-body group-hover:text-brand-primary transition-colors tracking-tight">{member.firstName} {member.lastName}</div>
+                                                    <div className="text-app-micro text-gray-400 dark:text-gray-500 font-bold mt-1 tracking-tight">{member.email || member.phone || 'Sans contact'}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-app-micro font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hidden sm:table-cell">
+                                        <td className="px-8 py-5 text-app-micro font-black text-gray-400 dark:text-gray-500 tracking-widest hidden sm:table-cell">
                                             {member.subtype?.name || 'Général'}
                                         </td>
                                         <td className="px-8 py-5 text-right">
-                                            <span className={`px-4 py-1.5 rounded-full text-app-micro font-black tracking-widest uppercase ${member.status === 'Actif' || member.status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'}`}>
+                                            <span className={`px-4 py-1.5 rounded-full text-app-micro font-black tracking-widest ${member.status === 'Actif' || member.status === 'Active' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'}`}>
                                                 {t(member.status?.toLowerCase()) || member.status || 'Actif'}
                                             </span>
                                         </td>
@@ -447,7 +447,7 @@ const AdminDashboard = () => {
                                 ))}
                                 {recentMembers.length === 0 && (
                                     <tr>
-                                        <td colSpan="3" className="px-8 py-12 text-center text-xs text-gray-400 uppercase font-black tracking-widest opacity-50 italic">{t('no_recent_members', 'Aucun membre récent.')}</td>
+                                        <td colSpan="3" className="px-8 py-12 text-center text-xs text-gray-400 font-black tracking-widest opacity-50 italic">{t('no_recent_members', 'Aucun membre récent.')}</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -468,7 +468,7 @@ const KpiCard = ({ title, value, trend, trendLabel, icon, iconColor, iconBg, tre
         className="bg-white dark:bg-[#111C44] border border-gray-100 dark:border-white/5 rounded-[2rem] p-6 shadow-premium relative overflow-hidden flex flex-col justify-between h-[150px] group transition-all"
     >
         <div className="flex justify-between items-start z-10">
-            <h4 className="text-app-micro font-black tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase">{title}</h4>
+            <h4 className="text-app-micro font-black tracking-[0.2em] text-gray-400 dark:text-gray-500">{title}</h4>
             <div className={`w-10 h-10 rounded-2xl ${iconBg} ${iconColor} flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-6 mt-1`}>
                 {icon}
             </div>
@@ -476,8 +476,8 @@ const KpiCard = ({ title, value, trend, trendLabel, icon, iconColor, iconBg, tre
         <div className="z-10">
             <h2 className="text-[32px] font-black text-gray-900 dark:text-white leading-none mb-3 tracking-tighter">{value}</h2>
             <div className="flex items-center gap-2">
-                <span className={`text-app-micro font-black px-2 py-1 rounded-lg ${trendColor === 'text-emerald-400' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'} uppercase tracking-widest`}>{trend}</span>
-                <span className="text-app-micro font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">{trendLabel}</span>
+                <span className={`text-app-micro font-black px-2 py-1 rounded-lg ${trendColor === 'text-emerald-400' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400'} tracking-widest`}>{trend}</span>
+                <span className="text-app-micro font-bold text-gray-400 dark:text-gray-500 tracking-tight">{trendLabel}</span>
             </div>
         </div>
         {/* Subtle background decoration */}

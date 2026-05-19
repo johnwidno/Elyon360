@@ -83,8 +83,33 @@ exports.createMember = async (req, res) => {
             categoryChangeDate: (subtypeId || memberCategoryId) ? new Date() : null
         });
 
-        // Generate and save memberCode if not provided
-        const finalMemberCode = memberCode || generateMemberCode(newMember, req.church);
+        // Generate and save memberCode if not provided, ensuring uniqueness
+        let finalMemberCode = memberCode;
+        if (!finalMemberCode) {
+            finalMemberCode = generateMemberCode(newMember, req.church);
+            
+            // Uniqueness check for generated code
+            let isUnique = false;
+            let attempt = 0;
+            while (!isUnique && attempt < 5) {
+                const existingCode = await db.User.findOne({ where: { memberCode: finalMemberCode } });
+                if (!existingCode) {
+                    isUnique = true;
+                } else {
+                    attempt++;
+                    finalMemberCode = `${generateMemberCode(newMember, req.church)}-${Math.floor(100 + Math.random() * 900)}`;
+                }
+            }
+        } else {
+            // Check if manually provided code is unique
+            const existingCode = await db.User.findOne({ where: { memberCode: finalMemberCode } });
+            if (existingCode) {
+                // If it's a collision with a manually entered code, we should probably warn the user
+                // but for now, to avoid the crash, let's just make it unique or return error
+                return res.status(400).json({ message: "Ce code membre est déjà utilisé par un autre membre." });
+            }
+        }
+
         await newMember.update({ memberCode: finalMemberCode });
 
         // Record Initial History

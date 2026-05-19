@@ -46,6 +46,7 @@ import AdvancedSearchBuilder from './pages/Admin/Services/AdvancedSearchBuilder'
 import MemberRequestsManager from './pages/Admin/Services/MemberRequestsManager';
 import OrganizationProfile from "./pages/Admin/Contacts/OrganizationProfile";
 import Birthdays from "./pages/Admin/Members/Birthdays";
+import MemberFormPage from "./pages/Admin/Members/MemberFormPage";
 import PublicActivityRegistration from "./pages/Public/PublicActivityRegistration";
 import PublicEventRegistration from "./pages/Public/PublicEventRegistration";
 import LogisticsDashboard from "./pages/Admin/Logistics/LogisticsDashboard";
@@ -217,6 +218,22 @@ function App() {
             element={
               <ProtectedRoute permission="members">
                 <Birthdays />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/members/new"
+            element={
+              <ProtectedRoute permission="members">
+                <MemberFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/members/edit/:id"
+            element={
+              <ProtectedRoute permission="members">
+                <MemberFormPage />
               </ProtectedRoute>
             }
           />

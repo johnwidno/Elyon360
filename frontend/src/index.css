@@ -44,8 +44,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-content-smoothing: grayscale;
   background-color: #F8FAFC; 
-  color: #0F172A;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  color: #1a1a1a;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 @layer components {

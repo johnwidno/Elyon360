@@ -389,11 +389,18 @@ export const LanguageProvider = ({ children }) => {
 
     const toggleLang = () => setLang(l => l === 'FR' ? 'EN' : 'FR');
 
+    const setLanguage = (newLang) => {
+        const normalized = newLang.toUpperCase();
+        if (translations[normalized]) setLang(normalized);
+    };
+
     const value = useMemo(() => ({
         lang,
         language: lang.toLowerCase(), // Alias for backward compatibility
         toggleLang,
         toggleLanguage: toggleLang, // Alias for backward compatibility
+        setLanguage,
+        setLang: setLanguage,
         t: (key, defaultValue) => translations[lang]?.[key] || translations.FR[key] || defaultValue || formatFallback(key)
     }), [lang]);
 
