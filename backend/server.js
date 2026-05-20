@@ -73,6 +73,10 @@ const searchBuilderRoutes = require('./routes/searchBuilderRoutes');
 const worshipRoutes = require('./routes/worshipRoutes');
 const rbacRoutes = require('./routes/rbacRoutes');
 
+// ===== PHASE 3: DATA CONSENT ROUTES =====
+const consentRoutes = require('./routes/consentRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+
 
 app.use('/api/statuses', memberStatusRoutes);
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
@@ -110,7 +114,10 @@ app.use('/api/logistics', logisticsRoutes);
 app.use('/api/community-posts', communityPostRoutes);
 app.use('/api/worship', worshipRoutes);
 app.use('/api/rbac', rbacRoutes);
-// app.use('/api/members', memberAlertRoutes); // MOVED UP
+
+// ===== PHASE 3: DATA CONSENT & DASHBOARD ROUTES =====
+app.use('/api/churches', consentRoutes);  // Consent endpoints: /api/churches/:churchId/data-consent
+app.use('/api/networks', dashboardRoutes); // Dashboard endpoints: /api/networks/:networkId/dashboard
 
 // Test Route
 app.get('/', (req, res) => {
