@@ -115,6 +115,9 @@ db.UserRole = require("./UserRole.js")(sequelize, Sequelize);
 db.ChurchNetworkAffiliation = require("./ChurchNetworkAffiliation.js")(sequelize, Sequelize);
 db.ChurchDataConsent = require("./ChurchDataConsent.js")(sequelize, Sequelize);
 
+// ===== PHASE 2: SECURITY LAYER MODELS =====
+db.AuditLog = require("./AuditLog.js")(sequelize, Sequelize);
+
 // Associations
 db.Church.hasMany(db.User, { foreignKey: "churchId", as: "users" });
 db.User.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
@@ -561,5 +564,16 @@ db.ChurchDataConsent.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 
 
 // Church Billing associations (ChurchNetwork)
 db.Church.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+
+// ===== PHASE 2: AUDIT LOG ASSOCIATIONS =====
+// AuditLog can belong to User, Church, ChurchNetwork
+db.AuditLog.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+db.User.hasMany(db.AuditLog, { foreignKey: 'userId', as: 'auditLogs' });
+
+db.AuditLog.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+db.Church.hasMany(db.AuditLog, { foreignKey: 'churchId', as: 'auditLogs' });
+
+db.AuditLog.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+db.ChurchNetwork.hasMany(db.AuditLog, { foreignKey: 'networkId', as: 'auditLogs' });
 
 module.exports = db;

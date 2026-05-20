@@ -34,7 +34,10 @@ app.use((req, res, next) => {
 
 app.use(tenantMiddleware); // APPLY GLOBALLY
 
-// Routes
+// ===== PHASE 2: SECURITY MIDDLEWARE =====
+// Extract subdomain for subdomain-first login flow
+const { extractSubdomainMiddleware } = require('./middleware/subdomain');
+app.use(extractSubdomainMiddleware);
 const authRoutes = require('./routes/authRoutes');
 const saasRoutes = require('./routes/saasRoutes');
 const memberRoutes = require('./routes/memberRoutes');
