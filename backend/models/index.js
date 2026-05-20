@@ -13,14 +13,8 @@ console.log("DB_NAME:", process.env.DB_NAME);
 
 if (process.env.DATABASE_URL) {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: "postgres",
+    dialect: process.env.DB_DIALECT || "postgres",
     logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
     pool: {
       max: 5,
       min: 0,
@@ -30,7 +24,7 @@ if (process.env.DATABASE_URL) {
   });
 }
 else {
-  // Local or Cloud configuration using individual DB_ variables
+  // Local or Docker configuration using individual DB_ variables
   sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
@@ -38,14 +32,8 @@ else {
     {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
-      dialect: "postgres",
+      dialect: process.env.DB_DIALECT || "postgres",
       logging: false,
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
       pool: {
         max: 5,
         min: 0,
@@ -119,6 +107,13 @@ db.MaintenanceLog = require("./MaintenanceLog.js")(sequelize, Sequelize);
 db.InventoryAudit = require("./InventoryAudit.js")(sequelize, Sequelize);
 db.SearchQueryLog = require("./SearchQueryLog.js")(sequelize, Sequelize);
 db.SavedSearch = require("./SavedSearch.js")(sequelize, Sequelize);
+
+// ===== PHASE 1: RBAC MODELS =====
+db.ChurchNetwork = require("./ChurchNetwork.js")(sequelize, Sequelize);
+db.Permission = require("./Permission.js")(sequelize, Sequelize);
+db.UserRole = require("./UserRole.js")(sequelize, Sequelize);
+db.ChurchNetworkAffiliation = require("./ChurchNetworkAffiliation.js")(sequelize, Sequelize);
+db.ChurchDataConsent = require("./ChurchDataConsent.js")(sequelize, Sequelize);
 
 // Associations
 db.Church.hasMany(db.User, { foreignKey: "churchId", as: "users" });
@@ -297,6 +292,7 @@ db.Currency.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 db.Church.hasMany(db.DonationType, { foreignKey: "churchId", as: "donationTypes" });
 db.DonationType.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 
+// Church has many Roles (association for RBAC support)
 db.Church.hasMany(db.Role, { foreignKey: "churchId", as: "roles" });
 db.Role.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 
@@ -510,5 +506,60 @@ db.Church.hasMany(db.MemberStatus, { foreignKey: "churchId", as: "statuses" });
 db.MemberStatus.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
 db.User.hasMany(db.MemberStatus, { foreignKey: "adminId", as: "statuses" });
 db.MemberStatus.belongsTo(db.User, { foreignKey: "adminId", as: "admin" });
+
+// ===== PHASE 1: RBAC ASSOCIATIONS =====
+// ChurchNetwork associations
+db.ChurchNetwork.belongsToMany(db.Church, {
+  through: db.ChurchNetworkAffiliation,
+  foreignKey: 'networkId',
+  otherKey: 'churchId',
+  as: 'affiliatedChurches',
+});
+
+db.Church.belongsToMany(db.ChurchNetwork, {
+  through: db.ChurchNetworkAffiliation,
+  foreignKey: 'churchId',
+  otherKey: 'networkId',
+  as: 'networks',
+});
+
+// ChurchNetwork has many Roles
+db.ChurchNetwork.hasMany(db.Role, { foreignKey: 'networkId', as: 'networkRoles' });
+db.Role.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+
+// Church has many Roles (already defined at line 295, so skip duplicate)
+
+// Church has many UserRoles
+db.Church.hasMany(db.UserRole, { foreignKey: 'churchId', as: 'userRoles' });
+db.UserRole.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+// ChurchNetwork has many UserRoles
+db.ChurchNetwork.hasMany(db.UserRole, { foreignKey: 'networkId', as: 'userRoles' });
+db.UserRole.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+
+// User has many UserRoles
+db.User.hasMany(db.UserRole, { foreignKey: 'userId', as: 'roleAssignments' });
+db.UserRole.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+
+// Role has many UserRoles
+db.Role.hasMany(db.UserRole, { foreignKey: 'roleId', as: 'userAssignments' });
+db.UserRole.belongsTo(db.Role, { foreignKey: 'roleId', as: 'role' });
+
+// ChurchNetworkAffiliation associations
+db.Church.hasMany(db.ChurchNetworkAffiliation, { foreignKey: 'churchId', as: 'affiliations' });
+db.ChurchNetworkAffiliation.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+db.ChurchNetwork.hasMany(db.ChurchNetworkAffiliation, { foreignKey: 'networkId', as: 'churchAffiliations' });
+db.ChurchNetworkAffiliation.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+
+// ChurchDataConsent associations
+db.Church.hasMany(db.ChurchDataConsent, { foreignKey: 'churchId', as: 'dataConsents' });
+db.ChurchDataConsent.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+db.ChurchNetwork.hasMany(db.ChurchDataConsent, { foreignKey: 'networkId', as: 'consentSettings' });
+db.ChurchDataConsent.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+
+// Church Billing associations (ChurchNetwork)
+db.Church.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
 
 module.exports = db;

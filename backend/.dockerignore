@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.local
+*.txt
+*.sql
+.DS_Store
+coverage
+.vscode
+debug_dump.js
+profile_debug.txt
+maintenance/scripts/seed_db.js

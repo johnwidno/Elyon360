@@ -68,6 +68,7 @@ const memberCardRoutes = require('./routes/memberCardRoutes');
 const cardTemplateRoutes = require('./routes/cardTemplateRoutes');
 const searchBuilderRoutes = require('./routes/searchBuilderRoutes');
 const worshipRoutes = require('./routes/worshipRoutes');
+const rbacRoutes = require('./routes/rbacRoutes');
 
 
 app.use('/api/statuses', memberStatusRoutes);
@@ -105,6 +106,7 @@ app.use('/api/member-categories', memberCategoryRoutes);
 app.use('/api/logistics', logisticsRoutes);
 app.use('/api/community-posts', communityPostRoutes);
 app.use('/api/worship', worshipRoutes);
+app.use('/api/rbac', rbacRoutes);
 // app.use('/api/members', memberAlertRoutes); // MOVED UP
 
 // Test Route

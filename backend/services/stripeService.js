@@ -2,10 +2,20 @@ const Stripe = require('stripe');
 
 class StripeService {
     constructor() {
-        this.stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+        if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('your_key')) {
+            console.warn('[Stripe Service] WARNING: STRIPE_SECRET_KEY not configured. Stripe payment features will be unavailable.');
+            this.stripe = null;
+            this.enabled = false;
+        } else {
+            this.stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+            this.enabled = true;
+        }
     }
 
     async createCheckoutSession(orderId, amount, churchName, currency = 'usd') {
+        if (!this.enabled) {
+            throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY in your environment variables.');
+        }
         const session = await this.stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [{

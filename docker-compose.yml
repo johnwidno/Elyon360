@@ -1,0 +1,80 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: elyon360_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-elyon_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-elyon_pass}
+      POSTGRES_DB: ${DB_NAME:-elyon360}
+      POSTGRES_PORT: ${DB_PORT:-5432}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/data:/docker-entrypoint-initdb.d
+    networks:
+      - elyon_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-elyon_user}"]
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: elyon360_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-elyon360}
+      DB_USER: ${DB_USER:-elyon_user}
+      DB_PASSWORD: ${DB_PASSWORD:-elyon_pass}
+      DB_DIALECT: postgres
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - elyon_network
+    command: npm start
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: elyon360_frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:5000}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - elyon_network
+    command: npm start
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  elyon_network:
+    driver: bridge

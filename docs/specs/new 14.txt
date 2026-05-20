@@ -1,0 +1,14 @@
+===============================
+From creating the church
+	- THis form need to have validation and contraint
+	- email should respect format and valid one
+		- found a way to check
+		- should'nt be exist in the whole platform
+	- two church should =n't have same name, to prevent confusion
+	- two church should not have same SIGLE
+	- Address souhaite(subdomain, to be unique, can suggest subdomain available
+		- need to thing about if church already have it own domain(website) how to deal with that
+	- Phone number should be valid pattern
+	
+	
+docker exec elyon360_db psql -U elyon_user -d

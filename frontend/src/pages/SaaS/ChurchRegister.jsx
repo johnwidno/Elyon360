@@ -47,7 +47,7 @@ const ChurchRegister = () => {
         setError('');
 
         try {
-            const res = await api.post('/saas/register-church', { ...formData, paymentMethod });
+            const res = await api.post('/api/saas/register-church', { ...formData, paymentMethod });
 
             if (res.data.redirectUrl) {
                 // Store orderId for verification after MonCash/Stripe redirect
