@@ -122,6 +122,12 @@ db.AuditLog = require("./AuditLog.js")(sequelize, Sequelize);
 db.NetworkContent = require("./NetworkContent.js")(sequelize, Sequelize);
 db.ChurchContentAdoption = require("./ChurchContentAdoption.js")(sequelize, Sequelize);
 
+// ===== PHASE 5a: CHURCH PORTAL SYSTEM MODELS =====
+db.ChurchContent = require("./ChurchContent.js")(sequelize, Sequelize);
+db.ChurchContentTypeConfig = require("./ChurchContentTypeConfig.js")(sequelize, Sequelize);
+db.ChurchContentView = require("./ChurchContentView.js")(sequelize, Sequelize);
+db.ChurchPortalSettings = require("./ChurchPortalSettings.js")(sequelize, Sequelize);
+
 // Associations
 db.Church.hasMany(db.User, { foreignKey: "churchId", as: "users" });
 db.User.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
@@ -597,5 +603,35 @@ db.ChurchContentAdoption.belongsTo(db.NetworkContent, { foreignKey: 'networkCont
 
 db.User.hasMany(db.ChurchContentAdoption, { foreignKey: 'adoptedBy', as: 'adoptionDecisions' });
 db.ChurchContentAdoption.belongsTo(db.User, { foreignKey: 'adoptedBy', as: 'adoptedByUser' });
+
+// ===== PHASE 5a: CHURCH PORTAL ASSOCIATIONS =====
+
+// ChurchPortalSettings
+db.Church.hasOne(db.ChurchPortalSettings, { foreignKey: 'churchId', as: 'portalSettings' });
+db.ChurchPortalSettings.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+// ChurchContentTypeConfig (content type configuration per church)
+db.Church.hasMany(db.ChurchContentTypeConfig, { foreignKey: 'churchId', as: 'contentTypeConfigs' });
+db.ChurchContentTypeConfig.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+// ChurchContent (content published on church portal)
+db.Church.hasMany(db.ChurchContent, { foreignKey: 'churchId', as: 'portalContent' });
+db.ChurchContent.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+db.User.hasMany(db.ChurchContent, { foreignKey: 'createdBy', as: 'createdPortalContent' });
+db.ChurchContent.belongsTo(db.User, { foreignKey: 'createdBy', as: 'creator' });
+
+db.User.hasMany(db.ChurchContent, { foreignKey: 'updatedBy', as: 'updatedPortalContent' });
+db.ChurchContent.belongsTo(db.User, { foreignKey: 'updatedBy', as: 'updater' });
+
+// ChurchContentView (analytics: views of church portal content)
+db.Church.hasMany(db.ChurchContentView, { foreignKey: 'churchId', as: 'contentViews' });
+db.ChurchContentView.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+db.ChurchContent.hasMany(db.ChurchContentView, { foreignKey: 'churchContentId', as: 'views' });
+db.ChurchContentView.belongsTo(db.ChurchContent, { foreignKey: 'churchContentId', as: 'content' });
+
+db.User.hasMany(db.ChurchContentView, { foreignKey: 'userId', as: 'contentViews' });
+db.ChurchContentView.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
 
 module.exports = db;

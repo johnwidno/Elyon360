@@ -80,6 +80,9 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 // ===== PHASE 4: CONTENT DISTRIBUTION ROUTES =====
 const contentRoutes = require('./routes/contentRoutes');
 
+// ===== PHASE 5a: CHURCH PORTAL ROUTES =====
+const portalRoutes = require('./routes/portalRoutes');
+
 
 app.use('/api/statuses', memberStatusRoutes);
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
@@ -124,6 +127,10 @@ app.use('/api/networks', dashboardRoutes); // Dashboard endpoints: /api/networks
 
 // ===== PHASE 4: CONTENT DISTRIBUTION ROUTES =====
 app.use('/api', contentRoutes); // Content endpoints: /api/networks/:networkId/content/* and /api/churches/:churchId/content/*
+
+// ===== PHASE 5a: CHURCH PORTAL ROUTES =====
+app.use('/api', portalRoutes); // Portal admin endpoints: /api/churches/:churchId/portal/*
+app.use(portalRoutes); // Portal public endpoints: /:churchDomain/api/portal/*
 
 // Test Route
 app.get('/', (req, res) => {
