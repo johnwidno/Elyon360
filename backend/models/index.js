@@ -118,6 +118,10 @@ db.ChurchDataConsent = require("./ChurchDataConsent.js")(sequelize, Sequelize);
 // ===== PHASE 2: SECURITY LAYER MODELS =====
 db.AuditLog = require("./AuditLog.js")(sequelize, Sequelize);
 
+// ===== PHASE 4: CONTENT DISTRIBUTION MODELS =====
+db.NetworkContent = require("./NetworkContent.js")(sequelize, Sequelize);
+db.ChurchContentAdoption = require("./ChurchContentAdoption.js")(sequelize, Sequelize);
+
 // Associations
 db.Church.hasMany(db.User, { foreignKey: "churchId", as: "users" });
 db.User.belongsTo(db.Church, { foreignKey: "churchId", as: "church" });
@@ -575,5 +579,23 @@ db.Church.hasMany(db.AuditLog, { foreignKey: 'churchId', as: 'auditLogs' });
 
 db.AuditLog.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
 db.ChurchNetwork.hasMany(db.AuditLog, { foreignKey: 'networkId', as: 'auditLogs' });
+
+// ===== PHASE 4: CONTENT DISTRIBUTION ASSOCIATIONS =====
+// NetworkContent (published by network)
+db.ChurchNetwork.hasMany(db.NetworkContent, { foreignKey: 'networkId', as: 'publishedContent' });
+db.NetworkContent.belongsTo(db.ChurchNetwork, { foreignKey: 'networkId', as: 'network' });
+
+db.User.hasMany(db.NetworkContent, { foreignKey: 'createdBy', as: 'createdContent' });
+db.NetworkContent.belongsTo(db.User, { foreignKey: 'createdBy', as: 'creator' });
+
+// ChurchContentAdoption (church's adoption decisions)
+db.Church.hasMany(db.ChurchContentAdoption, { foreignKey: 'churchId', as: 'contentAdoptions' });
+db.ChurchContentAdoption.belongsTo(db.Church, { foreignKey: 'churchId', as: 'church' });
+
+db.NetworkContent.hasMany(db.ChurchContentAdoption, { foreignKey: 'networkContentId', as: 'adoptions' });
+db.ChurchContentAdoption.belongsTo(db.NetworkContent, { foreignKey: 'networkContentId', as: 'content' });
+
+db.User.hasMany(db.ChurchContentAdoption, { foreignKey: 'adoptedBy', as: 'adoptionDecisions' });
+db.ChurchContentAdoption.belongsTo(db.User, { foreignKey: 'adoptedBy', as: 'adoptedByUser' });
 
 module.exports = db;

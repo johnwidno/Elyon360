@@ -77,6 +77,9 @@ const rbacRoutes = require('./routes/rbacRoutes');
 const consentRoutes = require('./routes/consentRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
+// ===== PHASE 4: CONTENT DISTRIBUTION ROUTES =====
+const contentRoutes = require('./routes/contentRoutes');
+
 
 app.use('/api/statuses', memberStatusRoutes);
 app.use('/api/public', publicRoutes); // NEW PUBLIC ROUTE
@@ -118,6 +121,9 @@ app.use('/api/rbac', rbacRoutes);
 // ===== PHASE 3: DATA CONSENT & DASHBOARD ROUTES =====
 app.use('/api/churches', consentRoutes);  // Consent endpoints: /api/churches/:churchId/data-consent
 app.use('/api/networks', dashboardRoutes); // Dashboard endpoints: /api/networks/:networkId/dashboard
+
+// ===== PHASE 4: CONTENT DISTRIBUTION ROUTES =====
+app.use('/api', contentRoutes); // Content endpoints: /api/networks/:networkId/content/* and /api/churches/:churchId/content/*
 
 // Test Route
 app.get('/', (req, res) => {
